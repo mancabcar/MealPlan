@@ -1,0 +1,20 @@
+# Secretos — nunca subir la API key
+MealPlanner/Resources/Secrets.plist
+
+# Configuración local de Claude Code
+.claude/settings.local.json
+
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+build/
+*.ipa
+*.dSYM.zip
+
+# macOS
+.DS_Store
+
+# Swift Package Manager
+.build/
+.swiftpm/

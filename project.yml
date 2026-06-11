@@ -1,0 +1,30 @@
+# Configuración de XcodeGen — genera MealPlanner.xcodeproj en el Mac con:
+#   brew install xcodegen
+#   xcodegen generate
+name: MealPlanner
+options:
+  bundleIdPrefix: com.mealplanner
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+targets:
+  MealPlanner:
+    type: application
+    platform: iOS
+    sources:
+      - MealPlanner
+    info:
+      path: MealPlanner/Info.plist
+      properties:
+        CFBundleDisplayName: MealPlanner
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: false
+    settings:
+      base:
+        SWIFT_VERSION: "5.9"
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: false
