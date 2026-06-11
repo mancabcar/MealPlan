@@ -10,7 +10,9 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    # macos-15 trae Xcode 16: necesario porque XcodeGen genera el proyecto
+    # en formato 77, que Xcode 15 no puede abrir.
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
