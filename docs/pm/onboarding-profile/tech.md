@@ -185,7 +185,7 @@ The repo has **no test setup**. I recommend running dev-test first to add Vitest
 8. [x] Shared step components in `src/components/profile/` (R1–R7, R9, R11, R12).
 9. [x] Rewrite onboarding on top of the step components, with back navigation (R1–R12).
 10. [x] Perfil sections + source badge + source switch (R13, R15).
-11. [ ] Perfil recalculation banner (R16).
+11. [x] Perfil recalculation banner (R16).
 12. [ ] Dashboard protein band (R17).
 13. [ ] Make the remaining e2e tests green; update the README's sections table.
 14. [ ] Non-blocking allergen badge ("⚠ contiene …") in Recetas and in the planner and diary recipe pickers (decided spec feedback #2).

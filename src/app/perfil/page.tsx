@@ -315,7 +315,16 @@ function TargetsSection({ profile, update }: { profile: UserProfile; update: Upd
 
 // ---------------------------------------------------------------- Datos corporales
 
-function BodySection({ profile, update }: { profile: UserProfile; update: Update }) {
+function BodySection({
+  profile,
+  update,
+  onRecalcOffer,
+}: {
+  profile: UserProfile;
+  update: Update;
+  /** R16: con objetivos calculados, un cambio de peso o actividad ofrece recalcular. */
+  onRecalcOffer: (targets: Targets) => void;
+}) {
   // Con objetivos del nutricionista y sin datos completos, solo se guarda el peso
   const weightOnly = profile.targetSource === "prescribed" && !profile.body;
   const [bodyDraft, setBodyDraft] = useState<ReturnType<typeof bodyDraftFrom> | null>(null);
@@ -357,6 +366,10 @@ function BodySection({ profile, update }: { profile: UserProfile; update: Update
           onSave={() => {
             if (!body) return;
             update(profile.targetSource === "prescribed" ? { body, weightKg: body.weightKg } : { body });
+            const changed = body.weightKg !== profile.body?.weightKg || body.activity !== profile.body?.activity;
+            if (profile.targetSource === "calculated" && changed) {
+              onRecalcOffer(calculateTargets({ ...body, goal: profile.goal }));
+            }
             cancel();
           }}
         />
@@ -463,10 +476,24 @@ function PreferencesSection({ profile, update }: { profile: UserProfile; update:
 export default function ProfilePage() {
   const { profile, setProfile } = useApp();
   const { user, logout } = useAuth();
+  // R16: los objetivos nunca cambian solos; se ofrecen y el usuario decide
+  const [recalc, setRecalc] = useState<Targets | null>(null);
 
   if (!profile) return null;
 
   const update: Update = (patch) => setProfile({ ...profile, ...patch });
+
+  const applyRecalc = () => {
+    if (!recalc) return;
+    update({
+      calorieGoal: recalc.kcal,
+      proteinGoal: recalc.protein,
+      proteinRange: undefined,
+      carbsGoal: recalc.carbs,
+      fatGoal: recalc.fat,
+    });
+    setRecalc(null);
+  };
 
   const reset = () => {
     if (confirm("¿Borrar tu perfil y volver al inicio? Tus datos de diario y despensa se conservan.")) {
@@ -481,9 +508,29 @@ export default function ProfilePage() {
         <span className="text-sm text-zinc-500">@{user?.username}</span>
       </div>
 
+      {recalc && (
+        <div
+          role="status"
+          className="rounded-xl border border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950 p-4 flex flex-col gap-3 text-sm"
+        >
+          <p>
+            <span className="font-semibold">¿Recalculamos?</span> Con tus nuevos datos te sugerimos {recalc.kcal} kcal y{" "}
+            {recalc.protein} g de proteína (ahora: {profile.calorieGoal} kcal y {profile.proteinGoal} g).
+          </p>
+          <div className="flex gap-2">
+            <button type="button" onClick={applyRecalc} className={saveBtn}>
+              Recalcular
+            </button>
+            <button type="button" onClick={() => setRecalc(null)} className={cancelBtn}>
+              Mantener los actuales
+            </button>
+          </div>
+        </div>
+      )}
+
       <GoalSection profile={profile} update={update} />
       <TargetsSection profile={profile} update={update} />
-      <BodySection profile={profile} update={update} />
+      <BodySection profile={profile} update={update} onRecalcOffer={setRecalc} />
       <MealsSection profile={profile} update={update} />
       <PreferencesSection profile={profile} update={update} />
 
