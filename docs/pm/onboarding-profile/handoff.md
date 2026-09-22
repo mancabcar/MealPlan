@@ -24,7 +24,7 @@ To review: `git diff main..feature/onboarding-profile` (44 files, +6.8k / −0.9
 | `npm run test:e2e` (Playwright, Chromium, Pixel 7 viewport) | **31 / 31** pass |
 | `npm run build` | OK |
 | Manual walkthrough (browser pane, mobile 375×812) | Opening the app on a real existing v1 profile migrated it correctly: goals unchanged, `profile_v1_backup` written, 6 meals, straight to the diary. Perfil and Plan render, and there are no console errors. |
-| **CI on GitHub** | **never run.** The branch hasn't been pushed. |
+| **CI on GitHub** | first run triggered by PR #2; check its result before merging |
 
 **Not verified:**
 - **Real Claude generation:** it needs an API key and costs money, and the route is only tested with a mocked SDK. The spec's manual metric ("0 allergens in 20 generations") is still to be done.
@@ -95,4 +95,4 @@ E2E reuses a dev server that's already running on :3000, or starts one. Next 16 
 ## Before merge
 - ~~Push and open the PR~~: done, [#2](https://github.com/mancabcar/MealPlan/pull/2).
 - **Let CI run** on GitHub for the first time.
-- **Set the brief's status** to `in review` with the PR link.
+- ~~Set the brief's status~~: done (`in review`).
