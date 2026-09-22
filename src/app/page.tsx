@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/lib/store";
+import { allergenWarning } from "@/lib/allergens";
 import {
   MEAL_TYPES,
   MEAL_TYPE_ICONS,
@@ -207,7 +208,7 @@ export default function DiaryPage() {
               <option value="">Elige una receta...</option>
               {recipes.map((r) => (
                 <option key={r.id} value={r.id}>
-                  {r.name} ({r.calories} kcal)
+                  {[`${r.name} (${r.calories} kcal)`, allergenWarning(r, profile.allergies)].filter(Boolean).join(" · ")}
                 </option>
               ))}
             </select>

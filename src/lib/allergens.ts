@@ -92,6 +92,15 @@ export function ingredientMatches(ingredient: string, allergen: PresetAllergen |
   return terms.some((term) => findTerm(words, term).length > 0);
 }
 
+/** Aviso no bloqueante para recetas del recetario y los selectores: "⚠ contiene Frutos secos". */
+export function allergenWarning(
+  recipe: Pick<Recipe, "name" | "ingredients">,
+  allergies: Allergies | undefined,
+): string | null {
+  const found = allergies ? recipeViolations(recipe, allergies) : [];
+  return found.length ? `⚠ contiene ${found.join(", ")}` : null;
+}
+
 /** Alérgenos (por su etiqueta) presentes en el nombre o los ingredientes. Vacío = segura. */
 export function recipeViolations(recipe: Pick<Recipe, "name" | "ingredients">, allergies: Allergies): string[] {
   const texts = [recipe.name, ...recipe.ingredients];
