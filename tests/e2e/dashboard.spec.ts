@@ -1,10 +1,7 @@
 // Spec: R17 + decisión de PM (2026-09-22): con rango, cualquier valor dentro de la banda cuenta como cumplido.
-// NOTE (rediseño visual, docs/pm/design-refresh/tech.md tarea 6): hoy el "cumplido" se marca con el
-// carácter "✓ " incrustado en el mismo nodo de texto que el número. La tarea 6 sustituye ese indicador
-// por un icono Lucide (Check) para preservar "la lógica del ✓" (tech.md) con el nuevo lenguaje visual.
-// Cuando esa tarea aterrice, la aserción marcada FRÁGIL más abajo dejará de encontrar el texto y debe
-// actualizarse para comprobar el icono (o un texto accesible equivalente) — no borrar la comprobación,
-// solo cambiar su forma. La aserción del número por sí solo no depende del icono y no debería cambiar.
+// Rediseño visual (docs/pm/design-refresh/tech.md tarea 6): el "cumplido" se marca con un icono Lucide
+// (Check, role="img") con nombre accesible "Cumplido", ya no con el carácter "✓ " incrustado en el
+// texto del número. La aserción del número en sí no depende de este indicador y no cambia con él.
 import { expect, test } from "@playwright/test";
 import { manuel } from "../fixtures/profiles";
 import { signIn, TODAY } from "./helpers";

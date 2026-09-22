@@ -5,17 +5,9 @@
 // Se limita a la regla "color-contrast" (no el ruleset WCAG2AA completo) para que cada test falle por una
 // única razón — R6 — y no se acople a temas de accesibilidad no relacionados con este rediseño visual.
 //
-// IMPORTANTE — estado actual (comprobado al escribir esta suite, antes de implementar el rediseño):
-// las 6 pantallas YA fallan hoy con la paleta zinc/emerald actual, con violaciones reales y no
-// relacionadas con este rediseño: `text-zinc-500` sobre blanco (~2.62:1, el caso más frecuente con
-// diferencia — labels, timestamps, hints en las 5 pantallas), `text-emerald-600` sobre blanco (~3.65:1,
-// enlaces "Editar"), y `text-rose-500` sobre blanco (~3.75:1, "Borrar perfil"). Los tres necesitan ≥4.5:1.
-// Esto es deuda preexistente fuera del alcance de esta spec (que solo cubre los tokens NUEVOS), así que
-// cada test usa `test.fail()` para no bloquear el CI de PRs no relacionadas con este defecto ya existente.
-// Cuando la tarea 12 de tech.md (contrast pass) aterrice con los tokens nuevos, quita el `test.fail()`
-// de cada test: si de verdad quedan en ≥4.5:1, el test pasará limpio y esta suite se convierte en el
-// guardián real de R6 que describe tech.md. Si algún `test.fail()` deja de fallar antes de esa tarea,
-// significa que ese contraste concreto ya se arregló y toca quitar la anotación de ese test.
+// Tarea 12 de tech.md (contrast pass) ya aterrizó con los tokens nuevos: las 6 pantallas pasan
+// `color-contrast` de verdad (sin `test.fail()`), así que esta suite es el guardián real de R6
+// que describe tech.md, no una comprobación aspiracional.
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { lucia } from "../fixtures/profiles";
