@@ -1,26 +1,67 @@
 @import "tailwindcss";
 
+/*
+ * Rediseño visual (docs/pm/design-refresh): sistema de tokens oscuro único (R1, R10 — sin tema claro,
+ * decisión de producto). Valores de color elegidos y verificados por contraste WCAG (>=4.5:1 texto
+ * normal, >=3:1 texto grande) contra --color-bg y --color-surface antes de fijarlos aquí — ver
+ * docs/pm/design-refresh/tech.md § Testing strategy / Risks (R6). No hay bloque
+ * `@media (prefers-color-scheme: dark)`: `:root` ya *es* la paleta oscura.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-bg: #0a0a0a;
+  --color-surface: #17171a;
+  --color-surface-2: #1f1f23;
+  --color-border: #2a2a2e;
+
+  --color-text: #f4f4f5;
+  --color-text-muted: #a1a1aa;
+
+  /* Acento único (R1/R2): lima vibrante. Texto sobre botón lima usa --color-bg (oscuro), no blanco. */
+  --color-accent: #c8ff5c;
+  --color-on-accent: #0a0a0a;
+
+  /* Paleta semántica de macros y estado (R5): mismo significado que hoy (proteína/carbohidratos/grasas,
+     caducado/caduca pronto), recolores para el fondo oscuro. */
+  --color-protein: #5aa9ff;
+  --color-carbs: #ffa64d;
+  --color-fat: #ff8a80;
+  --color-expired: #ff6b6b;
+  --color-expiring: #ffc94d;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-accent: var(--color-accent);
+  --color-on-accent: var(--color-on-accent);
+  --color-protein: var(--color-protein);
+  --color-carbs: var(--color-carbs);
+  --color-fat: var(--color-fat);
+  --color-expired: var(--color-expired);
+  --color-expiring: var(--color-expiring);
+
+  --font-display: var(--font-space-grotesk);
+  --font-sans: var(--font-manrope);
+
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/*
+ * OJO: <body> mantiene a propósito su font-family/background/color de hoy (Arial +
+ * las clases bg-zinc-50 dark:bg-zinc-950 de layout.tsx), en vez de aplicar aquí las
+ * nuevas --font-sans/--color-bg/--color-text globalmente. Login y Onboarding (fuera de
+ * alcance de este rediseño — ver tech.md § Spec feedback) no aplican ninguna clase
+ * `font-sans`/de color propia, así que heredan lo que sea que ponga <body>: si este bloque
+ * cambiara esas tres propiedades, Login/Onboarding cambiarían de tipografía y color sin
+ * haber sido tocados. En vez de eso, AppShell.tsx aplica `font-sans`/los tokens oscuros
+ * explícitamente solo en el contenedor de las 5 pantallas rediseñadas + su nav.
+ */
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }

@@ -9,17 +9,24 @@ test("R8: el plan semanal muestra exactamente las 5 comidas de Manuel, en orden"
   await signIn(page, { profile: manuel });
   await page.goto("/plan");
 
-  const monday = page.locator("section").filter({ has: page.getByRole("heading", { name: "Lunes" }) });
-  await expect(monday).toBeVisible();
-  const rows = await monday.getByRole("button").allTextContents();
+  // Rediseño visual (docs/pm/design-refresh, R8): el selector de días horizontal sustituyó la lista
+  // vertical de 7 secciones — solo se muestran las franjas del día seleccionado. Se selecciona el
+  // lunes de la semana actual explícitamente (por defecto se muestra el día de hoy).
+  await page.getByRole("tab", { name: /^Lunes/ }).click();
+  await expect(page.getByRole("heading", { name: "Lunes", level: 2 })).toBeVisible();
+  const rows = await page
+    .getByRole("button")
+    .filter({ hasText: /Desayuno|Media mañana|Comida|Merienda|Pre-entreno|Cena/ })
+    .allTextContents();
   expect(rows.map((r) => MANUEL_MEALS.find((m) => r.includes(m)) ?? r)).toEqual(MANUEL_MEALS);
-  await expect(monday.getByText("Merienda")).toHaveCount(0);
+  await expect(page.getByText("Merienda")).toHaveCount(0);
 });
 
 test("R8: al añadir al diario solo se ofrecen las 5 comidas de Manuel, en orden", async ({ page }) => {
   await signIn(page, { profile: manuel });
   await page.goto("/");
-  await page.getByRole("button", { name: "+ Añadir comida" }).click();
+  // Rediseño visual (docs/pm/design-refresh): el "+" pasa a ser un icono Lucide, el texto ya no lo incluye.
+  await page.getByRole("button", { name: "Añadir comida" }).click();
 
   const select = page.getByLabel("Comida del día");
   await expect(select).toBeVisible();
