@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useApp } from "@/lib/store";
 import { allergenWarning } from "@/lib/allergens";
-import { MEAL_TYPES, MEAL_TYPE_ICONS, MealType, todayStr } from "@/lib/types";
+import { MEAL_TYPES, MEAL_TYPE_ICON_COMPONENTS, MealType, todayStr } from "@/lib/types";
+import { Card } from "@/components/ui/Card";
+import { DaySelector } from "@/components/ui/DaySelector";
+
+const inputCls =
+  "w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)]";
 
 function weekDates(start: string): string[] {
   const d = new Date(start + "T00:00:00");
@@ -21,10 +26,14 @@ const DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábad
 export default function PlanPage() {
   const { profile, weekPlan, setWeekPlan, recipes } = useApp();
   const [editing, setEditing] = useState<{ date: string; mealType: MealType } | null>(null);
+  // Selector de días (R8): qué día de la semana se muestra debajo
+  const [selectedDate, setSelectedDate] = useState(todayStr());
   // Solo las comidas que el usuario hace, en el orden canónico (R8)
   const meals = profile?.meals ?? MEAL_TYPES;
 
   const dates = weekDates(todayStr());
+  const dayIndex = dates.indexOf(selectedDate);
+  const EditingIcon = editing ? MEAL_TYPE_ICON_COMPONENTS[editing.mealType] : null;
 
   const assign = (recipeId: string) => {
     if (!editing) return;
@@ -36,19 +45,25 @@ export default function PlanPage() {
     setEditing(null);
   };
 
+  // Las asignaciones a comidas desmarcadas se conservan, pero no se muestran ni suman
+  const slots = (weekPlan[selectedDate] ?? []).filter((s) => meals.includes(s.mealType));
+  const dayKcal = slots.reduce((s, slot) => s + (recipes.find((r) => r.id === slot.recipeId)?.calories ?? 0), 0);
+
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Plan semanal</h1>
+      <h1 className="font-display text-2xl font-bold">Plan semanal</h1>
+
+      <DaySelector dates={dates} selected={selectedDate} onSelect={setSelectedDate} todayDate={todayStr()} />
 
       {editing && (
-        <section className="bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm flex flex-col gap-2">
-          <h3 className="font-semibold text-sm">
-            {MEAL_TYPE_ICONS[editing.mealType]} {editing.mealType} —{" "}
-            {DAY_NAMES[dates.indexOf(editing.date)]}
+        <Card className="flex flex-col gap-2">
+          <h3 className="font-semibold text-sm flex items-center gap-1.5">
+            {EditingIcon && <EditingIcon className="w-4 h-4" aria-hidden />}
+            {editing.mealType} — {DAY_NAMES[dates.indexOf(editing.date)]}
           </h3>
           <select
             autoFocus
-            className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm"
+            className={inputCls}
             defaultValue={weekPlan[editing.date]?.find((s) => s.mealType === editing.mealType)?.recipeId ?? ""}
             onChange={(e) => assign(e.target.value)}
           >
@@ -59,48 +74,39 @@ export default function PlanPage() {
               </option>
             ))}
           </select>
-          <button onClick={() => setEditing(null)} className="text-sm text-zinc-500 self-start">
+          <button onClick={() => setEditing(null)} className="text-sm text-[var(--color-text-muted)] self-start">
             Cancelar
           </button>
-        </section>
+        </Card>
       )}
 
-      {dates.map((date, i) => {
-        // Las asignaciones a comidas desmarcadas se conservan, pero no se muestran ni suman
-        const slots = (weekPlan[date] ?? []).filter((s) => meals.includes(s.mealType));
-        const dayKcal = slots.reduce(
-          (s, slot) => s + (recipes.find((r) => r.id === slot.recipeId)?.calories ?? 0),
-          0,
-        );
-        return (
-          <section key={date} className={`bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm ${date === todayStr() ? "ring-2 ring-emerald-500" : ""}`}>
-            <div className="flex justify-between items-baseline mb-2">
-              <h2 className="text-sm font-semibold">{DAY_NAMES[i]}</h2>
-              <span className="text-xs text-zinc-500">{dayKcal > 0 ? `${dayKcal} kcal` : ""}</span>
-            </div>
-            <div className="flex flex-col gap-1">
-              {meals.map((mt) => {
-                const slot = slots.find((s) => s.mealType === mt);
-                const recipe = slot ? recipes.find((r) => r.id === slot.recipeId) : undefined;
-                return (
-                  <button
-                    key={mt}
-                    onClick={() => setEditing({ date, mealType: mt })}
-                    className="flex justify-between items-center text-sm py-1 text-left"
-                  >
-                    <span className="text-zinc-500">
-                      {MEAL_TYPE_ICONS[mt]} {mt}
-                    </span>
-                    <span className={recipe ? "" : "text-zinc-400 italic"}>
-                      {recipe ? recipe.name : "Añadir"}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
+      <Card>
+        <div className="flex justify-between items-baseline mb-2">
+          <h2 className="font-display text-lg font-semibold">{DAY_NAMES[dayIndex]}</h2>
+          <span className="text-xs text-[var(--color-text-muted)]">{dayKcal > 0 ? `${dayKcal} kcal` : ""}</span>
+        </div>
+        <div className="flex flex-col gap-1">
+          {meals.map((mt) => {
+            const slot = slots.find((s) => s.mealType === mt);
+            const recipe = slot ? recipes.find((r) => r.id === slot.recipeId) : undefined;
+            const Icon = MEAL_TYPE_ICON_COMPONENTS[mt];
+            return (
+              <button
+                key={mt}
+                onClick={() => setEditing({ date: selectedDate, mealType: mt })}
+                className="flex justify-between items-center text-sm py-1.5 text-left"
+              >
+                <span className="text-[var(--color-text-muted)] flex items-center gap-1.5">
+                  <Icon className="w-4 h-4" aria-hidden /> {mt}
+                </span>
+                <span className={recipe ? "text-[var(--color-text)]" : "text-[var(--color-text-muted)] italic"}>
+                  {recipe ? recipe.name : "Añadir"}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </Card>
     </div>
   );
 }
