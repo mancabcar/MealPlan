@@ -32,7 +32,11 @@ export default function PlanPage() {
   const meals = profile?.meals ?? MEAL_TYPES;
 
   const dates = weekDates(todayStr());
-  const dayIndex = dates.indexOf(selectedDate);
+  // Si el tab se queda montado al cruzar la medianoche, `dates` se recalcula (nueva semana) pero
+  // `selectedDate` no: cae de vuelta a hoy en lugar de quedar en un índice inexistente (-1).
+  const rawDayIndex = dates.indexOf(selectedDate);
+  const dayIndex = rawDayIndex === -1 ? dates.indexOf(todayStr()) : rawDayIndex;
+  const effectiveSelectedDate = dates[dayIndex] ?? dates[0];
   const EditingIcon = editing ? MEAL_TYPE_ICON_COMPONENTS[editing.mealType] : null;
 
   const assign = (recipeId: string) => {
@@ -46,14 +50,14 @@ export default function PlanPage() {
   };
 
   // Las asignaciones a comidas desmarcadas se conservan, pero no se muestran ni suman
-  const slots = (weekPlan[selectedDate] ?? []).filter((s) => meals.includes(s.mealType));
+  const slots = (weekPlan[effectiveSelectedDate] ?? []).filter((s) => meals.includes(s.mealType));
   const dayKcal = slots.reduce((s, slot) => s + (recipes.find((r) => r.id === slot.recipeId)?.calories ?? 0), 0);
 
   return (
     <div className="flex flex-col gap-4">
       <h1 className="font-display text-2xl font-bold">Plan semanal</h1>
 
-      <DaySelector dates={dates} selected={selectedDate} onSelect={setSelectedDate} todayDate={todayStr()} />
+      <DaySelector dates={dates} selected={effectiveSelectedDate} onSelect={setSelectedDate} todayDate={todayStr()} />
 
       {editing && (
         <Card className="flex flex-col gap-2">
@@ -93,7 +97,7 @@ export default function PlanPage() {
             return (
               <button
                 key={mt}
-                onClick={() => setEditing({ date: selectedDate, mealType: mt })}
+                onClick={() => setEditing({ date: effectiveSelectedDate, mealType: mt })}
                 className="flex justify-between items-center text-sm py-1.5 text-left"
               >
                 <span className="text-[var(--color-text-muted)] flex items-center gap-1.5">
