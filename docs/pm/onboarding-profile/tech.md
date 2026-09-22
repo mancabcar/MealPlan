@@ -177,7 +177,7 @@ The repo has **no test setup**. I recommend running dev-test first to add Vitest
 ## Tasks
 1. [x] Add Vitest + Playwright + a CI workflow (dev-test). Feature tests are written, and the `nutrition` / `allergens` / `migrate` stubs throw "not implemented".
 2. [x] Implement `nutrition.ts` (R3–R6).
-3. [ ] Implement `allergens.ts` (R10, R18).
+3. [x] Implement `allergens.ts` (R10, R18).
 4. [ ] Implement `migrate.ts` (R14). The v2 types already live in `types.ts` as `UserProfileV2` / `MealSlot`.
 5. [ ] Store: `migrate` hook in `usePersisted`, v1 backup, the loaded-flash fix. **This also clears the 2 pre-existing `react-hooks/set-state-in-effect` lint errors in `store.tsx`**, so CI's lint step stays red until this task. Rename `UserProfileV2` → `UserProfile` and `MealSlot` → `MealType`. Update the existing consumers so they compile on v2: dashboard, planner and route read `profile.meals` / `allergies` (R8, R14).
 6. [ ] Planner and diary show `profile.meals`; `dayKcal` only sums visible slots (R8).
