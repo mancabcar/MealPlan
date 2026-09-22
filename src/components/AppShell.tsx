@@ -3,7 +3,9 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useApp } from "@/lib/store";
+import { AppProvider, useApp } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
+import Login from "./Login";
 import Onboarding from "./Onboarding";
 
 const TABS = [
@@ -15,6 +17,20 @@ const TABS = [
 ];
 
 export default function AppShell({ children }: { children: ReactNode }) {
+  const { user, loaded } = useAuth();
+
+  if (!loaded) return null;
+  if (!user) return <Login />;
+
+  // key: al cambiar de usuario se remonta el store y se leen sus datos
+  return (
+    <AppProvider key={user.id} userId={user.id}>
+      <UserShell>{children}</UserShell>
+    </AppProvider>
+  );
+}
+
+function UserShell({ children }: { children: ReactNode }) {
   const { profile, loaded } = useApp();
   const pathname = usePathname();
 

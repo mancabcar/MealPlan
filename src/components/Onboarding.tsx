@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
 
 const RESTRICTION_OPTIONS = [
   "vegetariano",
@@ -14,7 +15,8 @@ const RESTRICTION_OPTIONS = [
 export default function Onboarding() {
   const { setProfile } = useApp();
   const [step, setStep] = useState(0);
-  const [name, setName] = useState("");
+  const { user, logout } = useAuth();
+  const [name, setName] = useState(user?.username ?? "");
   const [calorieGoal, setCalorieGoal] = useState(2000);
   const [proteinGoal, setProteinGoal] = useState(120);
   const [carbsGoal, setCarbsGoal] = useState(200);
@@ -65,6 +67,9 @@ export default function Onboarding() {
             className="bg-emerald-600 text-white rounded-lg py-3 font-semibold disabled:opacity-40"
           >
             Continuar
+          </button>
+          <button onClick={logout} className="text-sm text-zinc-500">
+            Cerrar sesión
           </button>
         </>
       )}

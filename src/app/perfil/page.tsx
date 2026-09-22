@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useApp } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
 
 export default function ProfilePage() {
   const { profile, setProfile } = useApp();
+  const { user, logout } = useAuth();
   const [draft, setDraft] = useState(profile);
   const [saved, setSaved] = useState(false);
 
@@ -27,7 +29,10 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Perfil</h1>
+      <div className="flex items-baseline justify-between">
+        <h1 className="text-2xl font-bold">Perfil</h1>
+        <span className="text-sm text-zinc-500">@{user?.username}</span>
+      </div>
 
       <section className="bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm flex flex-col gap-3">
         <label className="text-sm font-medium flex flex-col gap-1">
@@ -82,6 +87,13 @@ export default function ProfilePage() {
           {saved ? "✓ Guardado" : "Guardar cambios"}
         </button>
       </section>
+
+      <button
+        onClick={logout}
+        className="bg-white dark:bg-zinc-900 rounded-xl py-3 shadow-sm text-sm font-semibold"
+      >
+        Cerrar sesión
+      </button>
 
       <button onClick={reset} className="text-rose-500 text-sm py-2">
         Borrar perfil
