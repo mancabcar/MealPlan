@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, type ReactNode } from "react";
+import { LogOut, Trash2 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import { ALLERGEN_LABELS } from "@/lib/allergens";
@@ -15,7 +16,7 @@ import {
   prescribedDraftFrom,
   type MacroDraft,
 } from "@/lib/profileDraft";
-import { MEAL_TYPE_ICONS, type BodyData, type UserProfile } from "@/lib/types";
+import { MEAL_TYPE_ICON_COMPONENTS, type BodyData, type UserProfile } from "@/lib/types";
 import {
   ACTIVITY_OPTIONS,
   AllergyDietDislikes,
@@ -30,14 +31,16 @@ import {
   SOURCE_LABELS,
   SuggestedTargets,
   type Preferences,
-} from "@/components/profile/steps";
-import { Field, inputCls } from "@/components/profile/ui";
+} from "@/components/perfil/steps";
+import { Field, inputCls } from "@/components/perfil/ui";
+import { Card } from "@/components/ui/Card";
+import { Chip } from "@/components/ui/Chip";
 
 type Update = (patch: Partial<UserProfile>) => void;
 
-const smallBtn = "text-sm font-semibold text-emerald-600 dark:text-emerald-400";
-const saveBtn = "bg-emerald-600 text-white rounded-lg px-4 py-2 font-semibold text-sm disabled:opacity-40";
-const cancelBtn = "rounded-lg px-4 py-2 border border-zinc-300 dark:border-zinc-700 text-sm";
+const smallBtn = "text-sm font-semibold text-[var(--color-accent)]";
+const saveBtn = "bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg px-4 py-2 font-semibold text-sm disabled:opacity-40";
+const cancelBtn = "rounded-lg px-4 py-2 border border-[var(--color-border)] text-sm text-[var(--color-text-muted)]";
 
 /** Sección con nombre accesible (región) y su propio "Editar". */
 function Section({
@@ -55,9 +58,9 @@ function Section({
 }) {
   const id = useId();
   return (
-    <section aria-labelledby={id} className="bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm flex flex-col gap-3">
+    <Card as="section" aria-labelledby={id} className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <h2 id={id} className="font-semibold flex items-center gap-2">
+        <h2 id={id} className="font-semibold flex items-center gap-2 text-[var(--color-text)]">
           {title}
           {badge}
         </h2>
@@ -68,7 +71,7 @@ function Section({
         )}
       </div>
       {children}
-    </section>
+    </Card>
   );
 }
 
@@ -87,8 +90,8 @@ function SaveBar({ onSave, onCancel, disabled }: { onSave: () => void; onCancel:
 
 const Row = ({ label, value }: { label: string; value: ReactNode }) => (
   <div className="flex justify-between text-sm">
-    <span className="text-zinc-500">{label}</span>
-    <span>{value}</span>
+    <span className="text-[var(--color-text-muted)]">{label}</span>
+    <span className="text-[var(--color-text)]">{value}</span>
   </div>
 );
 
@@ -138,15 +141,9 @@ function TargetsSection({ profile, update }: { profile: UserProfile; update: Upd
   const view = () => setMode({ kind: "view" });
 
   const badge = (
-    <span
-      className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-        profile.targetSource === "calculated"
-          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-          : "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300"
-      }`}
-    >
+    <Chip tone={profile.targetSource === "calculated" ? "accent" : "protein"}>
       {profile.targetSource === "calculated" ? "Calculado" : "De tu nutricionista"}
-    </span>
+    </Chip>
   );
 
   const edit = () =>
@@ -422,11 +419,14 @@ function MealsSection({ profile, update }: { profile: UserProfile; update: Updat
         </>
       ) : (
         <ul className="flex flex-wrap gap-2 text-sm">
-          {profile.meals.map((m) => (
-            <li key={m} className="px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800">
-              {MEAL_TYPE_ICONS[m]} {m}
-            </li>
-          ))}
+          {profile.meals.map((m) => {
+            const Icon = MEAL_TYPE_ICON_COMPONENTS[m];
+            return (
+              <li key={m} className="px-3 py-1 rounded-full bg-[var(--color-surface-2)] flex items-center gap-1.5">
+                <Icon className="w-4 h-4" aria-hidden /> {m}
+              </li>
+            );
+          })}
         </ul>
       )}
     </Section>
@@ -461,7 +461,13 @@ function PreferencesSection({ profile, update }: { profile: UserProfile; update:
         <>
           <Row
             label="Alergias"
-            value={allergies.length ? <span className="text-rose-600 dark:text-rose-400">{allergies.join(", ")}</span> : "Ninguna"}
+            value={
+              allergies.length ? (
+                <span style={{ color: "var(--color-expired)" }}>{allergies.join(", ")}</span>
+              ) : (
+                "Ninguna"
+              )
+            }
           />
           <Row label="Dieta" value={DIET_OPTIONS.find((d) => d.value === profile.diet)?.label} />
           <Row label="No me gusta" value={profile.dislikedIngredients.join(", ") || "—"} />
@@ -504,14 +510,18 @@ export default function ProfilePage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-baseline justify-between">
-        <h1 className="text-2xl font-bold">Perfil</h1>
-        <span className="text-sm text-zinc-500">@{user?.username}</span>
+        <h1 className="font-display text-2xl font-bold">Perfil</h1>
+        <span className="text-sm text-[var(--color-text-muted)]">@{user?.username}</span>
       </div>
 
       {recalc && (
         <div
           role="status"
-          className="rounded-xl border border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950 p-4 flex flex-col gap-3 text-sm"
+          className="rounded-xl border p-4 flex flex-col gap-3 text-sm"
+          style={{
+            borderColor: "color-mix(in oklab, var(--color-accent) 45%, var(--color-border))",
+            backgroundColor: "color-mix(in oklab, var(--color-accent) 12%, var(--color-surface))",
+          }}
         >
           <p>
             <span className="font-semibold">¿Recalculamos?</span> Con tus nuevos datos te sugerimos {recalc.kcal} kcal y{" "}
@@ -534,11 +544,20 @@ export default function ProfilePage() {
       <MealsSection profile={profile} update={update} />
       <PreferencesSection profile={profile} update={update} />
 
-      <button onClick={logout} className="bg-white dark:bg-zinc-900 rounded-xl py-3 shadow-sm text-sm font-semibold">
+      <button
+        onClick={logout}
+        className="flex items-center justify-center gap-1.5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl py-3 text-sm font-semibold text-[var(--color-text)]"
+      >
+        <LogOut className="w-4 h-4" aria-hidden />
         Cerrar sesión
       </button>
 
-      <button onClick={reset} className="text-rose-500 text-sm py-2">
+      <button
+        onClick={reset}
+        className="flex items-center justify-center gap-1.5 text-sm py-2"
+        style={{ color: "var(--color-expired)" }}
+      >
+        <Trash2 className="w-4 h-4" aria-hidden />
         Borrar perfil
       </button>
     </div>
