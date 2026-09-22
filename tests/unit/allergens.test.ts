@@ -61,6 +61,13 @@ describe("Edge case: productos 'sin <alérgeno>'", () => {
   it("'sin' solo excluye el alérgeno que nombra: 'yogur sin azúcar' sigue siendo Lactosa", () => {
     expect(ingredientMatches("yogur sin azúcar", "lactosa")).toBe(true);
   });
+
+  // Hallazgo de la revisión de la PR #2: el "sin" eximía a toda la línea
+  it("el 'sin' solo exime al producto que acompaña, no al resto de la línea", () => {
+    expect(ingredientMatches("nata y leche sin lactosa", "lactosa")).toBe(true);
+    expect(ingredientMatches("pasta y pan sin gluten", "gluten")).toBe(true);
+    expect(ingredientMatches("bizcocho de almendra sin gluten", "frutos_secos")).toBe(true);
+  });
 });
 
 describe("Edge case: falsos positivos aceptados (mejor excluir de más)", () => {

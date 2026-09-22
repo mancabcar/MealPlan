@@ -103,6 +103,31 @@ describe("R4: objetivos calculados (Mifflin-St Jeor)", () => {
     expect(t.derivation.floorApplied).toBe(1500);
   });
 
+  // Hallazgo de la revisión de la PR #2: con pesos altos los carbohidratos salían negativos
+  it("R4: los carbohidratos nunca bajan de 50 g; la diferencia sale de la grasa", () => {
+    const t = calculateTargets(
+      { sex: "female", birthYear: 1986, heightCm: 170, weightKg: 150, activity: "poco", goal: "lose" },
+      NOW,
+    );
+    expect(t.carbs).toBe(50);
+    expect(t.derivation.carbsFloorApplied).toBe(50);
+    expect(t.fat).toBeLessThan(Math.round(0.9 * 150)); // la grasa baja para dejar sitio
+    expect(t.fat).toBeGreaterThan(0);
+    // Las kcal siguen cuadrando (±1 kcal por redondeo de gramos)
+    expect(Math.abs(4 * t.protein + 4 * t.carbs + 9 * t.fat - t.kcal)).toBeLessThanOrEqual(5);
+  });
+
+  it("R4: ningún macro sale negativo en todo el rango admitido", () => {
+    for (const weightKg of [30, 60, 100, 150, 200, 250]) {
+      for (const goal of ["lose", "maintain", "gain"] as const) {
+        for (const sex of ["female", "male", "unspecified"] as const) {
+          const t = calculateTargets({ sex, birthYear: 1986, heightCm: 170, weightKg, activity: "poco", goal }, NOW);
+          expect(Math.min(t.kcal, t.protein, t.carbs, t.fat), `${sex}/${goal}/${weightKg}kg`).toBeGreaterThanOrEqual(0);
+        }
+      }
+    }
+  });
+
   it("R4: la edad es año actual − año de nacimiento", () => {
     expect(ageFromBirthYear(1992, NOW)).toBe(34);
   });
@@ -123,6 +148,18 @@ describe("R6: plan del nutricionista con carbos/grasas vacíos", () => {
 
   it("R6: si el usuario escribe los carbos, solo se rellena la grasa", () => {
     expect(fillPrescribed({ kcal: 1980, protein: 150, carbs: 200, weightKg: 76 })).toEqual({ carbs: 200, fat: 68 });
+  });
+
+  it("R6: con un plan exigente, los carbos no bajan de 50 g y la grasa lo absorbe", () => {
+    // 1500 kcal, 170 g de proteína y 110 kg daban carbos negativos antes de la revisión
+    const { carbs, fat } = fillPrescribed({ kcal: 1500, protein: 170, weightKg: 110 });
+    expect(carbs).toBe(50);
+    expect(fat).toBeGreaterThanOrEqual(0);
+    expect(Math.abs(4 * 170 + 4 * carbs + 9 * fat - 1500)).toBeLessThanOrEqual(5); // ±redondeo a gramos
+  });
+
+  it("R6: si el usuario escribe la grasa, los carbos nunca salen negativos", () => {
+    expect(fillPrescribed({ kcal: 1200, protein: 200, fat: 60 }).carbs).toBe(0);
   });
 
   it("R6: si el usuario escribe la grasa, solo se rellenan los carbos", () => {

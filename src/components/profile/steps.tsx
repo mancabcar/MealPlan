@@ -174,6 +174,12 @@ export function SuggestedTargets({
           <li>
             Proteína {proteinPerKg} g por kg, grasa 0,9 g por kg; los carbohidratos son el resto.
           </li>
+          {derivation.carbsFloorApplied && (
+            <li>
+              Con tu peso, el resto se quedaba muy bajo: dejamos los carbohidratos en{" "}
+              {derivation.carbsFloorApplied} g como mínimo y bajamos la grasa.
+            </li>
+          )}
         </ul>
         <p className="mt-2 text-xs text-zinc-500">Es una estimación y no sustituye a un profesional.</p>
       </details>

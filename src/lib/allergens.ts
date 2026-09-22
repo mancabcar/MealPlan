@@ -86,10 +86,17 @@ function termsFor(allergen: string): { terms: string[][]; names: string[][] } {
 export function ingredientMatches(ingredient: string, allergen: PresetAllergen | string): boolean {
   const words = tokenize(ingredient);
   const { terms, names } = termsFor(allergen);
-  // "leche sin lactosa", "pan sin gluten": el producto declara no tener ese alérgeno
-  const declaredFree = names.some((name) => findTerm(words, ["sin", ...name]).length > 0);
-  if (declaredFree) return false;
-  return terms.some((term) => findTerm(words, term).length > 0);
+
+  /**
+   * "leche sin lactosa", "pan sin gluten": solo se descarta el producto al que acompaña el "sin".
+   * En "nata y leche sin lactosa" la nata sigue contando (el "sin" es de la leche).
+   */
+  const declaredFree = (start: number, length: number) => {
+    const after = start + length;
+    return words[after] === "sin" && names.some((name) => findTerm(words.slice(after + 1, after + 1 + name.length), name).length > 0);
+  };
+
+  return terms.some((term) => findTerm(words, term).some((i) => !declaredFree(i, term.length)));
 }
 
 /** Aviso no bloqueante para recetas del recetario y los selectores: "⚠ contiene Frutos secos". */
