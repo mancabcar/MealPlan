@@ -121,7 +121,7 @@ export default function RecipesPage() {
               ["Grasas", selected.fat, "--color-fat"],
             ] as const
           ).map(([label, v, colorVar]) => (
-            <Card key={label} className="p-3">
+            <Card key={label} padding="sm">
               <div className="font-display font-bold text-lg" style={{ color: `var(${colorVar})` }}>
                 {v}g
               </div>
