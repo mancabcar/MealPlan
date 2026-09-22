@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
+import { migrateProfile } from "@/lib/migrate";
 
 const RESTRICTION_OPTIONS = [
   "vegetariano",
@@ -25,20 +26,22 @@ export default function Onboarding() {
   const [disliked, setDisliked] = useState("");
 
   const finish = () => {
-    setProfile({
-      name,
-      calorieGoal,
-      proteinGoal,
-      carbsGoal,
-      fatGoal,
-      dietaryRestrictions: restrictions,
-      dislikedIngredients: disliked
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-      mealsPerDay: 3,
-      createdAt: new Date().toISOString(),
-    });
+    // Provisional hasta el nuevo onboarding: se construye en forma v1 y se migra a v2
+    setProfile(
+      migrateProfile({
+        name,
+        calorieGoal,
+        proteinGoal,
+        carbsGoal,
+        fatGoal,
+        dietaryRestrictions: restrictions,
+        dislikedIngredients: disliked
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+        createdAt: new Date().toISOString(),
+      }),
+    );
   };
 
   const inputCls =

@@ -1,7 +1,7 @@
 // Spec: docs/pm/onboarding-profile/spec.md › R10–R12, R17, R18 (prompt y filtro de alérgenos).
 // El SDK de Anthropic se simula: ningún test llama a la API real.
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Recipe, UserProfileV2 } from "@/lib/types";
+import type { Recipe, UserProfile } from "@/lib/types";
 import { lucia, manuel } from "../fixtures/profiles";
 
 const create = vi.fn();
@@ -36,7 +36,7 @@ function claudeReturns(recipes: Recipe[]) {
   create.mockResolvedValue({ content: [{ type: "text", text: JSON.stringify(recipes) }] });
 }
 
-async function generate(profile: UserProfileV2 | Record<string, unknown>) {
+async function generate(profile: UserProfile | Record<string, unknown>) {
   const res = await POST(
     new Request("http://localhost/api/recipes", {
       method: "POST",
@@ -56,7 +56,7 @@ function blockWith(prompt: string, needle: RegExp): string {
   return prompt.split(/\n\s*\n/).find((b) => needle.test(b)) ?? "";
 }
 
-const allergicToNuts: UserProfileV2 = {
+const allergicToNuts: UserProfile = {
   ...lucia,
   allergies: { preset: ["frutos_secos"], custom: [] },
   diet: "vegetarian",

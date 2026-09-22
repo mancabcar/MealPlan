@@ -31,7 +31,8 @@ export async function POST(request: Request) {
 PERFIL DEL USUARIO:
 - Calorías objetivo: ${profile.calorieGoal} kcal/día
 - Proteínas: ${profile.proteinGoal}g | Carbos: ${profile.carbsGoal}g | Grasas: ${profile.fatGoal}g
-- Restricciones: ${profile.dietaryRestrictions.length ? profile.dietaryRestrictions.join(", ") : "Ninguna"}
+- Alergias: ${[...profile.allergies.preset, ...profile.allergies.custom].join(", ") || "Ninguna"}
+- Dieta: ${profile.diet}
 - No le gusta: ${profile.dislikedIngredients.length ? profile.dislikedIngredients.join(", ") : "Nada en particular"}
 
 INGREDIENTES DISPONIBLES:

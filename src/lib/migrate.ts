@@ -1,8 +1,8 @@
 // Migración v1 → v2 del perfil y de las comidas guardadas (spec R14). Pura e idempotente.
 import { ingredientMatches, normalize } from "./allergens";
-import { MEAL_SLOTS, type Allergies, type DietType, type MealSlot, type PresetAllergen, type UserProfileV2 } from "./types";
+import { MEAL_TYPES, type Allergies, type DietType, type MealType, type PresetAllergen, type UserProfile } from "./types";
 
-type WithSlot<T> = Omit<T, "mealType"> & { mealType: MealSlot };
+type WithSlot<T> = Omit<T, "mealType"> & { mealType: MealType };
 
 /** Opciones fijas del onboarding v1 (texto libre en Perfil v1, de ahí normalize). */
 const LEGACY_DIETS: Record<string, DietType> = {
@@ -36,9 +36,9 @@ export function withoutAllergies(dislikes: string[], allergies: Allergies): stri
 }
 
 /** null → null. v1 (sin schemaVersion) → v2. v2 → sin cambios. */
-export function migrateProfile(raw: unknown): UserProfileV2 | null {
+export function migrateProfile(raw: unknown): UserProfile | null {
   if (!raw || typeof raw !== "object") return null;
-  if ((raw as { schemaVersion?: number }).schemaVersion === 2) return raw as UserProfileV2;
+  if ((raw as { schemaVersion?: number }).schemaVersion === 2) return raw as UserProfile;
 
   const v1 = raw as LegacyProfile;
   const allergies: Allergies = { preset: [], custom: [] };
@@ -67,7 +67,7 @@ export function migrateProfile(raw: unknown): UserProfileV2 | null {
     proteinGoal: v1.proteinGoal ?? 120,
     carbsGoal: v1.carbsGoal ?? 200,
     fatGoal: v1.fatGoal ?? 65,
-    meals: [...MEAL_SLOTS],
+    meals: [...MEAL_TYPES],
     allergies,
     diet,
     dislikedIngredients: withoutAllergies(v1.dislikedIngredients ?? [], allergies),
@@ -75,7 +75,7 @@ export function migrateProfile(raw: unknown): UserProfileV2 | null {
   };
 }
 
-const toSlot = (mealType: string): MealSlot => (mealType === "Snack" ? "Merienda" : (mealType as MealSlot));
+const toSlot = (mealType: string): MealType => (mealType === "Snack" ? "Merienda" : (mealType as MealType));
 
 /** "Snack" → "Merienda"; el resto de campos se conserva. */
 export function migrateEntries<T extends { mealType: string }>(entries: T[]): WithSlot<T>[] {

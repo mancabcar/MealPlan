@@ -1,7 +1,7 @@
 // Spec: docs/pm/onboarding-profile/spec.md › R14 y edge cases; tech.md › "Data model / Migration".
 import { describe, expect, it } from "vitest";
 import { migrateEntries, migrateProfile, migrateWeekPlan } from "@/lib/migrate";
-import { MEAL_SLOTS } from "@/lib/types";
+import { MEAL_TYPES } from "@/lib/types";
 import { legacyProfile, lucia } from "../fixtures/profiles";
 
 describe("R14: migración del perfil v1", () => {
@@ -30,7 +30,7 @@ describe("R14: migración del perfil v1", () => {
     expect(p.targetSource).toBe("prescribed");
     expect(p.body).toBeUndefined();
     expect(p.proteinRange).toBeUndefined();
-    expect(p.meals).toEqual(MEAL_SLOTS);
+    expect(p.meals).toEqual(MEAL_TYPES);
   });
 
   it("R14: desaparecen los campos v1 que ya no se usan", () => {

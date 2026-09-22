@@ -1,11 +1,11 @@
 // Personas del spec (docs/pm/onboarding-profile/spec.md, "Users & key scenarios").
-import type { UserProfileV2 } from "@/lib/types";
+import type { UserProfile } from "@/lib/types";
 
 /** Fecha fija de los tests: la edad sale de "año actual − año de nacimiento". */
 export const NOW = new Date("2026-09-22T10:00:00");
 
 /** Escenario 1: sin nutricionista, ruta "Calcúlalo por mí". */
-export const lucia: UserProfileV2 = {
+export const lucia: UserProfile = {
   schemaVersion: 2,
   name: "Lucía",
   goal: "lose",
@@ -23,7 +23,7 @@ export const lucia: UserProfileV2 = {
 };
 
 /** Escenario 2: plan del nutricionista de agosto, proteína en rango. */
-export const manuel: UserProfileV2 = {
+export const manuel: UserProfile = {
   schemaVersion: 2,
   name: "Manuel",
   goal: "lose",

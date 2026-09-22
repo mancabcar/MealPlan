@@ -58,14 +58,14 @@ export default function ProfilePage() {
           </label>
         ))}
         <label className="text-sm font-medium flex flex-col gap-1">
-          Restricciones (separadas por comas)
+          Otras alergias (separadas por comas)
           <input
             className={inputCls}
-            value={draft.dietaryRestrictions.join(", ")}
+            value={draft.allergies.custom.join(", ")}
             onChange={(e) =>
               setDraft({
                 ...draft,
-                dietaryRestrictions: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                allergies: { ...draft.allergies, custom: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) },
               })
             }
           />
