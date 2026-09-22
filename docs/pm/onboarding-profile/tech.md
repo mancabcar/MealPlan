@@ -184,7 +184,7 @@ The repo has **no test setup**. I recommend running dev-test first to add Vitest
 7. [x] Route: `buildPrompt` with separate sections, the allergen filter, `droppedCount`, and the recipes empty-state message (R10–R12, R18).
 8. [x] Shared step components in `src/components/profile/` (R1–R7, R9, R11, R12).
 9. [x] Rewrite onboarding on top of the step components, with back navigation (R1–R12).
-10. [ ] Perfil sections + source badge + source switch (R13, R15).
+10. [x] Perfil sections + source badge + source switch (R13, R15).
 11. [ ] Perfil recalculation banner (R16).
 12. [ ] Dashboard protein band (R17).
 13. [ ] Make the remaining e2e tests green; update the README's sections table.

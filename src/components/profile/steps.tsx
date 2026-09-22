@@ -89,12 +89,14 @@ export function BodyDataForm({
 }) {
   const { errors } = parseBody(value, now);
   const set = (patch: Partial<BodyDraft>) => onChange({ ...value, ...patch });
+  // Perfil puede mostrar dos formularios a la vez: cada uno con sus grupos de radios
+  const id = useId();
   return (
     <div className="flex flex-col gap-4">
       <ChoiceGroup
         legend="Sexo"
         note="solo para el cálculo"
-        name="sex"
+        name={`sex-${id}`}
         options={SEX_OPTIONS}
         value={value.sex}
         onChange={(sex) => set({ sex })}
@@ -106,7 +108,7 @@ export function BodyDataForm({
       </div>
       <ChoiceGroup
         legend="¿Cuánto te mueves?"
-        name="activity"
+        name={`activity-${id}`}
         options={ACTIVITY_OPTIONS}
         value={value.activity}
         onChange={(activity) => set({ activity })}
