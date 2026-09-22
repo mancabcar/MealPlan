@@ -9,18 +9,41 @@ import {
   todayStr,
 } from "@/lib/types";
 
-function MacroBar({ label, value, goal, color }: { label: string; value: number; goal: number; color: string }) {
-  const pct = Math.min(100, goal > 0 ? (value / goal) * 100 : 0);
+function MacroBar({
+  label,
+  value,
+  goal,
+  color,
+  range,
+}: {
+  label: string;
+  value: number;
+  goal: number;
+  color: string;
+  /** Rango prescrito (R17): se dibuja como banda y cualquier valor dentro cuenta como cumplido. */
+  range?: { min: number; max: number };
+}) {
+  const scale = range ? range.max : goal;
+  const pct = Math.min(100, scale > 0 ? (value / scale) * 100 : 0);
+  const inBand = range && value >= range.min && value <= range.max;
   return (
     <div className="flex flex-col gap-1">
       <div className="flex justify-between text-xs">
         <span className="font-medium">{label}</span>
-        <span className="text-zinc-500">
-          {Math.round(value)} / {goal}
+        <span className={inBand ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-zinc-500"}>
+          {inBand && "✓ "}
+          {range ? `${Math.round(value)} / ${range.min}–${range.max}` : `${Math.round(value)} / ${goal}`}
         </span>
       </div>
-      <div className="h-2 rounded-full bg-zinc-200 dark:bg-zinc-800">
-        <div className={`h-2 rounded-full ${color}`} style={{ width: `${pct}%` }} />
+      <div className="relative h-2 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
+        {range && (
+          <div
+            aria-hidden
+            className="absolute inset-y-0 right-0 bg-emerald-200 dark:bg-emerald-900"
+            style={{ left: `${(range.min / range.max) * 100}%` }}
+          />
+        )}
+        <div className={`relative h-2 rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -101,7 +124,7 @@ export default function DiaryPage() {
 
       <section className="bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
         <MacroBar label="Calorías" value={totals.calories} goal={profile.calorieGoal} color="bg-emerald-500" />
-        <MacroBar label="Proteínas" value={totals.protein} goal={profile.proteinGoal} color="bg-sky-500" />
+        <MacroBar label="Proteínas" value={totals.protein} goal={profile.proteinGoal} range={profile.proteinRange} color="bg-sky-500" />
         <MacroBar label="Carbohidratos" value={totals.carbs} goal={profile.carbsGoal} color="bg-amber-500" />
         <MacroBar label="Grasas" value={totals.fat} goal={profile.fatGoal} color="bg-rose-500" />
       </section>
