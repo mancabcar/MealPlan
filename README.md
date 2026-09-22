@@ -6,7 +6,7 @@ Antes era una app iOS (SwiftUI/SwiftData) — el código está en el historial d
 
 ## Stack
 
-- **Next.js 15** (App Router) + **Tailwind CSS** + TypeScript
+- **Next.js 16** (App Router) + **Tailwind CSS** + TypeScript
 - **Persistencia:** localStorage del navegador (sin backend ni base de datos — los datos viven en tu dispositivo)
 - **IA:** API de Claude vía route handler de servidor ([src/app/api/recipes/route.ts](src/app/api/recipes/route.ts)) — la key nunca llega al navegador
 
@@ -22,6 +22,20 @@ Para usar la generación de recetas con IA, crea `.env.local` con:
 ```
 ANTHROPIC_API_KEY=sk-ant-...
 ```
+
+## Tests
+
+```sh
+npm test            # unitarios (Vitest), una pasada
+npm run test:watch  # unitarios en modo watch
+npm run test:e2e    # end-to-end (Playwright + Chromium); arranca `npm run dev` o reutiliza el que ya corre
+npm run typecheck   # tsc --noEmit
+```
+
+- Unitarios en `tests/unit/` (entorno `node`; para componentes añade `// @vitest-environment jsdom`).
+- E2E en `tests/e2e/`; `helpers.ts` siembra una sesión local para saltarse el login.
+- La primera vez: `npx playwright install chromium`.
+- CI (`.github/workflows/ci.yml`) ejecuta lint, typecheck, unitarios, build y e2e en cada PR.
 
 ## Despliegue gratis en Vercel
 
