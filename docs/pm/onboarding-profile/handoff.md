@@ -1,5 +1,5 @@
 # Better onboarding profile: Handoff for dev-review
-_Updated: 2026-09-22 · Branch: `feature/onboarding-profile` (17 commits on `main`, local, **not pushed, no PR yet**)_
+_Updated: 2026-09-22 · Branch: `feature/onboarding-profile` · PR [#2](https://github.com/mancabcar/MealPlan/pull/2)_
 _Related: [spec](spec.md) · [tech design](tech.md) (tasks, UI test contract, test coverage) · [brief](brief.md)_
 
 ## What was built
@@ -93,6 +93,6 @@ npm run test:e2e
 E2E reuses a dev server that's already running on :3000, or starts one. Next 16 won't run 2 dev servers in the same folder.
 
 ## Before merge
-- **Push and open the PR.** Pending: the repo is **public**, and the PM docs and fixtures contain Manuel's plan figures and weight.
+- ~~Push and open the PR~~: done, [#2](https://github.com/mancabcar/MealPlan/pull/2).
 - **Let CI run** on GitHub for the first time.
 - **Set the brief's status** to `in review` with the PR link.

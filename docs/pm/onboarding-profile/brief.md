@@ -1,5 +1,5 @@
 # Better onboarding profile
-_Status: tech design · Updated: 2026-09-22 · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: in review · Updated: 2026-09-22 · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#2](https://github.com/mancabcar/MealPlan/pull/2)_
 
 ## Problem
 **A household member setting up MealPlanner needs a way to get daily targets and food constraints they trust, because the current onboarding makes them type calories and macros from nothing. Today they accept the defaults (2000 kcal / 120 P / 200 C / 65 F) or copy numbers from their nutritionist's PDF by hand.**
