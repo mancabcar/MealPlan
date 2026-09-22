@@ -182,7 +182,7 @@ The repo has **no test setup**. I recommend running dev-test first to add Vitest
 5. [x] Store: `migrate` hook in `usePersisted`, v1 backup, the loaded-flash fix. **This also clears the 2 pre-existing `react-hooks/set-state-in-effect` lint errors in `store.tsx`**, so CI's lint step stays red until this task. Rename `UserProfileV2` → `UserProfile` and `MealSlot` → `MealType`. Update the existing consumers so they compile on v2: dashboard, planner and route read `profile.meals` / `allergies` (R8, R14).
 6. [x] Planner and diary show `profile.meals`; `dayKcal` only sums visible slots (R8).
 7. [x] Route: `buildPrompt` with separate sections, the allergen filter, `droppedCount`, and the recipes empty-state message (R10–R12, R18).
-8. [ ] Shared step components in `src/components/profile/` (R1–R7, R9, R11, R12).
+8. [x] Shared step components in `src/components/profile/` (R1–R7, R9, R11, R12).
 9. [ ] Rewrite onboarding on top of the step components, with back navigation (R1–R12).
 10. [ ] Perfil sections + source badge + source switch (R13, R15).
 11. [ ] Perfil recalculation banner (R16).

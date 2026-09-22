@@ -12,7 +12,7 @@ export const ACTIVITY_FACTORS: Record<ActivityLevel, number> = {
 const SEX_CONSTANT: Record<Sex, number> = { male: 5, female: -161, unspecified: -78 };
 const KCAL_FLOOR: Record<Sex, number> = { male: 1500, female: 1200, unspecified: 1350 };
 const GOAL_ADJUSTMENT_PCT: Record<Goal, number> = { lose: -15, maintain: 0, gain: 10 };
-const PROTEIN_G_PER_KG: Record<Goal, number> = { lose: 1.8, maintain: 1.6, gain: 2.0 };
+export const PROTEIN_G_PER_KG: Record<Goal, number> = { lose: 1.8, maintain: 1.6, gain: 2.0 };
 const FAT_G_PER_KG = 0.9;
 /** Ruta del nutricionista sin peso: la grasa es este % de las kcal. */
 const FAT_SHARE_WITHOUT_WEIGHT = 0.25;
