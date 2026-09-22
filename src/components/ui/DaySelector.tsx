@@ -1,6 +1,7 @@
 // Rediseño visual (docs/pm/design-refresh, R8): selector de días con scroll horizontal, sustituye
 // la lista vertical Lunes-Domingo del Plan semanal.
 const DAY_LETTERS = ["D", "L", "M", "X", "J", "V", "S"]; // índice = Date#getDay() (0 = domingo)
+const DAY_NAMES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
 export function DaySelector({
   dates,
@@ -26,6 +27,7 @@ export function DaySelector({
             type="button"
             role="tab"
             aria-selected={isSelected}
+            aria-label={`${DAY_NAMES[d.getDay()]} ${dayNum}`}
             onClick={() => onSelect(date)}
             className={`flex flex-col items-center justify-center min-w-12 shrink-0 py-2 rounded-2xl text-sm font-medium transition-colors ${
               isSelected
