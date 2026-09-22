@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/lib/store";
+import { allergenWarning } from "@/lib/allergens";
 import { MEAL_TYPES, MEAL_TYPE_ICONS, MealType, todayStr } from "@/lib/types";
 
 function weekDates(start: string): string[] {
@@ -18,8 +19,10 @@ function weekDates(start: string): string[] {
 const DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
 export default function PlanPage() {
-  const { weekPlan, setWeekPlan, recipes } = useApp();
+  const { profile, weekPlan, setWeekPlan, recipes } = useApp();
   const [editing, setEditing] = useState<{ date: string; mealType: MealType } | null>(null);
+  // Solo las comidas que el usuario hace, en el orden canónico (R8)
+  const meals = profile?.meals ?? MEAL_TYPES;
 
   const dates = weekDates(todayStr());
 
@@ -52,7 +55,7 @@ export default function PlanPage() {
             <option value="">— Sin asignar —</option>
             {recipes.map((r) => (
               <option key={r.id} value={r.id}>
-                {r.name} ({r.calories} kcal)
+                {[`${r.name} (${r.calories} kcal)`, allergenWarning(r, profile?.allergies)].filter(Boolean).join(" · ")}
               </option>
             ))}
           </select>
@@ -63,7 +66,8 @@ export default function PlanPage() {
       )}
 
       {dates.map((date, i) => {
-        const slots = weekPlan[date] ?? [];
+        // Las asignaciones a comidas desmarcadas se conservan, pero no se muestran ni suman
+        const slots = (weekPlan[date] ?? []).filter((s) => meals.includes(s.mealType));
         const dayKcal = slots.reduce(
           (s, slot) => s + (recipes.find((r) => r.id === slot.recipeId)?.calories ?? 0),
           0,
@@ -75,7 +79,7 @@ export default function PlanPage() {
               <span className="text-xs text-zinc-500">{dayKcal > 0 ? `${dayKcal} kcal` : ""}</span>
             </div>
             <div className="flex flex-col gap-1">
-              {MEAL_TYPES.slice(0, 3).map((mt) => {
+              {meals.map((mt) => {
                 const slot = slots.find((s) => s.mealType === mt);
                 const recipe = slot ? recipes.find((r) => r.id === slot.recipeId) : undefined;
                 return (

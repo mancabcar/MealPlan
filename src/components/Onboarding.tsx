@@ -3,69 +3,132 @@
 import { useState } from "react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
+import { withoutAllergies } from "@/lib/migrate";
+import { calculateTargets, PROTEIN_G_PER_KG, type Targets } from "@/lib/nutrition";
+import {
+  bodyDraftFrom,
+  macroDraftFrom,
+  parseBody,
+  parseMacros,
+  parsePrescribed,
+  prescribedDraftFrom,
+  type BodyDraft,
+  type MacroDraft,
+  type PrescribedDraft,
+} from "@/lib/profileDraft";
+import { MEAL_TYPES, type BodyData, type Goal, type MealType, type TargetSource, type UserProfile } from "@/lib/types";
+import {
+  AllergyDietDislikes,
+  BodyDataForm,
+  GoalPicker,
+  MealSlotPicker,
+  PrescribedTargetsForm,
+  SuggestedTargets,
+  TargetSourcePicker,
+  type Preferences,
+} from "./profile/steps";
+import { inputCls, primaryBtn, secondaryBtn } from "./profile/ui";
 
-const RESTRICTION_OPTIONS = [
-  "vegetariano",
-  "vegano",
-  "sin gluten",
-  "sin lactosa",
-  "sin frutos secos",
-];
+// Pasos del prototipo: 1 → 2 → (3a → 4a | 3b) → 5 → 6
+type Step = "name" | "source" | "body" | "suggested" | "prescribed" | "meals" | "prefs";
+
+const TITLES: Record<Step, string> = {
+  name: "🥗 MealPlanner",
+  source: "¿Cómo fijamos tus objetivos?",
+  body: "Calcúlalo: datos corporales",
+  suggested: "Objetivos sugeridos",
+  prescribed: "Tengo un plan de mi nutricionista",
+  meals: "Comidas del día",
+  prefs: "Alergias y gustos",
+};
 
 export default function Onboarding() {
   const { setProfile } = useApp();
-  const [step, setStep] = useState(0);
   const { user, logout } = useAuth();
-  const [name, setName] = useState(user?.username ?? "");
-  const [calorieGoal, setCalorieGoal] = useState(2000);
-  const [proteinGoal, setProteinGoal] = useState(120);
-  const [carbsGoal, setCarbsGoal] = useState(200);
-  const [fatGoal, setFatGoal] = useState(65);
-  const [restrictions, setRestrictions] = useState<string[]>([]);
-  const [disliked, setDisliked] = useState("");
 
-  const finish = () => {
-    setProfile({
-      name,
-      calorieGoal,
-      proteinGoal,
-      carbsGoal,
-      fatGoal,
-      dietaryRestrictions: restrictions,
-      dislikedIngredients: disliked
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-      mealsPerDay: 3,
-      createdAt: new Date().toISOString(),
-    });
+  // Historial de pasos: "Atrás" vuelve al anterior y el borrador conserva todo lo escrito
+  const [history, setHistory] = useState<Step[]>(["name"]);
+  const step = history[history.length - 1];
+  const go = (s: Step) => setHistory([...history, s]);
+  const back = () => setHistory(history.slice(0, -1));
+
+  const [name, setName] = useState(user?.username ?? "");
+  const [goal, setGoal] = useState<Goal>("lose");
+  const [source, setSource] = useState<TargetSource>("calculated");
+  const [bodyDraft, setBodyDraft] = useState<BodyDraft>(bodyDraftFrom());
+  const [suggestion, setSuggestion] = useState<{ body: BodyData; targets: Targets } | null>(null);
+  const [macroDraft, setMacroDraft] = useState<MacroDraft>({ kcal: "", protein: "", carbs: "", fat: "" });
+  const [prescribedDraft, setPrescribedDraft] = useState<PrescribedDraft>(prescribedDraftFrom());
+  const [meals, setMeals] = useState<MealType[]>([...MEAL_TYPES]);
+  const [prefs, setPrefs] = useState<Preferences>({
+    allergies: { preset: [], custom: [] },
+    diet: "omnivore",
+    dislikedIngredients: [],
+  });
+
+  const body = parseBody(bodyDraft).value;
+  const macros = parseMacros(macroDraft);
+  const prescribed = parsePrescribed(prescribedDraft).value;
+
+  const calculate = () => {
+    if (!body) return;
+    const targets = calculateTargets({ ...body, goal });
+    setSuggestion({ body, targets });
+    setMacroDraft(macroDraftFrom(targets));
+    go("suggested");
   };
 
-  const inputCls =
-    "w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2";
+  const finish = () => {
+    const base = {
+      schemaVersion: 2 as const,
+      name: name.trim(),
+      goal,
+      meals,
+      allergies: prefs.allergies,
+      diet: prefs.diet,
+      // Lo que ya es alergia no se guarda también como "no me gusta"
+      dislikedIngredients: withoutAllergies(prefs.dislikedIngredients, prefs.allergies),
+      createdAt: new Date().toISOString(),
+    };
+    let profile: UserProfile | null = null;
+    if (source === "calculated" && suggestion && macros) {
+      profile = {
+        ...base,
+        targetSource: "calculated",
+        body: suggestion.body,
+        calorieGoal: macros.kcal,
+        proteinGoal: macros.protein,
+        carbsGoal: macros.carbs,
+        fatGoal: macros.fat,
+      };
+    } else if (source === "prescribed" && prescribed) {
+      profile = { ...base, targetSource: "prescribed", ...prescribed };
+    }
+    if (profile) setProfile(profile);
+  };
+
+  const backBtn = (
+    <button type="button" onClick={back} className={`flex-1 ${secondaryBtn}`}>
+      Atrás
+    </button>
+  );
+  const nav = (next: React.ReactNode) => <div className="flex gap-3">{backBtn}{next}</div>;
 
   return (
     <div className="max-w-md mx-auto w-full px-6 py-12 flex flex-col gap-6 min-h-screen justify-center">
-      {step === 0 && (
+      <h1 className={step === "name" ? "text-3xl font-bold" : "text-2xl font-bold"}>{TITLES[step]}</h1>
+
+      {step === "name" && (
         <>
-          <h1 className="text-3xl font-bold">🥗 MealPlanner</h1>
           <p className="text-zinc-600 dark:text-zinc-400">
             Planifica tus comidas, controla tus macros y genera recetas con IA.
           </p>
           <label className="flex flex-col gap-1 text-sm font-medium">
             ¿Cómo te llamas?
-            <input
-              className={inputCls}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Tu nombre"
-            />
+            <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre" />
           </label>
-          <button
-            onClick={() => setStep(1)}
-            disabled={!name.trim()}
-            className="bg-emerald-600 text-white rounded-lg py-3 font-semibold disabled:opacity-40"
-          >
+          <GoalPicker value={goal} onChange={setGoal} />
+          <button onClick={() => go("source")} disabled={!name.trim()} className={primaryBtn}>
             Continuar
           </button>
           <button onClick={logout} className="text-sm text-zinc-500">
@@ -74,71 +137,77 @@ export default function Onboarding() {
         </>
       )}
 
-      {step === 1 && (
+      {step === "source" && (
         <>
-          <h2 className="text-2xl font-bold">Tus objetivos diarios</h2>
-          {[
-            { label: "Calorías (kcal)", value: calorieGoal, set: setCalorieGoal },
-            { label: "Proteínas (g)", value: proteinGoal, set: setProteinGoal },
-            { label: "Carbohidratos (g)", value: carbsGoal, set: setCarbsGoal },
-            { label: "Grasas (g)", value: fatGoal, set: setFatGoal },
-          ].map((f) => (
-            <label key={f.label} className="flex flex-col gap-1 text-sm font-medium">
-              {f.label}
-              <input
-                type="number"
-                className={inputCls}
-                value={f.value}
-                onChange={(e) => f.set(Number(e.target.value))}
-              />
-            </label>
-          ))}
-          <button
-            onClick={() => setStep(2)}
-            className="bg-emerald-600 text-white rounded-lg py-3 font-semibold"
-          >
-            Continuar
-          </button>
+          <TargetSourcePicker
+            onPick={(s) => {
+              setSource(s);
+              go(s === "calculated" ? "body" : "prescribed");
+            }}
+          />
+          {backBtn}
         </>
       )}
 
-      {step === 2 && (
+      {step === "body" && (
         <>
-          <h2 className="text-2xl font-bold">Restricciones y gustos</h2>
-          <div className="flex flex-wrap gap-2">
-            {RESTRICTION_OPTIONS.map((r) => (
-              <button
-                key={r}
-                onClick={() =>
-                  setRestrictions((prev) =>
-                    prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r],
-                  )
-                }
-                className={`px-3 py-1.5 rounded-full text-sm border ${
-                  restrictions.includes(r)
-                    ? "bg-emerald-600 text-white border-emerald-600"
-                    : "border-zinc-300 dark:border-zinc-700"
-                }`}
-              >
-                {r}
-              </button>
-            ))}
-          </div>
-          <label className="flex flex-col gap-1 text-sm font-medium">
-            Ingredientes que no te gustan (separados por comas)
-            <input
-              className={inputCls}
-              value={disliked}
-              onChange={(e) => setDisliked(e.target.value)}
-              placeholder="jamón, judías verdes..."
-            />
-          </label>
-          <button
-            onClick={finish}
-            className="bg-emerald-600 text-white rounded-lg py-3 font-semibold"
-          >
-            ¡Empezar!
-          </button>
+          <BodyDataForm value={bodyDraft} onChange={setBodyDraft} />
+          {nav(
+            <button onClick={calculate} disabled={!body} className={`flex-[2] ${primaryBtn}`}>
+              Calcular mis objetivos
+            </button>,
+          )}
+        </>
+      )}
+
+      {step === "suggested" && suggestion && (
+        <>
+          <SuggestedTargets
+            value={macroDraft}
+            onChange={setMacroDraft}
+            derivation={suggestion.targets.derivation}
+            suggestedKcal={suggestion.targets.kcal}
+            proteinPerKg={PROTEIN_G_PER_KG[goal]}
+            activity={suggestion.body.activity}
+          />
+          {nav(
+            <button onClick={() => go("meals")} disabled={!macros} className={`flex-[2] ${primaryBtn}`}>
+              Usar estos objetivos
+            </button>,
+          )}
+        </>
+      )}
+
+      {step === "prescribed" && (
+        <>
+          <PrescribedTargetsForm value={prescribedDraft} onChange={setPrescribedDraft} />
+          {nav(
+            <button onClick={() => go("meals")} disabled={!prescribed} className={`flex-[2] ${primaryBtn}`}>
+              Continuar
+            </button>,
+          )}
+        </>
+      )}
+
+      {step === "meals" && (
+        <>
+          <MealSlotPicker value={meals} onChange={setMeals} />
+          {nav(
+            <button onClick={() => go("prefs")} disabled={meals.length === 0} className={`flex-[2] ${primaryBtn}`}>
+              Continuar
+            </button>,
+          )}
+        </>
+      )}
+
+      {step === "prefs" && (
+        <>
+          <AllergyDietDislikes value={prefs} onChange={setPrefs} />
+          {nav(
+            <button onClick={finish} className={`flex-[2] ${primaryBtn}`}>
+              Empezar
+            </button>,
+          )}
         </>
       )}
     </div>

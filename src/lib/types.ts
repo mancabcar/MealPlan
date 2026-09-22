@@ -1,15 +1,3 @@
-export interface UserProfile {
-  name: string;
-  calorieGoal: number;
-  proteinGoal: number;
-  carbsGoal: number;
-  fatGoal: number;
-  dietaryRestrictions: string[];
-  dislikedIngredients: string[];
-  mealsPerDay: number;
-  createdAt: string;
-}
-
 export interface Recipe {
   id: string;
   name: string;
@@ -23,17 +11,6 @@ export interface Recipe {
   tags: string[];
   isAIGenerated?: boolean;
 }
-
-export type MealType = "Desayuno" | "Comida" | "Cena" | "Snack";
-
-export const MEAL_TYPES: MealType[] = ["Desayuno", "Comida", "Cena", "Snack"];
-
-export const MEAL_TYPE_ICONS: Record<MealType, string> = {
-  Desayuno: "☕",
-  Comida: "🍽️",
-  Cena: "🌙",
-  Snack: "🥕",
-};
 
 export interface MealEntry {
   id: string;
@@ -96,3 +73,61 @@ export interface DayPlanSlot {
 
 /** Plan semanal: clave = fecha YYYY-MM-DD, valor = recetas asignadas. */
 export type WeekPlan = Record<string, DayPlanSlot[]>;
+
+// Perfil (schemaVersion 2). Los perfiles v1 se migran al cargar: ver lib/migrate.ts.
+
+export type Goal = "lose" | "maintain" | "gain";
+export type Sex = "male" | "female" | "unspecified"; // "unspecified" = "Prefiero no decirlo"
+export type ActivityLevel = "poco" | "algo" | "bastante" | "mucho";
+export type DietType = "omnivore" | "pescetarian" | "vegetarian" | "vegan";
+export type TargetSource = "calculated" | "prescribed";
+export type PresetAllergen = "frutos_secos" | "gluten" | "lactosa" | "marisco" | "huevo" | "soja";
+
+export type MealType = "Desayuno" | "Media mañana" | "Comida" | "Merienda" | "Pre-entreno" | "Cena";
+
+/** Orden canónico: el planner y el diario muestran las comidas en este orden. */
+export const MEAL_TYPES: MealType[] = ["Desayuno", "Media mañana", "Comida", "Merienda", "Pre-entreno", "Cena"];
+
+export const MEAL_TYPE_ICONS: Record<MealType, string> = {
+  Desayuno: "☕",
+  "Media mañana": "🍎",
+  Comida: "🍽️",
+  Merienda: "🥕",
+  "Pre-entreno": "💪",
+  Cena: "🌙",
+};
+
+export interface Allergies {
+  preset: PresetAllergen[];
+  custom: string[];
+}
+
+export interface BodyData {
+  sex: Sex;
+  birthYear: number;
+  heightCm: number;
+  weightKg: number;
+  activity: ActivityLevel;
+}
+
+export interface UserProfile {
+  schemaVersion: 2;
+  name: string;
+  goal: Goal;
+  targetSource: TargetSource;
+  body?: BodyData;
+  /** Ruta "plan del nutricionista": peso opcional sin el resto de datos corporales. */
+  weightKg?: number;
+  calorieGoal: number;
+  /** Valor único, o el punto medio cuando hay rango. */
+  proteinGoal: number;
+  proteinRange?: { min: number; max: number };
+  carbsGoal: number;
+  fatGoal: number;
+  /** >= 1, siempre en el orden de MEAL_TYPES. */
+  meals: MealType[];
+  allergies: Allergies;
+  diet: DietType;
+  dislikedIngredients: string[];
+  createdAt: string;
+}

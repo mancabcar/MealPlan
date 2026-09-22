@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { UserProfile, Recipe, MealEntry, PantryItem, WeekPlan } from "./types";
 import seedData from "@/data/recipes.json";
 import { userKey } from "./auth";
+import { migrateEntries, migrateProfile, migrateWeekPlan } from "./migrate";
 
 interface AppState {
   profile: UserProfile | null;
@@ -23,21 +24,38 @@ interface AppState {
 
 const AppContext = createContext<AppState | null>(null);
 
-function load<T>(key: string, fallback: T): T {
+interface LoadOptions<T> {
+  /** Transforma lo guardado (migraciones, siembra). Debe ser idempotente. */
+  upgrade?: (raw: unknown) => T;
+  /** Guarda el valor original en <clave>_v1_backup antes de sobrescribirlo. */
+  backup?: boolean;
+}
+
+function load<T>(key: string, fallback: T, { upgrade, backup }: LoadOptions<T> = {}): T {
+  let raw: unknown = null;
   try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
+    const stored = localStorage.getItem(key);
+    raw = stored ? JSON.parse(stored) : null;
   } catch {
     return fallback;
   }
+  if (!upgrade) return (raw as T) ?? fallback;
+
+  const value = upgrade(raw);
+  const json = JSON.stringify(value);
+  if (value !== null && json !== JSON.stringify(raw)) {
+    if (backup && raw !== null && localStorage.getItem(`${key}_v1_backup`) === null) {
+      localStorage.setItem(`${key}_v1_backup`, JSON.stringify(raw));
+    }
+    localStorage.setItem(key, json);
+  }
+  return value ?? fallback;
 }
 
-function usePersisted<T>(key: string, initial: T, ready: boolean): [T, (v: T) => void] {
-  const [value, setValue] = useState<T>(initial);
-  useEffect(() => {
-    if (ready) setValue(load(key, initial));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready]);
+// AppProvider solo se monta en el cliente, tras cargar la sesión (ver AppShell), así que se puede
+// leer localStorage de forma síncrona: el primer render ya tiene los datos y no hay parpadeo del onboarding.
+function usePersisted<T>(key: string, fallback: T, options?: LoadOptions<T>): [T, (v: T) => void] {
+  const [value, setValue] = useState<T>(() => (typeof window === "undefined" ? fallback : load(key, fallback, options)));
   const set = (v: T) => {
     setValue(v);
     localStorage.setItem(key, JSON.stringify(v));
@@ -45,31 +63,32 @@ function usePersisted<T>(key: string, initial: T, ready: boolean): [T, (v: T) =>
   return [value, set];
 }
 
-export function AppProvider({ userId, children }: { userId: string; children: ReactNode }) {
-  // "ready" evita leer localStorage durante el render de servidor/hidratación
-  const [ready, setReady] = useState(false);
-  useEffect(() => setReady(true), []);
+/** Siembra idempotente: añade solo las recetas del JSON cuyo id falte. */
+function withSeedRecipes(raw: unknown): Recipe[] {
+  const stored = (raw as Recipe[] | null) ?? [];
+  const existing = new Set(stored.map((r) => r.id));
+  const missing = (seedData.recipes as Recipe[]).filter((r) => !existing.has(r.id));
+  return missing.length > 0 ? [...stored, ...missing] : stored;
+}
 
+export function AppProvider({ userId, children }: { userId: string; children: ReactNode }) {
   // Cada usuario tiene sus propias claves: mp_<userId>_<dato>
   const k = (key: string) => userKey(userId, key);
 
-  const [profile, setProfile] = usePersisted<UserProfile | null>(k("profile"), null, ready);
-  const [recipes, setRecipes] = usePersisted<Recipe[]>(k("recipes"), [], ready);
-  const [entries, setEntries] = usePersisted<MealEntry[]>(k("entries"), [], ready);
-  const [pantry, setPantry] = usePersisted<PantryItem[]>(k("pantry"), [], ready);
-  const [weekPlan, setWeekPlan] = usePersisted<WeekPlan>(k("weekplan"), {}, ready);
-
-  // Siembra idempotente: añade solo las recetas del JSON cuyo id falte
-  useEffect(() => {
-    if (!ready) return;
-    const existing = new Set(load<Recipe[]>(k("recipes"), []).map((r) => r.id));
-    const missing = (seedData.recipes as Recipe[]).filter((r) => !existing.has(r.id));
-    if (missing.length > 0) {
-      const merged = [...load<Recipe[]>(k("recipes"), []), ...missing];
-      setRecipes(merged);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready]);
+  const [profile, setProfile] = usePersisted<UserProfile | null>(k("profile"), null, {
+    upgrade: migrateProfile,
+    backup: true,
+  });
+  const [recipes, setRecipes] = usePersisted<Recipe[]>(k("recipes"), [], { upgrade: withSeedRecipes });
+  const [entries, setEntries] = usePersisted<MealEntry[]>(k("entries"), [], {
+    upgrade: (raw) => migrateEntries((raw as MealEntry[] | null) ?? []),
+    backup: true,
+  });
+  const [pantry, setPantry] = usePersisted<PantryItem[]>(k("pantry"), []);
+  const [weekPlan, setWeekPlan] = usePersisted<WeekPlan>(k("weekplan"), {}, {
+    upgrade: (raw) => migrateWeekPlan((raw as WeekPlan | null) ?? {}),
+    backup: true,
+  });
 
   const value: AppState = {
     profile,
@@ -77,7 +96,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     entries,
     pantry,
     weekPlan,
-    loaded: ready,
+    loaded: true,
     setProfile,
     addRecipes: (r) => setRecipes([...recipes, ...r]),
     addEntry: (e) => setEntries([...entries, e]),

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/lib/store";
+import { allergenWarning } from "@/lib/allergens";
 import {
   MEAL_TYPES,
   MEAL_TYPE_ICONS,
@@ -9,18 +10,41 @@ import {
   todayStr,
 } from "@/lib/types";
 
-function MacroBar({ label, value, goal, color }: { label: string; value: number; goal: number; color: string }) {
-  const pct = Math.min(100, goal > 0 ? (value / goal) * 100 : 0);
+function MacroBar({
+  label,
+  value,
+  goal,
+  color,
+  range,
+}: {
+  label: string;
+  value: number;
+  goal: number;
+  color: string;
+  /** Rango prescrito (R17): se dibuja como banda y cualquier valor dentro cuenta como cumplido. */
+  range?: { min: number; max: number };
+}) {
+  const scale = range ? range.max : goal;
+  const pct = Math.min(100, scale > 0 ? (value / scale) * 100 : 0);
+  const inBand = range && value >= range.min && value <= range.max;
   return (
     <div className="flex flex-col gap-1">
       <div className="flex justify-between text-xs">
         <span className="font-medium">{label}</span>
-        <span className="text-zinc-500">
-          {Math.round(value)} / {goal}
+        <span className={inBand ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-zinc-500"}>
+          {inBand && "✓ "}
+          {range ? `${Math.round(value)} / ${range.min}–${range.max}` : `${Math.round(value)} / ${goal}`}
         </span>
       </div>
-      <div className="h-2 rounded-full bg-zinc-200 dark:bg-zinc-800">
-        <div className={`h-2 rounded-full ${color}`} style={{ width: `${pct}%` }} />
+      <div className="relative h-2 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
+        {range && (
+          <div
+            aria-hidden
+            className="absolute inset-y-0 right-0 bg-emerald-200 dark:bg-emerald-900"
+            style={{ left: `${(range.min / range.max) * 100}%` }}
+          />
+        )}
+        <div className={`relative h-2 rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -30,7 +54,9 @@ export default function DiaryPage() {
   const { profile, entries, recipes, addEntry, removeEntry } = useApp();
   const [date, setDate] = useState(todayStr());
   const [showAdd, setShowAdd] = useState(false);
-  const [mealType, setMealType] = useState<MealType>("Comida");
+  const [mealType, setMealType] = useState<MealType>(() =>
+    !profile || profile.meals.includes("Comida") ? "Comida" : profile.meals[0],
+  );
   const [mode, setMode] = useState<"recipe" | "custom">("recipe");
   const [recipeId, setRecipeId] = useState("");
   const [customName, setCustomName] = useState("");
@@ -99,7 +125,7 @@ export default function DiaryPage() {
 
       <section className="bg-white dark:bg-zinc-900 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
         <MacroBar label="Calorías" value={totals.calories} goal={profile.calorieGoal} color="bg-emerald-500" />
-        <MacroBar label="Proteínas" value={totals.protein} goal={profile.proteinGoal} color="bg-sky-500" />
+        <MacroBar label="Proteínas" value={totals.protein} goal={profile.proteinGoal} range={profile.proteinRange} color="bg-sky-500" />
         <MacroBar label="Carbohidratos" value={totals.carbs} goal={profile.carbsGoal} color="bg-amber-500" />
         <MacroBar label="Grasas" value={totals.fat} goal={profile.fatGoal} color="bg-rose-500" />
       </section>
@@ -152,8 +178,14 @@ export default function DiaryPage() {
       {showAdd ? (
         <section className="bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm flex flex-col gap-3">
           <h3 className="font-semibold">Añadir comida</h3>
-          <select value={mealType} onChange={(e) => setMealType(e.target.value as MealType)} className={inputCls}>
-            {MEAL_TYPES.map((mt) => (
+          {/* Nuevas entradas: solo las comidas del usuario (R8). El historial de arriba muestra todas. */}
+          <select
+            aria-label="Comida del día"
+            value={mealType}
+            onChange={(e) => setMealType(e.target.value as MealType)}
+            className={inputCls}
+          >
+            {profile.meals.map((mt) => (
               <option key={mt}>{mt}</option>
             ))}
           </select>
@@ -176,7 +208,7 @@ export default function DiaryPage() {
               <option value="">Elige una receta...</option>
               {recipes.map((r) => (
                 <option key={r.id} value={r.id}>
-                  {r.name} ({r.calories} kcal)
+                  {[`${r.name} (${r.calories} kcal)`, allergenWarning(r, profile.allergies)].filter(Boolean).join(" · ")}
                 </option>
               ))}
             </select>

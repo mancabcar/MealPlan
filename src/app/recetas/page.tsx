@@ -3,6 +3,20 @@
 import { useState } from "react";
 import { useApp } from "@/lib/store";
 import { Recipe } from "@/lib/types";
+import { toRecipeProfile } from "@/lib/recipePrompt";
+import { allergenWarning } from "@/lib/allergens";
+import type { Allergies } from "@/lib/types";
+
+/** Aviso no bloqueante: las recetas del recetario no se filtran, solo se señalan. */
+function AllergenBadge({ recipe, allergies }: { recipe: Recipe; allergies?: Allergies }) {
+  const warning = allergenWarning(recipe, allergies);
+  if (!warning) return null;
+  return (
+    <span className="inline-block mt-1 text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950 rounded-full px-2 py-0.5">
+      {warning}
+    </span>
+  );
+}
 
 export default function RecipesPage() {
   const { recipes, addRecipes, profile, pantry } = useApp();
@@ -24,10 +38,14 @@ export default function RecipesPage() {
       const res = await fetch("/api/recipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profile, pantryItems: pantry }),
+        // Solo lo que usa el prompt: sexo, edad y peso no salen del navegador
+        body: JSON.stringify({ profile: profile && toRecipeProfile(profile), pantryItems: pantry }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error generando recetas");
+      if (data.recipes.length === 0 && data.droppedCount > 0) {
+        throw new Error("Ninguna receta era segura para tus alergias. Prueba de nuevo.");
+      }
       addRecipes(data.recipes);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error generando recetas");
@@ -46,6 +64,7 @@ export default function RecipesPage() {
           {selected.isAIGenerated && "✨ "}
           {selected.name}
         </h1>
+        <AllergenBadge recipe={selected} allergies={profile?.allergies} />
         <div className="flex gap-3 text-sm text-zinc-500">
           <span>⏱️ {selected.prepTimeMinutes} min</span>
           <span>🔥 {selected.calories} kcal</span>
@@ -112,6 +131,7 @@ export default function RecipesPage() {
               {r.isAIGenerated && "✨ "}
               {r.name}
             </div>
+            <AllergenBadge recipe={r} allergies={profile?.allergies} />
             <div className="text-xs text-zinc-500 mt-1">
               {r.calories} kcal · P {r.protein}g · C {r.carbs}g · G {r.fat}g · ⏱️ {r.prepTimeMinutes} min
             </div>
