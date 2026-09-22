@@ -19,7 +19,8 @@ test("R8: el plan semanal muestra exactamente las 5 comidas de Manuel, en orden"
 test("R8: al añadir al diario solo se ofrecen las 5 comidas de Manuel, en orden", async ({ page }) => {
   await signIn(page, { profile: manuel });
   await page.goto("/");
-  await page.getByRole("button", { name: "+ Añadir comida" }).click();
+  // Rediseño visual (docs/pm/design-refresh): el "+" pasa a ser un icono Lucide, el texto ya no lo incluye.
+  await page.getByRole("button", { name: "Añadir comida" }).click();
 
   const select = page.getByLabel("Comida del día");
   await expect(select).toBeVisible();

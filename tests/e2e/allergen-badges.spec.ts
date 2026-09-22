@@ -19,7 +19,8 @@ test("Recetas: la receta con nueces muestra '⚠ contiene Frutos secos'", async 
 test("Diario: el selector de recetas avisa del alérgeno sin bloquear la elección", async ({ page }) => {
   await signIn(page, { profile: allergic });
   await page.goto("/");
-  await page.getByRole("button", { name: "+ Añadir comida" }).click();
+  // Rediseño visual (docs/pm/design-refresh): el "+" pasa a ser un icono Lucide, el texto ya no lo incluye.
+  await page.getByRole("button", { name: "Añadir comida" }).click();
   const option = page.locator("option").filter({ hasText: "Yogur griego con avena" });
   await expect(option).toContainText("⚠ contiene Frutos secos");
 });
