@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useApp } from "@/lib/store";
 import { Recipe } from "@/lib/types";
+import { toRecipeProfile } from "@/lib/recipePrompt";
 
 export default function RecipesPage() {
   const { recipes, addRecipes, profile, pantry } = useApp();
@@ -24,10 +25,14 @@ export default function RecipesPage() {
       const res = await fetch("/api/recipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profile, pantryItems: pantry }),
+        // Solo lo que usa el prompt: sexo, edad y peso no salen del navegador
+        body: JSON.stringify({ profile: profile && toRecipeProfile(profile), pantryItems: pantry }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error generando recetas");
+      if (data.recipes.length === 0 && data.droppedCount > 0) {
+        throw new Error("Ninguna receta era segura para tus alergias. Prueba de nuevo.");
+      }
       addRecipes(data.recipes);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error generando recetas");
