@@ -16,6 +16,11 @@ export const PROTEIN_G_PER_KG: Record<Goal, number> = { lose: 1.8, maintain: 1.6
 const FAT_G_PER_KG = 0.9;
 /** Ruta del nutricionista sin peso: la grasa es este % de las kcal. */
 const FAT_SHARE_WITHOUT_WEIGHT = 0.25;
+/**
+ * Proteína y grasa crecen con el peso, pero las kcal llevan déficit: con pesos altos los
+ * carbohidratos se quedaban en negativo. Se respeta este mínimo y la diferencia sale de la grasa.
+ */
+export const MIN_CARBS_G = 50;
 
 export const LIMITS = {
   heightCm: [120, 230],
@@ -41,6 +46,8 @@ export interface Derivation {
   adjustmentPct: number; // -15, 0 o 10
   /** Presente si se aplicó el mínimo de 1200 (Mujer) / 1500 (Hombre) / 1350 (sin especificar). */
   floorApplied?: number;
+  /** Presente si los carbohidratos se subieron al mínimo bajando la grasa. */
+  carbsFloorApplied?: number;
 }
 
 export interface Targets {
@@ -61,8 +68,19 @@ export interface PrescribedInput {
 
 export type FieldErrors<K extends string> = Partial<Record<K, string>>;
 
-/** Carbos = lo que queda de las kcal tras P y F (ya redondeados, para que cuadre con lo mostrado). */
-const carbsFrom = (kcal: number, protein: number, fat: number) => Math.round((kcal - 4 * protein - 9 * fat) / 4);
+/**
+ * Carbos = lo que queda de las kcal tras P y F (ya redondeados, para que cuadre con lo mostrado).
+ * Si no llegan al mínimo, se suben al mínimo y la grasa absorbe la diferencia (nunca negativa).
+ */
+function splitCarbsFat(kcal: number, protein: number, fatTarget: number) {
+  const carbs = Math.round((kcal - 4 * protein - 9 * fatTarget) / 4);
+  if (carbs >= MIN_CARBS_G) return { carbs, fat: fatTarget, carbsFloorApplied: false };
+
+  const affordable = Math.max(0, Math.round((kcal - 4 * protein) / 4));
+  const flooredCarbs = Math.min(MIN_CARBS_G, affordable);
+  const fat = Math.max(0, Math.round((kcal - 4 * protein - 4 * flooredCarbs) / 9));
+  return { carbs: flooredCarbs, fat, carbsFloorApplied: true };
+}
 
 const inRange = (v: number, [min, max]: readonly [number, number]) => Number.isFinite(v) && v >= min && v <= max;
 
@@ -86,13 +104,20 @@ export function calculateTargets(input: TargetInput, now: Date = new Date()): Ta
   }
 
   const protein = Math.round(PROTEIN_G_PER_KG[goal] * weightKg);
-  const fat = Math.round(FAT_G_PER_KG * weightKg);
+  const { carbs, fat, carbsFloorApplied } = splitCarbsFat(kcal, protein, Math.round(FAT_G_PER_KG * weightKg));
   return {
     kcal,
     protein,
-    carbs: carbsFrom(kcal, protein, fat),
+    carbs,
     fat,
-    derivation: { bmr: Math.round(bmr), factor, tdee: Math.round(tdee), adjustmentPct, floorApplied },
+    derivation: {
+      bmr: Math.round(bmr),
+      factor,
+      tdee: Math.round(tdee),
+      adjustmentPct,
+      floorApplied,
+      carbsFloorApplied: carbsFloorApplied ? MIN_CARBS_G : undefined,
+    },
   };
 }
 
@@ -105,9 +130,14 @@ export function proteinTarget(protein: number | { min: number; max: number }): n
 export function fillPrescribed(input: PrescribedInput): { carbs: number; fat: number } {
   const { kcal, carbs, weightKg } = input;
   const protein = proteinTarget(input.protein);
-  const fat =
+  const fatTarget =
     input.fat ?? (weightKg ? Math.round(FAT_G_PER_KG * weightKg) : Math.round((FAT_SHARE_WITHOUT_WEIGHT * kcal) / 9));
-  return { carbs: carbs ?? carbsFrom(kcal, protein, fat), fat };
+  // Lo que el usuario escribe manda; solo se reparte lo que dejó vacío
+  if (carbs !== undefined) return { carbs, fat: fatTarget };
+  const split = splitCarbsFat(kcal, protein, fatTarget);
+  return input.fat !== undefined
+    ? { carbs: Math.max(0, Math.round((kcal - 4 * protein - 9 * input.fat) / 4)), fat: input.fat }
+    : { carbs: split.carbs, fat: split.fat };
 }
 
 /** Diferencia relativa entre kcal y 4·P + 4·C + 9·F. La UI avisa (sin bloquear) si > 0.10. */
