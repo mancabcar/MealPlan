@@ -70,10 +70,11 @@ export default function PantryPage() {
       {PANTRY_CATEGORIES.map((cat) => {
         const items = pantry.filter((i) => i.category === cat);
         if (items.length === 0) return null;
+        const CategoryIcon = PANTRY_CATEGORY_ICONS[cat];
         return (
           <section key={cat} className="bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm">
-            <h2 className="text-sm font-semibold mb-2">
-              {PANTRY_CATEGORY_ICONS[cat]} {cat}
+            <h2 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+              <CategoryIcon className="w-4 h-4" aria-hidden /> {cat}
             </h2>
             {items.map((item) => (
               <div key={item.id} className="flex justify-between items-center py-1.5 text-sm">
