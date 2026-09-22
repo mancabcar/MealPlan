@@ -1,6 +1,6 @@
 # Rediseño visual moderno de Comidas
 
-_Status: tech design · [spec.md](spec.md) · [tech.md](tech.md)_
+_Status: in review · [spec.md](spec.md) · [tech.md](tech.md) · [PR #4](https://github.com/mancabcar/MealPlan/pull/4)_
 
 _No hay brief previo de pm-brainstorm — este documento arranca directamente en la fase de prototipo, a partir de la petición del usuario en el chat._
 
