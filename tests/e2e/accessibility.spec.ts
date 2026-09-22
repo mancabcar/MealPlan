@@ -65,7 +65,8 @@ test.describe("R6: contraste de color", () => {
     await page.goto("/recetas");
     // Las tarjetas de receta son los únicos botones que muestran "kcal" (evita el botón "Sugerir con IA").
     await page.getByRole("button").filter({ hasText: "kcal" }).first().click();
-    await expect(page.getByRole("button", { name: "← Volver" })).toBeVisible();
+    // Rediseño visual: "←" pasa a ser un icono Lucide (ArrowLeft, aria-hidden); el nombre accesible es solo "Volver".
+    await expect(page.getByRole("button", { name: "Volver" })).toBeVisible();
     await expectNoContrastViolations(page);
   });
 
