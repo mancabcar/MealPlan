@@ -30,7 +30,9 @@ export default function DiaryPage() {
   const { profile, entries, recipes, addEntry, removeEntry } = useApp();
   const [date, setDate] = useState(todayStr());
   const [showAdd, setShowAdd] = useState(false);
-  const [mealType, setMealType] = useState<MealType>("Comida");
+  const [mealType, setMealType] = useState<MealType>(() =>
+    !profile || profile.meals.includes("Comida") ? "Comida" : profile.meals[0],
+  );
   const [mode, setMode] = useState<"recipe" | "custom">("recipe");
   const [recipeId, setRecipeId] = useState("");
   const [customName, setCustomName] = useState("");
@@ -152,8 +154,14 @@ export default function DiaryPage() {
       {showAdd ? (
         <section className="bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm flex flex-col gap-3">
           <h3 className="font-semibold">Añadir comida</h3>
-          <select value={mealType} onChange={(e) => setMealType(e.target.value as MealType)} className={inputCls}>
-            {MEAL_TYPES.map((mt) => (
+          {/* Nuevas entradas: solo las comidas del usuario (R8). El historial de arriba muestra todas. */}
+          <select
+            aria-label="Comida del día"
+            value={mealType}
+            onChange={(e) => setMealType(e.target.value as MealType)}
+            className={inputCls}
+          >
+            {profile.meals.map((mt) => (
               <option key={mt}>{mt}</option>
             ))}
           </select>
