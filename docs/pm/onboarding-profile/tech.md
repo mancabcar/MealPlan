@@ -183,7 +183,7 @@ The repo has **no test setup**. I recommend running dev-test first to add Vitest
 6. [x] Planner and diary show `profile.meals`; `dayKcal` only sums visible slots (R8).
 7. [x] Route: `buildPrompt` with separate sections, the allergen filter, `droppedCount`, and the recipes empty-state message (R10–R12, R18).
 8. [x] Shared step components in `src/components/profile/` (R1–R7, R9, R11, R12).
-9. [ ] Rewrite onboarding on top of the step components, with back navigation (R1–R12).
+9. [x] Rewrite onboarding on top of the step components, with back navigation (R1–R12).
 10. [ ] Perfil sections + source badge + source switch (R13, R15).
 11. [ ] Perfil recalculation banner (R16).
 12. [ ] Dashboard protein band (R17).
@@ -207,7 +207,7 @@ The e2e tests find elements the way users do, by role and accessible name, using
   - The height error text includes "120" and "230".
 - **Step 4a:** "Calorías (kcal)", "Proteínas (g)", "Carbohidratos (g)", "Grasas (g)" as inputs; "¿De dónde salen estas cifras?"; button "Usar estos objetivos".
 - **Step 3b:** "Calorías (kcal)"; checkbox "Es un rango"; fields "Proteína mínima (g)" / "Proteína máxima (g)" (or "Proteínas (g)" when it isn't a range); "Carbohidratos (g)", "Grasas (g)", "Peso (kg)".
-  - The min > max error mentions "mínima" and "máxima".
+  - The min > max error is a `role="alert"` and mentions "mínima" and "máxima".
 - **Step 5:** checkboxes named after the meals. The hint contains "al menos una".
 - **Step 6:** allergy checkboxes; "Otra alergia" chip input; diet radios Como de todo / Pescetariana / Vegetariana / Vegana; "No me gusta" chip input; button "Empezar".
 

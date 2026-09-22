@@ -208,7 +208,11 @@ export function PrescribedTargetsForm({
             <Field label="Proteína mínima (g)" value={value.proteinMin} onChange={(proteinMin) => set({ proteinMin })} placeholder="130" />
             <Field label="Proteína máxima (g)" value={value.proteinMax} onChange={(proteinMax) => set({ proteinMax })} placeholder="170" />
           </div>
-          {errors.proteinRange && <span className="text-xs text-rose-600">{errors.proteinRange}</span>}
+          {errors.proteinRange && (
+            <span role="alert" className="text-xs text-rose-600">
+              {errors.proteinRange}
+            </span>
+          )}
         </div>
       ) : (
         <Field label="Proteínas (g)" value={value.protein} onChange={(protein) => set({ protein })} error={errors.protein} placeholder="150" />

@@ -19,7 +19,8 @@ async function fillManuelPlan(page: Page, min = "130", max = "170") {
 
 test("R5: con rango, mínimo > máximo muestra error y desactiva 'Continuar'", async ({ page }) => {
   await fillManuelPlan(page, "170", "130");
-  await expect(page.getByText(/mínim.*máxim/i)).toBeVisible();
+  // Las etiquetas "Proteína mínima/máxima" también casan con el regex: se busca el aviso de error
+  await expect(page.getByRole("alert").filter({ hasText: /mínim.*máxim/i })).toBeVisible();
   await expect(page.getByRole("button", { name: "Continuar" })).toBeDisabled();
 });
 
