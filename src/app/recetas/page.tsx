@@ -9,9 +9,7 @@ import { allergenWarning } from "@/lib/allergens";
 import type { Allergies } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
-
-const inputCls =
-  "w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)]";
+import { inputCls } from "@/components/ui/input";
 
 /** Aviso no bloqueante: las recetas del recetario no se filtran, solo se señalan. */
 function AllergenBadge({ recipe, allergies }: { recipe: Recipe; allergies?: Allergies }) {

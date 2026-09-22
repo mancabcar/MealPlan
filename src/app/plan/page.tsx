@@ -6,9 +6,7 @@ import { allergenWarning } from "@/lib/allergens";
 import { MEAL_TYPES, MEAL_TYPE_ICON_COMPONENTS, MealType, todayStr } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { DaySelector } from "@/components/ui/DaySelector";
-
-const inputCls =
-  "w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)]";
+import { inputCls } from "@/components/ui/input";
 
 function weekDates(start: string): string[] {
   const d = new Date(start + "T00:00:00");

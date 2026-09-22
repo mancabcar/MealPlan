@@ -14,9 +14,7 @@ import { Card } from "@/components/ui/Card";
 import { Chip, type ChipTone } from "@/components/ui/Chip";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { WeekBarChart } from "@/components/ui/WeekBarChart";
-
-const inputCls =
-  "w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)]";
+import { inputCls } from "@/components/ui/input";
 
 // Rediseño visual (docs/pm/design-refresh, R7): proteína/carbohidratos/grasas se quedan como barras
 // de progreso (no como el anillo, solo para calorías), re-tokenizadas con --color-protein/carbs/fat.

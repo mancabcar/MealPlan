@@ -12,9 +12,7 @@ import {
 } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
-
-const inputCls =
-  "w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)]";
+import { inputCls } from "@/components/ui/input";
 
 export default function PantryPage() {
   const { pantry, addPantryItem, removePantryItem } = useApp();
