@@ -12,6 +12,7 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
+    actionTimeout: 5_000,
     ...devices["Pixel 7"], // la app es mobile-first
   },
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],

@@ -96,3 +96,55 @@ export interface DayPlanSlot {
 
 /** Plan semanal: clave = fecha YYYY-MM-DD, valor = recetas asignadas. */
 export type WeekPlan = Record<string, DayPlanSlot[]>;
+
+// ---------------------------------------------------------------------------
+// Perfil v2 (docs/pm/onboarding-profile/tech.md). Conviven con los tipos v1
+// hasta la tarea 5, que convierte UserProfileV2 en UserProfile y MealSlot en MealType.
+// ---------------------------------------------------------------------------
+
+export type Goal = "lose" | "maintain" | "gain";
+export type Sex = "male" | "female";
+export type ActivityLevel = "poco" | "algo" | "bastante" | "mucho";
+export type DietType = "omnivore" | "pescetarian" | "vegetarian" | "vegan";
+export type TargetSource = "calculated" | "prescribed";
+export type PresetAllergen = "frutos_secos" | "gluten" | "lactosa" | "marisco" | "huevo" | "soja";
+
+export type MealSlot = "Desayuno" | "Media mañana" | "Comida" | "Merienda" | "Pre-entreno" | "Cena";
+
+/** Orden canónico: el planner y el diario muestran las comidas en este orden. */
+export const MEAL_SLOTS: MealSlot[] = ["Desayuno", "Media mañana", "Comida", "Merienda", "Pre-entreno", "Cena"];
+
+export interface Allergies {
+  preset: PresetAllergen[];
+  custom: string[];
+}
+
+export interface BodyData {
+  sex: Sex;
+  birthYear: number;
+  heightCm: number;
+  weightKg: number;
+  activity: ActivityLevel;
+}
+
+export interface UserProfileV2 {
+  schemaVersion: 2;
+  name: string;
+  goal: Goal;
+  targetSource: TargetSource;
+  body?: BodyData;
+  /** Ruta "plan del nutricionista": peso opcional sin el resto de datos corporales. */
+  weightKg?: number;
+  calorieGoal: number;
+  /** Valor único, o el punto medio cuando hay rango. */
+  proteinGoal: number;
+  proteinRange?: { min: number; max: number };
+  carbsGoal: number;
+  fatGoal: number;
+  /** >= 1, siempre en el orden de MEAL_SLOTS. */
+  meals: MealSlot[];
+  allergies: Allergies;
+  diet: DietType;
+  dislikedIngredients: string[];
+  createdAt: string;
+}
