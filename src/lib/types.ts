@@ -103,7 +103,7 @@ export type WeekPlan = Record<string, DayPlanSlot[]>;
 // ---------------------------------------------------------------------------
 
 export type Goal = "lose" | "maintain" | "gain";
-export type Sex = "male" | "female";
+export type Sex = "male" | "female" | "unspecified"; // "unspecified" = "Prefiero no decirlo"
 export type ActivityLevel = "poco" | "algo" | "bastante" | "mucho";
 export type DietType = "omnivore" | "pescetarian" | "vegetarian" | "vegan";
 export type TargetSource = "calculated" | "prescribed";

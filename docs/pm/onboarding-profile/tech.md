@@ -176,7 +176,7 @@ The repo has **no test setup**. I recommend running dev-test first to add Vitest
 
 ## Tasks
 1. [x] Add Vitest + Playwright + a CI workflow (dev-test). Feature tests are written, and the `nutrition` / `allergens` / `migrate` stubs throw "not implemented".
-2. [ ] Implement `nutrition.ts` (R3–R6).
+2. [x] Implement `nutrition.ts` (R3–R6).
 3. [ ] Implement `allergens.ts` (R10, R18).
 4. [ ] Implement `migrate.ts` (R14). The v2 types already live in `types.ts` as `UserProfileV2` / `MealSlot`.
 5. [ ] Store: `migrate` hook in `usePersisted`, v1 backup, the loaded-flash fix. **This also clears the 2 pre-existing `react-hooks/set-state-in-effect` lint errors in `store.tsx`**, so CI's lint step stays red until this task. Rename `UserProfileV2` → `UserProfile` and `MealSlot` → `MealType`. Update the existing consumers so they compile on v2: dashboard, planner and route read `profile.meals` / `allergies` (R8, R14).
@@ -188,6 +188,7 @@ The repo has **no test setup**. I recommend running dev-test first to add Vitest
 11. [ ] Perfil recalculation banner (R16).
 12. [ ] Dashboard protein band (R17).
 13. [ ] Make the remaining e2e tests green; update the README's sections table.
+14. [ ] Non-blocking allergen badge ("⚠ contiene …") in Recetas and in the planner and diary recipe pickers (decided spec feedback #2).
 
 Each step leaves the app working. Task 5 is the only point where old and new code meet, so after it every screen reads v2.
 
@@ -253,7 +254,14 @@ Written before the code on 2026-09-22. 🔴 means failing as expected until the 
 Not automated: the 10% mismatch *warning UI* (only the calculation is tested), and the manual metrics (20 AI generations, the timed onboarding session).
 
 ## Spec feedback
-Needs a PM decision before coding:
+**Decided 2026-09-22 (Manuel):**
+- R19 is cut.
+- Allergen badges on seed recipes and pickers are in scope (task 14).
+- "Prefiero no decirlo" is added. It sets `Sex = "unspecified"`, the BMR constant is −78 (the average of +5 and −161), and the calorie floor is 1350 (the average of the two floors).
+- A protein range counts as on target anywhere inside the band.
+- "avena" stays in Gluten.
+
+Original feedback, kept for context:
 1. **Cut R19 (custom meal slot) from this release.** It turns `MealType` from a closed union into free strings. That breaks icons, ordering and the "Snack" mapping, and adds a custom-slot lifecycle (renaming, deleting it with entries attached). "Recena" is a nice-to-have for nobody in the current household. Revisit it as a separate small change.
 2. **Allergen checks on seed recipes and planner/diary picks.** Right now an allergic user can add a seed recipe containing almonds without any warning. I'd add a non-blocking "⚠ contiene Frutos secos" badge in Recetas, the planner picker and the diary picker. It reuses `recipeViolations()` and costs about half a day. Should it be in scope?
 3. **"Prefiero no decirlo":** it's trivial to support by averaging the constants (−78). I'd add it, since the sex question is the most sensitive field.

@@ -43,6 +43,20 @@ describe("R4: objetivos calculados (Mifflin-St Jeor)", () => {
     expect(derivation.bmr).toBe(1486); // 1320.25 + 166
   });
 
+  it("R4: 'Prefiero no decirlo' usa la media de las dos constantes (−78)", () => {
+    const { derivation } = calculateTargets({ ...luciaInput, sex: "unspecified" }, NOW);
+    expect(derivation.bmr).toBe(1403); // 1481.25 − 78
+  });
+
+  it("R4: 'Prefiero no decirlo' usa un mínimo de 1350 kcal", () => {
+    const t = calculateTargets(
+      { sex: "unspecified", birthYear: 1966, heightCm: 150, weightKg: 45, activity: "poco", goal: "lose" },
+      NOW,
+    );
+    expect(t.kcal).toBe(1350);
+    expect(t.derivation.floorApplied).toBe(1350);
+  });
+
   it("R4: Mantenerme no ajusta kcal y usa 1.6 g/kg de proteína", () => {
     const t = calculateTargets({ ...luciaInput, goal: "maintain" }, NOW);
     expect(t.derivation.adjustmentPct).toBe(0);
