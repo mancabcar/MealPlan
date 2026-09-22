@@ -39,4 +39,4 @@ ANTHROPIC_API_KEY=sk-ant-...
 | 🧺 Despensa | Inventario por categoría con avisos de "caduca pronto" y "caducado" |
 | 👤 Perfil | Objetivos de macros, restricciones y gustos (editables) |
 
-El primer arranque muestra un onboarding de 3 pasos que crea tu perfil.
+Al entrar se pide usuario y contraseña (cuentas locales en este navegador, contraseña con hash PBKDF2; "Recordarme" mantiene la sesión abierta y guarda el usuario para elegirlo rápido). Cada usuario tiene sus propios datos. Tras crear la cuenta, un onboarding de 3 pasos crea tu perfil.

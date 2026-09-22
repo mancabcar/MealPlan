@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { UserProfile, Recipe, MealEntry, PantryItem, WeekPlan } from "./types";
 import seedData from "@/data/recipes.json";
+import { userKey } from "./auth";
 
 interface AppState {
   profile: UserProfile | null;
@@ -44,24 +45,27 @@ function usePersisted<T>(key: string, initial: T, ready: boolean): [T, (v: T) =>
   return [value, set];
 }
 
-export function AppProvider({ children }: { children: ReactNode }) {
+export function AppProvider({ userId, children }: { userId: string; children: ReactNode }) {
   // "ready" evita leer localStorage durante el render de servidor/hidratación
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
 
-  const [profile, setProfile] = usePersisted<UserProfile | null>("mp_profile", null, ready);
-  const [recipes, setRecipes] = usePersisted<Recipe[]>("mp_recipes", [], ready);
-  const [entries, setEntries] = usePersisted<MealEntry[]>("mp_entries", [], ready);
-  const [pantry, setPantry] = usePersisted<PantryItem[]>("mp_pantry", [], ready);
-  const [weekPlan, setWeekPlan] = usePersisted<WeekPlan>("mp_weekplan", {}, ready);
+  // Cada usuario tiene sus propias claves: mp_<userId>_<dato>
+  const k = (key: string) => userKey(userId, key);
+
+  const [profile, setProfile] = usePersisted<UserProfile | null>(k("profile"), null, ready);
+  const [recipes, setRecipes] = usePersisted<Recipe[]>(k("recipes"), [], ready);
+  const [entries, setEntries] = usePersisted<MealEntry[]>(k("entries"), [], ready);
+  const [pantry, setPantry] = usePersisted<PantryItem[]>(k("pantry"), [], ready);
+  const [weekPlan, setWeekPlan] = usePersisted<WeekPlan>(k("weekplan"), {}, ready);
 
   // Siembra idempotente: añade solo las recetas del JSON cuyo id falte
   useEffect(() => {
     if (!ready) return;
-    const existing = new Set(load<Recipe[]>("mp_recipes", []).map((r) => r.id));
+    const existing = new Set(load<Recipe[]>(k("recipes"), []).map((r) => r.id));
     const missing = (seedData.recipes as Recipe[]).filter((r) => !existing.has(r.id));
     if (missing.length > 0) {
-      const merged = [...load<Recipe[]>("mp_recipes", []), ...missing];
+      const merged = [...load<Recipe[]>(k("recipes"), []), ...missing];
       setRecipes(merged);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
