@@ -40,6 +40,8 @@ export function pendingSlots({
   // R5: solo hoy y días pasados (YYYY-MM-DD se compara bien como string); "" = input de fecha borrado
   if (date === "" || date > today) return [];
   const slots = weekPlan[date] ?? [];
+  // R3/R4/R6: cualquier entrada de esa comida ese día la quita (una pasada por el historial, no una por comida)
+  const logged = new Set(entries.filter((e) => e.date === date).map((e) => e.mealType));
   const result: PendingSlot[] = [];
   for (const mt of MEAL_TYPES) {
     if (!meals.includes(mt)) continue;
@@ -47,8 +49,7 @@ export function pendingSlots({
     const slot = slots.find((s) => s.mealType === mt);
     const recipe = slot && recipes.find((r) => r.id === slot.recipeId);
     if (!recipe) continue;
-    // R3/R4/R6: cualquier entrada de esa comida ese día la quita
-    if (entries.some((e) => e.date === date && e.mealType === mt)) continue;
+    if (logged.has(mt)) continue;
     result.push({ mealType: mt, recipe });
   }
   return result;
