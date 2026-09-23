@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Plus, X } from "lucide-react";
+import { useId, useState } from "react";
+import { Check, CheckCheck, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { allergenWarning } from "@/lib/allergens";
-import { recipeEntry } from "@/lib/diary";
+import { pendingSlots, recipeEntry } from "@/lib/diary";
 import {
   MEAL_TYPES,
   MEAL_TYPE_ICON_COMPONENTS,
@@ -67,7 +67,8 @@ function MacroBar({
 }
 
 export default function DiaryPage() {
-  const { profile, entries, recipes, addEntry, removeEntry } = useApp();
+  const { profile, entries, recipes, weekPlan, addEntry, removeEntry } = useApp();
+  const idPrefix = useId();
   const [date, setDate] = useState(todayStr());
   const [showAdd, setShowAdd] = useState(false);
   const [mealType, setMealType] = useState<MealType>(() =>
@@ -79,6 +80,8 @@ export default function DiaryPage() {
   const [customMacros, setCustomMacros] = useState({ calories: 0, protein: 0, carbs: 0, fat: 0 });
 
   if (!profile) return null;
+
+  const pending = pendingSlots({ date, today: todayStr(), weekPlan, recipes, entries, meals: profile.meals });
 
   const dayEntries = entries.filter((e) => e.date === date);
   const totals = dayEntries.reduce(
@@ -139,16 +142,50 @@ export default function DiaryPage() {
         <MacroBar label="Grasas" value={totals.fat} goal={profile.fatGoal} tone="fat" />
       </Card>
 
+      {/* R8: con ≥ 2 pendientes, encima de las tarjetas */}
+      {pending.length >= 2 && (
+        <button
+          onClick={() => pending.forEach((p) => addEntry(recipeEntry(p.recipe, date, p.mealType)))}
+          className="flex items-center justify-center gap-1.5 rounded-xl py-2.5 border border-[var(--color-accent)] text-[var(--color-accent)] font-semibold text-sm"
+        >
+          <CheckCheck className="w-4 h-4" aria-hidden />
+          Registrar todo el día
+        </button>
+      )}
+
       <section className="flex flex-col gap-3">
-        {MEAL_TYPES.map((mt) => {
+        {MEAL_TYPES.map((mt, i) => {
           const items = dayEntries.filter((e) => e.mealType === mt);
-          if (items.length === 0) return null;
+          // Cualquier entrada de esa comida quita la pendiente: la tarjeta tiene entradas o una fila pendiente
+          const slot = pending.find((p) => p.mealType === mt);
+          if (items.length === 0 && !slot) return null;
           const Icon = MEAL_TYPE_ICON_COMPONENTS[mt];
+          const headingId = `${idPrefix}-meal-${i}`;
+          const warning = slot && allergenWarning(slot.recipe, profile.allergies);
           return (
-            <Card key={mt}>
-              <h3 className="text-sm font-semibold mb-2 flex items-center gap-1.5">
+            <Card key={mt} as="section" aria-labelledby={headingId}>
+              <h3 id={headingId} className="text-sm font-semibold mb-2 flex items-center gap-1.5">
                 <Icon className="w-4 h-4" aria-hidden /> {mt}
               </h3>
+              {slot && (
+                // "Hecho" a la izquierda y arriba: al registrar, la fila se convierte en la entrada y un segundo
+                // toque cae sobre su nombre, no sobre la ✕ (que está a la derecha).
+                <div className="flex items-start gap-2 text-sm">
+                  <button
+                    onClick={() => addEntry(recipeEntry(slot.recipe, date, mt))}
+                    className="shrink-0 flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold border border-[var(--color-accent)] text-[var(--color-accent)]"
+                  >
+                    <Check className="w-3.5 h-3.5" aria-hidden />
+                    Hecho
+                  </button>
+                  <div className="flex-1 flex flex-wrap items-center gap-x-2 gap-y-1 py-0.5 text-[var(--color-text-muted)]">
+                    <span>{slot.recipe.name}</span>
+                    <Chip tone="neutral">Pendiente</Chip>
+                    {warning && <Chip tone="expired">{warning}</Chip>}
+                  </div>
+                  <span className="shrink-0 py-0.5 text-[var(--color-text-muted)]">{slot.recipe.calories} kcal</span>
+                </div>
+              )}
               {items.map((e) => (
                 <div key={e.id} className="flex justify-between items-center py-1 text-sm">
                   <span>{e.customName ?? recipes.find((r) => r.id === e.recipeId)?.name ?? "Receta"}</span>

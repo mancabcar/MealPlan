@@ -80,11 +80,11 @@ Rules, in this order (one per spec bullet):
 No prototype; spec R7 AC gives the direction ("muted styling plus a 'Pendiente' label").
 
 - **Meal card**: `<Card as="section" aria-labelledby={id}>` with the existing `h3` given that `id` (`useId()` prefix + index, or a slug of `mt`). This makes `getByRole("region", { name: "Comida" })` work in tests and helps screen readers. It is rendered when the meal type has entries or a pending slot. Entries render exactly as today.
-- **Pending row** (only when the card has no entries): left, recipe name in `--color-text-muted` plus `Chip tone="neutral"` "Pendiente"; right, `"{kcal} kcal"` muted and a small outlined button "Hecho" with the Lucide `Check` icon (`border-[var(--color-accent)] text-[var(--color-accent)]`, same shape as the Receta/Personalizada toggles). Muted text plus the chip is enough to read as "not eaten yet", and both use tokens design-refresh already contrast-checked. Accessible name of the button: visible text "Hecho" (tests scope by the card region).
+- **Pending row** (only when the card has no entries): a small outlined button "Hecho" on the **left** with the Lucide `Check` icon (`border-[var(--color-accent)] text-[var(--color-accent)]`, same shape as the Receta/Personalizada toggles; see Double tap), then the recipe name in `--color-text-muted` plus `Chip tone="neutral"` "Pendiente"; `"{kcal} kcal"` muted on the right. Muted text plus the chip is enough to read as "not eaten yet", and both use tokens design-refresh already contrast-checked. Accessible name of the button: visible text "Hecho" (tests scope by the card region).
 - **R10 (Could, included, ~5 lines)**: under the name, `allergenWarning(recipe, profile.allergies)` in the same expired-tone pill as `recetas/page.tsx › AllergenBadge`. Reuse by rendering `Chip tone="expired"` with the warning text.
 - **"Registrar todo el día" (R8)**: when `pending.length >= 2`, a full-width secondary button (outlined, accent text, `CheckCheck` icon) directly **above** the meal cards `section`, labelled "Registrar todo el día". Its handler: `pending.forEach(p => addEntry(recipeEntry(p.recipe, date, p.mealType)))`; the chained setter keeps all writes. Hidden for future dates automatically (pending is empty).
 - **Totals, ring, week chart**: unchanged code; they read `entries` only, so pending never counts (R7) and a new entry counts immediately (R3).
-- **Double tap**: React flushes discrete events (click) synchronously, so after the first click the row is gone before a second click can land. The handler is also built from the current `pending`, and the same slot can't be pending once its entry exists. No extra guard needed; the e2e test double-clicks to prove it.
+- **Double tap**: React flushes discrete events (click) synchronously, so after the first click the row is already the logged entry when the second click lands. _Implementation note (dev-code):_ "Hecho" therefore sits at the **left** of the pending row, top-aligned with its first line, instead of the right: the second click lands on the new entry's name (inert), never on its ✕ (right). The e2e test double-clicks to prove it.
 
 ## Spec coverage
 | Req | How it's met |
@@ -129,10 +129,10 @@ No prototype; spec R7 AC gives the direction ("muted styling plus a 'Pendiente' 
 ## Tasks
 1. [x] **Pure helpers** `src/lib/diary.ts` (`recipeEntry`, `pendingSlots`) + `tests/unit/diary.test.ts`. No UI yet. (R1–R6, R9 logic)
 2. [x] **Refactor `submitAdd`** in `src/app/page.tsx` to build recipe entries with `recipeEntry()`. No behaviour change; existing tests stay green. (R2 "same result as the form")
-3. [ ] **Meal cards as labelled regions** (`Card as="section" aria-labelledby`), rendered when there are entries or a pending slot; pending row with "Pendiente" chip, kcal and "Hecho". (R1–R7, R9)
-4. [ ] **"Registrar todo el día"** button above the cards when ≥ 2 pending. (R8)
-5. [ ] **Allergen chip** on the pending row. (R10, Could; can be dropped without affecting the rest)
-6. [ ] **E2E** `tests/e2e/diario-desde-plan.spec.ts` for every AC + accessibility case. **Written by dev-test** (see Test coverage); the task is to make them pass. (all)
+3. [x] **Meal cards as labelled regions** (`Card as="section" aria-labelledby`), rendered when there are entries or a pending slot; pending row with "Pendiente" chip, kcal and "Hecho". (R1–R7, R9)
+4. [x] **"Registrar todo el día"** button above the cards when ≥ 2 pending. (R8)
+5. [x] **Allergen chip** on the pending row. (R10, Could; can be dropped without affecting the rest)
+6. [x] **E2E** `tests/e2e/diario-desde-plan.spec.ts` for every AC + accessibility case. **Written by dev-test** (see Test coverage); the task is to make them pass. (all)
 
 Each task leaves the app working; 1–2 are invisible to users, 3 delivers all Musts.
 
