@@ -49,7 +49,8 @@ export function useShoppingList() {
       addPantryItems(added);
       update((w) =>
         recordMove(w, {
-          at: today,
+          // Marca de tiempo completa: la Despensa muestra "Deshacer" solo justo después de mover (R13)
+          at: new Date().toISOString(),
           pantryIds: added.map((p) => p.id),
           entries: Object.fromEntries(moves.map(({ item }) => [item.key, amountSignature(item)])),
         }),
