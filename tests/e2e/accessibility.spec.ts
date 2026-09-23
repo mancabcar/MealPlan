@@ -11,7 +11,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { lucia } from "../fixtures/profiles";
-import { DIARIO_RECIPES, LENTEJAS, MACARRONES, MERLUZA, slot } from "../fixtures/diario";
+import { DIARIO_RECIPES, GUISO, LENTEJAS, MACARRONES, MERLUZA, RACIONES_RECIPES, slot } from "../fixtures/diario";
 import { SHOPPING_PANTRY, SHOPPING_PLAN, SHOPPING_RECIPES } from "../fixtures/shopping";
 import { signIn, TODAY } from "./helpers";
 
@@ -53,6 +53,24 @@ test.describe("R6: contraste de color", () => {
     await expect(page.getByText("Pendiente", { exact: true })).toHaveCount(3);
     await expect(page.getByText("⚠ contiene Lactosa")).toBeVisible();
     await expect(page.getByRole("button", { name: "Registrar todo el día" })).toBeVisible();
+    await expectNoContrastViolations(page);
+  });
+
+  // docs/pm/raciones/tech.md › Risks ("Contraste / accesibilidad del error y de los botones −/+"): formulario de
+  // añadir con el campo "Raciones", sus botones − / +, la vista previa de kcal y el error visible. Falla hasta que existan.
+  test("Diario con formulario de raciones y error", async ({ page }) => {
+    await signIn(page, { profile: lucia, recipes: RACIONES_RECIPES, weekplan: {}, entries: [] });
+    await page.goto("/");
+    await page.getByRole("button", { name: "Añadir comida" }).click();
+    await page
+      .getByRole("combobox")
+      .filter({ has: page.locator("option", { hasText: "Elige una receta..." }) })
+      .selectOption(GUISO.id);
+    await page.getByLabel("Raciones", { exact: true }).fill("5");
+    await page.getByRole("button", { name: "Añadir", exact: true }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "Entre 0,25 y 4, en pasos de 0,25" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Quitar 0,25 raciones" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Añadir 0,25 raciones" })).toBeVisible();
     await expectNoContrastViolations(page);
   });
 

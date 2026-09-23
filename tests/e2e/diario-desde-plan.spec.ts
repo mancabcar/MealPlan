@@ -100,6 +100,8 @@ test.describe('R2: "Hecho" registra la receta planificada', () => {
       fat: 12,
     });
     expect(entries[0].customName).toBeUndefined();
+    // docs/pm/raciones/spec.md › R7: "Hecho" registra 1 ración, sin multiplicador guardado
+    expect(entries[0]).not.toHaveProperty("servings");
   });
 
   test("con ayer seleccionado, la entrada lleva la fecha de ayer", async ({ page }) => {
