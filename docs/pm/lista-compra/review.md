@@ -59,6 +59,8 @@ _Updated 2026-09-23, after the review above (which describes `80c857f`)._
 | N5 unvalidated persisted state | ✅ Fixed in `b4ea406`: `loadShoppingState` as the `upgrade` step. |
 | N6 usage counts stale ticks | ✅ Fixed in `aa63d99`: `pruneBought` drops stale marks on every write; moved items untouched. |
 | N7 Sheet focus management | ✅ Fixed in `5bfd0ee`: focus moves in, Tab is trapped, focus returns on close; keyboard e2e test. |
-| Cleanup (store setter, normalizer copies, `matchPantry` cost) | Open. |
+| Cleanup: store setter | ✅ Fixed in `3f15e17`: `usePersisted` setter takes an updater of the latest written value; store actions use it; jsdom test. |
+| Cleanup: normalizer copies | ✅ Fixed in `0372502`: one `normalize` in `lib/text.ts` (re-exported by `allergens.ts`). |
+| Cleanup: `matchPantry` cost | ✅ Fixed in `c0aaed8`: `buildShoppingView` indexes the Despensa once. |
 
-Checks after the fixes: 321/321 unit, 74/74 e2e, lint, typecheck and build pass.
+Checks after the fixes: 324/324 unit, 74/74 e2e, lint, typecheck and build pass.
