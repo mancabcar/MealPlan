@@ -121,6 +121,54 @@ test.describe('R2: "Hecho" registra la receta planificada', () => {
     await expect(pendingLabels(page)).toHaveCount(0);
     expect(await readStored<MealEntry[]>(page, "entries")).toHaveLength(1);
   });
+
+  // review.md › Non-blocking 2: con 2 pendientes, "Registrar todo el día" desaparece tras el primer toque y las
+  // tarjetas suben; el segundo no debe registrar la otra franja.
+  test("Edge case: doble toque en \"Hecho\" con 2 pendientes registra solo esa franja", async ({ page }) => {
+    await openDiario(page, { weekplan: { [TODAY]: [slot("Comida", LENTEJAS), slot("Cena", MERLUZA)] } });
+    await meal(page, "Comida").getByRole("button", { name: "Hecho", exact: true }).dblclick();
+    await expect(meal(page, "Comida").getByRole("button", { name: "Eliminar" })).toBeVisible();
+    await expect(meal(page, "Cena").getByText("Pendiente", { exact: true })).toBeVisible();
+    const entries = await readStored<MealEntry[]>(page, "entries");
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({ mealType: "Comida", recipeId: LENTEJAS.id });
+  });
+
+  // review.md › Non-blocking 1: la protección no depende de dónde caiga el segundo clic. Se envía un clic con
+  // detail 2 (el segundo de un doble toque) directamente sobre la ✕ y sobre el "Hecho" de otra tarjeta.
+  test("Edge case: el segundo clic de un doble toque no borra ni registra, caiga donde caiga", async ({ page }) => {
+    await openDiario(page, { weekplan: { [TODAY]: [slot("Comida", LENTEJAS), slot("Cena", MERLUZA)] } });
+    await meal(page, "Comida").getByRole("button", { name: "Hecho", exact: true }).click();
+
+    for (const target of [
+      meal(page, "Comida").getByRole("button", { name: "Eliminar" }),
+      meal(page, "Cena").getByRole("button", { name: "Hecho", exact: true }),
+    ]) {
+      // Al centro de la pantalla: abajo lo taparía la barra de navegación fija
+      await target.evaluate((el) => el.scrollIntoView({ block: "center" }));
+      const box = await target.boundingBox();
+      expect(box).not.toBeNull();
+      const [x, y] = [box!.x + box!.width / 2, box!.y + box!.height / 2];
+      expect(await target.evaluate((el, [x, y]) => el.contains(document.elementFromPoint(x, y)), [x, y])).toBe(true);
+      await page.mouse.move(x, y);
+      await page.mouse.down({ clickCount: 2 });
+      await page.mouse.up({ clickCount: 2 });
+    }
+
+    const entries = await readStored<MealEntry[]>(page, "entries");
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({ mealType: "Comida", recipeId: LENTEJAS.id });
+    await expect(meal(page, "Cena").getByText("Pendiente", { exact: true })).toBeVisible();
+  });
+
+  // review.md › Non-blocking 3: varios botones "Hecho" se distinguen por su descripción (la receta).
+  test('cada "Hecho" se describe con el nombre de su receta', async ({ page }) => {
+    await openDiario(page, { weekplan: { [TODAY]: [slot("Comida", LENTEJAS), slot("Cena", MERLUZA)] } });
+    await expect(meal(page, "Comida").getByRole("button", { name: "Hecho", exact: true })).toHaveAccessibleDescription("Lentejas");
+    await expect(meal(page, "Cena").getByRole("button", { name: "Hecho", exact: true })).toHaveAccessibleDescription(
+      "Merluza al horno",
+    );
+  });
 });
 
 test.describe("R3: tras registrar, la franja deja de estar pendiente y cuenta en los totales", () => {
