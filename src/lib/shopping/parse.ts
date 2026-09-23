@@ -33,12 +33,17 @@ for (const u of [
 }
 
 const FRACTIONS: Record<string, number> = { "½": 0.5, "¼": 0.25, "¾": 0.75 };
-const QTY_RE = /^(\d+\s*\/\s*\d+|\d+(?:[.,]\d+)?|[½¼¾])/;
+// Los mixtos van primero ("1 1/2", "1½"): si no, el entero queda solo y la fracción pasa al nombre
+const QTY_RE = /^(\d+\s+\d+\s*\/\s*\d+|\d+\s*[½¼¾]|\d+\s*\/\s*\d+|\d+(?:[.,]\d+)?|[½¼¾])/;
+const MIXED_RE = /^(\d+)\s*(\d+\s*\/\s*\d+|[½¼¾])$/;
 const UNIT_RE = new RegExp(`^(${Object.keys(UNIT_WORDS).sort((a, b) => b.length - a.length).join("|")})(?=\\s|$)`, "i");
 const SIZE_RE = /(^|\s)(pequeñ[oa]s?|grandes?|median[oa]s?)(?=\s|$)/gi;
 const ZUMO_RE = /^zumo de\s+/i;
 
 function parseQty(s: string): number {
+  // "12/3" también encaja en MIXED_RE sin espacio: solo es mixto con glifo o con espacio
+  const mixed = s.match(MIXED_RE);
+  if (mixed && (mixed[2] in FRACTIONS || /\s/.test(s))) return Number(mixed[1]) + parseQty(mixed[2]);
   if (s in FRACTIONS) return FRACTIONS[s];
   if (s.includes("/")) {
     const [a, b] = s.split("/").map((x) => Number(x.trim()));
@@ -66,6 +71,10 @@ function stem(word: string): string {
   if (word.endsWith("ces")) return word.slice(0, -3) + "z";
   if (/[nrldzjs]es$/.test(word)) return word.slice(0, -2);
   if (word.endsWith("s")) return word.slice(0, -1);
+  // Singulares simétricos a las reglas de plural, para que ambas formas den la misma clave:
+  // "verde" ↔ "verdes" → "verd", "dulce" ↔ "dulces" → "dulz"
+  if (word.endsWith("ce")) return word.slice(0, -2) + "z";
+  if (/[nrldzjs]e$/.test(word)) return word.slice(0, -1);
   return word;
 }
 

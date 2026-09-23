@@ -33,6 +33,7 @@ describe("R11: pasillos", () => {
     ["arroz", "Despensa y conservas"],
     ["garbanzos cocidos", "Despensa y conservas"],
     ["lentejas rojas", "Despensa y conservas"],
+    ["judías verdes", "Frutas y verduras"], // review N1: el plural en -es ya no rompe "judía verde"
     ["atún al natural", "Despensa y conservas"],
   ])("%s → %s", (name, aisle) => {
     expect(of(name).aisle).toBe(aisle);

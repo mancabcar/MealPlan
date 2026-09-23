@@ -271,3 +271,25 @@ describe("R3: corpus de recetas semilla (src/data/recipes.json)", () => {
     distinct("4 claras de huevo", "1 huevo");
   });
 });
+
+// docs/pm/lista-compra/review.md › N1, N3: formas que traerán las recetas IA.
+describe("Revisión: singulares en -e y cantidades mixtas", () => {
+  it("singular y plural de palabras en -e dan la misma clave", () => {
+    expect(keyOf("1 pimiento verde")).toBe(keyOf("2 pimientos verdes"));
+    expect(keyOf("100g espárrago verde")).toBe(keyOf("100g espárragos verdes"));
+    expect(keyOf("50g maíz dulce")).toBe(keyOf("50g maíz dulces"));
+    expect(keyOf("1 tomate")).toBe(keyOf("2 tomates"));
+  });
+
+  it('"1 1/2" y "1½" son una sola cantidad', () => {
+    expect(one("1 1/2 tazas de harina")).toMatchObject({ qty: 1.5, unit: "taza", name: "harina" });
+    expect(one("1½ tazas de harina")).toMatchObject({ qty: 1.5, unit: "taza", name: "harina" });
+    expect(one("2 ½ cebollas")).toMatchObject({ qty: 2.5, unit: null, name: "cebollas" });
+  });
+
+  it("una fracción sola y un entero seguido de gramos siguen igual", () => {
+    expect(one("12/4 cebolla").qty).toBe(3);
+    expect(one("1/2 cebolla").qty).toBe(0.5);
+    expect(one("150 g brócoli")).toMatchObject({ qty: 150, unit: "g" });
+  });
+});

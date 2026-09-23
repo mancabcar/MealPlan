@@ -73,3 +73,10 @@ describe("R5: caducidad", () => {
     expect(result.match).toEqual(integral);
   });
 });
+
+describe("Revisión N1: singular y plural en -e", () => {
+  it('"pimientos verdes" coincide con "Pimiento verde"', () => {
+    const pimiento = p("v", "Pimiento verde", { category: "Nevera" });
+    expect(match("pimientos verdes", [pimiento]).match).toEqual(pimiento);
+  });
+});
