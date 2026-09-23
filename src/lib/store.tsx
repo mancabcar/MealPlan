@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useRef, useState, ReactNode } from "react";
 import { UserProfile, Recipe, MealEntry, PantryItem, WeekPlan } from "./types";
 import seedData from "@/data/recipes.json";
 import { userKey } from "./auth";
@@ -21,14 +21,17 @@ interface AppState {
   removeEntry: (id: string) => void;
   addPantryItem: (i: PantryItem) => void;
   removePantryItem: (id: string) => void;
-  /** Varios de una vez: una sola escritura (llamar a addPantryItem en bucle solo conserva el último). */
+  /** Varios de una vez, en una sola escritura. */
   addPantryItems: (items: PantryItem[]) => void;
   removePantryItems: (ids: string[]) => void;
   setWeekPlan: (p: WeekPlan) => void;
-  setShopping: (s: ShoppingState) => void;
+  setShopping: Setter<ShoppingState>;
 }
 
 const AppContext = createContext<AppState | null>(null);
+
+/** Valor nuevo, o función del valor más reciente (para encadenar varias escrituras en un mismo evento). */
+export type Setter<T> = (v: T | ((prev: T) => T)) => void;
 
 interface LoadOptions<T> {
   /** Transforma lo guardado (migraciones, siembra). Debe ser idempotente. */
@@ -60,11 +63,16 @@ function load<T>(key: string, fallback: T, { upgrade, backup }: LoadOptions<T> =
 
 // AppProvider solo se monta en el cliente, tras cargar la sesión (ver AppShell), así que se puede
 // leer localStorage de forma síncrona: el primer render ya tiene los datos y no hay parpadeo del onboarding.
-function usePersisted<T>(key: string, fallback: T, options?: LoadOptions<T>): [T, (v: T) => void] {
+function usePersisted<T>(key: string, fallback: T, options?: LoadOptions<T>): [T, Setter<T>] {
   const [value, setValue] = useState<T>(() => (typeof window === "undefined" ? fallback : load(key, fallback, options)));
-  const set = (v: T) => {
-    setValue(v);
-    localStorage.setItem(key, JSON.stringify(v));
+  // Último valor escrito, no el del render: dos escrituras en el mismo evento se encadenan en vez de
+  // pisarse (antes, llamar a addPantryItem dos veces seguidas solo conservaba la última).
+  const latest = useRef(value);
+  const set: Setter<T> = (v) => {
+    const next = typeof v === "function" ? (v as (prev: T) => T)(latest.current) : v;
+    latest.current = next;
+    setValue(next);
+    localStorage.setItem(key, JSON.stringify(next));
   };
   return [value, set];
 }
@@ -109,13 +117,13 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     shopping,
     loaded: true,
     setProfile,
-    addRecipes: (r) => setRecipes([...recipes, ...r]),
-    addEntry: (e) => setEntries([...entries, e]),
-    removeEntry: (id) => setEntries(entries.filter((e) => e.id !== id)),
-    addPantryItem: (i) => setPantry([...pantry, i]),
-    removePantryItem: (id) => setPantry(pantry.filter((i) => i.id !== id)),
-    addPantryItems: (items) => setPantry([...pantry, ...items]),
-    removePantryItems: (ids) => setPantry(pantry.filter((i) => !ids.includes(i.id))),
+    addRecipes: (r) => setRecipes((prev) => [...prev, ...r]),
+    addEntry: (e) => setEntries((prev) => [...prev, e]),
+    removeEntry: (id) => setEntries((prev) => prev.filter((e) => e.id !== id)),
+    addPantryItem: (i) => setPantry((prev) => [...prev, i]),
+    removePantryItem: (id) => setPantry((prev) => prev.filter((i) => i.id !== id)),
+    addPantryItems: (items) => setPantry((prev) => [...prev, ...items]),
+    removePantryItems: (ids) => setPantry((prev) => prev.filter((i) => !ids.includes(i.id))),
     setWeekPlan,
     setShopping,
   };

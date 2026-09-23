@@ -30,7 +30,10 @@ export function useShoppingList() {
   // Cada escritura limpia las marcas caducadas, para que el contador semanal sea fiel (review N6)
   const update = (fn: (week: ShoppingWeekState) => ShoppingWeekState) => {
     const signatures = Object.fromEntries(items.map((i) => [i.key, amountSignature(i)]));
-    setShopping({ ...state, current: pruneBought(fn(state.current), signatures) });
+    setShopping((prev) => {
+      const s = forWeek(prev, monday);
+      return { ...s, current: pruneBought(fn(s.current), signatures) };
+    });
   };
 
   return {
@@ -67,7 +70,7 @@ export function useShoppingList() {
     undoLastMove: () => {
       if (!shopping.current.lastMove) return;
       removePantryItems(shopping.current.lastMove.pantryIds);
-      setShopping(undoLastMove(shopping, monday));
+      setShopping((prev) => undoLastMove(prev, monday));
     },
   };
 }
