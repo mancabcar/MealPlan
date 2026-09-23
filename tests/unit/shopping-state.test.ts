@@ -7,9 +7,11 @@ import { normalizeKey } from "@/lib/shopping/parse";
 import {
   EMPTY,
   forWeek,
+  loadShoppingState,
   recordMove,
   setOverride,
   toggleBought,
+  undoLastMove,
   undoMove,
   type ShoppingState,
   type ShoppingWeekState,
@@ -312,5 +314,45 @@ describe("transiciones puras", () => {
     expect(() => recordMove(week, { at: TODAY, pantryIds: [], entries: {} })).not.toThrow();
     expect(week.bought).toEqual({});
     expect(week.overrides).toEqual([]);
+  });
+});
+
+describe("Revisión N4: Deshacer tras cambiar de semana", () => {
+  it("deshace en la semana del movimiento y la resume en usage; la semana nueva empieza vacía", () => {
+    const moved = recordMove(
+      { ...emptyWeek(), week: LAST_WEEK_MONDAY, bought: { a: "x", b: "y" } },
+      { at: "2026-09-20T23:59:55Z", pantryIds: ["n1"], entries: { a: "x" } },
+    );
+    const s = undoLastMove({ current: moved, usage: {} }, MONDAY);
+    expect(s.current).toMatchObject({ week: MONDAY, bought: {}, moved: {} });
+    expect(s.current.lastMove).toBeUndefined();
+    // a vuelve a comprados (no movido) en la semana pasada: 2 comprados, 0 movidos
+    expect(s.usage[LAST_WEEK_MONDAY]).toEqual({ bought: 2, overrides: 0 });
+  });
+
+  it("en la misma semana equivale a undoMove", () => {
+    const moved = recordMove(emptyWeek(), { at: TODAY, pantryIds: ["n1"], entries: { a: "x" } });
+    expect(undoLastMove({ current: moved, usage: {} }, MONDAY).current).toEqual(undoMove(moved));
+  });
+});
+
+describe("Revisión N5: estado guardado incompleto o corrupto", () => {
+  it.each([null, undefined, 42, "x", [], {}])("%j → EMPTY o equivalente, sin lanzar", (raw) => {
+    expect(loadShoppingState(raw)).toEqual(EMPTY);
+  });
+
+  it("completa los campos que faltan y descarta los de tipo incorrecto", () => {
+    const s = loadShoppingState({ current: { week: MONDAY, bought: { a: "x", b: 3 }, overrides: ["c", 1] }, usage: { w: "nope" } });
+    expect(s).toEqual({ current: { week: MONDAY, bought: { a: "x" }, overrides: ["c"], moved: {} }, usage: {} });
+    // y la vista se puede construir con él
+    expect(() => view({ state: forWeek(s, MONDAY).current })).not.toThrow();
+  });
+
+  it("un estado válido se conserva tal cual", () => {
+    const valid: ShoppingState = {
+      current: { ...emptyWeek(), bought: { a: "x" }, lastMove: { at: TODAY, pantryIds: ["n1"], entries: { a: "x" } } },
+      usage: { [LAST_WEEK_MONDAY]: { bought: 3, overrides: 1 } },
+    };
+    expect(loadShoppingState(JSON.parse(JSON.stringify(valid)))).toEqual(valid);
   });
 });

@@ -5,7 +5,7 @@ import { UserProfile, Recipe, MealEntry, PantryItem, WeekPlan } from "./types";
 import seedData from "@/data/recipes.json";
 import { userKey } from "./auth";
 import { migrateEntries, migrateProfile, migrateWeekPlan } from "./migrate";
-import { EMPTY as EMPTY_SHOPPING, type ShoppingState } from "./shopping/state";
+import { EMPTY as EMPTY_SHOPPING, loadShoppingState, type ShoppingState } from "./shopping/state";
 
 interface AppState {
   profile: UserProfile | null;
@@ -96,7 +96,9 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     backup: true,
   });
   // Lista de la compra: solo la intención del usuario; la lista se deriva del plan (lista-compra tech.md)
-  const [shopping, setShopping] = usePersisted<ShoppingState>(k("shopping"), EMPTY_SHOPPING);
+  const [shopping, setShopping] = usePersisted<ShoppingState>(k("shopping"), EMPTY_SHOPPING, {
+    upgrade: loadShoppingState,
+  });
 
   const value: AppState = {
     profile,

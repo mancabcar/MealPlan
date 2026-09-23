@@ -6,7 +6,7 @@ import { useApp } from "@/lib/store";
 import { MEAL_TYPES, todayStr, type PantryCategory, type PantryItem } from "@/lib/types";
 import { mondayOf, weekDates } from "@/lib/week";
 import { aggregate, amountSignature, collectSources, formatAmount, type ShoppingItem } from "./aggregate";
-import { forWeek, recordMove, setOverride, toggleBought, undoMove, type ShoppingWeekState } from "./state";
+import { forWeek, recordMove, setOverride, toggleBought, undoLastMove, type ShoppingWeekState } from "./state";
 import { buildShoppingView } from "./view";
 
 export function useShoppingList() {
@@ -34,7 +34,8 @@ export function useShoppingList() {
     meals,
     /** Semana sin recetas en comidas activas (R10) */
     empty: items.length === 0,
-    lastMove: state.current.lastMove,
+    // Sin pasar por forWeek: un movimiento de justo antes del lunes sigue pudiéndose deshacer (review N4)
+    lastMove: shopping.current.lastMove,
     toggleBought: (item: ShoppingItem) => update((w) => toggleBought(w, item.key, amountSignature(item))),
     setOverride: (item: ShoppingItem, on: boolean) => update((w) => setOverride(w, item.key, on)),
     /** Una escritura a la Despensa y una al estado, sea cual sea el número de artículos (R13). */
@@ -58,9 +59,9 @@ export function useShoppingList() {
       return added.length;
     },
     undoLastMove: () => {
-      if (!state.current.lastMove) return;
-      removePantryItems(state.current.lastMove.pantryIds);
-      update(undoMove);
+      if (!shopping.current.lastMove) return;
+      removePantryItems(shopping.current.lastMove.pantryIds);
+      setShopping(undoLastMove(shopping, monday));
     },
   };
 }

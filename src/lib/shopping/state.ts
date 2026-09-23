@@ -75,3 +75,49 @@ export function undoMove(week: ShoppingWeekState): ShoppingWeekState {
   for (const k of Object.keys(entries)) delete moved[k];
   return { week: week.week, overrides: week.overrides, bought: { ...week.bought, ...entries }, moved };
 }
+
+/**
+ * Deshace el último movimiento aunque la semana haya cambiado entre medias (review N4): se deshace
+ * en la semana en que se hizo y después se pasa a `monday`, que la resume en `usage` si ya acabó.
+ */
+export function undoLastMove(state: ShoppingState, monday: string): ShoppingState {
+  return forWeek({ ...state, current: undoMove(state.current) }, monday);
+}
+
+const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
+const stringRecord = (v: unknown): Record<string, string> =>
+  isRecord(v) ? Object.fromEntries(Object.entries(v).filter(([, s]) => typeof s === "string")) as Record<string, string> : {};
+
+/**
+ * Lo guardado en localStorage puede venir incompleto o corrupto (review N5): se completa con valores
+ * por defecto en vez de dejar que /plan y /plan/compra fallen al leer un campo que falta.
+ */
+export function loadShoppingState(raw: unknown): ShoppingState {
+  if (!isRecord(raw)) return EMPTY;
+  const c = isRecord(raw.current) ? raw.current : {};
+  const lm = c.lastMove;
+  const lastMove =
+    isRecord(lm) && typeof lm.at === "string" && Array.isArray(lm.pantryIds)
+      ? { at: lm.at, pantryIds: lm.pantryIds.filter((id): id is string => typeof id === "string"), entries: stringRecord(lm.entries) }
+      : undefined;
+  const usage = isRecord(raw.usage)
+    ? Object.fromEntries(
+        Object.entries(raw.usage)
+          .filter(([, u]) => isRecord(u))
+          .map(([w, u]) => {
+            const r = u as Record<string, unknown>;
+            return [w, { bought: Number(r.bought) || 0, overrides: Number(r.overrides) || 0 }];
+          }),
+      )
+    : {};
+  return {
+    current: {
+      week: typeof c.week === "string" ? c.week : "",
+      bought: stringRecord(c.bought),
+      overrides: Array.isArray(c.overrides) ? c.overrides.filter((k): k is string => typeof k === "string") : [],
+      moved: stringRecord(c.moved),
+      ...(lastMove ? { lastMove } : {}),
+    },
+    usage,
+  };
+}
