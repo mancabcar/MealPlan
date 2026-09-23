@@ -1,4 +1,5 @@
 // Del plan semanal a la lista agregada (docs/pm/lista-compra › R2, R4). Puro.
+import { normalize } from "@/lib/text";
 import { MEAL_TYPES, type MealType, type Recipe, type WeekPlan } from "@/lib/types";
 import { classify, type Aisle } from "./classify";
 import { normalizeKey, parseIngredientLine, type ParsedIngredient, type Unit } from "./parse";
@@ -38,9 +39,8 @@ export function collectSources(i: { weekPlan: WeekPlan; recipes: Recipe[]; dates
   return sources;
 }
 
-const plain = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
 /** El stemmer cambió algo → el nombre estaba en plural. */
-const isPlural = (name: string) => normalizeKey(name) !== plain(name);
+const isPlural = (name: string) => normalizeKey(name) !== normalize(name);
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** Agrupa por clave normalizada y suma por unidad idéntica (R4). */

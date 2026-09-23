@@ -1,5 +1,6 @@
 // Parser de líneas de ingredientes (docs/pm/lista-compra › R3, R4 "Normalization rules").
 // Puro y sin dependencias del framework: lo usan el agregador, el cruce con la Despensa y los tests.
+import { normalize } from "@/lib/text";
 
 export type Unit =
   | "g" | "kg" | "ml" | "l" | "cucharada" | "cucharadita" | "lata" | "bote" | "diente" | "rebanada"
@@ -79,11 +80,8 @@ function stem(word: string): string {
 }
 
 function keyOf(cleaned: string): string {
-  return cleaned
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .split(/\s+/)
+  return normalize(cleaned)
+    .split(" ")
     .filter(Boolean)
     .map(stem)
     .join(" ");
