@@ -11,6 +11,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { lucia } from "../fixtures/profiles";
+import { DIARIO_RECIPES, LENTEJAS, MACARRONES, MERLUZA, slot } from "../fixtures/diario";
 import { SHOPPING_PANTRY, SHOPPING_PLAN, SHOPPING_RECIPES } from "../fixtures/shopping";
 import { signIn, TODAY } from "./helpers";
 
@@ -36,6 +37,22 @@ test.describe("R6: contraste de color", () => {
     });
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Diario" })).toBeVisible();
+    await expectNoContrastViolations(page);
+  });
+
+  // docs/pm/diario-desde-plan/tech.md › Risks ("Contrast of the muted row"): filas pendientes (texto atenuado, chip
+  // "Pendiente", botón "Hecho"), aviso de alérgenos (R10) y "Registrar todo el día". Falla hasta que existan.
+  test("Diario con pendientes", async ({ page }) => {
+    await signIn(page, {
+      profile: { ...lucia, allergies: { preset: ["lactosa"], custom: [] } },
+      recipes: DIARIO_RECIPES,
+      weekplan: { [TODAY]: [slot("Comida", LENTEJAS), slot("Merienda", MACARRONES), slot("Cena", MERLUZA)] },
+      entries: [],
+    });
+    await page.goto("/");
+    await expect(page.getByText("Pendiente", { exact: true })).toHaveCount(3);
+    await expect(page.getByText("⚠ contiene Lactosa")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Registrar todo el día" })).toBeVisible();
     await expectNoContrastViolations(page);
   });
 
