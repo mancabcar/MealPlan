@@ -127,7 +127,7 @@ No prototype; spec R7 AC gives the direction ("muted styling plus a 'Pendiente' 
 - **Accessibility**: add a "Diario con pendientes" case to `accessibility.spec.ts`.
 
 ## Tasks
-1. [ ] **Pure helpers** `src/lib/diary.ts` (`recipeEntry`, `pendingSlots`) + `tests/unit/diary.test.ts`. No UI yet. (R1–R6, R9 logic)
+1. [x] **Pure helpers** `src/lib/diary.ts` (`recipeEntry`, `pendingSlots`) + `tests/unit/diary.test.ts`. No UI yet. (R1–R6, R9 logic)
 2. [ ] **Refactor `submitAdd`** in `src/app/page.tsx` to build recipe entries with `recipeEntry()`. No behaviour change; existing tests stay green. (R2 "same result as the form")
 3. [ ] **Meal cards as labelled regions** (`Card as="section" aria-labelledby`), rendered when there are entries or a pending slot; pending row with "Pendiente" chip, kcal and "Hecho". (R1–R7, R9)
 4. [ ] **"Registrar todo el día"** button above the cards when ≥ 2 pending. (R8)
