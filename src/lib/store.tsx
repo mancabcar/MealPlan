@@ -5,6 +5,7 @@ import { UserProfile, Recipe, MealEntry, PantryItem, WeekPlan } from "./types";
 import seedData from "@/data/recipes.json";
 import { userKey } from "./auth";
 import { migrateEntries, migrateProfile, migrateWeekPlan } from "./migrate";
+import { EMPTY as EMPTY_SHOPPING, type ShoppingState } from "./shopping/state";
 
 interface AppState {
   profile: UserProfile | null;
@@ -12,6 +13,7 @@ interface AppState {
   entries: MealEntry[];
   pantry: PantryItem[];
   weekPlan: WeekPlan;
+  shopping: ShoppingState;
   loaded: boolean;
   setProfile: (p: UserProfile | null) => void;
   addRecipes: (r: Recipe[]) => void;
@@ -19,7 +21,11 @@ interface AppState {
   removeEntry: (id: string) => void;
   addPantryItem: (i: PantryItem) => void;
   removePantryItem: (id: string) => void;
+  /** Varios de una vez: una sola escritura (llamar a addPantryItem en bucle solo conserva el último). */
+  addPantryItems: (items: PantryItem[]) => void;
+  removePantryItems: (ids: string[]) => void;
   setWeekPlan: (p: WeekPlan) => void;
+  setShopping: (s: ShoppingState) => void;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -89,6 +95,8 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     upgrade: (raw) => migrateWeekPlan((raw as WeekPlan | null) ?? {}),
     backup: true,
   });
+  // Lista de la compra: solo la intención del usuario; la lista se deriva del plan (lista-compra tech.md)
+  const [shopping, setShopping] = usePersisted<ShoppingState>(k("shopping"), EMPTY_SHOPPING);
 
   const value: AppState = {
     profile,
@@ -96,6 +104,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     entries,
     pantry,
     weekPlan,
+    shopping,
     loaded: true,
     setProfile,
     addRecipes: (r) => setRecipes([...recipes, ...r]),
@@ -103,7 +112,10 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     removeEntry: (id) => setEntries(entries.filter((e) => e.id !== id)),
     addPantryItem: (i) => setPantry([...pantry, i]),
     removePantryItem: (id) => setPantry(pantry.filter((i) => i.id !== id)),
+    addPantryItems: (items) => setPantry([...pantry, ...items]),
+    removePantryItems: (ids) => setPantry(pantry.filter((i) => !ids.includes(i.id))),
     setWeekPlan,
+    setShopping,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

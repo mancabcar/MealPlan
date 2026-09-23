@@ -44,6 +44,8 @@ export interface PantryItem {
   quantity: string;
   expiryDate?: string; // YYYY-MM-DD
   category: PantryCategory;
+  /** Fecha (YYYY-MM-DD) en que llegó desde la lista de la compra: chip "Nuevo" (lista-compra R13). */
+  addedFromListAt?: string;
 }
 
 /** Caduca en menos de 3 días y aún no ha caducado. */
