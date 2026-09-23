@@ -121,3 +121,13 @@ export function loadShoppingState(raw: unknown): ShoppingState {
     usage,
   };
 }
+
+/**
+ * Quita de `bought` las marcas que ya no valen: el total cambió (R9 la desmarca a la vista) o el
+ * ingrediente salió del plan. Se aplica en cada escritura para que `usage` no cuente marcas
+ * caducadas al cerrar la semana (review N6). `moved` no se toca: lo movido sí se compró.
+ */
+export function pruneBought(week: ShoppingWeekState, signatures: Record<string, string>): ShoppingWeekState {
+  const bought = Object.fromEntries(Object.entries(week.bought).filter(([key, sig]) => signatures[key] === sig));
+  return Object.keys(bought).length === Object.keys(week.bought).length ? week : { ...week, bought };
+}

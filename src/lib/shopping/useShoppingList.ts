@@ -6,7 +6,7 @@ import { useApp } from "@/lib/store";
 import { MEAL_TYPES, todayStr, type PantryCategory, type PantryItem } from "@/lib/types";
 import { mondayOf, weekDates } from "@/lib/week";
 import { aggregate, amountSignature, collectSources, formatAmount, type ShoppingItem } from "./aggregate";
-import { forWeek, recordMove, setOverride, toggleBought, undoLastMove, type ShoppingWeekState } from "./state";
+import { forWeek, pruneBought, recordMove, setOverride, toggleBought, undoLastMove, type ShoppingWeekState } from "./state";
 import { buildShoppingView } from "./view";
 
 export function useShoppingList() {
@@ -27,7 +27,11 @@ export function useShoppingList() {
     [items, pantry, week, today],
   );
 
-  const update = (fn: (week: ShoppingWeekState) => ShoppingWeekState) => setShopping({ ...state, current: fn(state.current) });
+  // Cada escritura limpia las marcas caducadas, para que el contador semanal sea fiel (review N6)
+  const update = (fn: (week: ShoppingWeekState) => ShoppingWeekState) => {
+    const signatures = Object.fromEntries(items.map((i) => [i.key, amountSignature(i)]));
+    setShopping({ ...state, current: pruneBought(fn(state.current), signatures) });
+  };
 
   return {
     view,

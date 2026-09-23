@@ -8,6 +8,7 @@ import {
   EMPTY,
   forWeek,
   loadShoppingState,
+  pruneBought,
   recordMove,
   setOverride,
   toggleBought,
@@ -354,5 +355,28 @@ describe("Revisión N5: estado guardado incompleto o corrupto", () => {
       usage: { [LAST_WEEK_MONDAY]: { bought: 3, overrides: 1 } },
     };
     expect(loadShoppingState(JSON.parse(JSON.stringify(valid)))).toEqual(valid);
+  });
+});
+
+describe("Revisión N6: el contador semanal no cuenta marcas caducadas", () => {
+  const sigsOf = (plan: WeekPlan) => Object.fromEntries(itemsOf(plan).map((i) => [i.key, amountSignature(i)]));
+
+  it("se quitan las marcas cuyo total cambió o cuyo ingrediente salió del plan; las vigentes se quedan", () => {
+    let week = emptyWeek();
+    for (const n of ["brócoli", "pimienta", "huevo", "tomate", "plátano"]) week = toggleBought(week, key(n), sig(n));
+    // Sin la Comida del lunes: el brócoli pasa a 150 g y la pimienta desaparece
+    const pruned = pruneBought(week, sigsOf(PLAN_WITHOUT_MONDAY_LUNCH));
+    expect(Object.keys(pruned.bought).sort()).toEqual([key("huevo"), key("plátano"), key("tomate")].sort());
+    expect(forWeek({ current: pruned, usage: {} }, "2026-09-28").usage[MONDAY]).toEqual({ bought: 3, overrides: 0 });
+  });
+
+  it("sin marcas caducadas devuelve el mismo objeto (no reescribe)", () => {
+    const week = toggleBought(emptyWeek(), key("brócoli"), sig("brócoli"));
+    expect(pruneBought(week, sigsOf(SHOPPING_PLAN))).toBe(week);
+  });
+
+  it("no toca lo movido a la Despensa", () => {
+    const week = recordMove(emptyWeek(), { at: TODAY, pantryIds: ["n1"], entries: { [key("brócoli")]: "viejo" } });
+    expect(pruneBought(week, sigsOf(SHOPPING_PLAN)).moved).toEqual({ [key("brócoli")]: "viejo" });
   });
 });
