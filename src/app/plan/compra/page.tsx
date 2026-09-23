@@ -278,16 +278,19 @@ function MoveSheet({
                 <span>{r.item.name}</span>
                 <span className="text-[var(--color-text-muted)] text-xs">{r.amount}</span>
               </div>
-              <select
-                aria-label={`Ubicación de ${r.item.name}`}
-                value={d.category}
-                onChange={(e) => set(r.item.key, { category: e.target.value as PantryCategory })}
-                className={`${inputCls} w-auto`}
-              >
-                {PANTRY_CATEGORIES.map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
-              </select>
+              {/* inputCls trae w-full: el ancho lo fija el contenedor, no un w-auto que compita con él */}
+              <div className="w-32 shrink-0">
+                <select
+                  aria-label={`Ubicación de ${r.item.name}`}
+                  value={d.category}
+                  onChange={(e) => set(r.item.key, { category: e.target.value as PantryCategory })}
+                  className={inputCls}
+                >
+                  {PANTRY_CATEGORIES.map((c) => (
+                    <option key={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
             </li>
           );
         })}
