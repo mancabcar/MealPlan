@@ -7,19 +7,7 @@ import { MEAL_TYPES, MEAL_TYPE_ICON_COMPONENTS, MealType, todayStr } from "@/lib
 import { Card } from "@/components/ui/Card";
 import { DaySelector } from "@/components/ui/DaySelector";
 import { inputCls } from "@/components/ui/input";
-
-function weekDates(start: string): string[] {
-  const d = new Date(start + "T00:00:00");
-  // lunes de la semana actual
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  return Array.from({ length: 7 }, (_, i) => {
-    const x = new Date(d);
-    x.setDate(d.getDate() + i);
-    return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
-  });
-}
-
-const DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+import { DAY_NAMES, weekDates } from "@/lib/week";
 
 export default function PlanPage() {
   const { profile, weekPlan, setWeekPlan, recipes } = useApp();
