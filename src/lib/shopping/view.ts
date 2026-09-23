@@ -3,7 +3,7 @@
 import type { PantryItem } from "@/lib/types";
 import { amountSignature, formatAmount, type ShoppingItem } from "./aggregate";
 import { AISLES, type Aisle } from "./classify";
-import { matchPantry } from "./pantryMatch";
+import { indexPantry, matchIndexed } from "./pantryMatch";
 import type { ShoppingWeekState } from "./state";
 
 export interface Row {
@@ -28,6 +28,7 @@ export function buildShoppingView(i: { items: ShoppingItem[]; pantry: PantryItem
   const haveIt: Row[] = [];
   const basics: Row[] = [];
   const bought: Row[] = [];
+  const pantryIndex = indexPantry(i.pantry);
 
   for (const item of i.items) {
     const signature = amountSignature(item);
@@ -40,7 +41,7 @@ export function buildShoppingView(i: { items: ShoppingItem[]; pantry: PantryItem
       overridden: i.state.overrides.includes(item.key),
     };
     // Los básicos no se cruzan con la Despensa (R12)
-    if (!item.basic) Object.assign(row, matchPantry(item.key, i.pantry, i.today));
+    if (!item.basic) Object.assign(row, matchIndexed(item.key, pantryIndex, i.today));
 
     if (row.bought) bought.push(row);
     else if (item.basic) basics.push(row);
