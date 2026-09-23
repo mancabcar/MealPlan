@@ -5,25 +5,10 @@ import { ArrowLeft, ChefHat, Clock, Flame, Sparkles } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { Recipe } from "@/lib/types";
 import { toRecipeProfile } from "@/lib/recipePrompt";
-import { allergenWarning } from "@/lib/allergens";
-import type { Allergies } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
+import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { inputCls } from "@/components/ui/input";
-
-/** Aviso no bloqueante: las recetas del recetario no se filtran, solo se señalan. */
-function AllergenBadge({ recipe, allergies }: { recipe: Recipe; allergies?: Allergies }) {
-  const warning = allergenWarning(recipe, allergies);
-  if (!warning) return null;
-  return (
-    <span
-      className="inline-block mt-1 text-xs font-medium rounded-full px-2 py-0.5"
-      style={{ color: "var(--color-expired)", backgroundColor: "color-mix(in oklab, var(--color-expired) 18%, var(--color-surface))" }}
-    >
-      {warning}
-    </span>
-  );
-}
 
 /** Placeholder de imagen (R9/non-goal: sin fotos reales todavía, ver spec § Non-goals). */
 function RecipeImagePlaceholder({ className = "" }: { className?: string }) {
@@ -102,7 +87,7 @@ export default function RecipesPage() {
           {selected.isAIGenerated && <Sparkles className="w-5 h-5 text-[var(--color-accent)]" aria-hidden />}
           {selected.name}
         </h1>
-        <AllergenBadge recipe={selected} allergies={profile?.allergies} />
+        <AllergenBadge recipe={selected} allergies={profile?.allergies} className="self-start" />
         <div className="flex gap-3 text-sm text-[var(--color-text-muted)]">
           <span className="flex items-center gap-1">
             <Clock className="w-4 h-4" aria-hidden /> {selected.prepTimeMinutes} min
@@ -189,7 +174,7 @@ export default function RecipesPage() {
                   {r.isAIGenerated && <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" aria-hidden />}
                   <span className="truncate">{r.name}</span>
                 </div>
-                <AllergenBadge recipe={r} allergies={profile?.allergies} />
+                <AllergenBadge recipe={r} allergies={profile?.allergies} className="mt-1" />
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   <Chip icon={Flame}>{r.calories} kcal</Chip>
                   <Chip tone="protein">P {r.protein}g</Chip>

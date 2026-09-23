@@ -22,16 +22,19 @@ export function Chip({
   icon: Icon,
   children,
   className = "",
+  wrap = false,
 }: {
   tone?: ChipTone;
   icon?: LucideIcon;
   children: ReactNode;
   className?: string;
+  /** Texto largo (p.ej. varios alérgenos) que puede partirse en líneas en vez de desbordar. */
+  wrap?: boolean;
 }) {
   const colorVar = `var(${TONE_VAR[tone]})`;
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${wrap ? "whitespace-normal" : "whitespace-nowrap"} ${className}`}
       style={{ color: colorVar, backgroundColor: `color-mix(in oklab, ${colorVar} 18%, var(--color-surface))` }}
     >
       {Icon && <Icon className="w-3.5 h-3.5" aria-hidden />}

@@ -13,6 +13,7 @@ import {
 } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { Chip, type ChipTone } from "@/components/ui/Chip";
+import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { WeekBarChart } from "@/components/ui/WeekBarChart";
 import { inputCls } from "@/components/ui/input";
@@ -170,7 +171,6 @@ export default function DiaryPage() {
           const Icon = MEAL_TYPE_ICON_COMPONENTS[mt];
           const headingId = `${idPrefix}-meal-${i}`;
           const recipeNameId = `${headingId}-recipe`;
-          const warning = slot && allergenWarning(slot.recipe, profile.allergies);
           return (
             <Card key={mt} as="section" aria-labelledby={headingId}>
               <h3 id={headingId} className="text-sm font-semibold mb-2 flex items-center gap-1.5">
@@ -191,7 +191,7 @@ export default function DiaryPage() {
                   <div className="flex-1 flex flex-wrap items-center gap-x-2 gap-y-1 py-0.5 text-[var(--color-text-muted)]">
                     <span id={recipeNameId}>{slot.recipe.name}</span>
                     <Chip tone="neutral">Pendiente</Chip>
-                    {warning && <Chip tone="expired">{warning}</Chip>}
+                    <AllergenBadge recipe={slot.recipe} allergies={profile.allergies} />
                   </div>
                   <span className="shrink-0 py-0.5 text-[var(--color-text-muted)]">{slot.recipe.calories} kcal</span>
                 </div>
