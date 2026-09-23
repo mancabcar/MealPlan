@@ -1,6 +1,6 @@
 # Registrar en el Diario una comida planificada con un toque
 
-_Status: in review ([PR #25](https://github.com/mancabcar/MealPlan/pull/25)) · Updated: 2026-09-23 · Rama: `feature/diario-desde-plan` · Origen: [issue #6](https://github.com/mancabcar/MealPlan/issues/6) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: reviewed: ⚠️ approve with follow-ups ([PR #25](https://github.com/mancabcar/MealPlan/pull/25), [review](review.md)) · Updated: 2026-09-23 · Rama: `feature/diario-desde-plan` · Origen: [issue #6](https://github.com/mancabcar/MealPlan/issues/6) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Problema
 Plan y Diario no están conectados. Si planificas una receta para una franja, para registrarla tienes que volver a buscarla en el desplegable del Diario. Yazio y Fitia permiten marcar la comida planificada como hecha.
