@@ -449,3 +449,26 @@ test.describe("R13 · R14: pasar comprados a la Despensa (Should)", () => {
     await expect(page.getByRole("heading", { name: "Despensa", exact: true })).toBeVisible();
   });
 });
+
+// docs/pm/lista-compra/review.md › N7: la hoja es modal también para teclado y lectores de pantalla.
+test.describe("Accesibilidad de la hoja de detalle", () => {
+  test("el foco entra en la hoja, Tab no sale de ella y al cerrar vuelve al botón de origen", async ({ page }) => {
+    await openList(page);
+    const origin = itemButton(aisle(page, "Frutas y verduras"), "Brócoli", "300 g");
+    await origin.focus();
+    await page.keyboard.press("Enter");
+
+    const detail = page.getByRole("dialog", { name: "Brócoli" });
+    await expect(detail).toBeFocused();
+    for (let i = 0; i < 6; i++) {
+      await page.keyboard.press("Tab");
+      expect(await detail.evaluate((d) => d.contains(document.activeElement))).toBe(true);
+    }
+    await page.keyboard.press("Shift+Tab");
+    expect(await detail.evaluate((d) => d.contains(document.activeElement))).toBe(true);
+
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(origin).toBeFocused();
+  });
+});
