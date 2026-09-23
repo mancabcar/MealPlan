@@ -77,13 +77,16 @@ INSTRUCCIONES:
 - Cada receta debe ser para 1 persona
 - Incluye macros exactos
 - Lista todos los ingredientes, sin omitir salsas, bases ni guarniciones
+- Cada ingrediente en su propia línea con el formato "<cantidad> <unidad> de <ingrediente>", usando solo g, kg, ml, l, cucharada, cucharadita, lata, bote, diente o rebanada; para piezas enteras, solo el número ("2 huevos", "1/2 cebolla")
+- Un ingrediente por línea: nada de "sal y pimienta" ni alternativas con "o". Condimentos sin cantidad, cada uno en su línea ("sal", "pimienta")
+- Notas entre paréntesis al final ("(en seco)", "(opcional)")
 
 Responde ÚNICAMENTE con un array JSON válido, sin texto adicional ni backticks:
 [
   {
     "id": "ai_001",
     "name": "Nombre de la receta",
-    "ingredients": ["ingrediente 1", "ingrediente 2"],
+    "ingredients": ["150g pechuga de pollo", "1 cucharada de aceite de oliva", "1/2 cebolla", "60g arroz (en seco)", "sal"],
     "instructions": ["paso 1", "paso 2"],
     "prepTimeMinutes": 20,
     "calories": 450,
