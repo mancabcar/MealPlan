@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { allergenWarning } from "@/lib/allergens";
+import { recipeEntry } from "@/lib/diary";
 import {
   MEAL_TYPES,
   MEAL_TYPE_ICON_COMPONENTS,
@@ -103,16 +104,7 @@ export default function DiaryPage() {
     if (mode === "recipe") {
       const r = recipes.find((x) => x.id === recipeId);
       if (!r) return;
-      addEntry({
-        id: crypto.randomUUID(),
-        date,
-        mealType,
-        recipeId: r.id,
-        calories: r.calories,
-        protein: r.protein,
-        carbs: r.carbs,
-        fat: r.fat,
-      });
+      addEntry(recipeEntry(r, date, mealType));
     } else {
       if (!customName.trim()) return;
       addEntry({ id: crypto.randomUUID(), date, mealType, customName, ...customMacros });
