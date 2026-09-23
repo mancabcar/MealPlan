@@ -51,3 +51,9 @@ Dibujado con el lenguaje visual de `design-refresh` (oscuro, acento lima, Space 
   2. «Ya lo tienes» por coincidencia de nombre, sin comparar cantidades: vale por ahora.
   3. Al pasar a la Despensa, las cantidades llegan sumadas.
 - **Pregunta abierta para la spec**: si un producto comprado ya estaba en la Despensa, ¿se suma a lo que había o se crea otra línea?
+
+## Estado y siguiente paso (2026-09-23)
+- **Decidido:** se construye después de `design-refresh` (ya en `main`, PR #4). Pasar a la Despensa siempre crea una línea nueva. Todos los defaults de la tech design están aceptados y recogidos en [spec.md](spec.md) (estado: Approved).
+- **Hecho:** tests-first en la rama local `feature/lista-compra` (commit `a718565`, sin push). 141 casos unitarios y 31 e2e, todos en rojo solo porque el código no existe. Los tests fijan la API: ver [tech.md](tech.md) › Test notes.
+- **Siguiente:** `dev-code` en esa rama, siguiendo tech.md › Tasks (1 → 14) hasta poner los tests en verde, y después PR (pedir confirmación antes de abrirlo) y `dev-review`.
+- **A tener en cuenta:** revisar el snapshot del corpus antes de commitearlo; `npm run typecheck` falla hasta que existan los módulos; el ruido de `npm run lint` viene de `.claude/worktrees/` (sin seguimiento en git), no del proyecto.
