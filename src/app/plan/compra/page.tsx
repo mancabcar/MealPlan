@@ -5,7 +5,7 @@
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Check, ChevronDown, Circle, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, Circle, PackageCheck, ShoppingCart } from "lucide-react";
 import { useShoppingList } from "@/lib/shopping/useShoppingList";
 import { AISLES, type Aisle } from "@/lib/shopping/classify";
 import type { Row } from "@/lib/shopping/view";
@@ -37,7 +37,9 @@ export default function ShoppingListPage() {
 
   const allRows = [...Object.values(view.toBuy).flat(), ...view.haveIt, ...view.basics, ...view.bought];
   const detail = allRows.find((r) => r.item.key === detailKey);
-  const plannedMeals = new Set(allRows.flatMap((r) => r.item.sources.map((s) => `${s.date}|${s.mealType}`))).size;
+  const { plannedMeals } = list;
+  // Hay recetas pero todo lo de la lista ya pasó a la Despensa (review N2)
+  const allStored = !list.empty && allRows.length === 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -63,6 +65,18 @@ export default function ShoppingListPage() {
             className="bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg px-4 py-2 text-sm font-semibold"
           >
             Ir al Plan
+          </Link>
+        </Card>
+      ) : allStored ? (
+        <Card className="flex flex-col items-center gap-3 text-center py-10">
+          <PackageCheck className="w-8 h-8 text-[var(--color-accent)]" aria-hidden />
+          <p className="font-semibold">Todo comprado y guardado</p>
+          <p className="text-sm text-[var(--color-text-muted)]">Lo de esta semana ya está en tu Despensa.</p>
+          <Link
+            href="/despensa"
+            className="bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg px-4 py-2 text-sm font-semibold"
+          >
+            Ver la Despensa
           </Link>
         </Card>
       ) : (

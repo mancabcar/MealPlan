@@ -432,4 +432,20 @@ test.describe("R13 · R14: pasar comprados a la Despensa (Should)", () => {
     await expect(tick(bought, "Brócoli")).toBeChecked();
     await expect(tick(bought, "Garbanzos cocidos")).toBeChecked();
   });
+
+  // docs/pm/lista-compra/review.md › N2: antes quedaba "0 comidas planificadas · 0 de 0 comprados" y nada más.
+  test("si todo pasa a la Despensa, la lista lo dice y conserva las comidas planificadas", async ({ page }) => {
+    await openList(page, { weekplan: { "2026-09-21": [{ mealType: "Comida", recipeId: CREMA_CALABAZA.id }] }, pantry: [] });
+    for (const name of ["Calabaza", "Puerro"]) await tick(page, name).click();
+    await page.getByRole("button", { name: "Pasar 2 comprados a la Despensa" }).click();
+    await page.getByRole("dialog", { name: "Pasar a la Despensa" }).getByRole("button", { name: "Añadir 2 a la Despensa" }).click();
+    await expect(page).toHaveURL(/\/despensa$/);
+
+    await page.goto(LIST);
+    await expect(page.getByText("Todo comprado y guardado")).toBeVisible();
+    await expect(page.getByText("1 comida planificada")).toBeVisible();
+    await expect(page.getByText(/0 de 0 comprados/)).toHaveCount(0);
+    await page.getByRole("link", { name: "Ver la Despensa" }).click();
+    await expect(page.getByRole("heading", { name: "Despensa", exact: true })).toBeVisible();
+  });
 });

@@ -32,6 +32,8 @@ export function useShoppingList() {
   return {
     view,
     meals,
+    /** Huecos con receta de la semana, incluidos los ya pasados a la Despensa (review N2) */
+    plannedMeals: new Set(items.flatMap((i) => i.sources.map((s) => `${s.date}|${s.mealType}`))).size,
     /** Semana sin recetas en comidas activas (R10) */
     empty: items.length === 0,
     // Sin pasar por forWeek: un movimiento de justo antes del lunes sigue pudiéndose deshacer (review N4)
