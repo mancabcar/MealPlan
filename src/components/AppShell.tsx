@@ -50,7 +50,8 @@ function UserShell({ children }: { children: ReactNode }) {
       >
         {TABS.map((tab) => {
           const Icon = tab.icon;
-          const active = pathname === tab.href;
+          // Subrutas (p.ej. /plan/compra) mantienen activa su pestaña; "/" solo coincide consigo misma
+          const active = pathname === tab.href || (tab.href !== "/" && pathname.startsWith(tab.href + "/"));
           return (
             <Link
               key={tab.href}

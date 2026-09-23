@@ -11,6 +11,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { lucia } from "../fixtures/profiles";
+import { SHOPPING_PANTRY, SHOPPING_PLAN, SHOPPING_RECIPES } from "../fixtures/shopping";
 import { signIn, TODAY } from "./helpers";
 
 async function expectNoContrastViolations(page: Page) {
@@ -67,6 +68,20 @@ test.describe("R6: contraste de color", () => {
     await page.goto("/despensa");
     await expect(page.getByRole("heading", { name: "Despensa", exact: true })).toBeVisible();
     // Los badges de "caducado"/"caduca pronto" son justo la combinación de color que R6 marca como riesgo.
+    await expectNoContrastViolations(page);
+  });
+
+  // docs/pm/lista-compra/tech.md › "Pieces from design-refresh": la lista de la compra entra en este guardián.
+  // Falla hasta que exista /plan/compra (lista-compra, tarea 9).
+  test("Lista de la compra", async ({ page }) => {
+    await signIn(page, {
+      profile: lucia,
+      recipes: SHOPPING_RECIPES,
+      weekplan: SHOPPING_PLAN,
+      pantry: SHOPPING_PANTRY, // incluye un artículo caducado: la nota "El de tu Despensa está caducado" usa el color de caducado
+    });
+    await page.goto("/plan/compra");
+    await expect(page.getByRole("heading", { name: "Lista de la compra", level: 1 })).toBeVisible();
     await expectNoContrastViolations(page);
   });
 

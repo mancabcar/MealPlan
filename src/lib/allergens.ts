@@ -1,5 +1,9 @@
 // Alérgenos (spec R10, R18). Puro y compartido: lo usan el route handler de recetas y la UI.
 import type { Allergies, PresetAllergen, Recipe } from "./types";
+import { normalize } from "./text";
+
+// Se sigue exportando desde aquí: perfil, onboarding y migrate lo importan de este módulo
+export { normalize };
 
 export const ALLERGEN_LABELS: Record<PresetAllergen, string> = {
   frutos_secos: "Frutos secos",
@@ -30,16 +34,6 @@ export const ALLERGEN_FAMILIES: Record<PresetAllergen, string[]> = {
   huevo: ["huevo", "clara", "yema", "mayonesa", "merengue", "alioli"],
   soja: ["soja", "tofu", "tempeh", "edamame", "miso", "tamari"],
 };
-
-/** Minúsculas, sin acentos, espacios colapsados. */
-export function normalize(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
-}
 
 const tokenize = (value: string) => normalize(value).split(/[^a-z0-9]+/).filter(Boolean);
 

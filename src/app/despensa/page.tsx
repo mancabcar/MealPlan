@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import {
@@ -9,10 +9,16 @@ import {
   PantryCategory,
   isExpired,
   isExpiringSoon,
+  todayStr,
 } from "@/lib/types";
+import { useShoppingList } from "@/lib/shopping/useShoppingList";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { inputCls } from "@/components/ui/input";
+import { Toast } from "@/components/ui/Toast";
+
+/** Ventana en la que se ofrece deshacer al llegar desde la lista de la compra (R13). */
+const UNDO_MS = 10000;
 
 export default function PantryPage() {
   const { pantry, addPantryItem, removePantryItem } = useApp();
@@ -21,6 +27,11 @@ export default function PantryPage() {
   const [quantity, setQuantity] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [category, setCategory] = useState<PantryCategory>("Nevera");
+  // Recién llegados desde "Pasar a la Despensa": aviso con Deshacer (lista-compra R13)
+  const { lastMove, undoLastMove } = useShoppingList();
+  const [showUndo, setShowUndo] = useState(() => !!lastMove && Date.now() - Date.parse(lastMove.at) < UNDO_MS);
+  const hideUndo = useCallback(() => setShowUndo(false), []);
+  const today = todayStr();
 
   const submit = () => {
     if (!name.trim() || !quantity.trim()) return;
@@ -91,6 +102,7 @@ export default function PantryPage() {
                   <span className="text-[var(--color-text-muted)] text-xs">{item.quantity}</span>
                   {isExpired(item) && <Chip tone="expired">caducado</Chip>}
                   {isExpiringSoon(item) && <Chip tone="expiring">caduca pronto</Chip>}
+                  {item.addedFromListAt === today && <Chip tone="accent">Nuevo</Chip>}
                 </div>
                 <button onClick={() => removePantryItem(item.id)} aria-label="Eliminar" className="text-[var(--color-expired)]">
                   <X className="w-4 h-4" aria-hidden />
@@ -105,6 +117,22 @@ export default function PantryPage() {
         <p className="text-[var(--color-text-muted)] text-sm text-center py-8">
           Tu despensa está vacía. Añade ingredientes para que la IA los tenga en cuenta al sugerir recetas.
         </p>
+      )}
+
+      {showUndo && lastMove && (
+        <Toast
+          onDismiss={hideUndo}
+          durationMs={UNDO_MS}
+          action={{
+            label: "Deshacer",
+            onClick: () => {
+              undoLastMove();
+              hideUndo();
+            },
+          }}
+        >
+          {lastMove.pantryIds.length} añadidos
+        </Toast>
       )}
     </div>
   );

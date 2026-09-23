@@ -1,28 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { ChevronRight, ShoppingCart } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { allergenWarning } from "@/lib/allergens";
 import { MEAL_TYPES, MEAL_TYPE_ICON_COMPONENTS, MealType, todayStr } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { DaySelector } from "@/components/ui/DaySelector";
 import { inputCls } from "@/components/ui/input";
-
-function weekDates(start: string): string[] {
-  const d = new Date(start + "T00:00:00");
-  // lunes de la semana actual
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  return Array.from({ length: 7 }, (_, i) => {
-    const x = new Date(d);
-    x.setDate(d.getDate() + i);
-    return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
-  });
-}
-
-const DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+import { DAY_NAMES, weekDates } from "@/lib/week";
+import { useShoppingList } from "@/lib/shopping/useShoppingList";
 
 export default function PlanPage() {
   const { profile, weekPlan, setWeekPlan, recipes } = useApp();
+  // Mismos recuentos que la lista (R1): ambos salen de buildShoppingView
+  const shopping = useShoppingList();
   const [editing, setEditing] = useState<{ date: string; mealType: MealType } | null>(null);
   // Selector de días (R8): qué día de la semana se muestra debajo
   const [selectedDate, setSelectedDate] = useState(todayStr());
@@ -56,6 +49,23 @@ export default function PlanPage() {
       <h1 className="font-display text-2xl font-bold">Plan semanal</h1>
 
       <DaySelector dates={dates} selected={effectiveSelectedDate} onSelect={setSelectedDate} todayDate={todayStr()} />
+
+      {/* Tarjeta de semana (no sigue al día seleccionado): mismo aspecto que Card, pero es un enlace */}
+      <Link
+        href="/plan/compra"
+        className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-3 flex items-center gap-3"
+      >
+        <ShoppingCart className="w-5 h-5 text-[var(--color-accent)] shrink-0" aria-hidden />
+        <span className="flex-1 flex flex-col">
+          <span className="text-sm font-semibold">Lista de la compra</span>
+          <span className="text-xs text-[var(--color-text-muted)]">
+            {shopping.empty
+              ? "Nada que comprar todavía"
+              : `${shopping.view.counts.pending} por comprar · ${shopping.view.counts.haveIt} ya los tienes`}
+          </span>
+        </span>
+        <ChevronRight className="w-4 h-4 text-[var(--color-text-muted)]" aria-hidden />
+      </Link>
 
       {editing && (
         <Card className="flex flex-col gap-2">
