@@ -57,8 +57,8 @@ _Updated 2026-09-23, after the review above (which describes `80c857f`)._
 | N3 mixed numbers | ✅ Fixed in `d4c5def`: `1 1/2`, `1½`, `2 ½` parse as one quantity. |
 | N4 undo across Monday | ✅ Fixed in `b4ea406`: `undoLastMove(state, monday)` undoes in the move's week, then rolls over. |
 | N5 unvalidated persisted state | ✅ Fixed in `b4ea406`: `loadShoppingState` as the `upgrade` step. |
-| N6 usage counts stale ticks | Open (metric only). |
-| N7 Sheet focus management | Open. |
+| N6 usage counts stale ticks | ✅ Fixed in `aa63d99`: `pruneBought` drops stale marks on every write; moved items untouched. |
+| N7 Sheet focus management | ✅ Fixed in `5bfd0ee`: focus moves in, Tab is trapped, focus returns on close; keyboard e2e test. |
 | Cleanup (store setter, normalizer copies, `matchPantry` cost) | Open. |
 
-Checks after the fixes: 318/318 unit, 73/73 e2e, lint, typecheck and build pass.
+Checks after the fixes: 321/321 unit, 74/74 e2e, lint, typecheck and build pass.
