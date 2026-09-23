@@ -45,3 +45,10 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Claude Code: worktrees de agentes y permisos locales (launch.json sí se versiona)
+/.claude/worktrees/
+/.claude/settings.local.json
+
+# Planes y mediciones personales (datos de salud): solo en local, el repo es público
+/docs/referencia/
