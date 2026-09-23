@@ -279,34 +279,34 @@ Commands: `npm test` (unit), `npm run test:e2e` (e2e). Status as of dev-test: �
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | `tests/unit/shopping-state.test.ts` › "R1: recuentos…" (3) | unit | 🔴 not built |
-| R1 | `tests/e2e/shopping-list.spec.ts` › "R1: entrada desde Plan" › card shows `10 por comprar · 2 ya los tienes` and matches the list; N goes down after ticking; Plan tab stays active on `/plan/compra` | e2e | 🔴 not built |
-| R2 | `tests/unit/shopping-aggregate.test.ts` › "R2: qué recetas entran en la lista" (inactive Merienda, other weeks, same recipe twice, deleted recipe, sources carry day/meal/recipe/line, compound line = one source per ingredient); `tests/unit/week.test.ts` (Mon–Sun, Sunday, month/year boundaries) | unit | 🔴 not built |
-| R2 | `shopping-list.spec.ts` › "R2: …" (Merienda active vs. Manuel inactive, other weeks absent, same recipe twice = 300 g) | e2e | 🔴 not built |
-| R3 | `tests/unit/shopping-parse.test.ts` › "R3: cantidad, unidad y nombre", "cantidades", "líneas con varios ingredientes", "una línea ilegible nunca se pierde", **corpus** (145 lines, 145/145 clean, no leftover notes, 107 keys, key snapshot, expected merges/separations) | unit | 🔴 not built |
-| R3 | `shopping-list.spec.ts` › "R3 · R4" › garbanzos → "Garbanzos cocidos · 1 bote"; "sal, pimienta y orégano" → 3 items | e2e | 🔴 not built |
-| R4 | `shopping-parse.test.ts` › "Normalización" (every spec rule); `shopping-aggregate.test.ts` › "R4: ingredientes iguales se suman" (brócoli 300 g, Huevos 4, `200 g + 1 bote`, `Patata · 200 g + 1`, cebolla ≠ cebolla morada, no g↔kg, al gusto, mixed qty, opcional, **no duplicate keys over all 40 seed recipes**) + "Edge cases: formato" + "amountSignature" | unit | 🔴 not built |
-| R4 | `shopping-list.spec.ts` › "Brócoli · 300 g" (single), "Huevos · 4", "Cebolla · ½" + "Cebolla morada · ¼" | e2e | 🔴 not built |
-| R5 | `tests/unit/shopping-pantry.test.ts` (word subset, plurals/accents, `de` ignored, no reverse match, expired → `expiredMatch`, expires today = valid, no date = valid, first unexpired wins); `shopping-state.test.ts` › "R5: Ya lo tienes" (+ aceite de oliva matches) | unit | 🔴 not built |
-| R5 | `shopping-list.spec.ts` › "R5" › "Tienes: Arroz integral · 1 kg" not counted; expired asparagus note | e2e | 🔴 not built |
-| R6 | `shopping-state.test.ts` › "R6" (420 g, 3 sources, match; override → Carne y pescado, keeps match, counts; un-override; idempotent) | unit | 🔴 not built |
-| R6 | `shopping-list.spec.ts` › "R6" › detail content; override moves the item and survives a reload | e2e | 🔴 not built |
-| R7 | `shopping-state.test.ts` › "R7" (tick/untick; basics tickable but not counted) | unit | 🔴 not built |
-| R7 | `shopping-list.spec.ts` › "R7" › tick → Comprados, `1 de 10`; untick → back | e2e | 🔴 not built |
-| R8 | `shopping-state.test.ts` › "R8" (EMPTY, same week unchanged, new week empty + usage counter, last week's bought not shown, 12-week cap) + "transiciones puras" | unit | 🔴 not built |
-| R8 | `shopping-list.spec.ts` › "R8" › 5 bought survive a reload (+ `mp_<user>_shopping`); two users isolated; next Monday starts empty | e2e | 🔴 not built |
-| R9 | `shopping-state.test.ts` › "R9" (total changed → unbought 150 g; unrelated change keeps it bought; removed item disappears; re-tick at new total) | unit | 🔴 not built |
-| R9 | `shopping-list.spec.ts` › "R9" › remove a broccoli recipe in Plan → 150 g unbought; unrelated slot change → Huevos still bought | e2e | 🔴 not built |
-| R10 | `shopping-list.spec.ts` › "R10" › empty state + "Ir al Plan"; only-inactive-slot week is empty; Plan card says "Nada que comprar todavía" | e2e | 🔴 not built |
-| R10 | `shopping-aggregate.test.ts` › deleted recipe → no sources (the empty-state input) | unit | 🔴 not built |
-| R11 (Should) | `tests/unit/shopping-classify.test.ts` › "R11: pasillos" (order, brócoli, unknown → Otros, 13 aisle examples, **0 seed items in Otros**); `shopping-state.test.ts` › "R11 · R12: secciones" | unit | 🔴 not built |
-| R11 (Should) | `shopping-list.spec.ts` › "R11 · R12" › aisle regions | e2e | 🔴 not built |
-| R12 (Should) | `shopping-classify.test.ts` › "R12" (9 basics, aceite de oliva not basic, fresh herbs → Frutas y verduras); `shopping-state.test.ts` (basics never matched, excluded from counts) | unit | 🔴 not built |
-| R12 (Should) | `shopping-list.spec.ts` › "Especias y básicos" collapsed and not counted | e2e | 🔴 not built |
-| R13 (Should) | `shopping-state.test.ts` › "R13 · R14" (`lastMove`, undo restores to Comprados) | unit | 🔴 not built |
-| R13 (Should) | `shopping-list.spec.ts` › "R13 · R14" › review sheet (suggested locations, change one, leave one out) → Despensa items with "Nuevo" + toast; same-name item → new line; Deshacer removes them and restores Comprados | e2e | 🔴 not built |
-| R14 (Should) | `shopping-state.test.ts` › moved items leave the list, come back if their total changes; `shopping-list.spec.ts` › moved items gone from Comprados | unit + e2e | 🔴 not built |
-| Contrast (design-refresh R6) | `tests/e2e/accessibility.spec.ts` › "Lista de la compra" | e2e (axe) | 🔴 not built |
+| R1 | `tests/unit/shopping-state.test.ts` › "R1: recuentos…" (3) | unit | 🟢 passing |
+| R1 | `tests/e2e/shopping-list.spec.ts` › "R1: entrada desde Plan" › card shows `10 por comprar · 2 ya los tienes` and matches the list; N goes down after ticking; Plan tab stays active on `/plan/compra` | e2e | 🟢 passing |
+| R2 | `tests/unit/shopping-aggregate.test.ts` › "R2: qué recetas entran en la lista" (inactive Merienda, other weeks, same recipe twice, deleted recipe, sources carry day/meal/recipe/line, compound line = one source per ingredient); `tests/unit/week.test.ts` (Mon–Sun, Sunday, month/year boundaries) | unit | 🟢 passing |
+| R2 | `shopping-list.spec.ts` › "R2: …" (Merienda active vs. Manuel inactive, other weeks absent, same recipe twice = 300 g) | e2e | 🟢 passing |
+| R3 | `tests/unit/shopping-parse.test.ts` › "R3: cantidad, unidad y nombre", "cantidades", "líneas con varios ingredientes", "una línea ilegible nunca se pierde", **corpus** (145 lines, 145/145 clean, no leftover notes, 107 keys, key snapshot, expected merges/separations) | unit | 🟢 passing |
+| R3 | `shopping-list.spec.ts` › "R3 · R4" › garbanzos → "Garbanzos cocidos · 1 bote"; "sal, pimienta y orégano" → 3 items | e2e | 🟢 passing |
+| R4 | `shopping-parse.test.ts` › "Normalización" (every spec rule); `shopping-aggregate.test.ts` › "R4: ingredientes iguales se suman" (brócoli 300 g, Huevos 4, `200 g + 1 bote`, `Patata · 200 g + 1`, cebolla ≠ cebolla morada, no g↔kg, al gusto, mixed qty, opcional, **no duplicate keys over all 40 seed recipes**) + "Edge cases: formato" + "amountSignature" | unit | 🟢 passing |
+| R4 | `shopping-list.spec.ts` › "Brócoli · 300 g" (single), "Huevos · 4", "Cebolla · ½" + "Cebolla morada · ¼" | e2e | 🟢 passing |
+| R5 | `tests/unit/shopping-pantry.test.ts` (word subset, plurals/accents, `de` ignored, no reverse match, expired → `expiredMatch`, expires today = valid, no date = valid, first unexpired wins); `shopping-state.test.ts` › "R5: Ya lo tienes" (+ aceite de oliva matches) | unit | 🟢 passing |
+| R5 | `shopping-list.spec.ts` › "R5" › "Tienes: Arroz integral · 1 kg" not counted; expired asparagus note | e2e | 🟢 passing |
+| R6 | `shopping-state.test.ts` › "R6" (420 g, 3 sources, match; override → Carne y pescado, keeps match, counts; un-override; idempotent) | unit | 🟢 passing |
+| R6 | `shopping-list.spec.ts` › "R6" › detail content; override moves the item and survives a reload | e2e | 🟢 passing |
+| R7 | `shopping-state.test.ts` › "R7" (tick/untick; basics tickable but not counted) | unit | 🟢 passing |
+| R7 | `shopping-list.spec.ts` › "R7" › tick → Comprados, `1 de 10`; untick → back | e2e | 🟢 passing |
+| R8 | `shopping-state.test.ts` › "R8" (EMPTY, same week unchanged, new week empty + usage counter, last week's bought not shown, 12-week cap) + "transiciones puras" | unit | 🟢 passing |
+| R8 | `shopping-list.spec.ts` › "R8" › 5 bought survive a reload (+ `mp_<user>_shopping`); two users isolated; next Monday starts empty | e2e | 🟢 passing |
+| R9 | `shopping-state.test.ts` › "R9" (total changed → unbought 150 g; unrelated change keeps it bought; removed item disappears; re-tick at new total) | unit | 🟢 passing |
+| R9 | `shopping-list.spec.ts` › "R9" › remove a broccoli recipe in Plan → 150 g unbought; unrelated slot change → Huevos still bought | e2e | 🟢 passing |
+| R10 | `shopping-list.spec.ts` › "R10" › empty state + "Ir al Plan"; only-inactive-slot week is empty; Plan card says "Nada que comprar todavía" | e2e | 🟢 passing |
+| R10 | `shopping-aggregate.test.ts` › deleted recipe → no sources (the empty-state input) | unit | 🟢 passing |
+| R11 (Should) | `tests/unit/shopping-classify.test.ts` › "R11: pasillos" (order, brócoli, unknown → Otros, 13 aisle examples, **0 seed items in Otros**); `shopping-state.test.ts` › "R11 · R12: secciones" | unit | 🟢 passing |
+| R11 (Should) | `shopping-list.spec.ts` › "R11 · R12" › aisle regions | e2e | 🟢 passing |
+| R12 (Should) | `shopping-classify.test.ts` › "R12" (9 basics, aceite de oliva not basic, fresh herbs → Frutas y verduras); `shopping-state.test.ts` (basics never matched, excluded from counts) | unit | 🟢 passing |
+| R12 (Should) | `shopping-list.spec.ts` › "Especias y básicos" collapsed and not counted | e2e | 🟢 passing |
+| R13 (Should) | `shopping-state.test.ts` › "R13 · R14" (`lastMove`, undo restores to Comprados) | unit | 🟢 passing |
+| R13 (Should) | `shopping-list.spec.ts` › "R13 · R14" › review sheet (suggested locations, change one, leave one out) → Despensa items with "Nuevo" + toast; same-name item → new line; Deshacer removes them and restores Comprados | e2e | 🟢 passing |
+| R14 (Should) | `shopping-state.test.ts` › moved items leave the list, come back if their total changes; `shopping-list.spec.ts` › moved items gone from Comprados | unit + e2e | 🟢 passing |
+| Contrast (design-refresh R6) | `tests/e2e/accessibility.spec.ts` › "Lista de la compra" | e2e (axe) | 🟢 passing |
 
 Not automated: the 35-item move from the spec's example. The e2e move uses 2–3 items, because the store's batch write is what matters and it's the same code path. The ~10 s undo timeout isn't asserted, to avoid a timing-based test. The "Nuevo" chip is only shown for today's moves, not the next day. Task 14 (the prompt change) needs no new test yet.
 
@@ -315,20 +315,20 @@ Not automated: the 35-item move from the spec's example. The e2e move uses 2–3
 ## Tasks
 Every task leaves the app working. Tasks 2–7 are pure logic with unit tests and no UI, so they can be written test-first with dev-test.
 
-1. [ ] Branch from up-to-date `origin/main` (design-refresh merged). Extract `weekDates`, `DAY_NAMES` and a new `mondayOf` into `src/lib/week.ts`, make `plan/page.tsx` import them, and add `week.test.ts`. Pure refactor. (R2 prerequisite)
-2. [ ] **Pure ingredient parser** `src/lib/shopping/parse.ts` + `shopping-parse.test.ts`, including the seed-corpus test. (R3, R4 normalization)
-3. [ ] **Pure aggregator** `src/lib/shopping/aggregate.ts` (`collectSources`, `aggregate`, `formatAmount`, `amountSignature`) + `shopping-aggregate.test.ts`. (R2, R4)
-4. [ ] **Pure classifier** `src/lib/shopping/classify.ts` (aisles + basics keyword lists) + tests. (R11, R12)
-5. [ ] **Pure Despensa matcher** `src/lib/shopping/pantryMatch.ts` + tests. (R5)
-6. [ ] **Pure state + view** `src/lib/shopping/state.ts` and `view.ts` + `shopping-state.test.ts`. (R6–R9, R14 logic, usage counters)
-7. [ ] Store: `shopping` persisted key + `setShopping`; batch `addPantryItems`/`removePantryItems`; `PantryItem.addedFromListAt?`; `useShoppingList` hook. No UI yet. (R8, R13 prerequisite)
-8. [ ] `Sheet` and `Toast` primitives in `src/components/ui/`. AppShell active-tab prefix match. (UI prerequisites)
-9. [ ] List page `/plan/compra`: header, progress, aisle sections, "Ya lo tienes", "Especias y básicos", "Comprados", tick/untick, empty state. (R2–R5, R7, R10–R12)
-10. [ ] Item detail sheet with override. (R6)
-11. [ ] Plan entry card in `plan/page.tsx`. (R1)
-12. [ ] Move-to-Despensa sheet + Despensa "Nuevo" chip + undo toast. (R13, R14)
-13. [ ] E2E `tests/e2e/shopping-list.spec.ts` for every AC; add `/plan/compra` to `accessibility.spec.ts`. (all) — **written by dev-test** (see Test coverage); the task is now to make them pass.
-14. [ ] `recipePrompt.ts`: stricter ingredient format + test. Independent, can land any time. (risk mitigation, open question)
+1. [x] Branch from up-to-date `origin/main` (design-refresh merged). Extract `weekDates`, `DAY_NAMES` and a new `mondayOf` into `src/lib/week.ts`, make `plan/page.tsx` import them, and add `week.test.ts`. Pure refactor. (R2 prerequisite)
+2. [x] **Pure ingredient parser** `src/lib/shopping/parse.ts` + `shopping-parse.test.ts`, including the seed-corpus test. (R3, R4 normalization)
+3. [x] **Pure aggregator** `src/lib/shopping/aggregate.ts` (`collectSources`, `aggregate`, `formatAmount`, `amountSignature`) + `shopping-aggregate.test.ts`. (R2, R4)
+4. [x] **Pure classifier** `src/lib/shopping/classify.ts` (aisles + basics keyword lists) + tests. (R11, R12)
+5. [x] **Pure Despensa matcher** `src/lib/shopping/pantryMatch.ts` + tests. (R5)
+6. [x] **Pure state + view** `src/lib/shopping/state.ts` and `view.ts` + `shopping-state.test.ts`. (R6–R9, R14 logic, usage counters)
+7. [x] Store: `shopping` persisted key + `setShopping`; batch `addPantryItems`/`removePantryItems`; `PantryItem.addedFromListAt?`; `useShoppingList` hook. No UI yet. (R8, R13 prerequisite)
+8. [x] `Sheet` and `Toast` primitives in `src/components/ui/`. AppShell active-tab prefix match. (UI prerequisites)
+9. [x] List page `/plan/compra`: header, progress, aisle sections, "Ya lo tienes", "Especias y básicos", "Comprados", tick/untick, empty state. (R2–R5, R7, R10–R12)
+10. [x] Item detail sheet with override. (R6)
+11. [x] Plan entry card in `plan/page.tsx`. (R1)
+12. [x] Move-to-Despensa sheet + Despensa "Nuevo" chip + undo toast. (R13, R14)
+13. [x] E2E `tests/e2e/shopping-list.spec.ts` for every AC; add `/plan/compra` to `accessibility.spec.ts`. (all) — **written by dev-test** (see Test coverage); the task is now to make them pass.
+14. [x] `recipePrompt.ts`: stricter ingredient format + test. Independent, can land any time. (risk mitigation, open question)
 
 ## AI recipe prompt (open question: answer is yes, as a cheap Should)
 Recommended. It's a few prompt lines and one test assertion, it lowers noise for every future AI recipe, and it changes no contract. Add to `INSTRUCCIONES` in `buildRecipePrompt`, and replace the `"ingrediente 1"` placeholder in the JSON example with real examples:
