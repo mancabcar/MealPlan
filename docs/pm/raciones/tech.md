@@ -144,7 +144,7 @@ Sin prototipo (brief: "un campo más en el formulario de añadir… y una etique
 Según el pipeline, dev-test puede escribir estos tests antes del código; las tareas de abajo dan por hecho que dev-code los hace pasar (o los escribe si no existen).
 
 ## Test coverage
-Comandos: `npm test` (unit), `npm run test:e2e` (e2e), `npm run typecheck`. Fixtures: `tests/fixtures/diario.ts` (`GUISO` 600/40/60/20, `CALDO` 150/8/12/6, `RACIONES_RECIPES`; hoy = 2026-09-22). Estado tras dev-test (2026-09-23): 🔴 = falla porque la funcionalidad no existe (unit: `parseServings` & co. no se exportan de `src/lib/diary.ts` → "is not a function", y `recipeEntry` aún recibe `id` posicional; e2e: no hay campo "Raciones" ni botones − / +). `tsc` da 17 errores, todos en `tests/unit/diary.test.ts` (exports y firma de `recipeEntry`), que desaparecen con la tarea 1. 🟢 = guardia de regresión que ya pasa hoy por construcción. Estos tests definen "hecho" para dev-code.
+Comandos: `npm test` (unit), `npm run test:e2e` (e2e), `npm run typecheck`. Fixtures: `tests/fixtures/diario.ts` (`GUISO` 600/40/60/20, `CALDO` 150/8/12/6, `RACIONES_RECIPES`; hoy = 2026-09-22). Estado tras dev-test (2026-09-23): 🔴 = falla porque la funcionalidad no existe (unit: `parseServings` & co. no se exportan de `src/lib/diary.ts` → "is not a function", y `recipeEntry` aún recibe `id` posicional; e2e: no hay campo "Raciones" ni botones − / +). `tsc` da 17 errores, todos en `tests/unit/diary.test.ts` (exports y firma de `recipeEntry`), que desaparecen con la tarea 1. 🟢 = guardia de regresión que ya pasa hoy por construcción. Estos tests definen "hecho" para dev-code. **Tras dev-code (2026-09-24): todos 🟢** (unit 390/390, e2e 131/131, incluidos los 33 de `raciones.spec.ts` y el caso axe), sin cambiar ningún test.
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
@@ -178,7 +178,7 @@ Comandos: `npm test` (unit), `npm run test:e2e` (e2e), `npm run typecheck`. Fixt
 3. [x] **Campo "Raciones" en el formulario**: estado `servingsText`/`servingsError`, input con label, validación en `submitAdd` con mensaje, reset al abrir y tras añadir, oculto en "Personalizada". Entrega todos los Musts. (R1, R2, R3, R6, R7)
 4. [x] **Botones − / +** con `stepServings` y deshabilitado en los extremos. (R8)
 5. [x] **Vista previa de kcal** en el formulario. (R9, Could; se puede quitar sin afectar al resto)
-6. [ ] **E2E** `tests/e2e/raciones.spec.ts` + caso de accesibilidad + aserción "sin `servings`" en `diario-desde-plan.spec.ts` › R2. (todos)
+6. [x] **E2E** `tests/e2e/raciones.spec.ts` + caso de accesibilidad + aserción "sin `servings`" en `diario-desde-plan.spec.ts` › R2. (todos; escritos por dev-test en bf3e2f4)
 
 Cada tarea deja la app funcionando; 1–2 son invisibles con los datos actuales y 3 entrega los Musts.
 
