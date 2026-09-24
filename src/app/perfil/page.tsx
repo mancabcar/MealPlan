@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { Fragment, useId, useState, type ReactNode } from "react";
 import { LogOut, Trash2 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
@@ -485,6 +485,8 @@ export default function ProfilePage() {
   const { user, logout } = useAuth();
   // R16: los objetivos nunca cambian solos; se ofrecen y el usuario decide
   const [recalc, setRecalc] = useState<Targets | null>(null);
+  // backup-datos: cambia al importar para remontar las secciones con el perfil importado
+  const [importCount, setImportCount] = useState(0);
 
   if (!profile) return null;
 
@@ -539,12 +541,20 @@ export default function ProfilePage() {
         </div>
       )}
 
-      <GoalSection profile={profile} update={update} />
-      <TargetsSection profile={profile} update={update} />
-      <BodySection profile={profile} update={update} onRecalcOffer={setRecalc} />
-      <MealsSection profile={profile} update={update} />
-      <PreferencesSection profile={profile} update={update} />
-      <DataSection />
+      {/* Tras importar una copia, las ediciones a medias se descartan: se referían a los datos de antes */}
+      <Fragment key={importCount}>
+        <GoalSection profile={profile} update={update} />
+        <TargetsSection profile={profile} update={update} />
+        <BodySection profile={profile} update={update} onRecalcOffer={setRecalc} />
+        <MealsSection profile={profile} update={update} />
+        <PreferencesSection profile={profile} update={update} />
+      </Fragment>
+      <DataSection
+        onImported={() => {
+          setImportCount((n) => n + 1);
+          setRecalc(null);
+        }}
+      />
 
       <button
         onClick={logout}
