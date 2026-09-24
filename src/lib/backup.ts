@@ -120,6 +120,30 @@ export function parseBackup(text: string): ParseResult {
   }
 }
 
+/**
+ * Escribe las seis claves del usuario (y nada más). Si una escritura lanza (cuota llena), restaura en orden inverso
+ * las ya escritas a su valor anterior, o las borra si no existían, y relanza: todo o nada (R8).
+ */
+export function writeUserData(storage: Storage, userId: string, data: UserData): void {
+  const keys = USER_DATA_KEYS.map((k) => userKey(userId, k));
+  const prev = keys.map((key) => storage.getItem(key));
+  let written = 0;
+  try {
+    USER_DATA_KEYS.forEach((k, i) => {
+      storage.setItem(keys[i], JSON.stringify(data[k]));
+      written = i + 1;
+    });
+  } catch (err) {
+    // Desde la que falló (índice `written`), por si un setItem que lanza dejara algo a medias
+    for (let i = written; i >= 0; i--) {
+      const old = prev[i];
+      if (old === null) storage.removeItem(keys[i]);
+      else storage.setItem(keys[i], old);
+    }
+    throw err;
+  }
+}
+
 /** "2026-09-24T08:00:00.000Z" → "24/09/2026" en fecha local; "" si no es una fecha. */
 export function formatExportDate(iso: string): string {
   const d = new Date(iso);

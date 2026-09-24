@@ -250,7 +250,7 @@ Sin test automático: el texto del error de cuota en la UI ("No se han podido gu
 1. [x] **Registro compartido de datos del usuario**: crear `src/lib/userData.ts` (`USER_DATA_KEYS`, `UserData`, `EMPTY_USER_DATA`, `LOAD_OPTIONS`, `withSeedRecipes` movida) y hacer que `AppProvider` lo use. Sin cambios de comportamiento; los tests actuales siguen verdes. (base de R7)
 2. [x] **Exportación pura**: `src/lib/backup.ts` con `BACKUP_APP_ID`, `BACKUP_SCHEMA_VERSION`, `backupFileName`, `buildBackup` + tests unitarios. (R1–R4)
 3. [x] **Validación e importación en memoria**: `parseBackup` y `formatExportDate` + tests (formas inválidas, versión futura, secciones ausentes, migraciones). (R3, R7, R8)
-4. [ ] **Escritura con vuelta atrás**: `writeUserData` + tests con `Storage` falso que falla a mitad. (R8)
+4. [x] **Escritura con vuelta atrás**: `writeUserData` + tests con `Storage` falso que falla a mitad. (R8)
 5. [ ] **Store**: `reload` en `usePersisted` e `importData` en `AppState` + tests en `store.test.tsx`. (R6)
 6. [ ] **Perfil › "Tus datos" y exportar**: sección con el texto R11 y el botón "Exportar mis datos". (R1, R2, R11)
 7. [ ] **Perfil › importar**: input de fichero, errores, `confirm` con la fecha, `importData`, mensaje de éxito, reset de estado local. (R5, R6, R8, R9, R10)
