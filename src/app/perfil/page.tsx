@@ -33,6 +33,7 @@ import {
   type Preferences,
 } from "@/components/perfil/steps";
 import { Field, inputCls } from "@/components/perfil/ui";
+import { DataSection } from "@/components/perfil/DataSection";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 
@@ -543,6 +544,7 @@ export default function ProfilePage() {
       <BodySection profile={profile} update={update} onRecalcOffer={setRecalc} />
       <MealsSection profile={profile} update={update} />
       <PreferencesSection profile={profile} update={update} />
+      <DataSection />
 
       <button
         onClick={logout}
