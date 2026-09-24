@@ -113,6 +113,10 @@ export default function DiaryPage() {
     setServingsError(false);
   };
 
+  const selectedRecipe = recipes.find((x) => x.id === recipeId);
+  const parsedServings = parseServings(servingsText);
+  const previewKcal = selectedRecipe && parsedServings !== null ? Math.round(selectedRecipe.calories * parsedServings) : null;
+
   // Flujo paso 5: cada vez que se abre el formulario, "Raciones" vuelve a 1
   const openAdd = () => {
     editServings("1");
@@ -143,15 +147,13 @@ export default function DiaryPage() {
 
   const submitAdd = () => {
     if (mode === "recipe") {
-      const r = recipes.find((x) => x.id === recipeId);
-      if (!r) return;
-      const servings = parseServings(servingsText);
+      if (!selectedRecipe) return;
       // R6: no se añade y el formulario sigue abierto con el mensaje junto al campo
-      if (servings === null) {
+      if (parsedServings === null) {
         setServingsError(true);
         return;
       }
-      addEntry(recipeEntry(r, date, mealType, { servings }));
+      addEntry(recipeEntry(selectedRecipe, date, mealType, { servings: parsedServings }));
     } else {
       if (!customName.trim()) return;
       addEntry({ id: crypto.randomUUID(), date, mealType, customName, ...customMacros });
@@ -307,12 +309,12 @@ export default function DiaryPage() {
                 <label htmlFor={servingsId} className="font-medium">
                   Raciones
                 </label>
-                <div className="flex items-center gap-2 max-w-56">
+                <div className="flex items-center gap-2 max-w-72">
                   {/* R8: ±0,25, deshabilitados en los extremos */}
                   <button
                     type="button"
                     onClick={() => editServings(formatServings(stepServings(servingsText, -1)))}
-                    disabled={parseServings(servingsText) === SERVINGS.min}
+                    disabled={parsedServings === SERVINGS.min}
                     aria-label="Quitar 0,25 raciones"
                     className={stepBtnCls}
                   >
@@ -325,17 +327,21 @@ export default function DiaryPage() {
                     onChange={(e) => editServings(e.target.value)}
                     aria-invalid={servingsError}
                     aria-describedby={servingsError ? servingsErrorId : undefined}
-                    className={`${inputCls} text-center ${servingsError ? "border-[var(--color-expired)]" : ""}`}
+                    className={`${inputCls} min-w-0 text-center ${servingsError ? "border-[var(--color-expired)]" : ""}`}
                   />
                   <button
                     type="button"
                     onClick={() => editServings(formatServings(stepServings(servingsText, 1)))}
-                    disabled={parseServings(servingsText) === SERVINGS.max}
+                    disabled={parsedServings === SERVINGS.max}
                     aria-label="Añadir 0,25 raciones"
                     className={stepBtnCls}
                   >
                     <Plus className="w-4 h-4" aria-hidden />
                   </button>
+                  {/* R9: vista previa, solo con receta elegida y valor válido */}
+                  {previewKcal !== null && (
+                    <span className="shrink-0 text-[var(--color-text-muted)]">= {previewKcal} kcal</span>
+                  )}
                 </div>
                 {servingsError && (
                   <span id={servingsErrorId} role="alert" className="text-xs text-[var(--color-expired)]">
