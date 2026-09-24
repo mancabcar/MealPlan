@@ -231,7 +231,7 @@ export default function DiaryPage() {
                     <Chip tone="neutral">Pendiente</Chip>
                     <AllergenBadge recipe={slot.recipe} allergies={profile.allergies} />
                   </div>
-                  <span className="shrink-0 py-0.5 text-[var(--color-text-muted)]">{slot.recipe.calories} kcal</span>
+                  <span className="shrink-0 py-0.5 text-[var(--color-text-muted)]">{Math.round(slot.recipe.calories)} kcal</span>
                 </div>
               )}
               {items.map((e) => {

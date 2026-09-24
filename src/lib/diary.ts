@@ -34,7 +34,8 @@ export function recipeEntry(
 /** "0,5" / "0.5" → 0.5. null si no es número, está fuera de [0,25, 4] o no va en pasos de 0,25. */
 export function parseServings(text: string): number | null {
   const v = parseDecimal(text);
-  // v * 4 es exacto para lo que se teclea con dos decimales; "0,1" → 0,4, no entero
+  // v / 0,25 es exacto en coma flotante (0,25 es potencia de 2): "0,75" → 3, "0,1" → 0,4, no entero.
+  // Con un paso que no sea potencia de 2 (p. ej. 0,1) habría que comparar con tolerancia.
   const ok = Number.isFinite(v) && v >= SERVINGS.min && v <= SERVINGS.max && Number.isInteger(v / SERVINGS.step);
   return ok ? v : null;
 }
