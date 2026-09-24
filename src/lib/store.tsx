@@ -2,10 +2,9 @@
 
 import { createContext, useContext, useRef, useState, ReactNode } from "react";
 import { UserProfile, Recipe, MealEntry, PantryItem, WeekPlan } from "./types";
-import seedData from "@/data/recipes.json";
 import { userKey } from "./auth";
-import { migrateEntries, migrateProfile, migrateWeekPlan } from "./migrate";
-import { EMPTY as EMPTY_SHOPPING, loadShoppingState, type ShoppingState } from "./shopping/state";
+import type { ShoppingState } from "./shopping/state";
+import { LOAD_OPTIONS, type LoadOptions } from "./userData";
 
 interface AppState {
   profile: UserProfile | null;
@@ -33,14 +32,7 @@ const AppContext = createContext<AppState | null>(null);
 /** Valor nuevo, o función del valor más reciente (para encadenar varias escrituras en un mismo evento). */
 export type Setter<T> = (v: T | ((prev: T) => T)) => void;
 
-interface LoadOptions<T> {
-  /** Transforma lo guardado (migraciones, siembra). Debe ser idempotente. */
-  upgrade?: (raw: unknown) => T;
-  /** Guarda el valor original en <clave>_v1_backup antes de sobrescribirlo. */
-  backup?: boolean;
-}
-
-function load<T>(key: string, fallback: T, { upgrade, backup }: LoadOptions<T> = {}): T {
+function load<T>(key: string, { fallback, upgrade, backup }: LoadOptions<T>): T {
   let raw: unknown = null;
   try {
     const stored = localStorage.getItem(key);
@@ -48,7 +40,6 @@ function load<T>(key: string, fallback: T, { upgrade, backup }: LoadOptions<T> =
   } catch {
     return fallback;
   }
-  if (!upgrade) return (raw as T) ?? fallback;
 
   const value = upgrade(raw);
   const json = JSON.stringify(value);
@@ -63,8 +54,8 @@ function load<T>(key: string, fallback: T, { upgrade, backup }: LoadOptions<T> =
 
 // AppProvider solo se monta en el cliente, tras cargar la sesión (ver AppShell), así que se puede
 // leer localStorage de forma síncrona: el primer render ya tiene los datos y no hay parpadeo del onboarding.
-function usePersisted<T>(key: string, fallback: T, options?: LoadOptions<T>): [T, Setter<T>] {
-  const [value, setValue] = useState<T>(() => (typeof window === "undefined" ? fallback : load(key, fallback, options)));
+function usePersisted<T>(key: string, options: LoadOptions<T>): [T, Setter<T>] {
+  const [value, setValue] = useState<T>(() => (typeof window === "undefined" ? options.fallback : load(key, options)));
   // Último valor escrito, no el del render: dos escrituras en el mismo evento se encadenan en vez de
   // pisarse (antes, llamar a addPantryItem dos veces seguidas solo conservaba la última).
   const latest = useRef(value);
@@ -77,36 +68,16 @@ function usePersisted<T>(key: string, fallback: T, options?: LoadOptions<T>): [T
   return [value, set];
 }
 
-/** Siembra idempotente: añade solo las recetas del JSON cuyo id falte. */
-function withSeedRecipes(raw: unknown): Recipe[] {
-  const stored = (raw as Recipe[] | null) ?? [];
-  const existing = new Set(stored.map((r) => r.id));
-  const missing = (seedData.recipes as Recipe[]).filter((r) => !existing.has(r.id));
-  return missing.length > 0 ? [...stored, ...missing] : stored;
-}
-
 export function AppProvider({ userId, children }: { userId: string; children: ReactNode }) {
-  // Cada usuario tiene sus propias claves: mp_<userId>_<dato>
+  // Cada usuario tiene sus propias claves: mp_<userId>_<dato>. Migraciones y siembra: LOAD_OPTIONS (userData.ts).
   const k = (key: string) => userKey(userId, key);
 
-  const [profile, setProfile] = usePersisted<UserProfile | null>(k("profile"), null, {
-    upgrade: migrateProfile,
-    backup: true,
-  });
-  const [recipes, setRecipes] = usePersisted<Recipe[]>(k("recipes"), [], { upgrade: withSeedRecipes });
-  const [entries, setEntries] = usePersisted<MealEntry[]>(k("entries"), [], {
-    upgrade: (raw) => migrateEntries((raw as MealEntry[] | null) ?? []),
-    backup: true,
-  });
-  const [pantry, setPantry] = usePersisted<PantryItem[]>(k("pantry"), []);
-  const [weekPlan, setWeekPlan] = usePersisted<WeekPlan>(k("weekplan"), {}, {
-    upgrade: (raw) => migrateWeekPlan((raw as WeekPlan | null) ?? {}),
-    backup: true,
-  });
-  // Lista de la compra: solo la intención del usuario; la lista se deriva del plan (lista-compra tech.md)
-  const [shopping, setShopping] = usePersisted<ShoppingState>(k("shopping"), EMPTY_SHOPPING, {
-    upgrade: loadShoppingState,
-  });
+  const [profile, setProfile] = usePersisted(k("profile"), LOAD_OPTIONS.profile);
+  const [recipes, setRecipes] = usePersisted(k("recipes"), LOAD_OPTIONS.recipes);
+  const [entries, setEntries] = usePersisted(k("entries"), LOAD_OPTIONS.entries);
+  const [pantry, setPantry] = usePersisted(k("pantry"), LOAD_OPTIONS.pantry);
+  const [weekPlan, setWeekPlan] = usePersisted(k("weekplan"), LOAD_OPTIONS.weekplan);
+  const [shopping, setShopping] = usePersisted(k("shopping"), LOAD_OPTIONS.shopping);
 
   const value: AppState = {
     profile,

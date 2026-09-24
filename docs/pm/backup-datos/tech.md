@@ -247,7 +247,7 @@ Comandos: `npm test` (unit), `npm run test:e2e` (e2e), `npm run typecheck`. Fixt
 Sin test automático: el texto del error de cuota en la UI ("No se han podido guardar los datos…") y que tras importar se descarten los borradores de Perfil a medio editar (`key={importCount}`). Quedan para la comprobación manual en dev-code.
 
 ## Tasks
-1. [ ] **Registro compartido de datos del usuario**: crear `src/lib/userData.ts` (`USER_DATA_KEYS`, `UserData`, `EMPTY_USER_DATA`, `LOAD_OPTIONS`, `withSeedRecipes` movida) y hacer que `AppProvider` lo use. Sin cambios de comportamiento; los tests actuales siguen verdes. (base de R7)
+1. [x] **Registro compartido de datos del usuario**: crear `src/lib/userData.ts` (`USER_DATA_KEYS`, `UserData`, `EMPTY_USER_DATA`, `LOAD_OPTIONS`, `withSeedRecipes` movida) y hacer que `AppProvider` lo use. Sin cambios de comportamiento; los tests actuales siguen verdes. (base de R7)
 2. [ ] **Exportación pura**: `src/lib/backup.ts` con `BACKUP_APP_ID`, `BACKUP_SCHEMA_VERSION`, `backupFileName`, `buildBackup` + tests unitarios. (R1–R4)
 3. [ ] **Validación e importación en memoria**: `parseBackup` y `formatExportDate` + tests (formas inválidas, versión futura, secciones ausentes, migraciones). (R3, R7, R8)
 4. [ ] **Escritura con vuelta atrás**: `writeUserData` + tests con `Storage` falso que falla a mitad. (R8)
