@@ -173,7 +173,7 @@ Comandos: `npm test` (unit), `npm run test:e2e` (e2e), `npm run typecheck`. Fixt
 | Caso: receta borrada | `raciones.spec.ts` › la entrada conserva 300 kcal y muestra "Receta × 0,5" | e2e | 🔴 failing (not built) |
 
 ## Tasks
-1. [ ] **Tipo y lógica pura**: `MealEntry.servings?`; en `src/lib/diary.ts`, `recipeEntry` con `{ servings, id }` y escalado, `SERVINGS`, `SERVINGS_ERROR`, `parseServings`, `stepServings`, `formatServings`, `servingsLabel`; adaptar las llamadas de `tests/unit/diary.test.ts` y añadir los tests unitarios. Sin cambios visibles. (R2, R3, R5–R8 lógica)
+1. [x] **Tipo y lógica pura**: `MealEntry.servings?`; en `src/lib/diary.ts`, `recipeEntry` con `{ servings, id }` y escalado, `SERVINGS`, `SERVINGS_ERROR`, `parseServings`, `stepServings`, `formatServings`, `servingsLabel`; adaptar las llamadas de `tests/unit/diary.test.ts` y añadir los tests unitarios. Sin cambios visibles. (R2, R3, R5–R8 lógica)
 2. [ ] **Lista del Diario**: etiqueta "× n" junto al nombre y `Math.round` en las kcal de la fila. Sin cambios visibles para datos existentes. (R4, R5)
 3. [ ] **Campo "Raciones" en el formulario**: estado `servingsText`/`servingsError`, input con label, validación en `submitAdd` con mensaje, reset al abrir y tras añadir, oculto en "Personalizada". Entrega todos los Musts. (R1, R2, R3, R6, R7)
 4. [ ] **Botones − / +** con `stepServings` y deshabilitado en los extremos. (R8)
