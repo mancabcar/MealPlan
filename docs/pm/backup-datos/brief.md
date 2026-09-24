@@ -1,6 +1,6 @@
 # Copia de seguridad: exportar e importar mis datos en JSON
 
-_Status: tech design · Updated: 2026-09-24 · Origen: [issue #8](https://github.com/mancabcar/MealPlan/issues/8) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: tests · Updated: 2026-09-24 · Origen: [issue #8](https://github.com/mancabcar/MealPlan/issues/8) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Problema
 Todos los datos viven en el `localStorage` del navegador. Si se borran los datos del navegador o se cambia de dispositivo, se pierden sin remedio: no hay backend ni ninguna otra copia.
@@ -24,6 +24,7 @@ En Perfil, "Exportar mis datos" descarga un `.json` con el perfil, las recetas, 
 - Prototipo: saltado. Son dos botones en Perfil y una confirmación, sin pantallas ni flujos nuevos.
 - Spec: [spec.md](spec.md), aprobada el 2026-09-24.
 - Tech design: [tech.md](tech.md) (2026-09-24). Enfoque: validar y migrar la copia entera en memoria, escribir las seis claves con vuelta atrás y releer el store sin recargar. Esfuerzo M.
+- Tests: escritos antes del código el 2026-09-24 (dev-test): `tests/unit/backup.test.ts` (53), 8 nuevos en `tests/unit/store.test.tsx` (`importData`), `tests/e2e/backup-datos.spec.ts` (22), el caso "Perfil con error de importación" en `accessibility.spec.ts` y la fixture `tests/fixtures/backup.ts`. Todos fallan porque la funcionalidad aún no existe (faltan `src/lib/backup.ts`, `src/lib/userData.ts`, `importData` y la sección "Tus datos"); el resto sigue en verde (unit 387/387, e2e 131/131). Cobertura en [tech.md › Test coverage](tech.md#test-coverage). Siguiente: código (dev-code).
 
 ## Decisiones (Manuel, 2026-09-24)
 - Brainstorm y prototipo saltados: de acuerdo.
