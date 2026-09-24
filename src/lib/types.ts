@@ -24,6 +24,8 @@ export interface MealEntry {
   protein: number;
   carbs: number;
   fat: number;
+  /** Raciones registradas (0,25–4). Solo existe en entradas de receta con raciones ≠ 1; ausente = 1 ración. Los macros ya vienen multiplicados. */
+  servings?: number;
 }
 
 export type PantryCategory = "Nevera" | "Despensa" | "Congelador";

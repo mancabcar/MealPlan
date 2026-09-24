@@ -46,3 +46,14 @@ let n = 0;
 export function entry(date: string, mealType: MealType, e: Partial<MealEntry> = {}): MealEntry {
   return { id: `e-${++n}`, date, mealType, customName: "Ensalada", calories: 250, protein: 8, carbs: 20, fat: 14, ...e };
 }
+
+// ---------------------------------------------------------------------------
+// Raciones al registrar recetas (docs/pm/raciones/spec.md › Criterios de aceptación).
+// Compartidos por tests/unit/diary.test.ts y tests/e2e/raciones.spec.ts.
+
+/** La receta del spec: 600 kcal, 40 P, 60 C, 20 G. 0,5 raciones → 300 / 20 / 30 / 10. */
+export const GUISO = recipe("t-guiso", "Guiso", { calories: 600, protein: 40, carbs: 60, fat: 20 }, ["200g ternera", "1 patata"]);
+/** 150 kcal: 0,25 raciones = 37,5 kcal (no entero). Tres → 112,5 → "113", no 3 × 38 = 114 (sin error acumulado). */
+export const CALDO = recipe("t-caldo", "Caldo", { calories: 150, protein: 8, carbs: 12, fat: 6 }, ["500ml caldo"]);
+
+export const RACIONES_RECIPES: Recipe[] = [GUISO, CALDO, LENTEJAS];

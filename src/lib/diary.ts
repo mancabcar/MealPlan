@@ -1,19 +1,61 @@
 // Diario desde el plan (docs/pm/diario-desde-plan/tech.md › APIs). Puro: sin React ni store.
 // "Pendiente" nunca se guarda: se deriva en cada render del plan y de las entradas.
+import { parseDecimal } from "./nutrition";
 import { MEAL_TYPES, type MealEntry, type MealType, type Recipe, type WeekPlan } from "./types";
 
-/** Entrada de receta con sus macros tal cual (la misma que el formulario "Receta"). */
-export function recipeEntry(recipe: Recipe, date: string, mealType: MealType, id: string = crypto.randomUUID()): MealEntry {
-  return {
+// Raciones (docs/pm/raciones/tech.md › APIs): 0,25–4 en pasos de 0,25.
+export const SERVINGS = { min: 0.25, max: 4, step: 0.25 } as const;
+export const SERVINGS_ERROR = "Entre 0,25 y 4, en pasos de 0,25";
+
+/**
+ * Entrada de receta (la del formulario "Receta" y la de "Hecho"). Con servings ≠ 1 multiplica los cuatro
+ * macros sin redondear y guarda `servings`; con 1 es la entrada de siempre, sin ese campo.
+ */
+export function recipeEntry(
+  recipe: Recipe,
+  date: string,
+  mealType: MealType,
+  { servings = 1, id = crypto.randomUUID() }: { servings?: number; id?: string } = {},
+): MealEntry {
+  const entry: MealEntry = {
     id,
     date,
     mealType,
     recipeId: recipe.id,
-    calories: recipe.calories,
-    protein: recipe.protein,
-    carbs: recipe.carbs,
-    fat: recipe.fat,
+    calories: recipe.calories * servings,
+    protein: recipe.protein * servings,
+    carbs: recipe.carbs * servings,
+    fat: recipe.fat * servings,
   };
+  if (servings !== 1) entry.servings = servings;
+  return entry;
+}
+
+/** "0,5" / "0.5" → 0.5. null si no es número, está fuera de [0,25, 4] o no va en pasos de 0,25. */
+export function parseServings(text: string): number | null {
+  const v = parseDecimal(text);
+  // v / 0,25 es exacto en coma flotante (0,25 es potencia de 2): "0,75" → 3, "0,1" → 0,4, no entero.
+  // Con un paso que no sea potencia de 2 (p. ej. 0,1) habría que comparar con tolerancia.
+  const ok = Number.isFinite(v) && v >= SERVINGS.min && v <= SERVINGS.max && Number.isInteger(v / SERVINGS.step);
+  return ok ? v : null;
+}
+
+/** Botones − / + (R8): ±0,25 desde el valor válido actual (o desde 1 si no lo es), acotado a [0,25, 4]. */
+export function stepServings(text: string, delta: 1 | -1): number {
+  const current = parseServings(text) ?? 1;
+  return Math.min(SERVINGS.max, Math.max(SERVINGS.min, current + delta * SERVINGS.step));
+}
+
+/** 0.5 → "0,5", 1.25 → "1,25", 2 → "2". Coma decimal fija, sin depender de Intl. */
+export function formatServings(n: number): string {
+  return String(n).replace(".", ",");
+}
+
+/** "× 0,5" para la lista del Diario; null si no hay que mostrar nada (ausente, 1 o dato no numérico). */
+export function servingsLabel(entry: Pick<MealEntry, "servings">): string | null {
+  const s = entry.servings;
+  if (typeof s !== "number" || !Number.isFinite(s) || s === 1) return null;
+  return `× ${formatServings(s)}`;
 }
 
 export interface PendingSlot {

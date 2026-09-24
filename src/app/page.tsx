@@ -1,10 +1,19 @@
 "use client";
 
 import { useId, useState, type MouseEvent } from "react";
-import { Check, CheckCheck, Plus, X } from "lucide-react";
+import { Check, CheckCheck, Minus, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { allergenWarning } from "@/lib/allergens";
-import { pendingSlots, recipeEntry } from "@/lib/diary";
+import {
+  SERVINGS,
+  SERVINGS_ERROR,
+  formatServings,
+  parseServings,
+  pendingSlots,
+  recipeEntry,
+  servingsLabel,
+  stepServings,
+} from "@/lib/diary";
 import {
   MEAL_TYPES,
   MEAL_TYPE_ICON_COMPONENTS,
@@ -75,6 +84,10 @@ const singleClick = (action: () => void) => (ev: MouseEvent) => {
   action();
 };
 
+// Botones − / + de "Raciones": cuadrados con borde, como los toggles Receta/Personalizada
+const stepBtnCls =
+  "shrink-0 flex items-center justify-center w-10 h-10 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] disabled:opacity-40";
+
 export default function DiaryPage() {
   const { profile, entries, recipes, weekPlan, addEntry, removeEntry } = useApp();
   const idPrefix = useId();
@@ -87,8 +100,28 @@ export default function DiaryPage() {
   const [recipeId, setRecipeId] = useState("");
   const [customName, setCustomName] = useState("");
   const [customMacros, setCustomMacros] = useState({ calories: 0, protein: 0, carbs: 0, fat: 0 });
+  // Raciones (docs/pm/raciones): texto tal cual se teclea ("0,5"); el error solo sale al pulsar "Añadir"
+  const [servingsText, setServingsText] = useState("1");
+  const [servingsError, setServingsError] = useState(false);
+  const servingsId = `${idPrefix}-servings`;
+  const servingsErrorId = `${servingsId}-error`;
 
   if (!profile) return null;
+
+  const editServings = (text: string) => {
+    setServingsText(text);
+    setServingsError(false);
+  };
+
+  const selectedRecipe = recipes.find((x) => x.id === recipeId);
+  const parsedServings = parseServings(servingsText);
+  const previewKcal = selectedRecipe && parsedServings !== null ? Math.round(selectedRecipe.calories * parsedServings) : null;
+
+  // Flujo paso 5: cada vez que se abre el formulario, "Raciones" vuelve a 1
+  const openAdd = () => {
+    editServings("1");
+    setShowAdd(true);
+  };
 
   const pending = pendingSlots({ date, today: todayStr(), weekPlan, recipes, entries, meals: profile.meals });
 
@@ -114,14 +147,19 @@ export default function DiaryPage() {
 
   const submitAdd = () => {
     if (mode === "recipe") {
-      const r = recipes.find((x) => x.id === recipeId);
-      if (!r) return;
-      addEntry(recipeEntry(r, date, mealType));
+      if (!selectedRecipe) return;
+      // R6: no se añade y el formulario sigue abierto con el mensaje junto al campo
+      if (parsedServings === null) {
+        setServingsError(true);
+        return;
+      }
+      addEntry(recipeEntry(selectedRecipe, date, mealType, { servings: parsedServings }));
     } else {
       if (!customName.trim()) return;
       addEntry({ id: crypto.randomUUID(), date, mealType, customName, ...customMacros });
     }
     setShowAdd(false);
+    editServings("1");
     setCustomName("");
     setCustomMacros({ calories: 0, protein: 0, carbs: 0, fat: 0 });
   };
@@ -193,20 +231,28 @@ export default function DiaryPage() {
                     <Chip tone="neutral">Pendiente</Chip>
                     <AllergenBadge recipe={slot.recipe} allergies={profile.allergies} />
                   </div>
-                  <span className="shrink-0 py-0.5 text-[var(--color-text-muted)]">{slot.recipe.calories} kcal</span>
+                  <span className="shrink-0 py-0.5 text-[var(--color-text-muted)]">{Math.round(slot.recipe.calories)} kcal</span>
                 </div>
               )}
-              {items.map((e) => (
-                <div key={e.id} className="flex justify-between items-center py-1 text-sm">
-                  <span>{e.customName ?? recipes.find((r) => r.id === e.recipeId)?.name ?? "Receta"}</span>
-                  <span className="flex items-center gap-2 text-[var(--color-text-muted)]">
-                    {e.calories} kcal
-                    <button onClick={singleClick(() => removeEntry(e.id))} aria-label="Eliminar" className="text-[var(--color-expired)]">
-                      <X className="w-4 h-4" aria-hidden />
-                    </button>
-                  </span>
-                </div>
-              ))}
+              {items.map((e) => {
+                // Raciones (R4): "× 0,5" junto al nombre; nada con 1 ración o en entradas anteriores (R5)
+                const label = servingsLabel(e);
+                return (
+                  <div key={e.id} className="flex justify-between items-center py-1 text-sm">
+                    <span>
+                      {e.customName ?? recipes.find((r) => r.id === e.recipeId)?.name ?? "Receta"}
+                      {label && <span className="text-[var(--color-text-muted)]"> {label}</span>}
+                    </span>
+                    <span className="flex items-center gap-2 text-[var(--color-text-muted)]">
+                      {/* Con raciones los macros pueden no ser enteros (0,25 × 150 = 37,5): se redondea al mostrar */}
+                      {Math.round(e.calories)} kcal
+                      <button onClick={singleClick(() => removeEntry(e.id))} aria-label="Eliminar" className="text-[var(--color-expired)]">
+                        <X className="w-4 h-4" aria-hidden />
+                      </button>
+                    </span>
+                  </div>
+                );
+              })}
             </Card>
           );
         })}
@@ -249,14 +295,61 @@ export default function DiaryPage() {
             </button>
           </div>
           {mode === "recipe" ? (
-            <select value={recipeId} onChange={(e) => setRecipeId(e.target.value)} className={inputCls}>
-              <option value="">Elige una receta...</option>
-              {recipes.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {[`${r.name} (${r.calories} kcal)`, allergenWarning(r, profile.allergies)].filter(Boolean).join(" · ")}
-                </option>
-              ))}
-            </select>
+            <>
+              <select value={recipeId} onChange={(e) => setRecipeId(e.target.value)} className={inputCls}>
+                <option value="">Elige una receta...</option>
+                {recipes.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {[`${r.name} (${r.calories} kcal)`, allergenWarning(r, profile.allergies)].filter(Boolean).join(" · ")}
+                  </option>
+                ))}
+              </select>
+              {/* Raciones (docs/pm/raciones, R1/R6): independiente de la receta elegida; se valida al pulsar "Añadir" */}
+              <div className="flex flex-col gap-1 text-sm">
+                <label htmlFor={servingsId} className="font-medium">
+                  Raciones
+                </label>
+                <div className="flex items-center gap-2 max-w-72">
+                  {/* R8: ±0,25, deshabilitados en los extremos */}
+                  <button
+                    type="button"
+                    onClick={() => editServings(formatServings(stepServings(servingsText, -1)))}
+                    disabled={parsedServings === SERVINGS.min}
+                    aria-label="Quitar 0,25 raciones"
+                    className={stepBtnCls}
+                  >
+                    <Minus className="w-4 h-4" aria-hidden />
+                  </button>
+                  <input
+                    id={servingsId}
+                    inputMode="decimal"
+                    value={servingsText}
+                    onChange={(e) => editServings(e.target.value)}
+                    aria-invalid={servingsError}
+                    aria-describedby={servingsError ? servingsErrorId : undefined}
+                    className={`${inputCls} min-w-0 text-center ${servingsError ? "border-[var(--color-expired)]" : ""}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => editServings(formatServings(stepServings(servingsText, 1)))}
+                    disabled={parsedServings === SERVINGS.max}
+                    aria-label="Añadir 0,25 raciones"
+                    className={stepBtnCls}
+                  >
+                    <Plus className="w-4 h-4" aria-hidden />
+                  </button>
+                  {/* R9: vista previa, solo con receta elegida y valor válido */}
+                  {previewKcal !== null && (
+                    <span className="shrink-0 text-[var(--color-text-muted)]">= {previewKcal} kcal</span>
+                  )}
+                </div>
+                {servingsError && (
+                  <span id={servingsErrorId} role="alert" className="text-xs text-[var(--color-expired)]">
+                    {SERVINGS_ERROR}
+                  </span>
+                )}
+              </div>
+            </>
           ) : (
             <>
               <input
@@ -297,7 +390,7 @@ export default function DiaryPage() {
         </Card>
       ) : (
         <button
-          onClick={() => setShowAdd(true)}
+          onClick={openAdd}
           className="flex items-center justify-center gap-1.5 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-xl py-3 font-semibold"
         >
           <Plus className="w-4 h-4" aria-hidden />
