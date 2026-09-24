@@ -214,35 +214,35 @@ Comandos: `npm test` (unit), `npm run test:e2e` (e2e), `npm run typecheck`. Fixt
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| (base R7) | `tests/unit/backup.test.ts` › "userData: registro compartido" › `USER_DATA_KEYS` en orden, `EMPTY_USER_DATA`, `LOAD_OPTIONS` = las migraciones del store (perfil, Snack, plan, compra, siembra, despensa), vacío por clave, `backup` en perfil/diario/plan, `withSeedRecipes` idempotente | unit | 🔴 failing (not built) |
-| R1 | `backup.test.ts` › "R1: nombre del fichero" › `backupFileName("2026-09-24")`; por defecto, fecha local de hoy | unit | 🔴 failing (not built) |
-| R1 | `tests/e2e/backup-datos.spec.ts` › "R1–R4" › "R1: descarga mealplan-backup-<fecha de hoy>.json" (`suggestedFilename`) | e2e | 🔴 failing (not built) |
-| R2 | `backup.test.ts` › "R2" › los seis datos tal cual; claves ausentes omitidas; no escribe en storage | unit | 🔴 failing (not built) |
-| R2 | `backup-datos.spec.ts` › "R2: contiene los seis datos…" (igual a lo guardado) y "R2: incluye el estado de la lista de la compra" (Brócoli marcado) | e2e | 🔴 failing (not built) |
-| R3 | `backup.test.ts` › "R3" › `BACKUP_APP_ID`, `BACKUP_SCHEMA_VERSION`, `app` / `schemaVersion: 1` / `exportedAt` ISO | unit | 🔴 failing (not built) |
-| R3 | `backup-datos.spec.ts` › "R3: identificador de la app, schemaVersion 1 y fecha de exportación" (reloj fijo) | e2e | 🔴 failing (not built) |
-| R4 | `backup.test.ts` › "R4" › sin hash, sal, id, username ("lucia" ≠ "Lucía"), recordados, otra cuenta ni `*_v1_backup`; cabecera solo con 4 claves | unit | 🔴 failing (not built) |
-| R4 | `backup-datos.spec.ts` › "R4: sin hash, sal, id de cuenta ni nombre de usuario", "R4: sin usuarios recordados ni datos de otra cuenta", "R4: exportar no cambia nada guardado" | e2e | 🔴 failing (not built) |
-| R5 | `backup-datos.spec.ts` › cuenta A → B: un único `confirm` con "22/09/2026" y "todos tus datos"; "R5: el selector solo pide ficheros .json" (`accept`, no múltiple) | e2e | 🔴 failing (not built) |
-| R5 | `backup.test.ts` › "formatExportDate" › ISO → dd/mm/aaaa, fecha local | unit | 🔴 failing (not built) |
-| R6 | `tests/unit/store.test.tsx` › "R6: importData…" › contexto con los seis datos, guardados en localStorage, sin remontar, escrituras posteriores encadenadas, sin `*_v1_backup`, perfil null | unit | 🔴 failing (not built) |
-| R6, R10 | `backup-datos.spec.ts` › "de la cuenta A a una cuenta B en otro navegador, sin recargar, y sigue tras recargar": "Datos importados" (`role="status"`), seis claves de B = las de A, Perfil, Diario (545 / 1750, "× 0,5"), Plan, Lista de la compra ("1 de N comprados"), Recetas (IA), Despensa; nada de B; sin recarga (marca en `window`); tras `reload()`, igual | e2e | 🔴 failing (not built) |
-| R10 | `backup.test.ts` › "R10" › `buildBackup` → `parseBackup` devuelve lo guardado; campos extra (`servings`) se conservan | unit | 🔴 failing (not built) |
-| R10 | `backup-datos.spec.ts` › "en el mismo navegador: exportar e importar la propia copia no cambia nada" (byte a byte) y "se puede importar el mismo fichero dos veces seguidas" | e2e | 🔴 failing (not built) |
-| R7 | `backup.test.ts` › "R7" › perfil v1 `["Vegetariano", "Sin gluten"]` → v2 vegetariana + gluten (= `migrateProfile`); Snack → Merienda en diario y plan; `loadShoppingState`; cada sección = `LOAD_OPTIONS[k].upgrade` | unit | 🔴 failing (not built) |
-| R7 | `store.test.tsx` › "R7: la carga del store y parseBackup migran igual" (perfil, diario, recetas) | unit | 🔴 failing (not built) |
-| R7 | `backup-datos.spec.ts` › "R7" › Perfil muestra "Gluten" y "Vegetariana", Diario "Manzana" en Merienda, plan en Merienda, sin `profile_v1_backup` (Spec feedback 5); recetas de ejemplo re-sembradas sin duplicados | e2e | 🔴 failing (not built) |
-| R8 | `backup.test.ts` › "R8: un fichero no válido…" › no JSON / cortado; no es copia (`[]`, `null`, sin `app`, otra app); `schemaVersion` no entero ≥ 1; versión más nueva (2, 99); sin `data`; perfil no objeto o con `schemaVersion: 3` (Spec feedback 4); `recipes` / `pantry` sin `id`; `entries` no lista, con `null`, sin `date` o con macros no numéricos; `weekplan` mal formado; `shopping` no objeto; una sección mala invalida todo. Mensajes literales de tech.md | unit | 🔴 failing (not built) |
-| R8 | `backup.test.ts` › "R8: writeUserData escribe todo o nada" › seis claves con `JSON.stringify`; no toca credenciales, `*_v1_backup` ni otras cuentas; fallo en la 1.ª, 4.ª y 6.ª escritura → lanza y todo queda byte a byte igual (también las claves que no existían) | unit | 🔴 failing (not built) |
-| R8 | `store.test.tsx` › "R8: si la escritura falla, importData lanza y nada cambia" (cuota en la 4.ª `setItem`) | unit | 🔴 failing (not built) |
-| R8 | `backup-datos.spec.ts` › "R8" › no JSON, sin `app`, `schemaVersion: 99`, `entries: {}` → `role="alert"` con el motivo, ningún diálogo, sin "Datos importados", localStorage byte a byte igual; un error previo desaparece al importar bien | e2e | 🔴 failing (not built) |
-| R8 | `tests/e2e/accessibility.spec.ts` › "Perfil con error de importación" (color-contrast de "Tus datos" y del error) | e2e | 🔴 failing (not built) |
-| R9 | `backup-datos.spec.ts` › "R9: cancelar la confirmación no cambia nada" (confirm con "24/09/2026", `dismiss`, byte a byte igual, Perfil y Despensa de B) | e2e | 🔴 failing (not built) |
-| R11 | `backup-datos.spec.ts` › "R11" › "solo se guardan en este navegador… Exporta una copia de vez en cuando" y los dos botones en la región "Tus datos" | e2e | 🔴 failing (not built) |
-| Caso: secciones ausentes | `backup.test.ts` › "Casos límite" › copia vacía → todo vacío + recetas de ejemplo; sin `shopping` → `EMPTY` | unit | 🔴 failing (not built) |
-| Caso: `profile: null` | `backup.test.ts` (válido) y `backup-datos.spec.ts` › "una copia con profile: null lleva al onboarding" | unit + e2e | 🔴 failing (not built) |
-| Caso: otras cuentas | `backup.test.ts` › `writeUserData` no las toca; `backup-datos.spec.ts` › "importar no toca las otras cuentas del navegador ni las credenciales" | unit + e2e | 🔴 failing (not built) |
-| Caso: cuota | `backup.test.ts` › fallo a mitad de `writeUserData`; `store.test.tsx` › R8. Sin e2e: no se puede llenar la cuota de forma fiable | unit | 🔴 failing (not built) |
+| (base R7) | `tests/unit/backup.test.ts` › "userData: registro compartido" › `USER_DATA_KEYS` en orden, `EMPTY_USER_DATA`, `LOAD_OPTIONS` = las migraciones del store (perfil, Snack, plan, compra, siembra, despensa), vacío por clave, `backup` en perfil/diario/plan, `withSeedRecipes` idempotente | unit | ✅ passing |
+| R1 | `backup.test.ts` › "R1: nombre del fichero" › `backupFileName("2026-09-24")`; por defecto, fecha local de hoy | unit | ✅ passing |
+| R1 | `tests/e2e/backup-datos.spec.ts` › "R1–R4" › "R1: descarga mealplan-backup-<fecha de hoy>.json" (`suggestedFilename`) | e2e | ✅ passing |
+| R2 | `backup.test.ts` › "R2" › los seis datos tal cual; claves ausentes omitidas; no escribe en storage | unit | ✅ passing |
+| R2 | `backup-datos.spec.ts` › "R2: contiene los seis datos…" (igual a lo guardado) y "R2: incluye el estado de la lista de la compra" (Brócoli marcado) | e2e | ✅ passing |
+| R3 | `backup.test.ts` › "R3" › `BACKUP_APP_ID`, `BACKUP_SCHEMA_VERSION`, `app` / `schemaVersion: 1` / `exportedAt` ISO | unit | ✅ passing |
+| R3 | `backup-datos.spec.ts` › "R3: identificador de la app, schemaVersion 1 y fecha de exportación" (reloj fijo) | e2e | ✅ passing |
+| R4 | `backup.test.ts` › "R4" › sin hash, sal, id, username ("lucia" ≠ "Lucía"), recordados, otra cuenta ni `*_v1_backup`; cabecera solo con 4 claves | unit | ✅ passing |
+| R4 | `backup-datos.spec.ts` › "R4: sin hash, sal, id de cuenta ni nombre de usuario", "R4: sin usuarios recordados ni datos de otra cuenta", "R4: exportar no cambia nada guardado" | e2e | ✅ passing |
+| R5 | `backup-datos.spec.ts` › cuenta A → B: un único `confirm` con "22/09/2026" y "todos tus datos"; "R5: el selector solo pide ficheros .json" (`accept`, no múltiple) | e2e | ✅ passing |
+| R5 | `backup.test.ts` › "formatExportDate" › ISO → dd/mm/aaaa, fecha local | unit | ✅ passing |
+| R6 | `tests/unit/store.test.tsx` › "R6: importData…" › contexto con los seis datos, guardados en localStorage, sin remontar, escrituras posteriores encadenadas, sin `*_v1_backup`, perfil null | unit | ✅ passing |
+| R6, R10 | `backup-datos.spec.ts` › "de la cuenta A a una cuenta B en otro navegador, sin recargar, y sigue tras recargar": "Datos importados" (`role="status"`), seis claves de B = las de A, Perfil, Diario (545 / 1750, "× 0,5"), Plan, Lista de la compra ("1 de N comprados"), Recetas (IA), Despensa; nada de B; sin recarga (marca en `window`); tras `reload()`, igual | e2e | ✅ passing |
+| R10 | `backup.test.ts` › "R10" › `buildBackup` → `parseBackup` devuelve lo guardado; campos extra (`servings`) se conservan | unit | ✅ passing |
+| R10 | `backup-datos.spec.ts` › "en el mismo navegador: exportar e importar la propia copia no cambia nada" (byte a byte) y "se puede importar el mismo fichero dos veces seguidas" | e2e | ✅ passing |
+| R7 | `backup.test.ts` › "R7" › perfil v1 `["Vegetariano", "Sin gluten"]` → v2 vegetariana + gluten (= `migrateProfile`); Snack → Merienda en diario y plan; `loadShoppingState`; cada sección = `LOAD_OPTIONS[k].upgrade` | unit | ✅ passing |
+| R7 | `store.test.tsx` › "R7: la carga del store y parseBackup migran igual" (perfil, diario, recetas) | unit | ✅ passing |
+| R7 | `backup-datos.spec.ts` › "R7" › Perfil muestra "Gluten" y "Vegetariana", Diario "Manzana" en Merienda, plan en Merienda, sin `profile_v1_backup` (Spec feedback 5); recetas de ejemplo re-sembradas sin duplicados | e2e | ✅ passing |
+| R8 | `backup.test.ts` › "R8: un fichero no válido…" › no JSON / cortado; no es copia (`[]`, `null`, sin `app`, otra app); `schemaVersion` no entero ≥ 1; versión más nueva (2, 99); sin `data`; perfil no objeto o con `schemaVersion: 3` (Spec feedback 4); `recipes` / `pantry` sin `id`; `entries` no lista, con `null`, sin `date` o con macros no numéricos; `weekplan` mal formado; `shopping` no objeto; una sección mala invalida todo. Mensajes literales de tech.md | unit | ✅ passing |
+| R8 | `backup.test.ts` › "R8: writeUserData escribe todo o nada" › seis claves con `JSON.stringify`; no toca credenciales, `*_v1_backup` ni otras cuentas; fallo en la 1.ª, 4.ª y 6.ª escritura → lanza y todo queda byte a byte igual (también las claves que no existían) | unit | ✅ passing |
+| R8 | `store.test.tsx` › "R8: si la escritura falla, importData lanza y nada cambia" (cuota en la 4.ª `setItem`) | unit | ✅ passing |
+| R8 | `backup-datos.spec.ts` › "R8" › no JSON, sin `app`, `schemaVersion: 99`, `entries: {}` → `role="alert"` con el motivo, ningún diálogo, sin "Datos importados", localStorage byte a byte igual; un error previo desaparece al importar bien | e2e | ✅ passing |
+| R8 | `tests/e2e/accessibility.spec.ts` › "Perfil con error de importación" (color-contrast de "Tus datos" y del error) | e2e | ✅ passing |
+| R9 | `backup-datos.spec.ts` › "R9: cancelar la confirmación no cambia nada" (confirm con "24/09/2026", `dismiss`, byte a byte igual, Perfil y Despensa de B) | e2e | ✅ passing |
+| R11 | `backup-datos.spec.ts` › "R11" › "solo se guardan en este navegador… Exporta una copia de vez en cuando" y los dos botones en la región "Tus datos" | e2e | ✅ passing |
+| Caso: secciones ausentes | `backup.test.ts` › "Casos límite" › copia vacía → todo vacío + recetas de ejemplo; sin `shopping` → `EMPTY` | unit | ✅ passing |
+| Caso: `profile: null` | `backup.test.ts` (válido) y `backup-datos.spec.ts` › "una copia con profile: null lleva al onboarding" | unit + e2e | ✅ passing |
+| Caso: otras cuentas | `backup.test.ts` › `writeUserData` no las toca; `backup-datos.spec.ts` › "importar no toca las otras cuentas del navegador ni las credenciales" | unit + e2e | ✅ passing |
+| Caso: cuota | `backup.test.ts` › fallo a mitad de `writeUserData`; `store.test.tsx` › R8. Sin e2e: no se puede llenar la cuota de forma fiable | unit | ✅ passing |
 
 Sin test automático: el texto del error de cuota en la UI ("No se han podido guardar los datos…") y que tras importar se descarten los borradores de Perfil a medio editar (`key={importCount}`). Quedan para la comprobación manual en dev-code.
 
