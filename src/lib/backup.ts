@@ -2,7 +2,7 @@
 // la página de Perfil les pasa localStorage y los tests uno en memoria.
 import { userKey } from "./auth";
 import { todayStr } from "./types";
-import { USER_DATA_KEYS, type UserDataKey } from "./userData";
+import { LOAD_OPTIONS, USER_DATA_KEYS, type UserData, type UserDataKey } from "./userData";
 
 export const BACKUP_APP_ID = "mealplan";
 /** Versión del FORMATO de copia, no del perfil (R3). */
@@ -38,4 +38,92 @@ export function buildBackup(storage: Storage, userId: string, now: Date = new Da
     }
   }
   return { app: BACKUP_APP_ID, schemaVersion: BACKUP_SCHEMA_VERSION, exportedAt: now.toISOString(), data };
+}
+
+export type ParseResult = { ok: true; data: UserData; exportedAt: string } | { ok: false; error: string };
+
+const NOT_JSON = "El fichero no es un JSON válido.";
+const NOT_A_BACKUP = "Este fichero no es una copia de MealPlan.";
+const NEWER_VERSION = "Esta copia es de una versión más nueva de la app.";
+const BAD_FORMAT = "El fichero no tiene el formato esperado.";
+const badSection = (k: UserDataKey) => `La sección «${k}» no tiene el formato esperado.`;
+
+type Obj = Record<string, unknown>;
+const isObject = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
+const isString = (v: unknown): v is string => typeof v === "string";
+const isNumber = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
+const everyObject = (v: unknown, ok: (o: Obj) => boolean) => Array.isArray(v) && v.every((x) => isObject(x) && ok(x));
+const hasId = (o: Obj) => isString(o.id);
+
+/**
+ * Forma mínima de cada sección para que las pantallas no se rompan (tech.md › Spec feedback 3), no un esquema
+ * completo: los campos extra se conservan tal cual.
+ */
+const SECTION_SHAPE: Record<UserDataKey, (v: unknown) => boolean> = {
+  // Con schemaVersion debe ser la actual (2); sin él es v1 y se migra. Uno futuro no se "migra" como v1.
+  profile: (v) => v === null || (isObject(v) && (v.schemaVersion === undefined || v.schemaVersion === 2)),
+  recipes: (v) => everyObject(v, hasId),
+  entries: (v) =>
+    everyObject(
+      v,
+      (e) =>
+        isString(e.id) &&
+        isString(e.date) &&
+        isString(e.mealType) &&
+        isNumber(e.calories) &&
+        isNumber(e.protein) &&
+        isNumber(e.carbs) &&
+        isNumber(e.fat),
+    ),
+  pantry: (v) => everyObject(v, hasId),
+  weekplan: (v) =>
+    isObject(v) && Object.values(v).every((day) => everyObject(day, (s) => isString(s.mealType) && isString(s.recipeId))),
+  shopping: isObject,
+};
+
+/**
+ * Todo o nada (R8): JSON → cabecera → forma de cada sección → migraciones de LOAD_OPTIONS (R7), todo en memoria.
+ * Nunca toca el storage. Una sección ausente es un dato vacío.
+ */
+export function parseBackup(text: string): ParseResult {
+  let file: unknown;
+  try {
+    file = JSON.parse(text);
+  } catch {
+    return { ok: false, error: NOT_JSON };
+  }
+  if (!isObject(file) || file.app !== BACKUP_APP_ID) return { ok: false, error: NOT_A_BACKUP };
+  const version = file.schemaVersion;
+  if (typeof version !== "number" || !Number.isInteger(version) || version < 1) return { ok: false, error: NOT_A_BACKUP };
+  if (version > BACKUP_SCHEMA_VERSION) return { ok: false, error: NEWER_VERSION };
+  const raw = file.data;
+  if (!isObject(raw)) return { ok: false, error: NOT_A_BACKUP };
+
+  for (const k of USER_DATA_KEYS) {
+    if (Object.hasOwn(raw, k) && !SECTION_SHAPE[k](raw[k])) return { ok: false, error: badSection(k) };
+  }
+
+  try {
+    const upgrade = <K extends UserDataKey>(k: K): UserData[K] =>
+      LOAD_OPTIONS[k].upgrade(raw[k]) ?? LOAD_OPTIONS[k].fallback;
+    const data: UserData = {
+      profile: upgrade("profile"),
+      recipes: upgrade("recipes"),
+      entries: upgrade("entries"),
+      pantry: upgrade("pantry"),
+      weekplan: upgrade("weekplan"),
+      shopping: upgrade("shopping"),
+    };
+    return { ok: true, data, exportedAt: isString(file.exportedAt) ? file.exportedAt : "" };
+  } catch {
+    return { ok: false, error: BAD_FORMAT };
+  }
+}
+
+/** "2026-09-24T08:00:00.000Z" → "24/09/2026" en fecha local; "" si no es una fecha. */
+export function formatExportDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
 }
