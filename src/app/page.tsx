@@ -1,10 +1,19 @@
 "use client";
 
 import { useId, useState, type MouseEvent } from "react";
-import { Check, CheckCheck, Plus, X } from "lucide-react";
+import { Check, CheckCheck, Minus, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { allergenWarning } from "@/lib/allergens";
-import { SERVINGS_ERROR, parseServings, pendingSlots, recipeEntry, servingsLabel } from "@/lib/diary";
+import {
+  SERVINGS,
+  SERVINGS_ERROR,
+  formatServings,
+  parseServings,
+  pendingSlots,
+  recipeEntry,
+  servingsLabel,
+  stepServings,
+} from "@/lib/diary";
 import {
   MEAL_TYPES,
   MEAL_TYPE_ICON_COMPONENTS,
@@ -74,6 +83,10 @@ const singleClick = (action: () => void) => (ev: MouseEvent) => {
   if (ev.detail > 1) return;
   action();
 };
+
+// Botones − / + de "Raciones": cuadrados con borde, como los toggles Receta/Personalizada
+const stepBtnCls =
+  "shrink-0 flex items-center justify-center w-10 h-10 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] disabled:opacity-40";
 
 export default function DiaryPage() {
   const { profile, entries, recipes, weekPlan, addEntry, removeEntry } = useApp();
@@ -295,6 +308,16 @@ export default function DiaryPage() {
                   Raciones
                 </label>
                 <div className="flex items-center gap-2 max-w-56">
+                  {/* R8: ±0,25, deshabilitados en los extremos */}
+                  <button
+                    type="button"
+                    onClick={() => editServings(formatServings(stepServings(servingsText, -1)))}
+                    disabled={parseServings(servingsText) === SERVINGS.min}
+                    aria-label="Quitar 0,25 raciones"
+                    className={stepBtnCls}
+                  >
+                    <Minus className="w-4 h-4" aria-hidden />
+                  </button>
                   <input
                     id={servingsId}
                     inputMode="decimal"
@@ -304,6 +327,15 @@ export default function DiaryPage() {
                     aria-describedby={servingsError ? servingsErrorId : undefined}
                     className={`${inputCls} text-center ${servingsError ? "border-[var(--color-expired)]" : ""}`}
                   />
+                  <button
+                    type="button"
+                    onClick={() => editServings(formatServings(stepServings(servingsText, 1)))}
+                    disabled={parseServings(servingsText) === SERVINGS.max}
+                    aria-label="Añadir 0,25 raciones"
+                    className={stepBtnCls}
+                  >
+                    <Plus className="w-4 h-4" aria-hidden />
+                  </button>
                 </div>
                 {servingsError && (
                   <span id={servingsErrorId} role="alert" className="text-xs text-[var(--color-expired)]">

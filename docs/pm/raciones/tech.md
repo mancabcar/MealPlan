@@ -176,7 +176,7 @@ Comandos: `npm test` (unit), `npm run test:e2e` (e2e), `npm run typecheck`. Fixt
 1. [x] **Tipo y lógica pura**: `MealEntry.servings?`; en `src/lib/diary.ts`, `recipeEntry` con `{ servings, id }` y escalado, `SERVINGS`, `SERVINGS_ERROR`, `parseServings`, `stepServings`, `formatServings`, `servingsLabel`; adaptar las llamadas de `tests/unit/diary.test.ts` y añadir los tests unitarios. Sin cambios visibles. (R2, R3, R5–R8 lógica)
 2. [x] **Lista del Diario**: etiqueta "× n" junto al nombre y `Math.round` en las kcal de la fila. Sin cambios visibles para datos existentes. (R4, R5)
 3. [x] **Campo "Raciones" en el formulario**: estado `servingsText`/`servingsError`, input con label, validación en `submitAdd` con mensaje, reset al abrir y tras añadir, oculto en "Personalizada". Entrega todos los Musts. (R1, R2, R3, R6, R7)
-4. [ ] **Botones − / +** con `stepServings` y deshabilitado en los extremos. (R8)
+4. [x] **Botones − / +** con `stepServings` y deshabilitado en los extremos. (R8)
 5. [ ] **Vista previa de kcal** en el formulario. (R9, Could; se puede quitar sin afectar al resto)
 6. [ ] **E2E** `tests/e2e/raciones.spec.ts` + caso de accesibilidad + aserción "sin `servings`" en `diario-desde-plan.spec.ts` › R2. (todos)
 
