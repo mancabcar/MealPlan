@@ -4,7 +4,7 @@ import { useId, useState, type MouseEvent } from "react";
 import { Check, CheckCheck, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { allergenWarning } from "@/lib/allergens";
-import { pendingSlots, recipeEntry } from "@/lib/diary";
+import { pendingSlots, recipeEntry, servingsLabel } from "@/lib/diary";
 import {
   MEAL_TYPES,
   MEAL_TYPE_ICON_COMPONENTS,
@@ -196,17 +196,25 @@ export default function DiaryPage() {
                   <span className="shrink-0 py-0.5 text-[var(--color-text-muted)]">{slot.recipe.calories} kcal</span>
                 </div>
               )}
-              {items.map((e) => (
-                <div key={e.id} className="flex justify-between items-center py-1 text-sm">
-                  <span>{e.customName ?? recipes.find((r) => r.id === e.recipeId)?.name ?? "Receta"}</span>
-                  <span className="flex items-center gap-2 text-[var(--color-text-muted)]">
-                    {e.calories} kcal
-                    <button onClick={singleClick(() => removeEntry(e.id))} aria-label="Eliminar" className="text-[var(--color-expired)]">
-                      <X className="w-4 h-4" aria-hidden />
-                    </button>
-                  </span>
-                </div>
-              ))}
+              {items.map((e) => {
+                // Raciones (R4): "× 0,5" junto al nombre; nada con 1 ración o en entradas anteriores (R5)
+                const label = servingsLabel(e);
+                return (
+                  <div key={e.id} className="flex justify-between items-center py-1 text-sm">
+                    <span>
+                      {e.customName ?? recipes.find((r) => r.id === e.recipeId)?.name ?? "Receta"}
+                      {label && <span className="text-[var(--color-text-muted)]"> {label}</span>}
+                    </span>
+                    <span className="flex items-center gap-2 text-[var(--color-text-muted)]">
+                      {/* Con raciones los macros pueden no ser enteros (0,25 × 150 = 37,5): se redondea al mostrar */}
+                      {Math.round(e.calories)} kcal
+                      <button onClick={singleClick(() => removeEntry(e.id))} aria-label="Eliminar" className="text-[var(--color-expired)]">
+                        <X className="w-4 h-4" aria-hidden />
+                      </button>
+                    </span>
+                  </div>
+                );
+              })}
             </Card>
           );
         })}
