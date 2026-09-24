@@ -4,7 +4,7 @@ import { useId, useState, type MouseEvent } from "react";
 import { Check, CheckCheck, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { allergenWarning } from "@/lib/allergens";
-import { pendingSlots, recipeEntry, servingsLabel } from "@/lib/diary";
+import { SERVINGS_ERROR, parseServings, pendingSlots, recipeEntry, servingsLabel } from "@/lib/diary";
 import {
   MEAL_TYPES,
   MEAL_TYPE_ICON_COMPONENTS,
@@ -87,8 +87,24 @@ export default function DiaryPage() {
   const [recipeId, setRecipeId] = useState("");
   const [customName, setCustomName] = useState("");
   const [customMacros, setCustomMacros] = useState({ calories: 0, protein: 0, carbs: 0, fat: 0 });
+  // Raciones (docs/pm/raciones): texto tal cual se teclea ("0,5"); el error solo sale al pulsar "Añadir"
+  const [servingsText, setServingsText] = useState("1");
+  const [servingsError, setServingsError] = useState(false);
+  const servingsId = `${idPrefix}-servings`;
+  const servingsErrorId = `${servingsId}-error`;
 
   if (!profile) return null;
+
+  const editServings = (text: string) => {
+    setServingsText(text);
+    setServingsError(false);
+  };
+
+  // Flujo paso 5: cada vez que se abre el formulario, "Raciones" vuelve a 1
+  const openAdd = () => {
+    editServings("1");
+    setShowAdd(true);
+  };
 
   const pending = pendingSlots({ date, today: todayStr(), weekPlan, recipes, entries, meals: profile.meals });
 
@@ -116,12 +132,19 @@ export default function DiaryPage() {
     if (mode === "recipe") {
       const r = recipes.find((x) => x.id === recipeId);
       if (!r) return;
-      addEntry(recipeEntry(r, date, mealType));
+      const servings = parseServings(servingsText);
+      // R6: no se añade y el formulario sigue abierto con el mensaje junto al campo
+      if (servings === null) {
+        setServingsError(true);
+        return;
+      }
+      addEntry(recipeEntry(r, date, mealType, { servings }));
     } else {
       if (!customName.trim()) return;
       addEntry({ id: crypto.randomUUID(), date, mealType, customName, ...customMacros });
     }
     setShowAdd(false);
+    editServings("1");
     setCustomName("");
     setCustomMacros({ calories: 0, protein: 0, carbs: 0, fat: 0 });
   };
@@ -257,14 +280,38 @@ export default function DiaryPage() {
             </button>
           </div>
           {mode === "recipe" ? (
-            <select value={recipeId} onChange={(e) => setRecipeId(e.target.value)} className={inputCls}>
-              <option value="">Elige una receta...</option>
-              {recipes.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {[`${r.name} (${r.calories} kcal)`, allergenWarning(r, profile.allergies)].filter(Boolean).join(" · ")}
-                </option>
-              ))}
-            </select>
+            <>
+              <select value={recipeId} onChange={(e) => setRecipeId(e.target.value)} className={inputCls}>
+                <option value="">Elige una receta...</option>
+                {recipes.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {[`${r.name} (${r.calories} kcal)`, allergenWarning(r, profile.allergies)].filter(Boolean).join(" · ")}
+                  </option>
+                ))}
+              </select>
+              {/* Raciones (docs/pm/raciones, R1/R6): independiente de la receta elegida; se valida al pulsar "Añadir" */}
+              <div className="flex flex-col gap-1 text-sm">
+                <label htmlFor={servingsId} className="font-medium">
+                  Raciones
+                </label>
+                <div className="flex items-center gap-2 max-w-56">
+                  <input
+                    id={servingsId}
+                    inputMode="decimal"
+                    value={servingsText}
+                    onChange={(e) => editServings(e.target.value)}
+                    aria-invalid={servingsError}
+                    aria-describedby={servingsError ? servingsErrorId : undefined}
+                    className={`${inputCls} text-center ${servingsError ? "border-[var(--color-expired)]" : ""}`}
+                  />
+                </div>
+                {servingsError && (
+                  <span id={servingsErrorId} role="alert" className="text-xs text-[var(--color-expired)]">
+                    {SERVINGS_ERROR}
+                  </span>
+                )}
+              </div>
+            </>
           ) : (
             <>
               <input
@@ -305,7 +352,7 @@ export default function DiaryPage() {
         </Card>
       ) : (
         <button
-          onClick={() => setShowAdd(true)}
+          onClick={openAdd}
           className="flex items-center justify-center gap-1.5 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-xl py-3 font-semibold"
         >
           <Plus className="w-4 h-4" aria-hidden />
