@@ -35,10 +35,13 @@ export function withoutAllergies(dislikes: string[], allergies: Allergies): stri
   return dislikes.filter((d) => !keys.some((k) => ingredientMatches(d, k) || normalize(d) === normalize(k)));
 }
 
+/** Versión actual del perfil. La comparten la carga y la importación de copias (backup.ts). */
+export const PROFILE_SCHEMA_VERSION = 2;
+
 /** null → null. v1 (sin schemaVersion) → v2. v2 → sin cambios. */
 export function migrateProfile(raw: unknown): UserProfile | null {
   if (!raw || typeof raw !== "object") return null;
-  if ((raw as { schemaVersion?: number }).schemaVersion === 2) return raw as UserProfile;
+  if ((raw as { schemaVersion?: number }).schemaVersion === PROFILE_SCHEMA_VERSION) return raw as UserProfile;
 
   const v1 = raw as LegacyProfile;
   const allergies: Allergies = { preset: [], custom: [] };
@@ -59,7 +62,7 @@ export function migrateProfile(raw: unknown): UserProfile | null {
   }
 
   return {
-    schemaVersion: 2,
+    schemaVersion: PROFILE_SCHEMA_VERSION,
     name: v1.name ?? "",
     goal: "maintain",
     targetSource: "prescribed", // los números los escribió el usuario

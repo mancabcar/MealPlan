@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/Card";
 const secondaryBtn =
   "flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 border border-[var(--color-border)] text-sm font-semibold text-[var(--color-text)]";
 
+const READ_FAILED = "No se ha podido leer el fichero. No se ha cambiado nada.";
 const WRITE_FAILED = "No se han podido guardar los datos (¿falta espacio?). No se ha cambiado nada.";
 
 /** Descarga la copia de las seis claves del usuario como mealplan-backup-<hoy>.json (R1). */
@@ -46,7 +47,14 @@ export function DataSection({ onImported }: { onImported: () => void }) {
     setMessage(null);
     if (!file) return;
 
-    const result = parseBackup(await file.text());
+    let text: string;
+    try {
+      text = await file.text();
+    } catch {
+      setMessage({ kind: "error", text: READ_FAILED });
+      return;
+    }
+    const result = parseBackup(text);
     if (!result.ok) {
       setMessage({ kind: "error", text: result.error });
       return;

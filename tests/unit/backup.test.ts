@@ -14,7 +14,7 @@ import {
 } from "@/lib/backup";
 import { EMPTY_USER_DATA, LOAD_OPTIONS, USER_DATA_KEYS, withSeedRecipes, type UserData } from "@/lib/userData";
 import { EMPTY as EMPTY_SHOPPING, loadShoppingState } from "@/lib/shopping/state";
-import { migrateEntries, migrateProfile, migrateWeekPlan } from "@/lib/migrate";
+import { migrateEntries, migrateProfile, migrateWeekPlan, PROFILE_SCHEMA_VERSION } from "@/lib/migrate";
 import type { Recipe } from "@/lib/types";
 import {
   ACCOUNT_A,
@@ -404,6 +404,20 @@ describe("R8: un fichero no válido se rechaza con un motivo", () => {
 
   it("profile de una versión futura (schemaVersion 3) no se migra como v1 (Spec feedback 4)", () => {
     expectError(backupText({ profile: { ...BACKUP_PROFILE, schemaVersion: 3 } }), badSection("profile"));
+  });
+
+  it("profile actual al que le faltan campos que leen las pantallas (review 1)", () => {
+    const noKcal: Partial<typeof BACKUP_PROFILE> = { ...BACKUP_PROFILE };
+    delete noKcal.calorieGoal;
+    expectError(backupText({ profile: noKcal }), badSection("profile"));
+    expectError(backupText({ profile: { ...BACKUP_PROFILE, meals: [] } }), badSection("profile"));
+    expectError(backupText({ profile: { ...BACKUP_PROFILE, allergies: ["gluten"] } }), badSection("profile"));
+    expectError(backupText({ profile: { schemaVersion: 2, name: "Lucía" } }), badSection("profile"));
+  });
+
+  it("acepta un perfil de la versión actual, sea cual sea (PROFILE_SCHEMA_VERSION, review 2)", () => {
+    const result = parseBackup(backupText({ profile: { ...BACKUP_PROFILE, schemaVersion: PROFILE_SCHEMA_VERSION } }));
+    expect(result.ok && result.data.profile).toEqual(BACKUP_PROFILE);
   });
 
   it("recipes que no es una lista de objetos con id", () => {

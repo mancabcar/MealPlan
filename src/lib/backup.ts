@@ -1,6 +1,7 @@
 // Copia de seguridad de los datos del usuario (docs/pm/backup-datos). Funciones puras con el Storage inyectado:
 // la página de Perfil les pasa localStorage y los tests uno en memoria.
 import { userKey } from "./auth";
+import { PROFILE_SCHEMA_VERSION } from "./migrate";
 import { todayStr } from "./types";
 import { LOAD_OPTIONS, USER_DATA_KEYS, type UserData, type UserDataKey } from "./userData";
 
@@ -54,14 +55,40 @@ const isString = (v: unknown): v is string => typeof v === "string";
 const isNumber = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 const everyObject = (v: unknown, ok: (o: Obj) => boolean) => Array.isArray(v) && v.every((x) => isObject(x) && ok(x));
 const hasId = (o: Obj) => isString(o.id);
+const isStringList = (v: unknown) => Array.isArray(v) && v.every(isString);
+
+/** Un perfil actual necesita los campos que leen las pantallas; uno v1 los completa la migración. */
+function isProfile(v: unknown): boolean {
+  if (v === null) return true;
+  if (!isObject(v)) return false;
+  if (v.schemaVersion === undefined) return true; // v1: se migra
+  // Uno futuro no se "migra" como v1
+  if (v.schemaVersion !== PROFILE_SCHEMA_VERSION) return false;
+  const a = v.allergies;
+  return (
+    isString(v.name) &&
+    isString(v.goal) &&
+    isString(v.targetSource) &&
+    isString(v.diet) &&
+    isNumber(v.calorieGoal) &&
+    isNumber(v.proteinGoal) &&
+    isNumber(v.carbsGoal) &&
+    isNumber(v.fatGoal) &&
+    isStringList(v.meals) &&
+    (v.meals as string[]).length > 0 &&
+    isObject(a) &&
+    isStringList(a.preset) &&
+    isStringList(a.custom) &&
+    isStringList(v.dislikedIngredients)
+  );
+}
 
 /**
  * Forma mínima de cada sección para que las pantallas no se rompan (tech.md › Spec feedback 3), no un esquema
  * completo: los campos extra se conservan tal cual.
  */
 const SECTION_SHAPE: Record<UserDataKey, (v: unknown) => boolean> = {
-  // Con schemaVersion debe ser la actual (2); sin él es v1 y se migra. Uno futuro no se "migra" como v1.
-  profile: (v) => v === null || (isObject(v) && (v.schemaVersion === undefined || v.schemaVersion === 2)),
+  profile: isProfile,
   recipes: (v) => everyObject(v, hasId),
   entries: (v) =>
     everyObject(
