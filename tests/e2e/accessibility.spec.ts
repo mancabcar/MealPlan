@@ -126,4 +126,17 @@ test.describe("R6: contraste de color", () => {
     await expect(page.getByRole("heading", { name: "Perfil" })).toBeVisible();
     await expectNoContrastViolations(page);
   });
+
+  // docs/pm/backup-datos/tech.md › Testing strategy ("Accesibilidad"): sección "Tus datos" con el texto atenuado
+  // (R11), los dos botones y el error de importación en --color-expired. Falla hasta que exista la sección.
+  test("Perfil con error de importación", async ({ page }) => {
+    await signIn(page, { profile: lucia });
+    await page.goto("/perfil");
+    const data = page.getByRole("region", { name: "Tus datos" });
+    const choosing = page.waitForEvent("filechooser");
+    await data.getByRole("button", { name: "Importar datos" }).click();
+    await (await choosing).setFiles({ name: "notas.json", mimeType: "application/json", buffer: Buffer.from("no es json") });
+    await expect(data.getByRole("alert")).toBeVisible();
+    await expectNoContrastViolations(page);
+  });
 });
