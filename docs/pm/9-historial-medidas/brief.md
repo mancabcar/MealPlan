@@ -1,6 +1,6 @@
 # Historial de peso y medidas corporales con gráfica
 
-_Status: tests · Updated: 2026-09-26 · Issue: [#9](https://github.com/mancabcar/MealPlan/issues/9) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/UC1WMWf2YsQwbkVU88LGEz) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: in review · Updated: 2026-09-26 · PR: [#35](https://github.com/mancabcar/MealPlan/pull/35) · Issue: [#9](https://github.com/mancabcar/MealPlan/issues/9) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/UC1WMWf2YsQwbkVU88LGEz) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Problema
 El perfil solo guarda el peso actual. La nutricionista entrega mediciones mensuales (BIA, perímetros y pliegues; ver [`docs/referencia/evolucion-agosto-2026.md`](../../referencia/evolucion-agosto-2026.md)) y no hay dónde registrarlas ni ver cómo evolucionan. Las apps competidoras lo tienen; MacroFactor incluso ajusta objetivos según la tendencia.
