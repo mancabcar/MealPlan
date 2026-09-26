@@ -1,6 +1,6 @@
 # Macros por día en el Plan semanal (frente a los objetivos)
 
-_Status: tests · Updated: 2026-09-26 · Issue: [#10](https://github.com/mancabcar/MealPlan/issues/10) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: in review ([PR #38](https://github.com/mancabcar/MealPlan/pull/38)) · Updated: 2026-09-26 · Issue: [#10](https://github.com/mancabcar/MealPlan/issues/10) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Problema
 El Plan semanal (`src/app/plan/page.tsx`) solo muestra el total de kcal del día seleccionado. No enseña proteínas, carbohidratos ni grasas, así que no hay forma de saber si un día planificado cumple el plan de la nutricionista antes de comerlo. Hoy eso solo se ve a posteriori, en el Diario (`MacroBar` en `src/app/page.tsx`), cuando ya se ha comido.
