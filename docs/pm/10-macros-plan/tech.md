@@ -118,7 +118,7 @@ Sin prototipo; se decide aquí (pregunta abierta del spec): **dentro de la tarje
 
 ## Tasks
 1. [x] Tests primero (dev-test): `tests/unit/planMacros.test.ts`, `tests/fixtures/plan-macros.ts`, `tests/e2e/macros-plan.spec.ts` y el escaneo de `/plan` en `accessibility.spec.ts`, en rojo. (R1–R7, R9)
-2. [ ] `src/lib/planMacros.ts`: `slotMacros`, `dayPlanSummary`, `macroStatus`; unit tests en verde. (R1, R3, R4, R7, R9)
+2. [x] `src/lib/planMacros.ts`: `slotMacros`, `dayPlanSummary`, `macroStatus`; unit tests en verde. (R1, R3, R4, R7, R9)
 3. [ ] `src/components/plan/DayMacroSummary.tsx` e integración en `src/app/plan/page.tsx` (quitar `dayKcal` y el kcal de la cabecera); e2e y axe en verde. (R1, R2, R5, R6, R7)
 4. [ ] `MacroBar` usa `macroStatus` para el rango de proteína. Sin cambios visuales; e2e del Diario en verde. (Goal "sin dos verdades")
 5. [ ] Revisión en móvil a 375 px, lint, typecheck, build.
