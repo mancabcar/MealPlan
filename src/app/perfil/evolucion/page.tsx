@@ -69,19 +69,22 @@ function ChipRadios<T extends string>({
   options,
   value,
   onChange,
+  scroll = false,
 }: {
   label: string;
   name: string;
   options: { value: T; label: string }[];
   value: T;
   onChange: (v: T) => void;
+  /** Una sola fila con scroll horizontal (con un informe completo hay 23 métricas). */
+  scroll?: boolean;
 }) {
   return (
-    <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-2">
+    <div role="radiogroup" aria-label={label} className={`flex gap-2 ${scroll ? "overflow-x-auto pb-1" : "flex-wrap"}`}>
       {options.map((o) => (
         <label
           key={o.value}
-          className="relative inline-flex items-center px-3 py-1.5 rounded-full text-sm border select-none border-[var(--color-border)] text-[var(--color-text)] has-[:checked]:border-[var(--color-accent)] has-[:checked]:text-[var(--color-accent)] has-[:checked]:bg-[color-mix(in_oklab,var(--color-accent)_18%,var(--color-surface))] has-[:focus-visible]:outline has-[:focus-visible]:outline-2"
+          className="relative shrink-0 whitespace-nowrap inline-flex items-center px-3 py-1.5 rounded-full text-sm border select-none border-[var(--color-border)] text-[var(--color-text)] has-[:checked]:border-[var(--color-accent)] has-[:checked]:text-[var(--color-accent)] has-[:checked]:bg-[color-mix(in_oklab,var(--color-accent)_18%,var(--color-surface))] has-[:focus-visible]:outline has-[:focus-visible]:outline-2"
         >
           {/* Radio nativo transparente sobre todo el chip: teclado y lector de pantalla como un radio normal */}
           <input
@@ -226,6 +229,7 @@ export default function EvolutionPage() {
         <ChipRadios
           label="Métrica"
           name="metric"
+          scroll
           options={options.map((o) => ({ value: o.label, label: o.label }))}
           value={option.label}
           onChange={setSelected}
@@ -235,7 +239,7 @@ export default function EvolutionPage() {
           <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-sm text-[var(--color-text-muted)]">{option.label}</p>
-              <p className="font-display text-3xl font-bold">
+              <p className={`font-display font-bold ${latest.length > 1 ? "text-xl" : "text-3xl"}`}>
                 {latest
                   .map((p, i) => (p ? (latest.length > 1 ? `${SIDE[i]} ` : "") + formatValue(p.value, option.keys[i]) : ""))
                   .filter(Boolean)
