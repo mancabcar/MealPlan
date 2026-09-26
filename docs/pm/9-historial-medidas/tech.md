@@ -140,7 +140,7 @@ Lo que fijan los tests (`tests/e2e/evolucion.spec.ts`, `accessibility.spec.ts`);
 1. [x] Tipos `Measurement`/`MetricKey` y `src/lib/measurements.ts` con catálogo, `parseMeasurementDraft` y `sanitizeMeasurements` (R1, R3, R4)
 2. [x] Lógica de series: `weightTrend`, `latestWeightMeasurement`, `weightChangeOnSave`, `profileWeightPatch`, `skinfoldSum`, `metricSeries`, `filterByRange` (R8, R9, R13–R15)
 3. [x] Store: `measurements` persistido con `saveMeasurement` / `removeMeasurement` (R5, R6)
-4. [ ] Extraer `RecalcOffer` de `perfil/page.tsx` sin cambios de comportamiento
+4. [x] Extraer `RecalcOffer` de `perfil/page.tsx` sin cambios de comportamiento
 5. [ ] `LineChart` SVG (puntos por origen, `trend`/`connect`, modo compacto)
 6. [ ] `/perfil/evolucion`: estado vacío, resumen, gráfica del peso, historial y `Sheet` con «Solo peso» (R2, R7, R8, R11)
 7. [ ] `MeasurementForm` en «Informe completo», edición y borrado (R3, R5)

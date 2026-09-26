@@ -34,6 +34,7 @@ import {
 } from "@/components/perfil/steps";
 import { Field, inputCls } from "@/components/perfil/ui";
 import { DataSection } from "@/components/perfil/DataSection";
+import { RecalcOffer, recalcPatch } from "@/components/perfil/RecalcOffer";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 
@@ -494,13 +495,7 @@ export default function ProfilePage() {
 
   const applyRecalc = () => {
     if (!recalc) return;
-    update({
-      calorieGoal: recalc.kcal,
-      proteinGoal: recalc.protein,
-      proteinRange: undefined,
-      carbsGoal: recalc.carbs,
-      fatGoal: recalc.fat,
-    });
+    update(recalcPatch(recalc));
     setRecalc(null);
   };
 
@@ -517,29 +512,7 @@ export default function ProfilePage() {
         <span className="text-sm text-[var(--color-text-muted)]">@{user?.username}</span>
       </div>
 
-      {recalc && (
-        <div
-          role="status"
-          className="rounded-xl border p-4 flex flex-col gap-3 text-sm"
-          style={{
-            borderColor: "color-mix(in oklab, var(--color-accent) 45%, var(--color-border))",
-            backgroundColor: "color-mix(in oklab, var(--color-accent) 12%, var(--color-surface))",
-          }}
-        >
-          <p>
-            <span className="font-semibold">¿Recalculamos?</span> Con tus nuevos datos te sugerimos {recalc.kcal} kcal y{" "}
-            {recalc.protein} g de proteína (ahora: {profile.calorieGoal} kcal y {profile.proteinGoal} g).
-          </p>
-          <div className="flex gap-2">
-            <button type="button" onClick={applyRecalc} className={saveBtn}>
-              Recalcular
-            </button>
-            <button type="button" onClick={() => setRecalc(null)} className={cancelBtn}>
-              Mantener los actuales
-            </button>
-          </div>
-        </div>
-      )}
+      {recalc && <RecalcOffer targets={recalc} profile={profile} onApply={applyRecalc} onKeep={() => setRecalc(null)} />}
 
       {/* Tras importar una copia, las ediciones a medias se descartan: se referían a los datos de antes */}
       <Fragment key={importCount}>
