@@ -146,9 +146,9 @@ Lo que fijan los tests (`tests/e2e/evolucion.spec.ts`, `accessibility.spec.ts`);
 7. [x] `MeasurementForm` en «Informe completo», edición y borrado (R3, R5)
 8. [x] Sincronizar el peso del perfil al guardar: `RecalcOffer` o `Toast` (R9, R10)
 9. [x] Selector de métrica (bilaterales como dos líneas), periodo y suma de pliegues (R13, R14, R15)
-10. [ ] `EvolutionCard` en Perfil (R12)
+10. [x] `EvolutionCard` en Perfil (R12)
 11. [x] Avisos de valores raros (R16, Could; se puede dejar para un follow-up)
-12. [ ] `BodySection` (y su variante solo peso): un peso distinto del actual añade una medición de hoy, origen Casa, con `saveMeasurement` (R17). Va después de la tarea 3; el orden con el resto da igual.
+12. [x] `BodySection` (y su variante solo peso): un peso distinto del actual añade una medición de hoy, origen Casa, con `saveMeasurement` (R17). Va después de la tarea 3; el orden con el resto da igual.
 
 Los tests (unit, e2e y axe) se escriben antes con dev-test; cada tarea los va poniendo en verde.
 
