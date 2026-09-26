@@ -13,6 +13,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { lucia } from "../fixtures/profiles";
 import { DIARIO_RECIPES, GUISO, LENTEJAS, MACARRONES, MERLUZA, RACIONES_RECIPES, slot } from "../fixtures/diario";
 import { SHOPPING_PANTRY, SHOPPING_PLAN, SHOPPING_RECIPES } from "../fixtures/shopping";
+import { HOME_WEIGHTS, NUTRI_REPORTS } from "../fixtures/measurements";
 import { signIn, TODAY } from "./helpers";
 
 async function expectNoContrastViolations(page: Page) {
@@ -137,6 +138,35 @@ test.describe("R6: contraste de color", () => {
     await data.getByRole("button", { name: "Importar datos" }).click();
     await (await choosing).setFiles({ name: "notas.json", mimeType: "application/json", buffer: Buffer.from("no es json") });
     await expect(data.getByRole("alert")).toBeVisible();
+    await expectNoContrastViolations(page);
+  });
+
+  // docs/pm/9-historial-medidas/tech.md › Testing strategy ("Accesibilidad"): gráfica (puntos de Casa en texto
+  // atenuado, anillos de la nutricionista), chips de métrica y periodo, historial con la etiqueta «Nutricionista»,
+  // estado vacío y la hoja con el informe completo y un error. Fallan hasta que exista la pantalla.
+  test("Evolución", async ({ page }) => {
+    await signIn(page, { profile: lucia, measurements: [...NUTRI_REPORTS, ...HOME_WEIGHTS] });
+    await page.goto("/perfil/evolucion");
+    await expect(page.getByRole("heading", { name: "Evolución", level: 1 })).toBeVisible();
+    await expect(page.getByRole("img", { name: /^Peso del/ })).toBeVisible();
+    await expectNoContrastViolations(page);
+  });
+
+  test("Evolución vacía", async ({ page }) => {
+    await signIn(page, { profile: lucia, measurements: [] });
+    await page.goto("/perfil/evolucion");
+    await expect(page.getByText("Aún no hay mediciones")).toBeVisible();
+    await expectNoContrastViolations(page);
+  });
+
+  test("Evolución: informe completo con un error", async ({ page }) => {
+    await signIn(page, { profile: lucia, measurements: HOME_WEIGHTS });
+    await page.goto("/perfil/evolucion");
+    await page.getByRole("button", { name: "Añadir medición" }).click();
+    await page.getByRole("dialog").getByRole("radio", { name: "Informe completo" }).check();
+    await page.getByRole("dialog").getByLabel("Pliegue gemelo (mm)", { exact: true }).fill("81");
+    await page.getByRole("dialog").getByRole("button", { name: "Guardar" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "Entre 1 y 80 mm" })).toBeVisible();
     await expectNoContrastViolations(page);
   });
 });
