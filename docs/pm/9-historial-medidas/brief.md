@@ -1,6 +1,6 @@
 # Historial de peso y medidas corporales con gráfica
 
-_Status: in review · Updated: 2026-09-26 · PR: [#35](https://github.com/mancabcar/MealPlan/pull/35) · Review: [⚠️ approved with follow-ups](review.md) · Issue: [#9](https://github.com/mancabcar/MealPlan/issues/9) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/UC1WMWf2YsQwbkVU88LGEz) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: merged (2026-09-26, [PR #35](https://github.com/mancabcar/MealPlan/pull/35) mergeado) · Review: ⚠️ approved with follow-ups, no bloqueantes y R16 arreglados ([review](review.md)) · Updated: 2026-09-26 · Issue: [#9](https://github.com/mancabcar/MealPlan/issues/9) (@mancabcar, cerrado) · Prototype: [canvas](https://claude.ai/artifact/UC1WMWf2YsQwbkVU88LGEz) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Problema
 El perfil solo guarda el peso actual. La nutricionista entrega mediciones mensuales (BIA, perímetros y pliegues; ver [`docs/referencia/evolucion-agosto-2026.md`](../../referencia/evolucion-agosto-2026.md)) y no hay dónde registrarlas ni ver cómo evolucionan. Las apps competidoras lo tienen; MacroFactor incluso ajusta objetivos según la tendencia.
@@ -47,3 +47,8 @@ _Design: https://claude.ai/artifact/UC1WMWf2YsQwbkVU88LGEz · 2026-09-24_
 ## Follow-ups
 - Ajuste automático de objetivos según la tendencia de peso (estilo MacroFactor): fuera del issue, candidato a issue propio.
 - Non-goals de la spec que podrían volver: importar el PDF de la nutricionista con IA, metas de peso/medidas, exportar el historial, fotos de progreso.
+
+## Qué vigilar
+- Las métricas de la spec: que las tres tomas de mayo–julio estén en la app, que cada informe nuevo entre en la semana en que llega, y al menos una pesada por semana durante 4 semanas.
+- Si copiar un informe de 22 valores en el móvil resulta pesado, es el momento de replantear el formulario (o de volver a la idea de leer el PDF).
+- Pendiente, sin issue: los 4 retoques de limpieza de la review (validación de rangos repetida en el formulario, barra de «Guardar» acoplada al padding del `Sheet`, clases de botón duplicadas en `RecalcOffer`, `ChipRadios` frente a `ChoiceGroup`). No afectan al usuario.
