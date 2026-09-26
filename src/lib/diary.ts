@@ -1,6 +1,7 @@
 // Diario desde el plan (docs/pm/diario-desde-plan/tech.md › APIs). Puro: sin React ni store.
 // "Pendiente" nunca se guarda: se deriva en cada render del plan y de las entradas.
 import { parseDecimal } from "./nutrition";
+import { slotMacros } from "./planMacros";
 import { MEAL_TYPES, type MealEntry, type MealType, type Recipe, type WeekPlan } from "./types";
 
 // Raciones (docs/pm/raciones/tech.md › APIs): 0,25–4 en pasos de 0,25.
@@ -22,10 +23,8 @@ export function recipeEntry(
     date,
     mealType,
     recipeId: recipe.id,
-    calories: recipe.calories * servings,
-    protein: recipe.protein * servings,
-    carbs: recipe.carbs * servings,
-    fat: recipe.fat * servings,
+    // Mismo escalado que el Plan (docs/pm/10-macros-plan, R9): un único punto receta × raciones
+    ...slotMacros(recipe, servings),
   };
   if (servings !== 1) entry.servings = servings;
   return entry;

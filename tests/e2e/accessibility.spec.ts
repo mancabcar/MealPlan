@@ -12,6 +12,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { lucia } from "../fixtures/profiles";
 import { DIARIO_RECIPES, GUISO, LENTEJAS, MACARRONES, MERLUZA, RACIONES_RECIPES, slot } from "../fixtures/diario";
+import { PLAN_SEED } from "../fixtures/plan-macros";
 import { SHOPPING_PANTRY, SHOPPING_PLAN, SHOPPING_RECIPES } from "../fixtures/shopping";
 import { HOME_WEIGHTS, NUTRI_REPORTS } from "../fixtures/measurements";
 import { signIn, TODAY } from "./helpers";
@@ -79,6 +80,21 @@ test.describe("R6: contraste de color", () => {
     await signIn(page, { profile: lucia });
     await page.goto("/plan");
     await expect(page.getByRole("heading", { name: "Plan semanal" })).toBeVisible();
+    await expectNoContrastViolations(page);
+  });
+
+  // docs/pm/10-macros-plan/tech.md › Risks ("Contraste"): resumen de macros del día con los tres estados a la vez
+  // (Dentro en --color-accent, Por debajo en gris, Por encima en --color-expiring) sobre --color-surface-2, y el aviso
+  // de comidas planificadas del martes. Falla hasta que exista el resumen (tarea 3).
+  test("Plan con resumen de macros", async ({ page }) => {
+    await signIn(page, PLAN_SEED);
+    await page.goto("/plan");
+    await expect(page.getByText("3 de 4 comidas planificadas", { exact: true })).toBeVisible();
+    await page.getByRole("tab", { name: /^Lunes/ }).click();
+    const summary = page.getByRole("list", { name: "Macros del día" });
+    for (const status of ["Dentro", "Por debajo", "Por encima"]) {
+      await expect(summary.getByText(status, { exact: true }).first()).toBeVisible();
+    }
     await expectNoContrastViolations(page);
   });
 

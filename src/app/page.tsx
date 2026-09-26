@@ -14,6 +14,7 @@ import {
   servingsLabel,
   stepServings,
 } from "@/lib/diary";
+import { macroStatus } from "@/lib/planMacros";
 import {
   MEAL_TYPES,
   MEAL_TYPE_ICON_COMPONENTS,
@@ -47,7 +48,8 @@ function MacroBar({
 }) {
   const scale = range ? range.max : goal;
   const pct = Math.min(100, scale > 0 ? (value / scale) * 100 : 0);
-  const inBand = range && value >= range.min && value <= range.max;
+  // Mismo criterio que el Plan (docs/pm/10-macros-plan, R3): se juzga el valor redondeado que se muestra
+  const inBand = range && macroStatus(value, range) === "within";
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex justify-between items-center text-xs">

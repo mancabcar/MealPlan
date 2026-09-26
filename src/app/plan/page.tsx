@@ -8,6 +8,8 @@ import { allergenWarning } from "@/lib/allergens";
 import { MEAL_TYPES, MEAL_TYPE_ICON_COMPONENTS, MealType, todayStr } from "@/lib/types";
 import { Card } from "@/components/ui/Card";
 import { DaySelector } from "@/components/ui/DaySelector";
+import { DayMacroSummary } from "@/components/plan/DayMacroSummary";
+import { dayPlanSummary } from "@/lib/planMacros";
 import { inputCls } from "@/components/ui/input";
 import { DAY_NAMES, weekDates } from "@/lib/week";
 import { useShoppingList } from "@/lib/shopping/useShoppingList";
@@ -42,7 +44,8 @@ export default function PlanPage() {
 
   // Las asignaciones a comidas desmarcadas se conservan, pero no se muestran ni suman
   const slots = (weekPlan[effectiveSelectedDate] ?? []).filter((s) => meals.includes(s.mealType));
-  const dayKcal = slots.reduce((s, slot) => s + (recipes.find((r) => r.id === slot.recipeId)?.calories ?? 0), 0);
+  // Macros del día frente a los objetivos (docs/pm/10-macros-plan); null si no hay recetas que sumar
+  const daySummary = dayPlanSummary({ slots, recipes, meals });
 
   return (
     <div className="flex flex-col gap-4">
@@ -93,10 +96,8 @@ export default function PlanPage() {
       )}
 
       <Card>
-        <div className="flex justify-between items-baseline mb-2">
-          <h2 className="font-display text-lg font-semibold">{DAY_NAMES[dayIndex]}</h2>
-          <span className="text-xs text-[var(--color-text-muted)]">{dayKcal > 0 ? `${dayKcal} kcal` : ""}</span>
-        </div>
+        <h2 className="font-display text-lg font-semibold mb-2">{DAY_NAMES[dayIndex]}</h2>
+        {daySummary && <DayMacroSummary summary={daySummary} profile={profile} />}
         <div className="flex flex-col gap-1">
           {meals.map((mt) => {
             const slot = slots.find((s) => s.mealType === mt);
