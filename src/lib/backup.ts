@@ -24,7 +24,7 @@ export function backupFileName(today: string = todayStr()): string {
 }
 
 /**
- * Lee las seis claves del usuario tal cual y omite las ausentes (R2, R3). Nunca lee credenciales, sesión,
+ * Lee las siete claves del usuario tal cual y omite las ausentes (R2, R3). Nunca lee credenciales, sesión,
  * usuarios recordados, copias *_v1_backup ni otras cuentas, y no escribe el id de la cuenta (R4).
  */
 export function buildBackup(storage: Storage, userId: string, now: Date = new Date()): BackupFile {
@@ -106,6 +106,7 @@ const SECTION_SHAPE: Record<UserDataKey, (v: unknown) => boolean> = {
   weekplan: (v) =>
     isObject(v) && Object.values(v).every((day) => everyObject(day, (s) => isString(s.mealType) && isString(s.recipeId))),
   shopping: isObject,
+  measurements: (v) => everyObject(v, (m) => isString(m.id) && isString(m.date) && isObject(m.values)),
 };
 
 /**
@@ -140,6 +141,7 @@ export function parseBackup(text: string): ParseResult {
       pantry: upgrade("pantry"),
       weekplan: upgrade("weekplan"),
       shopping: upgrade("shopping"),
+      measurements: upgrade("measurements"),
     };
     return { ok: true, data, exportedAt: isString(file.exportedAt) ? file.exportedAt : "" };
   } catch {
@@ -148,7 +150,7 @@ export function parseBackup(text: string): ParseResult {
 }
 
 /**
- * Escribe las seis claves del usuario (y nada más). Si una escritura lanza (cuota llena), restaura en orden inverso
+ * Escribe las siete claves del usuario (y nada más). Si una escritura lanza (cuota llena), restaura en orden inverso
  * las ya escritas a su valor anterior, o las borra si no existían, y relanza: todo o nada (R8).
  */
 export function writeUserData(storage: Storage, userId: string, data: UserData): void {

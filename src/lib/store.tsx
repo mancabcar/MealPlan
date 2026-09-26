@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useRef, useState, ReactNode } from "react";
-import { UserProfile, Recipe, MealEntry, PantryItem, WeekPlan } from "./types";
+import { UserProfile, Recipe, MealEntry, Measurement, PantryItem, WeekPlan } from "./types";
 import { userKey } from "./auth";
 import type { ShoppingState } from "./shopping/state";
 import { writeUserData } from "./backup";
@@ -14,6 +14,8 @@ interface AppState {
   pantry: PantryItem[];
   weekPlan: WeekPlan;
   shopping: ShoppingState;
+  /** Historial de peso y medidas (docs/pm/9-historial-medidas), en el orden en que se añadieron. */
+  measurements: Measurement[];
   loaded: boolean;
   setProfile: (p: UserProfile | null) => void;
   addRecipes: (r: Recipe[]) => void;
@@ -26,7 +28,10 @@ interface AppState {
   removePantryItems: (ids: string[]) => void;
   setWeekPlan: (p: WeekPlan) => void;
   setShopping: Setter<ShoppingState>;
-  /** Sustituye los seis datos del usuario (ya validados con parseBackup). Lanza si falla la escritura (nada cambia). */
+  /** Alta, o edición si ya hay una con ese id. */
+  saveMeasurement: (m: Measurement) => void;
+  removeMeasurement: (id: string) => void;
+  /** Sustituye los siete datos del usuario (ya validados con parseBackup). Lanza si falla la escritura (nada cambia). */
   importData: (data: UserData) => void;
 }
 
@@ -87,8 +92,9 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
   const [pantry, setPantry, reloadPantry] = usePersisted(k("pantry"), LOAD_OPTIONS.pantry);
   const [weekPlan, setWeekPlan, reloadWeekPlan] = usePersisted(k("weekplan"), LOAD_OPTIONS.weekplan);
   const [shopping, setShopping, reloadShopping] = usePersisted(k("shopping"), LOAD_OPTIONS.shopping);
+  const [measurements, setMeasurements, reloadMeasurements] = usePersisted(k("measurements"), LOAD_OPTIONS.measurements);
 
-  // backup-datos R6/R8: escribe todo o nada y, si ha ido bien, relee las seis claves en el estado. Como `data` ya
+  // backup-datos R6/R8: escribe todo o nada y, si ha ido bien, relee las siete claves en el estado. Como `data` ya
   // viene migrado (parseBackup), la relectura no reescribe nada ni crea copias *_v1_backup.
   const importData = (data: UserData) => {
     writeUserData(localStorage, userId, data);
@@ -98,6 +104,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     reloadPantry();
     reloadWeekPlan();
     reloadShopping();
+    reloadMeasurements();
   };
 
   const value: AppState = {
@@ -107,6 +114,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     pantry,
     weekPlan,
     shopping,
+    measurements,
     loaded: true,
     setProfile,
     addRecipes: (r) => setRecipes((prev) => [...prev, ...r]),
@@ -118,6 +126,9 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     removePantryItems: (ids) => setPantry((prev) => prev.filter((i) => !ids.includes(i.id))),
     setWeekPlan,
     setShopping,
+    saveMeasurement: (m) =>
+      setMeasurements((prev) => (prev.some((x) => x.id === m.id) ? prev.map((x) => (x.id === m.id ? m : x)) : [...prev, m])),
+    removeMeasurement: (id) => setMeasurements((prev) => prev.filter((m) => m.id !== id)),
     importData,
   };
 
