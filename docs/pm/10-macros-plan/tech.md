@@ -31,7 +31,7 @@ Igual que A pero en una `Card` separada. · **Pros**: la tarjeta del día no cam
 | Cálculo | `src/lib/planMacros.ts` (nuevo) | `Macros`, `MacroTarget`, `MacroStatus`, `PLAN_TOLERANCE`, `slotMacros()`, `dayPlanSummary()`, `macroStatus()`. Puro, sin React ni store. |
 | UI | `src/components/plan/DayMacroSummary.tsx` (nuevo) | Rejilla 2 × 2 con las cuatro celdas y el aviso R7. Recibe `summary` y `profile` (o `null`). |
 | Página | `src/app/plan/page.tsx` | Sustituir `dayKcal` por `dayPlanSummary({ slots: weekPlan[effectiveSelectedDate] ?? [], recipes, meals })`; quitar el "N kcal" de la cabecera; pintar `<DayMacroSummary>` entre la cabecera y la lista si `summary` no es `null`. |
-| Diario | `src/app/page.tsx` | (Pendiente de confirmar, ver Spec feedback 1.) `MacroBar`: `inBand` pasa a `range && macroStatus(value, range) === "within"`. Sin cambios visuales. |
+| Diario | `src/app/page.tsx` | (Decidido, Spec feedback 1: opción a.) `MacroBar`: `inBand` pasa a `range && macroStatus(value, range) === "within"`. Sin cambios visuales. |
 | Tests | `tests/unit/planMacros.test.ts`, `tests/e2e/macros-plan.spec.ts`, `tests/fixtures/plan-macros.ts` (nuevos); `tests/e2e/accessibility.spec.ts` | Ver Testing strategy. |
 
 ### Data model
@@ -95,7 +95,7 @@ Sin prototipo; se decide aquí (pregunta abierta del spec): **dentro de la tarje
 | R9 | `slotMacros(recipe, servings = 1)` es el único punto de escalado; `dayPlanSummary` lo llama por franja. |
 
 ## Risks & mitigations
-- **Dos criterios de "cumplido"** (spec › Risks): el Plan marca kcal, hidratos y grasas con ±10 % y el Diario no. Aceptado por el spec; follow-up ya anotado en el brief. Para la proteína con rango ambos usan `macroStatus` si se acepta Spec feedback 1.
+- **Dos criterios de "cumplido"** (spec › Risks): el Plan marca kcal, hidratos y grasas con ±10 % y el Diario no. Aceptado por el spec; follow-up ya anotado en el brief. Para la proteína con rango ambos usan `macroStatus`.
 - **Coma flotante en los límites de ±10 %**: mitigado con la comparación entera y tests en los valores límite de R4.
 - **Densidad en móvil**: rejilla 2 × 2 en vez de barras; se revisa con captura a 375 px en dev-code.
 - **Contraste**: `--color-expiring` como texto sobre `--color-surface-2` y el gris muted; el escaneo axe de `/plan` en `accessibility.spec.ts` lo cubre.
@@ -120,11 +120,11 @@ Sin prototipo; se decide aquí (pregunta abierta del spec): **dentro de la tarje
 1. [ ] Tests primero (dev-test): `tests/unit/planMacros.test.ts`, `tests/fixtures/plan-macros.ts`, `tests/e2e/macros-plan.spec.ts` y el escaneo de `/plan` en `accessibility.spec.ts`, en rojo. (R1–R7, R9)
 2. [ ] `src/lib/planMacros.ts`: `slotMacros`, `dayPlanSummary`, `macroStatus`; unit tests en verde. (R1, R3, R4, R7, R9)
 3. [ ] `src/components/plan/DayMacroSummary.tsx` e integración en `src/app/plan/page.tsx` (quitar `dayKcal` y el kcal de la cabecera); e2e y axe en verde. (R1, R2, R5, R6, R7)
-4. [ ] (Si se confirma Spec feedback 1) `MacroBar` usa `macroStatus` para el rango de proteína. Sin cambios visuales; e2e del Diario en verde. (Goal "sin dos verdades")
+4. [ ] `MacroBar` usa `macroStatus` para el rango de proteína. Sin cambios visuales; e2e del Diario en verde. (Goal "sin dos verdades")
 5. [ ] Revisión en móvil a 375 px, lint, typecheck, build.
 
 ## Spec feedback
-1. **Redondeo en la proteína con rango (necesita decisión).** R4 dice que se redondea el valor antes de comparar, pero R3 pide "igual que `MacroBar`", que compara el valor **sin redondear**. Con decimales (raciones en el Diario, o recetas con decimales) 129,6 g se muestra como "130 / 130–160" y `MacroBar` no lo marca como cumplido. Propuesta por defecto: `macroStatus` redondea siempre (lo que se ve es lo que se juzga) y `MacroBar` pasa a usarlo para el rango (tarea 4), lo que cambia el Diario solo en valores a menos de 0,5 g de un límite. Alternativa: el Plan redondea y el Diario se queda como está (tarea 4 se cae).
+1. **Redondeo en la proteína con rango (decidido: opción a, Manuel, 2026-09-26).** R4 dice que se redondea el valor antes de comparar, pero R3 pide "igual que `MacroBar`", que compara el valor **sin redondear**. Con decimales (raciones en el Diario, o recetas con decimales) 129,6 g se muestra como "130 / 130–160" y `MacroBar` no lo marca como cumplido. Propuesta por defecto: `macroStatus` redondea siempre (lo que se ve es lo que se juzga) y `MacroBar` pasa a usarlo para el rango (tarea 4), lo que cambia el Diario solo en valores a menos de 0,5 g de un límite. Alternativa: el Plan redondea y el Diario se queda como está (tarea 4 se cae).
 2. **Texto "hidratos" frente a "Carbohidratos".** El spec escribe "hidratos"; el Diario muestra "Carbohidratos". El diseño usa "Carbohidratos" para que las dos pantallas coincidan. Sin impacto si se prefiere lo contrario.
 3. **Kcal de la cabecera.** El "N kcal" de la cabecera de la tarjeta desaparece porque queda duplicado en la celda Calorías. El spec no lo menciona; lo anoto para que no sorprenda.
 4. **Pregunta abierta resuelta:** el resumen va dentro de la tarjeta del día (enfoque A), no en tarjeta propia.

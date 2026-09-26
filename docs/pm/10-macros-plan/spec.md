@@ -33,7 +33,7 @@ Usuario único: la persona que sigue el plan de su nutricionista y planifica la 
 |---|---|---|
 | R1 | La tarjeta del día seleccionado en el Plan muestra kcal, proteínas, hidratos y grasas planificados: la suma de los macros de las recetas asignadas a las comidas que el usuario hace (`profile.meals`). | Must |
 | R2 | Cada uno de los cuatro valores se muestra junto a su objetivo del perfil (`calorieGoal`, `proteinGoal` o `proteinRange`, `carbsGoal`, `fatGoal`). | Must |
-| R3 | Cada valor tiene un estado: **dentro**, **por debajo** o **por encima** del objetivo. Si la proteína tiene rango, está dentro cuando `min ≤ valor ≤ max`, por debajo cuando es menor que `min` y por encima cuando supera `max`, igual que `MacroBar`. | Must |
+| R3 | Cada valor tiene un estado: **dentro**, **por debajo** o **por encima** del objetivo. Si la proteína tiene rango, está dentro cuando `min ≤ valor ≤ max`, por debajo cuando es menor que `min` y por encima cuando supera `max`, con el valor redondeado a entero antes de comparar (como R4). `MacroBar` en el Diario pasa a usar el mismo criterio para que Plan y Diario coincidan. _(Decidido, 2026-09-26.)_ | Must |
 | R4 | Para los objetivos sin rango (kcal, hidratos, grasas y proteína sin `proteinRange`), "dentro" significa estar a ±10 % del objetivo, redondeando el valor a entero antes de comparar. Por debajo o por encima fuera de esa banda. _(Tolerancia confirmada, 2026-09-26.)_ | Must |
 | R5 | El estado se distingue sin depender solo del color: icono y texto o nombre accesible ("Dentro", "Por debajo", "Por encima"), en la línea del icono Check de `MacroBar`. | Must |
 | R6 | El resumen se recalcula al momento cuando se asigna, cambia o quita una receta, y cuando se cambia de día. | Must |
