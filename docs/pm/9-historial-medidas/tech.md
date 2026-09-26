@@ -137,8 +137,8 @@ Lo que fijan los tests (`tests/e2e/evolucion.spec.ts`, `accessibility.spec.ts`);
 - **Regresión:** `perfil.spec.ts` sigue verde tras extraer `RecalcOffer`.
 
 ## Tasks
-1. [ ] Tipos `Measurement`/`MetricKey` y `src/lib/measurements.ts` con catálogo, `parseMeasurementDraft` y `sanitizeMeasurements` (R1, R3, R4)
-2. [ ] Lógica de series: `weightTrend`, `latestWeightMeasurement`, `weightChangeOnSave`, `profileWeightPatch`, `skinfoldSum`, `metricSeries`, `filterByRange` (R8, R9, R13–R15)
+1. [x] Tipos `Measurement`/`MetricKey` y `src/lib/measurements.ts` con catálogo, `parseMeasurementDraft` y `sanitizeMeasurements` (R1, R3, R4)
+2. [x] Lógica de series: `weightTrend`, `latestWeightMeasurement`, `weightChangeOnSave`, `profileWeightPatch`, `skinfoldSum`, `metricSeries`, `filterByRange` (R8, R9, R13–R15)
 3. [ ] Store: `measurements` persistido con `saveMeasurement` / `removeMeasurement` (R5, R6)
 4. [ ] Extraer `RecalcOffer` de `perfil/page.tsx` sin cambios de comportamiento
 5. [ ] `LineChart` SVG (puntos por origen, `trend`/`connect`, modo compacto)

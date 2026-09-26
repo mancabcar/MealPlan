@@ -152,3 +152,22 @@ export interface UserProfile {
   dislikedIngredients: string[];
   createdAt: string;
 }
+
+// Historial de medidas (docs/pm/9-historial-medidas). Catálogo de métricas en lib/measurements.ts.
+
+export type MeasurementSource = "home" | "nutritionist";
+
+export type MetricKey =
+  | "weightKg" | "muscleKg" | "fatKg" | "fatPct" | "bmi" | "visceralFat"
+  | "bicepsL" | "bicepsR" | "waist" | "hip" | "legL" | "legR" | "calfL" | "calfR" | "chestBack" | "glutes"
+  | "skinBiceps" | "skinTriceps" | "skinAbdominal" | "skinSuprailiac" | "skinQuadriceps" | "skinCalf";
+
+export interface Measurement {
+  id: string;
+  date: string; // YYYY-MM-DD
+  source: MeasurementSource;
+  /** Solo las métricas introducidas, con el número tal cual (sin redondear ni recalcular). */
+  values: Partial<Record<MetricKey, number>>;
+  /** ISO; se renueva al editar. Desempata dos mediciones del mismo día (R9). */
+  savedAt: string;
+}
