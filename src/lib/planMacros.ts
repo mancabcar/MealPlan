@@ -13,8 +13,8 @@ export interface Macros {
 export type MacroTarget = number | { min: number; max: number };
 export type MacroStatus = "below" | "within" | "above";
 
-/** ±10 % para los objetivos sin rango (R4). */
-export const PLAN_TOLERANCE = 0.1;
+/** ±10 % para los objetivos sin rango (R4). Porcentaje entero: macroStatus lo compara en aritmética entera. */
+export const PLAN_TOLERANCE_PCT = 10;
 
 /** R9: macros de una franja = receta × raciones, sin redondear. Único punto de escalado; #29 pasará slot.servings. */
 export function slotMacros(recipe: Recipe, servings = 1): Macros {
@@ -69,7 +69,9 @@ export function dayPlanSummary({
 
 /**
  * R3/R4: se juzga el valor redondeado (lo que se ve). Rango: min ≤ v ≤ max. Número g: banda ±10 %,
- * comparada en aritmética entera (10·v frente a 9·g y 11·g) porque 230 × 0,9 no es exacto en coma flotante.
+ * comparada en centésimas enteras (100·v frente a 90·g y 110·g) porque 230 × 0,9 no es exacto en coma flotante.
+ * Los límites se redondean a la centésima para que un objetivo con decimales (Perfil admite «69,5») no
+ * reintroduzca el error: 69,3 × 90 = 6236,999… → 6237.
  */
 export function macroStatus(value: number, target: MacroTarget): MacroStatus {
   // Con NaN todas las comparaciones son falsas y caería en "within": un valor que no es número nunca cumple
@@ -80,8 +82,7 @@ export function macroStatus(value: number, target: MacroTarget): MacroStatus {
     if (v > target.max) return "above";
     return "within";
   }
-  const scale = Math.round(1 / PLAN_TOLERANCE); // 10
-  if (scale * v < (scale - 1) * target) return "below";
-  if (scale * v > (scale + 1) * target) return "above";
+  if (100 * v < Math.round((100 - PLAN_TOLERANCE_PCT) * target)) return "below";
+  if (100 * v > Math.round((100 + PLAN_TOLERANCE_PCT) * target)) return "above";
   return "within";
 }

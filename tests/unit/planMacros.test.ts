@@ -71,6 +71,16 @@ describe("R4: objetivos sin rango, ±10 %", () => {
     expect(macroStatus(206.4, 230)).toBe("below");
   });
 
+  // Review #38, no bloqueante 2: Perfil admite objetivos con decimales. 69,5 → banda 62,55–76,45.
+  it.each([
+    [62, "below"],
+    [63, "within"],
+    [76, "within"],
+    [77, "above"],
+  ] as const)("R4: %d g con objetivo decimal 69,5 → %s", (value, expected) => {
+    expect(macroStatus(value, 69.5)).toBe(expected);
+  });
+
   it("R4: grasas 80 con objetivo 69 → por encima (ejemplo de R5)", () => {
     expect(macroStatus(80, 69)).toBe("above");
   });

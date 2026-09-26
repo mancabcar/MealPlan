@@ -28,7 +28,7 @@ Igual que A pero en una `Card` separada. · **Pros**: la tarjeta del día no cam
 ### Components & files
 | Area | File(s) | Change |
 |---|---|---|
-| Cálculo | `src/lib/planMacros.ts` (nuevo) | `Macros`, `MacroTarget`, `MacroStatus`, `PLAN_TOLERANCE`, `slotMacros()`, `dayPlanSummary()`, `macroStatus()`. Puro, sin React ni store. |
+| Cálculo | `src/lib/planMacros.ts` (nuevo) | `Macros`, `MacroTarget`, `MacroStatus`, `PLAN_TOLERANCE_PCT`, `slotMacros()`, `dayPlanSummary()`, `macroStatus()`. Puro, sin React ni store. |
 | UI | `src/components/plan/DayMacroSummary.tsx` (nuevo) | Rejilla 2 × 2 con las cuatro celdas y el aviso R7. Recibe `summary` y `profile` (o `null`). |
 | Página | `src/app/plan/page.tsx` | Sustituir `dayKcal` por `dayPlanSummary({ slots: weekPlan[effectiveSelectedDate] ?? [], recipes, meals })`; quitar el "N kcal" de la cabecera; pintar `<DayMacroSummary>` entre la cabecera y la lista si `summary` no es `null`. |
 | Diario | `src/app/page.tsx` | (Decidido, Spec feedback 1: opción a.) `MacroBar`: `inBand` pasa a `range && macroStatus(value, range) === "within"`. Sin cambios visuales. |
@@ -43,7 +43,7 @@ Ninguno. No cambian `DayPlanSlot`, `WeekPlan`, `UserProfile` ni el backup; no ha
 export interface Macros { calories: number; protein: number; carbs: number; fat: number }
 export type MacroTarget = number | { min: number; max: number };
 export type MacroStatus = "below" | "within" | "above";
-export const PLAN_TOLERANCE = 0.1; // ±10 % (R4)
+export const PLAN_TOLERANCE_PCT = 10; // ±10 % (R4), porcentaje entero
 
 /** R9: macros de una franja = receta × raciones. Único punto de escalado; #29 pasará slot.servings. */
 export function slotMacros(recipe: Recipe, servings = 1): Macros;
@@ -62,7 +62,7 @@ export function macroStatus(value: number, target: MacroTarget): MacroStatus;
 Reglas de `macroStatus`:
 1. `v = Math.round(value)`.
 2. Rango: `v < min` → `below`; `v > max` → `above`; si no, `within`.
-3. Objetivo numérico `g`: `10·v < 9·g` → `below`; `10·v > 11·g` → `above`; si no, `within`. Se compara así, y no con `g * 0.9`, porque `230 * 0.9` y `230 * 1.1` no son exactos en coma flotante y los criterios de R4 caen justo en los límites (207, 253). Con `g = 0` sale sola la regla del spec: `0` → `within`, cualquier `v > 0` → `above`.
+3. Objetivo numérico `g`: `100·v < round(90·g)` → `below`; `100·v > round(110·g)` → `above`; si no, `within` (en centésimas; el redondeo de los límites cubre objetivos con decimales, que Perfil admite). Se compara así, y no con `g * 0.9`, porque `230 * 0.9` y `230 * 1.1` no son exactos en coma flotante y los criterios de R4 caen justo en los límites (207, 253). Con `g = 0` sale sola la regla del spec: `0` → `within`, cualquier `v > 0` → `above`.
 
 Objetivo por macro desde el perfil: `calories → calorieGoal`, `protein → proteinRange ?? proteinGoal`, `carbs → carbsGoal`, `fat → fatGoal`. Vive en `DayMacroSummary` (o en un helper `planTargets(profile)` si R8 lo necesita después).
 
