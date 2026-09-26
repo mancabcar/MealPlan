@@ -15,10 +15,12 @@ const AISLE_KEYWORDS: Record<Exclude<Aisle, "Otros">, string[]> = {
     "champiñón", "eneldo", "espárrago", "espinaca", "frutos rojos", "fresa", "guisante", "hojas verdes", "jengibre",
     "judía verde", "lechuga", "lima", "limón", "manzana", "naranja", "patata", "pepino", "perejil", "pimiento",
     "plátano", "puerro", "rúcula", "seta", "tomate", "zanahoria", "cilantro", "menta", "pera", "fruta", "verdura",
+    // De temporada de otoño (recetas recipe_041–054)
+    "acelga", "boniato", "caqui", "castaña", "col", "coliflor", "granada", "higo", "lombarda",
   ],
   "Carne y pescado": [
     "pollo", "pavo", "ternera", "cerdo", "carne", "pechuga", "solomillo", "jamón", "fiambre", "bacalao", "merluza",
-    "salmón", "gamba", "langostino", "pescado", "atún fresco", "sardina", "lubina", "dorada", "chorizo",
+    "salmón", "gamba", "langostino", "pescado", "atún fresco", "sardina", "lubina", "dorada", "chorizo", "caballa",
   ],
   "Lácteos y huevos": [
     "huevo", "claras de huevo", "leche", "yogur", "queso", "quesito", "mozzarella", "mantequilla", "kéfir", "nata", "tofu",

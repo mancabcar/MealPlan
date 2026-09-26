@@ -167,8 +167,8 @@ describe("R4: ingredientes iguales se suman", () => {
     const items = itemsFor(plan, { recipes: all });
     const keys = items.map((i) => i.key);
     expect(new Set(keys).size).toBe(keys.length);
-    // 40 recetas en 7×6 = 42 huecos: todas entran, así que salen los 107 ingredientes del corpus
-    expect(items).toHaveLength(107);
+    // Las 54 recetas se reparten en los 7×6 huecos (alguno lleva dos): salen los 128 ingredientes del corpus
+    expect(items).toHaveLength(128);
   });
 });
 
