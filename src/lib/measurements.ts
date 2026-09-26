@@ -323,7 +323,7 @@ const warning = (what: string, ref: number) => `Muy distinto de ${what} (${forma
 
 /**
  * Avisos sin bloquear: el lado derecho más de un 30 % distinto del izquierdo, o un valor más de un 30 % distinto de
- * la medición anterior de esa métrica.
+ * la medición anterior de esa métrica (salvo los pliegues).
  */
 export function unusualValues(
   values: Measurement["values"],
@@ -334,7 +334,8 @@ export function unusualValues(
     const v = values[m.key];
     if (v === undefined) continue;
     const left = m.side === "R" ? values[METRICS.find((o) => o.chart === m.chart && o.side === "L")!.key] : undefined;
-    const prev = previous[m.key];
+    // Los pliegues son valores pequeños: 6,5 → 4,5 mm ya supera el 30 % y avisaría en casi cada toma (Manuel, 2026-09-26)
+    const prev = m.group === "skinfolds" ? undefined : previous[m.key];
     if (left !== undefined && differs(v, left)) out[m.key] = warning("la izquierda", left);
     else if (prev !== undefined && differs(v, prev)) out[m.key] = warning("la anterior", prev);
   }

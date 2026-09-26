@@ -474,6 +474,12 @@ describe("R16 (Could): avisos de valores raros, sin bloquear", () => {
     });
   });
 
+  it("los pliegues no se comparan con la toma anterior (de junio a julio bajan más de un 30 % sin ser erratas)", () => {
+    const skin = ["skinBiceps", "skinSuprailiac", "skinQuadriceps"] as const;
+    const july = Object.fromEntries(skin.map((k) => [k, NUTRI_JULY.values[k]]));
+    expect(unusualValues(july, NUTRI_JUNE.values)).toEqual({});
+  });
+
   it("las variaciones normales no avisan (cintura −15 % desde mayo, bíceps iguales)", () => {
     expect(unusualValues({ waist: 84.5, bicepsL: 30.1, bicepsR: 30.1 }, { waist: NUTRI_MAY.values.waist })).toEqual({});
   });

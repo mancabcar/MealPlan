@@ -48,7 +48,7 @@ Manuel, el único usuario, en el móvil.
 | R13 | Selector de métrica en Evolución: cualquier métrica con al menos una medición tiene su gráfica (puntos unidos por línea, sin tendencia) y su historial con la diferencia respecto a la anterior. | Should |
 | R14 | La suma de pliegues se calcula a partir de los seis pliegues cuando están los seis, y se muestra en el formulario y como métrica de R13. | Should |
 | R15 | Selector de periodo para la gráfica: 1 mes, 3 meses, 6 meses, todo (por defecto «Todo»). | Should |
-| R16 | Aviso no bloqueante cuando un valor se aleja mucho del esperado: un lado bilateral difiere más de un 30 % del otro, o un valor difiere más de un 30 % de la medición anterior de esa métrica. | Could |
+| R16 | Aviso no bloqueante cuando un valor se aleja mucho del esperado: un lado bilateral difiere más de un 30 % del otro, o un valor difiere más de un 30 % de la medición anterior de esa métrica, salvo los pliegues (valores pequeños: 6,5 → 4,5 mm ya supera el 30 %). _(Decidido, Manuel, 2026-09-26, a raíz de la review.)_ | Could |
 | R17 | Guardar en «Datos corporales» un peso distinto del actual crea también una medición de hoy, origen Casa, con ese peso. _(Decidido, Manuel, 2026-09-26, a raíz de la tech design.)_ | Must |
 
 ## User flows
