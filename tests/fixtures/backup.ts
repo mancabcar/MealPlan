@@ -7,6 +7,7 @@
 import type { MealEntry, PantryItem, Recipe, UserProfile, WeekPlan } from "@/lib/types";
 import { lucia, manuel } from "./profiles";
 import { MONDAY, POLLO_BROCOLI, TODAY } from "./shopping";
+import { HOME_WEIGHTS, NUTRI_JULY } from "./measurements";
 
 export { TODAY, MONDAY };
 
@@ -73,6 +74,9 @@ export const BACKUP_PLAN: WeekPlan = {
 
 export const BACKUP_PROFILE: UserProfile = lucia;
 
+/** Séptimo dato (docs/pm/9-historial-medidas, tech.md › Data model): una toma de la nutricionista y dos pesadas. */
+export const BACKUP_MEASUREMENTS = [NUTRI_JULY, ...HOME_WEIGHTS.slice(-2)];
+
 /** Datos de la cuenta A tal como se siembran (las recetas de ejemplo las añade la carga). */
 export const ACCOUNT_A_DATA = {
   profile: BACKUP_PROFILE,
@@ -80,6 +84,7 @@ export const ACCOUNT_A_DATA = {
   entries: BACKUP_ENTRIES,
   pantry: BACKUP_PANTRY,
   weekplan: BACKUP_PLAN,
+  measurements: BACKUP_MEASUREMENTS,
 };
 
 /** Datos previos de la cuenta B: todo distinto de A, para ver que la importación los sustituye. */

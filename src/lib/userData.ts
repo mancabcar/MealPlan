@@ -1,11 +1,12 @@
 // Registro de los datos de cada usuario (mp_<userId>_<clave>) y de cómo se cargan. Lo usan AppProvider al montar y
 // la importación de copias (backup.ts), así una copia pasa exactamente por las mismas migraciones (backup-datos R7).
 import seedData from "@/data/recipes.json";
+import { sanitizeMeasurements } from "./measurements";
 import { migrateEntries, migrateProfile, migrateWeekPlan } from "./migrate";
 import { EMPTY as EMPTY_SHOPPING, loadShoppingState, type ShoppingState } from "./shopping/state";
-import type { MealEntry, PantryItem, Recipe, UserProfile, WeekPlan } from "./types";
+import type { MealEntry, Measurement, PantryItem, Recipe, UserProfile, WeekPlan } from "./types";
 
-export const USER_DATA_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping"] as const;
+export const USER_DATA_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements"] as const;
 export type UserDataKey = (typeof USER_DATA_KEYS)[number];
 
 export interface UserData {
@@ -15,6 +16,7 @@ export interface UserData {
   pantry: PantryItem[];
   weekplan: WeekPlan;
   shopping: ShoppingState;
+  measurements: Measurement[];
 }
 
 export const EMPTY_USER_DATA: UserData = {
@@ -24,6 +26,7 @@ export const EMPTY_USER_DATA: UserData = {
   pantry: [],
   weekplan: {},
   shopping: EMPTY_SHOPPING,
+  measurements: [],
 };
 
 export interface LoadOptions<T> {
@@ -60,4 +63,6 @@ export const LOAD_OPTIONS: { [K in UserDataKey]: LoadOptions<UserData[K]> } = {
   },
   // Lista de la compra: solo la intención del usuario; la lista se deriva del plan (lista-compra tech.md)
   shopping: { fallback: EMPTY_SHOPPING, upgrade: loadShoppingState },
+  // Historial de medidas (docs/pm/9-historial-medidas): descarta lo mal formado; sin copia *_v1_backup
+  measurements: { fallback: [], upgrade: sanitizeMeasurements },
 };

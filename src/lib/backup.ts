@@ -1,6 +1,7 @@
 // Copia de seguridad de los datos del usuario (docs/pm/backup-datos). Funciones puras con el Storage inyectado:
 // la página de Perfil les pasa localStorage y los tests uno en memoria.
 import { userKey } from "./auth";
+import { sanitizeMeasurements } from "./measurements";
 import { PROFILE_SCHEMA_VERSION } from "./migrate";
 import { todayStr } from "./types";
 import { LOAD_OPTIONS, USER_DATA_KEYS, type UserData, type UserDataKey } from "./userData";
@@ -24,7 +25,7 @@ export function backupFileName(today: string = todayStr()): string {
 }
 
 /**
- * Lee las seis claves del usuario tal cual y omite las ausentes (R2, R3). Nunca lee credenciales, sesión,
+ * Lee las siete claves del usuario tal cual y omite las ausentes (R2, R3). Nunca lee credenciales, sesión,
  * usuarios recordados, copias *_v1_backup ni otras cuentas, y no escribe el id de la cuenta (R4).
  */
 export function buildBackup(storage: Storage, userId: string, now: Date = new Date()): BackupFile {
@@ -106,6 +107,8 @@ const SECTION_SHAPE: Record<UserDataKey, (v: unknown) => boolean> = {
   weekplan: (v) =>
     isObject(v) && Object.values(v).every((day) => everyObject(day, (s) => isString(s.mealType) && isString(s.recipeId))),
   shopping: isObject,
+  // Una medición que sanitizeMeasurements tiraría invalida la copia en vez de perderse en silencio (todo o nada, R8)
+  measurements: (v) => Array.isArray(v) && sanitizeMeasurements(v).length === v.length,
 };
 
 /**
@@ -140,6 +143,7 @@ export function parseBackup(text: string): ParseResult {
       pantry: upgrade("pantry"),
       weekplan: upgrade("weekplan"),
       shopping: upgrade("shopping"),
+      measurements: upgrade("measurements"),
     };
     return { ok: true, data, exportedAt: isString(file.exportedAt) ? file.exportedAt : "" };
   } catch {
@@ -148,7 +152,7 @@ export function parseBackup(text: string): ParseResult {
 }
 
 /**
- * Escribe las seis claves del usuario (y nada más). Si una escritura lanza (cuota llena), restaura en orden inverso
+ * Escribe las siete claves del usuario (y nada más). Si una escritura lanza (cuota llena), restaura en orden inverso
  * las ya escritas a su valor anterior, o las borra si no existían, y relanza: todo o nada (R8).
  */
 export function writeUserData(storage: Storage, userId: string, data: UserData): void {

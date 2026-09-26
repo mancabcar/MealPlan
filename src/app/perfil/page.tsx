@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useId, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { LogOut, Trash2 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
@@ -16,7 +17,17 @@ import {
   prescribedDraftFrom,
   type MacroDraft,
 } from "@/lib/profileDraft";
-import { MEAL_TYPE_ICON_COMPONENTS, type BodyData, type UserProfile } from "@/lib/types";
+import { MEAL_TYPE_ICON_COMPONENTS, todayStr, type BodyData, type Measurement, type UserProfile } from "@/lib/types";
+import {
+  filterByRange,
+  formatShortDate,
+  formatSigned,
+  formatValue,
+  metricSeries,
+  weightTrend,
+  weightTrendChange,
+} from "@/lib/measurements";
+import { LineChart } from "@/components/evolucion/LineChart";
 import {
   ACTIVITY_OPTIONS,
   AllergyDietDislikes,
@@ -34,6 +45,7 @@ import {
 } from "@/components/perfil/steps";
 import { Field, inputCls } from "@/components/perfil/ui";
 import { DataSection } from "@/components/perfil/DataSection";
+import { RecalcOffer, recalcPatch } from "@/components/perfil/RecalcOffer";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 
@@ -311,17 +323,73 @@ function TargetsSection({ profile, update }: { profile: UserProfile; update: Upd
   );
 }
 
+// ---------------------------------------------------------------- Evolución (historial-medidas R12)
+
+function EvolutionCard({ measurements }: { measurements: Measurement[] }) {
+  const id = useId();
+  const today = todayStr();
+  const weights = metricSeries(measurements, "weightKg");
+  const last = weights.at(-1);
+  const change = weightTrendChange(measurements, today);
+  // Minigráfica del último mes; si no hay pesadas en él, todas
+  const recent = filterByRange(weights, "1M", today);
+  const points = recent.length > 0 ? recent : weights;
+  const trend = weightTrend(measurements).filter((p) => p.date >= points[0]?.date);
+  const link = `${smallBtn} self-start`;
+
+  return (
+    <Card as="section" aria-labelledby={id} className="flex flex-col gap-3">
+      <h2 id={id} className="font-semibold text-[var(--color-text)]">
+        Evolución
+      </h2>
+      {measurements.length === 0 ? (
+        <>
+          <p className="text-sm text-[var(--color-text-muted)]">Aún no hay mediciones. Apunta tu peso para ver cómo evoluciona.</p>
+          <Link href="/perfil/evolucion" className={link}>
+            Añadir primera medición
+          </Link>
+        </>
+      ) : (
+        <>
+          {last && (
+            <div className="flex items-end justify-between gap-3">
+              <p className="font-display text-2xl font-bold">{formatValue(last.value, "weightKg")}</p>
+              {change !== undefined && (
+                <p className="text-sm text-[var(--color-text-muted)]">{`${formatSigned(change)} kg en 30 días`}</p>
+              )}
+            </div>
+          )}
+          {points.length > 0 && (
+            <LineChart
+              compact
+              label={`Peso del ${formatShortDate(points[0].date)} al ${formatShortDate(points[points.length - 1].date)}`}
+              series={[{ points, color: "--color-accent" }]}
+              trend={trend}
+            />
+          )}
+          <Link href="/perfil/evolucion" className={link}>
+            Ver evolución
+          </Link>
+        </>
+      )}
+    </Card>
+  );
+}
+
 // ---------------------------------------------------------------- Datos corporales
 
 function BodySection({
   profile,
   update,
   onRecalcOffer,
+  onWeighIn,
 }: {
   profile: UserProfile;
   update: Update;
   /** R16: con objetivos calculados, un cambio de peso o actividad ofrece recalcular. */
   onRecalcOffer: (targets: Targets) => void;
+  /** historial-medidas R17: un peso distinto del actual también se apunta en el historial. */
+  onWeighIn: (weightKg: number) => void;
 }) {
   // Con objetivos del nutricionista y sin datos completos, solo se guarda el peso
   const weightOnly = profile.targetSource === "prescribed" && !profile.body;
@@ -348,6 +416,7 @@ function BodySection({
           onCancel={cancel}
           onSave={() => {
             update({ weightKg: w });
+            if (w !== undefined && w !== profile.weightKg) onWeighIn(w);
             cancel();
           }}
         />
@@ -364,6 +433,7 @@ function BodySection({
           onSave={() => {
             if (!body) return;
             update(profile.targetSource === "prescribed" ? { body, weightKg: body.weightKg } : { body });
+            if (body.weightKg !== weight) onWeighIn(body.weightKg);
             const changed = body.weightKg !== profile.body?.weightKg || body.activity !== profile.body?.activity;
             if (profile.targetSource === "calculated" && changed) {
               onRecalcOffer(calculateTargets({ ...body, goal: profile.goal }));
@@ -481,7 +551,7 @@ function PreferencesSection({ profile, update }: { profile: UserProfile; update:
 // ---------------------------------------------------------------- Página
 
 export default function ProfilePage() {
-  const { profile, setProfile } = useApp();
+  const { profile, setProfile, measurements, saveMeasurement } = useApp();
   const { user, logout } = useAuth();
   // R16: los objetivos nunca cambian solos; se ofrecen y el usuario decide
   const [recalc, setRecalc] = useState<Targets | null>(null);
@@ -494,13 +564,7 @@ export default function ProfilePage() {
 
   const applyRecalc = () => {
     if (!recalc) return;
-    update({
-      calorieGoal: recalc.kcal,
-      proteinGoal: recalc.protein,
-      proteinRange: undefined,
-      carbsGoal: recalc.carbs,
-      fatGoal: recalc.fat,
-    });
+    update(recalcPatch(recalc));
     setRecalc(null);
   };
 
@@ -517,35 +581,27 @@ export default function ProfilePage() {
         <span className="text-sm text-[var(--color-text-muted)]">@{user?.username}</span>
       </div>
 
-      {recalc && (
-        <div
-          role="status"
-          className="rounded-xl border p-4 flex flex-col gap-3 text-sm"
-          style={{
-            borderColor: "color-mix(in oklab, var(--color-accent) 45%, var(--color-border))",
-            backgroundColor: "color-mix(in oklab, var(--color-accent) 12%, var(--color-surface))",
-          }}
-        >
-          <p>
-            <span className="font-semibold">¿Recalculamos?</span> Con tus nuevos datos te sugerimos {recalc.kcal} kcal y{" "}
-            {recalc.protein} g de proteína (ahora: {profile.calorieGoal} kcal y {profile.proteinGoal} g).
-          </p>
-          <div className="flex gap-2">
-            <button type="button" onClick={applyRecalc} className={saveBtn}>
-              Recalcular
-            </button>
-            <button type="button" onClick={() => setRecalc(null)} className={cancelBtn}>
-              Mantener los actuales
-            </button>
-          </div>
-        </div>
-      )}
+      {recalc && <RecalcOffer targets={recalc} profile={profile} onApply={applyRecalc} onKeep={() => setRecalc(null)} />}
 
       {/* Tras importar una copia, las ediciones a medias se descartan: se referían a los datos de antes */}
       <Fragment key={importCount}>
         <GoalSection profile={profile} update={update} />
         <TargetsSection profile={profile} update={update} />
-        <BodySection profile={profile} update={update} onRecalcOffer={setRecalc} />
+        <EvolutionCard measurements={measurements} />
+        <BodySection
+          profile={profile}
+          update={update}
+          onRecalcOffer={setRecalc}
+          onWeighIn={(weightKg) =>
+            saveMeasurement({
+              id: crypto.randomUUID(),
+              date: todayStr(),
+              source: "home",
+              values: { weightKg },
+              savedAt: new Date().toISOString(),
+            })
+          }
+        />
         <MealsSection profile={profile} update={update} />
         <PreferencesSection profile={profile} update={update} />
       </Fragment>

@@ -20,6 +20,7 @@ import {
   MONDAY,
   SNACK_ENTRY,
 } from "../fixtures/backup";
+import { HOME_WEIGHTS, measurement, NUTRI_JULY } from "../fixtures/measurements";
 
 const item = (id: string): PantryItem => ({ id, name: id, quantity: "1", category: "Despensa" });
 
@@ -82,6 +83,7 @@ const IMPORTED: UserData = {
   pantry: BACKUP_PANTRY,
   weekplan: BACKUP_PLAN,
   shopping: { current: { week: MONDAY, bought: { "brócoli|g": "150g" }, overrides: [], moved: {} }, usage: {} },
+  measurements: [NUTRI_JULY],
 };
 
 const PREVIOUS = {
@@ -117,7 +119,7 @@ describe("R6: importData sustituye los datos sin recargar", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.restoreAllMocks());
 
-  it("el contexto muestra los seis datos importados", () => {
+  it("el contexto muestra los siete datos importados", () => {
     seedPrevious();
     const ref = mountCounting();
     expect(ref.app!.profile?.name).toBe("Antes");
@@ -130,13 +132,14 @@ describe("R6: importData sustituye los datos sin recargar", () => {
     expect(ref.app!.pantry).toEqual(IMPORTED.pantry);
     expect(ref.app!.weekPlan).toEqual(IMPORTED.weekplan);
     expect(ref.app!.shopping).toEqual(IMPORTED.shopping);
+    expect(ref.app!.measurements).toEqual(IMPORTED.measurements);
   });
 
   it("y los guarda en localStorage (recargar los sigue mostrando)", () => {
     seedPrevious();
     const ref = mountCounting();
     act(() => ref.app!.importData(IMPORTED));
-    for (const k of ["profile", "recipes", "entries", "pantry", "weekplan", "shopping"] as const)
+    for (const k of ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements"] as const)
       expect(stored(k), k).toEqual(IMPORTED[k]);
   });
 
@@ -211,5 +214,72 @@ describe("R7: la carga del store y parseBackup migran igual", () => {
     expect(parsed.data.profile).toEqual(ref.app!.profile);
     expect(parsed.data.entries).toEqual(ref.app!.entries);
     expect(parsed.data.recipes).toEqual(ref.app!.recipes);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// docs/pm/9-historial-medidas/spec.md › R5, R6 y tech.md › Components & files ("Store": measurements persistido en
+// mp_<userId>_measurements con saveMeasurement / removeMeasurement).
+
+describe("historial-medidas R6: las mediciones persisten por usuario", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("sin nada guardado, el historial está vacío", () => {
+    expect(mount().app!.measurements).toEqual([]);
+  });
+
+  it("carga lo guardado en mp_<userId>_measurements", () => {
+    localStorage.setItem("mp_u_measurements", JSON.stringify(HOME_WEIGHTS));
+    expect(mount().app!.measurements).toEqual(HOME_WEIGHTS);
+  });
+
+  it("al cargar descarta lo mal formado (sanitizeMeasurements)", () => {
+    localStorage.setItem("mp_u_measurements", JSON.stringify([NUTRI_JULY, { id: 3 }, null]));
+    expect(mount().app!.measurements).toEqual([NUTRI_JULY]);
+  });
+
+  it("cada usuario ve solo las suyas", () => {
+    localStorage.setItem("mp_otro_measurements", JSON.stringify(HOME_WEIGHTS));
+    expect(mount().app!.measurements).toEqual([]);
+  });
+});
+
+describe("historial-medidas R1 · R5: saveMeasurement y removeMeasurement", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("saveMeasurement con un id nuevo la añade y la guarda", () => {
+    const ref = mount();
+    act(() => ref.app!.saveMeasurement(NUTRI_JULY));
+    expect(ref.app!.measurements).toEqual([NUTRI_JULY]);
+    expect(stored("measurements")).toEqual([NUTRI_JULY]);
+  });
+
+  it("saveMeasurement con un id existente la sustituye (editar), sin duplicarla", () => {
+    localStorage.setItem("mp_u_measurements", JSON.stringify(HOME_WEIGHTS));
+    const ref = mount();
+    const edited = { ...HOME_WEIGHTS[2], values: { weightKg: 75.5 }, savedAt: "2026-09-22T20:00:00.000Z" };
+    act(() => ref.app!.saveMeasurement(edited));
+    expect(ref.app!.measurements).toHaveLength(HOME_WEIGHTS.length);
+    expect(ref.app!.measurements.find((m) => m.id === edited.id)).toEqual(edited);
+    expect(stored("measurements")).toEqual(ref.app!.measurements);
+  });
+
+  it("removeMeasurement la quita y guarda", () => {
+    localStorage.setItem("mp_u_measurements", JSON.stringify(HOME_WEIGHTS));
+    const ref = mount();
+    act(() => ref.app!.removeMeasurement("home-0922"));
+    expect(ref.app!.measurements.map((m) => m.id)).not.toContain("home-0922");
+    expect(stored("measurements")).toHaveLength(HOME_WEIGHTS.length - 1);
+  });
+
+  it("dos guardados en el mismo evento se encadenan (p. ej. medición + otra de Datos corporales)", () => {
+    const ref = mount();
+    const a = measurement("a", "2026-09-21", { weightKg: 75.2 });
+    const b = measurement("b", "2026-09-22", { weightKg: 75 });
+    act(() => {
+      ref.app!.saveMeasurement(a);
+      ref.app!.saveMeasurement(b);
+    });
+    expect(stored("measurements")).toEqual([a, b]);
   });
 });

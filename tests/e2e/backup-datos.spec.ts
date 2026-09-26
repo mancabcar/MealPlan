@@ -27,7 +27,8 @@ import {
 import { POLLO_BROCOLI } from "../fixtures/shopping";
 import { lucia, manuel } from "../fixtures/profiles";
 
-const USER_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping"] as const;
+// docs/pm/9-historial-medidas: las mediciones son el séptimo dato y viajan en la copia.
+const USER_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements"] as const;
 
 type Account = { id: string; username: string; salt: string; hash: string };
 
@@ -167,7 +168,7 @@ test.describe("R1–R4: exportar mis datos", () => {
     expect(name).toBe(`mealplan-backup-${TODAY}.json`);
   });
 
-  test("R2: contiene los seis datos del usuario tal como están guardados", async ({ page }) => {
+  test("R2: contiene los siete datos del usuario tal como están guardados", async ({ page }) => {
     const { json } = await exportBackup(page);
     for (const k of USER_KEYS) {
       const stored = await readKey(page, ACCOUNT_A.id, k);
@@ -179,6 +180,7 @@ test.describe("R1–R4: exportar mis datos", () => {
     expect(json.data.entries).toEqual(ACCOUNT_A_DATA.entries);
     expect(json.data.pantry).toEqual(ACCOUNT_A_DATA.pantry);
     expect(json.data.weekplan).toEqual(ACCOUNT_A_DATA.weekplan);
+    expect(json.data.measurements).toEqual(ACCOUNT_A_DATA.measurements);
   });
 
   test("R2: incluye el estado de la lista de la compra", async ({ page }) => {
