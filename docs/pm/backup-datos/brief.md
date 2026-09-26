@@ -1,6 +1,6 @@
 # Copia de seguridad: exportar e importar mis datos en JSON
 
-_Status: in review ([PR #32](https://github.com/mancabcar/MealPlan/pull/32)) · review: ✅ approved ([review](review.md)) · Updated: 2026-09-25 · Origen: [issue #8](https://github.com/mancabcar/MealPlan/issues/8) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: shipped (2026-09-25, [PR #32](https://github.com/mancabcar/MealPlan/pull/32) mergeado) · review: ✅ approved, no bloqueantes 1–3 arreglados ([review](review.md)) · Updated: 2026-09-25 · Origen: [issue #8](https://github.com/mancabcar/MealPlan/issues/8) (cerrado) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Problema
 Todos los datos viven en el `localStorage` del navegador. Si se borran los datos del navegador o se cambia de dispositivo, se pierden sin remedio: no hay backend ni ninguna otra copia.
@@ -34,3 +34,9 @@ En Perfil, "Exportar mis datos" descarga un `.json` con el perfil, las recetas, 
 - La copia incluye la lista de la compra (`shopping`).
 - En esta versión no se exporta automáticamente una copia antes de importar.
 - Tech design aprobado con las 6 propuestas de "Spec feedback": confirmación con `window.confirm` y test de R4 con un nombre de perfil distinto del username.
+
+## Qué vigilar
+- Que la copia se use: si hace semanas que no exportas, el aviso de "Tus datos" no se está viendo o no convence. Un recordatorio periódico sería la siguiente mejora.
+- Un cambio de versión del perfil (v3) tiene que subir `PROFILE_SCHEMA_VERSION` en `src/lib/migrate.ts` y añadir su migración. Así las copias antiguas siguen entrando y las nuevas no se rechazan.
+- Cualquier dato nuevo del usuario tiene que entrar en el registro `USER_DATA_KEYS` / `LOAD_OPTIONS` (`src/lib/userData.ts`), o no estará en la copia.
+- Pendiente, sin issue: las 3 notas de la revisión de código (`mealType` sin validar, `dietaryRestrictions` v1 que no es lista, `isObject` repetido). Solo afectan a ficheros editados a mano.
