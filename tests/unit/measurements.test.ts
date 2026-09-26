@@ -223,6 +223,7 @@ describe("sanitizeMeasurements: carga de lo guardado (upgrade idempotente)", () 
         null,
         { ...ok, id: 7 },
         { ...ok, date: "22/09/2026" },
+        { ...ok, date: "2026-02-31" },
         { ...ok, source: "gym" },
         { ...ok, values: "76" },
         { ...ok, savedAt: undefined },
@@ -299,6 +300,12 @@ describe("R12: cambio de la tendencia en 30 días", () => {
     const recent = HOME_WEIGHTS.filter((m) => m.date >= "2026-09-01");
     expect(weightTrendChange(recent, TODAY)).toBeUndefined();
     expect(weightTrendChange([], TODAY)).toBeUndefined();
+  });
+
+  it("si la última pesada es la de hace 30 días, no hay con qué compararla (no «0 kg»)", () => {
+    expect(weightTrendChange([measurement("a", "2026-08-24", { weightKg: 76 })], TODAY)).toBeUndefined();
+    const old = [measurement("a", "2026-08-20", { weightKg: 77 }), measurement("b", "2026-08-24", { weightKg: 76 })];
+    expect(weightTrendChange(old, TODAY)).toBeCloseTo(-0.5, 5); // tendencia 24/08 = 76,5 menos la del 20/08 = 77
   });
 });
 

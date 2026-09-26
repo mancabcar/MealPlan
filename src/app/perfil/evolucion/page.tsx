@@ -164,7 +164,8 @@ export default function EvolutionPage() {
       type="button"
       aria-label="Añadir medición"
       onClick={() => setSheet({ kind: "add", form: "weight" })}
-      className="fixed bottom-24 right-4 z-30 flex items-center gap-1.5 rounded-full bg-[var(--color-accent)] text-[var(--color-on-accent)] px-5 py-3 font-semibold shadow-lg shadow-black/40"
+      // El aviso (Toast) también va en bottom-24: mientras se ve, el botón sube para no quedar tapado
+      className={`fixed ${notice ? "bottom-44" : "bottom-24"} right-4 z-30 flex items-center gap-1.5 rounded-full bg-[var(--color-accent)] text-[var(--color-on-accent)] px-5 py-3 font-semibold shadow-lg shadow-black/40`}
     >
       <Plus className="w-5 h-5" aria-hidden />
       Añadir

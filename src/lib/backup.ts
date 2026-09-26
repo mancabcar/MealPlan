@@ -1,6 +1,7 @@
 // Copia de seguridad de los datos del usuario (docs/pm/backup-datos). Funciones puras con el Storage inyectado:
 // la página de Perfil les pasa localStorage y los tests uno en memoria.
 import { userKey } from "./auth";
+import { sanitizeMeasurements } from "./measurements";
 import { PROFILE_SCHEMA_VERSION } from "./migrate";
 import { todayStr } from "./types";
 import { LOAD_OPTIONS, USER_DATA_KEYS, type UserData, type UserDataKey } from "./userData";
@@ -106,7 +107,8 @@ const SECTION_SHAPE: Record<UserDataKey, (v: unknown) => boolean> = {
   weekplan: (v) =>
     isObject(v) && Object.values(v).every((day) => everyObject(day, (s) => isString(s.mealType) && isString(s.recipeId))),
   shopping: isObject,
-  measurements: (v) => everyObject(v, (m) => isString(m.id) && isString(m.date) && isObject(m.values)),
+  // Una medición que sanitizeMeasurements tiraría invalida la copia en vez de perderse en silencio (todo o nada, R8)
+  measurements: (v) => Array.isArray(v) && sanitizeMeasurements(v).length === v.length,
 };
 
 /**

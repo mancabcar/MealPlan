@@ -190,7 +190,8 @@ export function sanitizeMeasurements(raw: unknown): Measurement[] {
   if (!Array.isArray(raw)) return [];
   const out: Measurement[] = [];
   for (const m of raw) {
-    if (!isObject(m) || typeof m.id !== "string" || typeof m.date !== "string" || !DATE_RE.test(m.date)) continue;
+    // dayNumber, no solo el formato: «2026-02-31» rompería la tendencia y la gráfica
+    if (!isObject(m) || typeof m.id !== "string" || typeof m.date !== "string" || Number.isNaN(dayNumber(m.date))) continue;
     if ((m.source !== "home" && m.source !== "nutritionist") || typeof m.savedAt !== "string" || !isObject(m.values)) continue;
     const values: Measurement["values"] = {};
     for (const [k, v] of Object.entries(m.values)) {
@@ -255,17 +256,20 @@ export function weightTrend(ms: Measurement[]): TrendPoint[] {
 
 /**
  * R12: tendencia de la última pesada menos la de la pesada más cercana a hace 30 días (entre 35 y 25 días atrás).
- * Sin pesadas en esa ventana, undefined.
+ * Sin pesadas en esa ventana anteriores a la última, undefined: si la última pesada cae en la ventana no hay nada
+ * con qué compararla (no es un «0 kg»).
  */
 export function weightTrendChange(ms: Measurement[], today: string): number | undefined {
   const trend = weightTrend(ms);
+  const last = trend.at(-1);
+  if (!last) return undefined;
   const target = dayNumber(today) - 30;
-  const candidates = trend.filter((p) => Math.abs(dayNumber(p.date) - target) <= 5);
+  const candidates = trend.filter((p) => p.date < last.date && Math.abs(dayNumber(p.date) - target) <= 5);
   if (candidates.length === 0) return undefined;
   const base = candidates.reduce((best, p) =>
     Math.abs(dayNumber(p.date) - target) < Math.abs(dayNumber(best.date) - target) ? p : best,
   );
-  return trend[trend.length - 1].value - base.value;
+  return last.value - base.value;
 }
 
 /** R14: suma de los seis pliegues, a una décima; undefined si falta alguno. */

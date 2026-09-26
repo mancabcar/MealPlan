@@ -476,6 +476,10 @@ describe("R8: un fichero no válido se rechaza con un motivo", () => {
     expectError(backupText({ measurements: [{ ...BACKUP_MEASUREMENTS[0], id: 7 }] }), badSection("measurements"));
     expectError(backupText({ measurements: [{ ...BACKUP_MEASUREMENTS[0], date: 20260731 }] }), badSection("measurements"));
     expectError(backupText({ measurements: [{ ...BACKUP_MEASUREMENTS[0], values: "76" }] }), badSection("measurements"));
+    // Lo que el saneado descartaría en silencio también invalida la copia (review de historial-medidas)
+    expectError(backupText({ measurements: [{ ...BACKUP_MEASUREMENTS[0], source: "gym" }] }), badSection("measurements"));
+    expectError(backupText({ measurements: [{ ...BACKUP_MEASUREMENTS[0], savedAt: undefined }] }), badSection("measurements"));
+    expectError(backupText({ measurements: [{ ...BACKUP_MEASUREMENTS[0], date: "2026-02-31" }] }), badSection("measurements"));
     const result = parseBackup(backupText({ measurements: BACKUP_MEASUREMENTS }));
     expect(result.ok && result.data.measurements).toEqual(BACKUP_MEASUREMENTS);
   });
