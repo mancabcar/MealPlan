@@ -26,6 +26,8 @@ export function slotMacros(recipe: Recipe, servings = 1): Macros {
   };
 }
 
+const finiteOr0 = (n: number) => (Number.isFinite(n) ? n : 0);
+
 export interface DayPlanSummary {
   totals: Macros;
   /** Comidas del perfil con una receta que existe (R7). */
@@ -55,10 +57,11 @@ export function dayPlanSummary({
     const recipe = slot && recipes.find((r) => r.id === slot.recipeId);
     if (!recipe) continue;
     const m = slotMacros(recipe);
-    totals.calories += m.calories;
-    totals.protein += m.protein;
-    totals.carbs += m.carbs;
-    totals.fat += m.fat;
+    // Una receta restaurada de un backup solo se valida por id: un macro ausente o no numérico suma 0, no NaN
+    totals.calories += finiteOr0(m.calories);
+    totals.protein += finiteOr0(m.protein);
+    totals.carbs += finiteOr0(m.carbs);
+    totals.fat += finiteOr0(m.fat);
     planned++;
   }
   return planned > 0 ? { totals, planned, total: meals.length } : null;
@@ -69,6 +72,8 @@ export function dayPlanSummary({
  * comparada en aritmética entera (10·v frente a 9·g y 11·g) porque 230 × 0,9 no es exacto en coma flotante.
  */
 export function macroStatus(value: number, target: MacroTarget): MacroStatus {
+  // Con NaN todas las comparaciones son falsas y caería en "within": un valor que no es número nunca cumple
+  if (!Number.isFinite(value)) return "below";
   const v = Math.round(value);
   if (typeof target !== "number") {
     if (v < target.min) return "below";

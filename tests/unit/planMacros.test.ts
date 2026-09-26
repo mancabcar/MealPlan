@@ -80,6 +80,12 @@ describe("R4: objetivos sin rango, ±10 %", () => {
     expect(macroStatus(1, 0)).toBe("above");
   });
 
+  // Review #38, no bloqueante 1: NaN no cumple nunca (antes caía en "within" porque NaN < x y NaN > x son falsos).
+  it.each([NaN, Infinity, -Infinity])("un valor no finito (%s) nunca está dentro", (value) => {
+    expect(macroStatus(value, 2000)).toBe("below");
+    expect(macroStatus(value, { min: 130, max: 160 })).toBe("below");
+  });
+
   it("R4: la proteína sin rango usa proteinGoal con la misma banda (145 → 131–159)", () => {
     expect(macroStatus(130, 145)).toBe("below");
     expect(macroStatus(131, 145)).toBe("within");
@@ -129,6 +135,14 @@ describe("R1: dayPlanSummary suma las comidas del perfil", () => {
     const s = summary([slot("Cena", CENA_PAVO), slot("Cena", MERIENDA_NUECES)]);
     expect(s?.totals).toEqual({ calories: 550, protein: 40, carbs: 45, fat: 20 });
     expect(s?.planned).toBe(1);
+  });
+
+  // Review #38, no bloqueante 1: los backups solo validan el id de las recetas.
+  it("Edge case (receta sin macros, de un backup): el macro ausente suma 0, no NaN", () => {
+    const broken = { ...CENA_PAVO, id: "sin-proteina", protein: undefined } as unknown as Recipe;
+    const s = summary([slot("Desayuno", DESAYUNO_CLARAS), slot("Cena", broken)], { recipes: [DESAYUNO_CLARAS, broken] });
+    expect(s?.totals).toEqual({ calories: 1000, protein: 30, carbs: 100, fat: 35 });
+    expect(s?.planned).toBe(2);
   });
 
   it("Edge case (decimales): se suma sin redondear", () => {
