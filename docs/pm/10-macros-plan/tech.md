@@ -117,7 +117,7 @@ Sin prototipo; se decide aquí (pregunta abierta del spec): **dentro de la tarje
 - Captura manual a 375 px (dev-code) para la densidad.
 
 ## Tasks
-1. [ ] Tests primero (dev-test): `tests/unit/planMacros.test.ts`, `tests/fixtures/plan-macros.ts`, `tests/e2e/macros-plan.spec.ts` y el escaneo de `/plan` en `accessibility.spec.ts`, en rojo. (R1–R7, R9)
+1. [x] Tests primero (dev-test): `tests/unit/planMacros.test.ts`, `tests/fixtures/plan-macros.ts`, `tests/e2e/macros-plan.spec.ts` y el escaneo de `/plan` en `accessibility.spec.ts`, en rojo. (R1–R7, R9)
 2. [ ] `src/lib/planMacros.ts`: `slotMacros`, `dayPlanSummary`, `macroStatus`; unit tests en verde. (R1, R3, R4, R7, R9)
 3. [ ] `src/components/plan/DayMacroSummary.tsx` e integración en `src/app/plan/page.tsx` (quitar `dayKcal` y el kcal de la cabecera); e2e y axe en verde. (R1, R2, R5, R6, R7)
 4. [ ] `MacroBar` usa `macroStatus` para el rango de proteína. Sin cambios visuales; e2e del Diario en verde. (Goal "sin dos verdades")
@@ -128,3 +128,31 @@ Sin prototipo; se decide aquí (pregunta abierta del spec): **dentro de la tarje
 2. **Texto "hidratos" frente a "Carbohidratos".** El spec escribe "hidratos"; el Diario muestra "Carbohidratos". El diseño usa "Carbohidratos" para que las dos pantallas coincidan. Sin impacto si se prefiere lo contrario.
 3. **Kcal de la cabecera.** El "N kcal" de la cabecera de la tarjeta desaparece porque queda duplicado en la celda Calorías. El spec no lo menciona; lo anoto para que no sorprenda.
 4. **Pregunta abierta resuelta:** el resumen va dentro de la tarjeta del día (enfoque A), no en tarjeta propia.
+
+## Test coverage
+Comandos: `npm test` (unit), `npm run test:e2e` (e2e), `npm run typecheck`. Fixtures: `tests/fixtures/plan-macros.ts` (perfil del plan de septiembre: 2000 kcal, proteína 130–160, hidratos 230, grasas 69, 4 comidas; variante sin rango con `proteinGoal` 145; hoy = martes 2026-09-22 con desayuno P 30 + comida P 50 + cena P 40 y un batido en Media mañana, que no suma; lunes completo 2030 / 128 / 205 / 80; miércoles solo comida + cena con receta borrada; jueves vacío). Estado tras dev-test (2026-09-26): 🔴 = falla porque la funcionalidad no existe. Unit: `planMacros.test.ts` (30) y `DayMacroSummary.test.tsx` (1) no cargan porque no existen `@/lib/planMacros` ni `@/components/plan/DayMacroSummary` (los 30 de `planMacros` se comprobaron en verde contra una implementación de referencia de las reglas 1–3, descartada). E2E: 12 de 13 de `macros-plan.spec.ts`, el caso axe y 2 de 3 nuevos de `dashboard.spec.ts` fallan porque no está la lista "Macros del día" / el aviso, o porque `MacroBar` aún compara sin redondear. `tsc` da 2 errores, los dos módulos que faltan. El resto sigue en verde: unit 453/453, e2e 154/154 previos, lint limpio. Estos tests definen "hecho" para dev-code.
+
+Contrato de UI que fijan los e2e (tech.md › UI): `<ul aria-label="Macros del día">` con 4 `<li>` (Calorías, Proteínas, Carbohidratos, Grasas); texto visible "N / objetivo" o "N / min–max" (guion –) y "Dentro" / "Por debajo" / "Por encima"; iconos y parte visual `aria-hidden` (el árbol accesible de cada `<li>` es solo la frase sr-only, "Grasas 80 de 69, por encima", "Proteínas 142 de 130 a 160, dentro"; la unidad tras el objetivo es opcional); aviso exacto "N de M comidas planificadas". `DayMacroSummary` como export con nombre y props `{ summary, profile }`.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | `tests/unit/planMacros.test.ts` › "R1" › 30 + 50 + 40 = 120 y los otros tres totales; comida desmarcada no suma; receta borrada no suma ni cuenta; día vacío → `null`; solo franjas que no suman → `null`; franja duplicada → la primera | unit | 🔴 failing (not built) |
+| R1 | `planMacros.test.ts` › "Edge case (decimales): se suma sin redondear" | unit | 🔴 failing (not built) |
+| R1 | `tests/e2e/macros-plan.spec.ts` › "R1" › "desayuno P 30 + comida P 50 + cena P 40 → proteínas 120…", "una cena con la receta borrada no suma…" | e2e | 🔴 failing (not built) |
+| R1 | `macros-plan.spec.ts` › "R1" › "un día sin recetas no muestra el resumen" | e2e | ✅ passing (trivialmente hoy; guarda la regresión) |
+| R1 | `macros-plan.spec.ts` › "R1" › 'la cabecera de la tarjeta ya no muestra "N kcal"' (Spec feedback 3) | e2e | 🔴 failing (not built) |
+| R2 | `macros-plan.spec.ts` › "R1" (N / 130–160, N / 2000, N / 230, N / 69) y "R2" › 'sin rango de proteína se muestra "N / proteinGoal"' | e2e | 🔴 failing (not built) |
+| R3 | `planMacros.test.ts` › "R3" › 129 / 130 / 160 / 161; redondeo 129,6 → dentro, 129,4 → por debajo; 160,4 / 160,5 | unit | 🔴 failing (not built) |
+| R3 | `tests/e2e/dashboard.spec.ts` › "Macros en el Plan · R3" › "129,6 g se muestra 130 y se marca como cumplido", "170,4 g…" (tarea 4, `MacroBar`) | e2e | 🔴 failing (not built) |
+| R3 | `dashboard.spec.ts` › "Macros en el Plan · R3" › "129,4 g se muestra 129 y no se marca" | e2e | ✅ passing (guarda la regresión) |
+| R4 | `planMacros.test.ts` › "R4" › 1799 / 1800 / 2200 / 2201 con 2000; 206 / 207 / 253 / 254 con 230; 206,5 / 206,4; 80 con 69; objetivo 0; proteína sin rango 145 | unit | 🔴 failing (not built) |
+| R3 · R4 · R5 | `macros-plan.spec.ts` › "R3 · R4 · R5" › "día completo del lunes: Calorías Dentro, Proteínas y Carbohidratos Por debajo, Grasas Por encima" | e2e | 🔴 failing (not built) |
+| R5 | `macros-plan.spec.ts` › 'R5: un lector de pantalla anuncia "Grasas 80 de 69, por encima"' (`toMatchAriaSnapshot` de la lista) | e2e | 🔴 failing (not built) |
+| R5 | `tests/e2e/accessibility.spec.ts` › "Plan con resumen de macros" (axe `color-contrast` con los tres estados y el aviso) | e2e | 🔴 failing (not built) |
+| R6 | `macros-plan.spec.ts` › "R6" › cambiar la cena: Proteínas 120 Por debajo → 142 Dentro; "Sin asignar" en la comida → 1000 / 70 y "2 de 4"; cambiar de día → resumen del lunes | e2e | 🔴 failing (not built) |
+| R7 | `planMacros.test.ts` › "R7" › 2 de 4; 4 de 4; total = comidas del perfil (5) | unit | 🔴 failing (not built) |
+| R7 | `macros-plan.spec.ts` › "R7" › "3 de 4…", "Día a medias… 1 de 4", "con todas las comidas asignadas el aviso no aparece" | e2e | 🔴 failing (not built) |
+| R8 | — (Could, fuera de alcance) | — | — |
+| R9 | `planMacros.test.ts` › "R9" › 1 ración por defecto; × 0,5 y × 2 sin redondear | unit | 🔴 failing (not built) |
+| Edge: sin perfil | `tests/unit/DayMacroSummary.test.tsx` › "muestra los totales redondeados sin objetivo ni estado" (inalcanzable por la UI: sin perfil se muestra el onboarding) | unit (jsdom) | 🔴 failing (not built) |
+| Densidad móvil | Captura manual a 375 px (tarea 5) | manual | — |
