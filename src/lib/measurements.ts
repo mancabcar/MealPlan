@@ -120,7 +120,7 @@ export function formatMeasurementDate(date: string): string {
 const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 /** Día absoluto (días desde 1970-01-01), o NaN si no es una fecha real. */
-function dayNumber(date: string): number {
+export function dayNumber(date: string): number {
   const m = DATE_RE.exec(date);
   if (!m) return NaN;
   const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
