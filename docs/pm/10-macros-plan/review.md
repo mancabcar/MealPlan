@@ -1,7 +1,15 @@
 # Macros por día en el Plan semanal: Review
-_PR: [#38](https://github.com/mancabcar/MealPlan/pull/38) · Reviewed: 2026-09-26 · Verdict: ⚠️ approved with follow-ups_
+_PR: [#38](https://github.com/mancabcar/MealPlan/pull/38) · Reviewed: 2026-09-26 (segunda pasada tras los arreglos) · Verdict: ✅ approved_
 
-## Summary
+## Re-review (2026-09-26)
+Los tres puntos no bloqueantes están arreglados en la misma rama, cada uno con su test:
+1. NaN → `8e3d570`: `dayPlanSummary` suma 0 por un macro ausente y `macroStatus` devuelve `below` ante NaN/Infinity.
+2. Tolerancia → `9fc8850`: `PLAN_TOLERANCE_PCT = 10`, comparación en centésimas con los límites redondeados. También resuelve que la comparación entera asumiera objetivos enteros (Perfil admite «69,5»).
+3. Escalado único → `4e34ed5`: `recipeEntry` usa `slotMacros`.
+
+Verificación: unit 492/492, e2e 171/171 sobre el build de producción, typecheck y lint limpios. Quedan dos detalles menores de código (`status!` y la regla «primera franja» repetida), que no justifican otra vuelta.
+
+## Summary (primera pasada)
 El PR cumple todos los requisitos Must y Should del spec (R1–R7, R9) y sigue el tech design (enfoque A): un módulo puro `planMacros.ts` y una rejilla 2 × 2 dentro de la tarjeta del día. Cada criterio de aceptación tiene un test automatizado, y el CI está en verde (unit 484/484, e2e sobre el build de producción, Vercel). Solo queda un defecto real y fácil de corregir: un total NaN, por ejemplo de una receta importada sin macros, se marca como «Dentro». No es bloqueante porque solo se llega con un backup editado a mano.
 
 ## Spec conformance
