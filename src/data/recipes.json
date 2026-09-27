@@ -1320,6 +1320,246 @@
       "carbs": 47,
       "fat": 16,
       "tags": ["comida", "legumbres", "pescado", "alto proteína", "sin gluten", "de cuchara", "otoño"]
+    },
+    {
+      "id": "recipe_055",
+      "name": "Huevos revueltos con jamón de pavo y pan de centeno",
+      "ingredients": [
+        "80g pan de centeno",
+        "2 huevos",
+        "2 claras de huevo",
+        "40g jamón de pavo",
+        "1 cucharadita de aceite de oliva",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Batir los huevos con las claras, sal y pimienta.",
+        "Cortar el jamón de pavo en tiras y dorarlo 1 minuto en una sartén con el aceite.",
+        "Añadir el huevo batido y remover a fuego bajo hasta que cuaje cremoso.",
+        "Servir con el pan de centeno tostado."
+      ],
+      "prepTimeMinutes": 10,
+      "calories": 450,
+      "protein": 34,
+      "carbs": 40,
+      "fat": 17,
+      "tags": ["desayuno", "alto proteína", "rápido", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_056",
+      "name": "Tostadas de centeno con salmón ahumado y aguacate",
+      "ingredients": [
+        "80g pan de centeno",
+        "100g queso fresco batido",
+        "60g salmón ahumado",
+        "50g aguacate",
+        "limón, sal y eneldo"
+      ],
+      "instructions": [
+        "Tostar el pan de centeno.",
+        "Untar el queso fresco batido sobre las tostadas.",
+        "Colocar el aguacate en láminas y el salmón ahumado encima.",
+        "Terminar con unas gotas de limón, eneldo y una pizca de sal."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 435,
+      "protein": 29,
+      "carbs": 46,
+      "fat": 15,
+      "tags": ["desayuno", "rápido", "omega 3", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_057",
+      "name": "Tortilla de claras y huevos con pavo, aguacate y tomate",
+      "ingredients": [
+        "3 claras de huevo",
+        "2 huevos",
+        "60g jamón de pavo",
+        "40g aguacate",
+        "1 tomate",
+        "1 cucharadita de aceite de oliva",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Batir los huevos con las claras, sal y pimienta.",
+        "Cuajar la tortilla en una sartén con el aceite a fuego medio, 2-3 minutos por cada lado.",
+        "Servir con el jamón de pavo, el aguacate en láminas y el tomate en rodajas."
+      ],
+      "prepTimeMinutes": 10,
+      "calories": 380,
+      "protein": 36,
+      "carbs": 10,
+      "fat": 22,
+      "tags": ["desayuno", "alto proteína", "bajo carbohidrato", "sin gluten", "rápido", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_058",
+      "name": "Overnight oats de cacao y plátano con proteína",
+      "ingredients": [
+        "50g copos de avena",
+        "150ml leche desnatada",
+        "125g yogur natural desnatado",
+        "15g proteína en polvo",
+        "1 cucharadita de cacao puro en polvo",
+        "1/2 plátano"
+      ],
+      "instructions": [
+        "Mezclar en un tarro la avena, la leche, el yogur, la proteína y el cacao.",
+        "Tapar y dejar en la nevera toda la noche, o al menos 4 horas.",
+        "Por la mañana, añadir el plátano en rodajas por encima."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 400,
+      "protein": 30,
+      "carbs": 57,
+      "fat": 5,
+      "tags": ["desayuno", "vegetariano", "sin cocinar", "para llevar", "alto proteína"]
+    },
+    {
+      "id": "recipe_059",
+      "name": "Bowl de kéfir con granada, avena y nueces",
+      "ingredients": [
+        "250ml kéfir natural",
+        "15g proteína en polvo",
+        "30g copos de avena",
+        "1/2 granada",
+        "10g nueces"
+      ],
+      "instructions": [
+        "Mezclar el kéfir con la proteína en polvo hasta que no queden grumos.",
+        "Tostar la avena en una sartén sin aceite 2-3 minutos, removiendo.",
+        "Desgranar la granada.",
+        "Servir el kéfir con la avena, la granada y las nueces troceadas por encima."
+      ],
+      "prepTimeMinutes": 8,
+      "calories": 455,
+      "protein": 27,
+      "carbs": 46,
+      "fat": 18,
+      "tags": ["desayuno", "vegetariano", "rápido", "otoño"]
+    },
+    {
+      "id": "recipe_060",
+      "name": "Huevos al horno con espinacas, champiñones y pavo",
+      "ingredients": [
+        "2 huevos",
+        "100g champiñones",
+        "60g espinacas frescas",
+        "40g jamón de pavo",
+        "1 cucharadita de aceite de oliva",
+        "1 rebanada de pan integral",
+        "sal, pimienta y orégano"
+      ],
+      "instructions": [
+        "Precalentar el horno a 200°C.",
+        "Saltear los champiñones laminados con el aceite 4 minutos, añadir las espinacas y dejar que se ablanden.",
+        "Pasar las verduras a una cazuelita de horno con el pavo en tiras, hacer dos huecos y cascar los huevos.",
+        "Salpimentar, añadir orégano y hornear 8-10 minutos, hasta que la clara cuaje.",
+        "Servir con el pan integral tostado para mojar."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 405,
+      "protein": 30,
+      "carbs": 32,
+      "fat": 17,
+      "tags": ["desayuno", "alto proteína", "al horno"]
+    },
+    {
+      "id": "recipe_061",
+      "name": "Tostada de centeno con tomate, jamón serrano y huevo duro",
+      "ingredients": [
+        "80g pan de centeno",
+        "1 tomate",
+        "1 cucharadita de aceite de oliva",
+        "40g jamón serrano",
+        "1 huevo"
+      ],
+      "instructions": [
+        "Cocer el huevo 10 minutos, enfriarlo en agua y pelarlo.",
+        "Tostar el pan y rallar el tomate por encima.",
+        "Aliñar con el aceite y colocar el jamón serrano.",
+        "Servir con el huevo duro en rodajas."
+      ],
+      "prepTimeMinutes": 12,
+      "calories": 420,
+      "protein": 26,
+      "carbs": 42,
+      "fat": 16,
+      "tags": ["desayuno", "clásico", "rápido"]
+    },
+    {
+      "id": "recipe_062",
+      "name": "Crepes de avena y claras con queso fresco batido y pera",
+      "ingredients": [
+        "30g copos de avena",
+        "3 claras de huevo",
+        "100ml leche desnatada",
+        "1 cucharadita de aceite de oliva",
+        "150g queso fresco batido",
+        "1 pera",
+        "canela al gusto"
+      ],
+      "instructions": [
+        "Triturar la avena con las claras y la leche hasta obtener una masa líquida.",
+        "Pincelar una sartén antiadherente con el aceite y hacer 3-4 crepes finos, 1 minuto por cada lado.",
+        "Cortar la pera en láminas finas.",
+        "Rellenar los crepes con el queso fresco batido y la pera y espolvorear canela."
+      ],
+      "prepTimeMinutes": 15,
+      "calories": 395,
+      "protein": 31,
+      "carbs": 50,
+      "fat": 7,
+      "tags": ["desayuno", "vegetariano", "alto proteína", "otoño"]
+    },
+    {
+      "id": "recipe_063",
+      "name": "Wrap de huevo, pavo y espinacas",
+      "ingredients": [
+        "1 tortilla integral grande",
+        "2 huevos",
+        "40g jamón de pavo",
+        "30g espinacas frescas",
+        "1 quesito light",
+        "1 cucharadita de aceite de oliva",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Batir los huevos con sal y pimienta y hacer una tortilla francesa fina con el aceite.",
+        "Calentar la tortilla integral en una sartén 30 segundos por cada lado.",
+        "Untar el quesito, colocar la tortilla francesa, el pavo y las espinacas.",
+        "Enrollar y cortar por la mitad."
+      ],
+      "prepTimeMinutes": 10,
+      "calories": 435,
+      "protein": 29,
+      "carbs": 34,
+      "fat": 21,
+      "tags": ["desayuno", "alto proteína", "rápido", "para llevar"]
+    },
+    {
+      "id": "recipe_064",
+      "name": "Tostadas integrales con atún, tomate y aguacate",
+      "ingredients": [
+        "2 rebanadas de pan integral",
+        "1 lata de atún al natural",
+        "1 tomate",
+        "40g aguacate",
+        "1 cucharadita de aceite de oliva",
+        "sal y orégano"
+      ],
+      "instructions": [
+        "Tostar el pan integral.",
+        "Rallar el tomate sobre las tostadas y aliñar con el aceite.",
+        "Colocar el aguacate en láminas y el atún escurrido por encima.",
+        "Terminar con sal y orégano."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 380,
+      "protein": 23,
+      "carbs": 40,
+      "fat": 14,
+      "tags": ["desayuno", "rápido", "sin cocinar"]
     }
   ]
 }
