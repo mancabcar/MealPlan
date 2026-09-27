@@ -1,7 +1,7 @@
 // Recientes en «Añadir comida» (docs/pm/12-registro-rapido/tech.md › UI): una lista de botones de fila completa
 // entre el selector de franja y las pestañas Receta/Personalizada. Sin recientes no pinta nada (R6).
 import { useId, type MouseEvent } from "react";
-import { servingsLabel, type RecentMeal } from "@/lib/diary";
+import { quantityLabel, servingsLabel, type RecentMeal } from "@/lib/diary";
 
 export function RecentMeals({
   recents,
@@ -18,8 +18,9 @@ export function RecentMeals({
       <h4 id={headingId} className="text-xs font-semibold text-[var(--color-text-muted)]">Recientes</h4>
       <ul aria-labelledby={headingId} className="flex flex-col gap-1.5">
         {recents.map((r) => {
-          // R5: "× 0,5" junto al nombre, como en la lista del Diario; kcal redondeadas
-          const label = servingsLabel(r.entry);
+          // R5: "× 0,5" junto al nombre, como en la lista del Diario; kcal redondeadas.
+          // Alimentos (#13, R13): "150 g" o "2 ud · 120 g", también como en el Diario.
+          const label = servingsLabel(r.entry) ?? quantityLabel(r.entry);
           return (
             <li key={r.key}>
               <button

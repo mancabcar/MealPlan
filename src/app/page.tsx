@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type MouseEvent } from "react";
+import { useCallback, useId, useState, type MouseEvent } from "react";
 import { Check, CheckCheck, Minus, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
@@ -10,9 +10,11 @@ import { allergenWarning } from "@/lib/allergens";
 import {
   SERVINGS,
   SERVINGS_ERROR,
+  foodEntry,
   formatServings,
   parseServings,
   pendingSlots,
+  quantityLabel,
   recentMeals,
   recipeEntry,
   repeatEntry,
@@ -33,6 +35,8 @@ import { ProgressRing } from "@/components/ui/ProgressRing";
 import { WeekBarChart } from "@/components/ui/WeekBarChart";
 import { PeriodSummary, loadStatsDays, saveStatsDays } from "@/components/diario/PeriodSummary";
 import { RecentMeals } from "@/components/diario/RecentMeals";
+import { FoodPicker } from "@/components/diario/FoodPicker";
+import { Toast } from "@/components/ui/Toast";
 import { inputCls } from "@/components/ui/input";
 
 // Rediseño visual (docs/pm/design-refresh, R7): proteína/carbohidratos/grasas se quedan como barras
@@ -108,7 +112,7 @@ export default function DiaryPage() {
   const [mealType, setMealType] = useState<MealType>(() =>
     !profile || profile.meals.includes("Comida") ? "Comida" : profile.meals[0],
   );
-  const [mode, setMode] = useState<"recipe" | "custom">("recipe");
+  const [mode, setMode] = useState<"recipe" | "food" | "custom">("recipe");
   const [recipeId, setRecipeId] = useState("");
   const [customName, setCustomName] = useState("");
   const [customMacros, setCustomMacros] = useState({ calories: 0, protein: 0, carbs: 0, fat: 0 });
@@ -117,6 +121,9 @@ export default function DiaryPage() {
   const [servingsError, setServingsError] = useState(false);
   const servingsId = `${idPrefix}-servings`;
   const servingsErrorId = `${servingsId}-error`;
+  // Base de alimentos (docs/pm/13-base-alimentos, R10): aviso con Deshacer tras añadir un alimento
+  const [added, setAdded] = useState<{ entryId: string; text: string } | null>(null);
+  const hideAdded = useCallback(() => setAdded(null), []);
 
   if (!profile) return null;
 
@@ -184,7 +191,7 @@ export default function DiaryPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Diario</h1>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+        <input type="date" aria-label="Fecha" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
       </div>
 
       <Card className="flex flex-col items-center gap-3 py-6">
@@ -263,8 +270,9 @@ export default function DiaryPage() {
                 </div>
               )}
               {items.map((e) => {
-                // Raciones (R4): "× 0,5" junto al nombre; nada con 1 ración o en entradas anteriores (R5)
-                const label = servingsLabel(e);
+                // Raciones (R4): "× 0,5" junto al nombre; nada con 1 ración o en entradas anteriores (R5).
+                // Alimentos (#13, R9): "150 g" o "2 ud · 120 g"; una entrada tiene una cosa o la otra.
+                const label = servingsLabel(e) ?? quantityLabel(e);
                 return (
                   <div key={e.id} className="flex justify-between items-center py-1 text-sm">
                     <span>
@@ -325,6 +333,16 @@ export default function DiaryPage() {
               Receta
             </button>
             <button
+              onClick={() => setMode("food")}
+              className={`flex-1 py-1.5 rounded-lg border ${
+                mode === "food"
+                  ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-[var(--color-accent)]"
+                  : "border-[var(--color-border)] text-[var(--color-text-muted)]"
+              }`}
+            >
+              Alimento
+            </button>
+            <button
               onClick={() => setMode("custom")}
               className={`flex-1 py-1.5 rounded-lg border ${
                 mode === "custom"
@@ -335,7 +353,27 @@ export default function DiaryPage() {
               Personalizada
             </button>
           </div>
-          {mode === "recipe" ? (
+          {/* R1, Edge cases: montado mientras el formulario está abierto, oculto fuera de su pestaña, para que la
+              búsqueda y sus resultados sobrevivan a un cambio de pestaña */}
+          <FoodPicker
+            hidden={mode !== "food"}
+            onAdd={(food, qty, ev) =>
+              singleClick(() => {
+                // Sin fecha no se añade nada, como en submitAdd
+                if (date === "") return;
+                const entry = foodEntry(food, date, mealType, qty);
+                addEntry(entry);
+                setShowAdd(false);
+                setAdded({ entryId: entry.id, text: `Añadido a ${mealType} · ${quantityLabel(entry)}` });
+              })(ev)
+            }
+            onManual={(name) => {
+              // R14: Personalizada con el nombre ya escrito
+              setCustomName(name);
+              setMode("custom");
+            }}
+          />
+          {mode === "food" ? null : mode === "recipe" ? (
             <>
               <select value={recipeId} onChange={(e) => setRecipeId(e.target.value)} className={inputCls}>
                 <option value="">Elige una receta...</option>
@@ -415,12 +453,15 @@ export default function DiaryPage() {
             </>
           )}
           <div className="flex gap-2">
-            <button
-              onClick={submitAdd}
-              className="flex-1 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg py-2 font-semibold text-sm"
-            >
-              Añadir
-            </button>
+            {/* En «Alimento» se añade con el botón de la tarjeta («Añadir 150 g») */}
+            {mode !== "food" && (
+              <button
+                onClick={submitAdd}
+                className="flex-1 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg py-2 font-semibold text-sm"
+              >
+                Añadir
+              </button>
+            )}
             <button
               onClick={() => setShowAdd(false)}
               className="flex-1 rounded-lg py-2 border border-[var(--color-border)] text-sm text-[var(--color-text-muted)]"
@@ -438,6 +479,22 @@ export default function DiaryPage() {
           <Plus className="w-4 h-4" aria-hidden />
           Añadir comida
         </button>
+      )}
+
+      {added && (
+        // R10: mismo componente y duración que el aviso de la Despensa
+        <Toast
+          onDismiss={hideAdded}
+          action={{
+            label: "Deshacer",
+            onClick: () => {
+              removeEntry(added.entryId);
+              hideAdded();
+            },
+          }}
+        >
+          {added.text}
+        </Toast>
       )}
     </div>
   );
