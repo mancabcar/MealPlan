@@ -155,3 +155,20 @@ Sin prototipo; se decide aquí la pregunta abierta: **tarjeta propia debajo de �
 5. **R11 fuera del backup.** La preferencia 7/30 no viaja en la copia de seguridad. Parece lo correcto para una preferencia de vista; lo anoto para que no sorprenda.
 
 Ninguno de estos puntos bloquea empezar a programar.
+
+## Test coverage
+Datos en `tests/fixtures/medias-adherencia.ts` (hoy = 2026-09-22). «Hecho» = todo en verde.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | tests/unit/diaryStats.test.ts › «R1 · R2: medias solo de los días con registros»; tests/e2e/medias-adherencia.spec.ts › «R1 · R2 · R3 · R8…» | unit + e2e | 🔴 failing (not built) |
+| R2 | tests/unit/diaryStats.test.ts › «1800, 2000 y 2200 kcal en 3 de 7 días → media 2000», «un día con dos registros…», raciones, `NaN` | unit | 🔴 failing (not built) |
+| R3 | tests/unit/diaryStats.test.ts › «R3: adherencia…» (2 de 3, 5 de 6, día con 0 kcal); e2e «2 de 3 días dentro del objetivo» | unit + e2e | 🔴 failing (not built) |
+| R4 | tests/unit/diaryStats.test.ts › «R4: un día cumple…» (casos del spec, límites, sin rango, equivalencia con `macroStatus` del Plan), «macroTarget» | unit | 🔴 failing (not built) |
+| R5 | tests/unit/diaryStats.test.ts › «R5: cambiar a 30 días…»; e2e › «R5: selector 7 / 30 días» | unit + e2e | 🔴 failing (not built) |
+| R6 | tests/unit/diaryStats.test.ts › «addDays…», «R6: el periodo son N días completos…»; e2e › «R6: días completos; hoy no cuenta» | unit + e2e | 🔴 failing (not built) |
+| R7 | tests/unit/diaryStats.test.ts › «R7…»; e2e › «R7: sin registros en el periodo» | unit + e2e | 🔴 failing (not built) |
+| R8 | tests/unit/diaryStats.test.ts › «R8: rango de fechas del periodo»; e2e subtítulos | unit + e2e | 🔴 failing (not built) |
+| R9 | tests/e2e/medias-adherencia.spec.ts › «R9…»; tests/unit/DayMacroSummary.test.tsx › «Medias del periodo…» | e2e + componente | 🔴 failing (not built) |
+| R10 | tests/e2e/medias-adherencia.spec.ts › «R10…» (radios + flechas); tests/e2e/accessibility.spec.ts › «Diario con medias y adherencia» | e2e | 🔴 failing (not built) |
+| R11 | tests/e2e/medias-adherencia.spec.ts › «R11: se recuerda la opción elegida» | e2e | 🔴 failing (not built) |
