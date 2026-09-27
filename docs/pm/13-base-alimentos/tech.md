@@ -125,6 +125,19 @@ interface BrandProduct {
 
 - **Estado entre pestañas:** `FoodPicker` sigue montado (oculto) mientras el formulario está abierto, así la búsqueda y los resultados sobreviven a un cambio de pestaña. Al cerrar el formulario se desmonta.
 - **Doble toque:** el botón de añadir usa `singleClick`.
+
+#### UI test contract
+Nombres accesibles que usa `tests/e2e/food.spec.ts` (acordados en dev-test, 2026-09-27):
+- Pestañas: botones «Receta», «Alimento», «Personalizada» (en ese orden).
+- Buscador: campo con etiqueta «Buscar alimento».
+- Bloques: encabezados «Básicos» y «Productos de marca». Cada resultado es un botón cuyo nombre empieza por el nombre del alimento y contiene «<kcal> kcal» (y la marca en OFF). El pie de «Básicos» contiene «CIQUAL»; el de marcas, «ODbL» y «revisa la etiqueta».
+- Sin coincidencias en básicos: texto «Ningún básico coincide».
+- Botón de marcas: «Buscar «<texto>» en productos de marca»; al llegar al límite se desactiva y muestra los segundos que faltan (calculados con `Date.now()` en cada tick, no con un contador que se decrementa: el e2e adelanta el reloj).
+- Tarjeta: botón «Otro alimento»; radios «Gramos» / «Unidades»; campo de cantidad con etiqueta «Gramos» o «Unidades»; chips como botones «150 g», «2 ud»; botón «Añadir <cantidad>» («Añadir 150 g»). Cantidad inválida: botón desactivado y campo con `aria-invalid="true"` y `aria-describedby` apuntando al aviso.
+- Errores de OFF: botón «Reintentar» dentro del bloque de marcas.
+- Aviso: `role="status"` (el `Toast`) con «Añadido a <franja> · <cantidad>» y botón «Deshacer».
+- R14: texto clicable «¿No lo encuentras? Añádelo a mano».
+- Nombres de la tabla real que usa el e2e (contrato): «Arroz blanco, crudo», «Arroz blanco, cocido», «Plátano», «Huevo» (con `unitGrams`).
 - **R14:** `FoodPicker` recibe `onManual(name)`; `page.tsx` cambia a `"custom"` con `customName` ya relleno.
 
 ## Spec coverage
@@ -170,6 +183,39 @@ Los tests se escriben antes del código, con dev-test.
   - el doble toque añade una sola entrada;
   - accesibilidad con axe en la pestaña Alimento.
 - Los criterios de aceptación del spec se mapean uno a uno a estos tests en la tabla Test coverage que genera dev-test.
+- **Ajustes de dev-test:** los tests de `foodEntry` / `quantityLabel` van en `tests/unit/diary-food.test.ts` (no en `diary.test.ts`), para que los tests existentes sigan en verde mientras no exista el código. La plausibilidad de los valores usa **±15 % o ±15 kcal, lo que sea mayor**, porque CIQUAL cuenta la fibra y en verduras ligeras un ±15 % estricto da falsos fallos.
+- **Avisos para dev-code:**
+  - 0,3 × 1,5 = 0,4499… en coma flotante, y el spec exige mostrar «0,5»: `displayMacro` tiene que redondear de forma robusta (p. ej., redondear antes a 6 decimales).
+  - El timeout de 8 s hacia OFF se implementa con `AbortController` + `setTimeout`, no con `AbortSignal.timeout()`, porque el test usa timers falsos de Vitest.
+  - La cuenta atrás de R12 se calcula a partir de `Date.now()` en cada tick.
+
+## Test coverage
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | tests/e2e/food.spec.ts › "R1: pestaña Alimento" | e2e | 🔴 failing (not built) |
+| R2 | tests/unit/foods.test.ts › "R2: búsqueda en los básicos" (8) | unit | 🔴 failing (not built) |
+| R2 | tests/e2e/food.spec.ts › "R2 · R3: búsqueda en los básicos" (1 letra, «arroz coc», «platano», crudo/cocido, sin coincidencias) | e2e | 🔴 failing (not built) |
+| R3 | tests/unit/foods-data.test.ts › "R3: forma de la tabla local", "R3: cubre los alimentos de los planes" | unit | 🔴 failing (not built) |
+| R3 | tests/e2e/food.spec.ts › "el pie de Básicos cita las fuentes", "sin red, los básicos salen igual" | e2e | 🔴 failing (not built) |
+| R4 | tests/unit/foods-route.test.ts › "R4: petición a Search-a-licious", "R4: normalización de los productos" | unit | 🔴 failing (not built) |
+| R4 | tests/e2e/food.spec.ts › "R4: productos de marca" (3) | e2e | 🔴 failing (not built) |
+| R5 | tests/e2e/food.spec.ts › "R5: tarjeta del alimento" (+ Edge cases de pestañas y de cambio de texto) | e2e | 🔴 failing (not built) |
+| R6 | tests/unit/foods.test.ts › "R6: macros por gramos", "R6: gramos válidos" | unit | 🔴 failing (not built) |
+| R6 | tests/e2e/food.spec.ts › "R6 · R8 · R9: registrar en gramos" (chips, inválidos, doble toque) | e2e | 🔴 failing (not built) |
+| R7 | tests/unit/foods.test.ts › "R7: unidades válidas" | unit | 🔴 failing (not built) |
+| R7 | tests/e2e/food.spec.ts › "R7: registrar en unidades" (4) | e2e | 🔴 failing (not built) |
+| R8 | tests/unit/diary-food.test.ts › "R8: entrada de alimento" (6) | unit | 🔴 failing (not built) |
+| R8 | tests/e2e/food.spec.ts › "R8: producto de marca", "150 g de «Arroz blanco, cocido» …" | e2e | 🔴 failing (not built) |
+| R9 | tests/unit/diary-food.test.ts › "R9: cantidad junto al nombre en el Diario" (5) | unit | 🔴 failing (not built) |
+| R9 | tests/e2e/food.spec.ts › "… el Diario muestra «150 g»", "2 ud → «2 ud · N g»", "se ven como antes" | e2e | 🔴 failing (not built) |
+| R10 | tests/e2e/food.spec.ts › "R10: aviso con Deshacer" | e2e | 🔴 failing (not built) |
+| R11 | tests/unit/foods-route.test.ts › "R11: errores de OFF" (7) | unit | 🔴 failing (not built) |
+| R11 | tests/e2e/food.spec.ts › "R11: errores de OFF" (3) | e2e | 🔴 failing (not built) |
+| R12 | tests/unit/foods.test.ts › "R12: límite de búsquedas en OFF" | unit | 🔴 failing (not built) |
+| R12 | tests/e2e/food.spec.ts › "R12: límite de búsquedas" (429 + cuenta atrás) | e2e | 🔴 failing (not built) |
+| R13 | — | — | ⏸ pending (#12 sin mergear; tarea 11) |
+| R14 | tests/e2e/food.spec.ts › "R14: no lo encuentro → Personalizada" | e2e | 🔴 failing (not built) |
+| — | tests/e2e/food.spec.ts › "Accesibilidad de la pestaña Alimento" (axe) | e2e | 🔴 failing (not built) |
 
 ## Tasks
 1. [ ] Script `scripts/build-foods.mjs` + lista curada `scripts/foods-list.json` + `src/data/foods.json` generado (R3)

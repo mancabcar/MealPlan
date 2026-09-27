@@ -1,5 +1,5 @@
 # Base de datos de alimentos: buscar por nombre y registrar por gramos
-_Status: tech design · Updated: 2026-09-27 · Issue: [#13](https://github.com/mancabcar/MealPlan/issues/13) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: tests · Updated: 2026-09-27 · Issue: [#13](https://github.com/mancabcar/MealPlan/issues/13) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Follow-ups
 - Escáner de código de barras para envasados (fuera de esta entrega por decisión del usuario). (brainstorm) → ya cubierto por [#14](https://github.com/mancabcar/MealPlan/issues/14) (depende de #13)
