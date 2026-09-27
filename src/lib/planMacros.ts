@@ -1,6 +1,6 @@
 // Macros por día en el Plan semanal (docs/pm/10-macros-plan/tech.md › APIs). Puro: sin React ni store.
 // El resumen nunca se guarda: se deriva en cada render del plan, las recetas y las comidas del perfil.
-import { MEAL_TYPES, type DayPlanSlot, type MealType, type Recipe } from "./types";
+import { MEAL_TYPES, type DayPlanSlot, type MealType, type Recipe, type UserProfile } from "./types";
 
 export interface Macros {
   calories: number;
@@ -26,7 +26,21 @@ export function slotMacros(recipe: Recipe, servings = 1): Macros {
   };
 }
 
-const finiteOr0 = (n: number) => (Number.isFinite(n) ? n : 0);
+export const finiteOr0 = (n: number) => (Number.isFinite(n) ? n : 0);
+
+/** Objetivo de un macro desde el perfil: proteína = proteinRange ?? proteinGoal. Único mapeo, lo usan Plan y Diario. */
+export function macroTarget(key: keyof Macros, profile: UserProfile): MacroTarget {
+  switch (key) {
+    case "calories":
+      return profile.calorieGoal;
+    case "protein":
+      return profile.proteinRange ?? profile.proteinGoal;
+    case "carbs":
+      return profile.carbsGoal;
+    case "fat":
+      return profile.fatGoal;
+  }
+}
 
 export interface DayPlanSummary {
   totals: Macros;

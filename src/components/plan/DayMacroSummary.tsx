@@ -2,7 +2,7 @@
 // tarjeta del día. Cada celda muestra "N / objetivo" y su estado con icono + texto (R5, no solo color);
 // la parte visual va aria-hidden y una frase sr-only la resume ("Grasas 80 de 69, por encima").
 import { ArrowDown, ArrowUp, Check, type LucideIcon } from "lucide-react";
-import { macroStatus, type DayPlanSummary, type MacroStatus, type MacroTarget, type Macros } from "@/lib/planMacros";
+import { macroStatus, macroTarget, type DayPlanSummary, type MacroStatus, type MacroTarget, type Macros } from "@/lib/planMacros";
 import type { UserProfile } from "@/lib/types";
 
 const CELLS: { key: keyof Macros; label: string; unit: string; tone: string }[] = [
@@ -19,19 +19,6 @@ const STATUS: Record<MacroStatus, { Icon: LucideIcon; text: string; color: strin
   above: { Icon: ArrowUp, text: "Por encima", color: "--color-expiring" },
 };
 
-function targetFor(key: keyof Macros, profile: UserProfile): MacroTarget {
-  switch (key) {
-    case "calories":
-      return profile.calorieGoal;
-    case "protein":
-      return profile.proteinRange ?? profile.proteinGoal;
-    case "carbs":
-      return profile.carbsGoal;
-    case "fat":
-      return profile.fatGoal;
-  }
-}
-
 const formatTarget = (target: MacroTarget, sep: string) =>
   typeof target === "number" ? `${target}` : `${target.min}${sep}${target.max}`;
 
@@ -42,7 +29,7 @@ export function DayMacroSummary({ summary, profile }: { summary: DayPlanSummary;
       <ul aria-label="Macros del día" className="grid grid-cols-2 gap-2">
         {CELLS.map(({ key, label, unit, tone }) => {
           const value = Math.round(totals[key]);
-          const target = profile ? targetFor(key, profile) : null;
+          const target = profile ? macroTarget(key, profile) : null;
           const status = target === null ? null : STATUS[macroStatus(totals[key], target)];
           // El lector oye "de 130 a 160"; sin los gramos, pero con las kcal ("2030 de 2000" solo sería ambiguo)
           const spoken =

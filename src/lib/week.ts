@@ -3,7 +3,7 @@
 
 export const DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
-function toDateStr(d: Date): string {
+export function toDateStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
@@ -22,4 +22,11 @@ export function weekDates(date: string): string[] {
     x.setDate(monday.getDate() + i);
     return toDateStr(x);
   });
+}
+
+/** "2026-09-22", -1 → "2026-09-21". Por fecha local (setDate): siempre un día de calendario, también con cambio de hora. */
+export function addDays(date: string, n: number): string {
+  const d = new Date(date + "T00:00:00");
+  d.setDate(d.getDate() + n);
+  return toDateStr(d);
 }
