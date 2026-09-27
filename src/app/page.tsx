@@ -191,7 +191,7 @@ export default function DiaryPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Diario</h1>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+        <input type="date" aria-label="Fecha" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
       </div>
 
       <Card className="flex flex-col items-center gap-3 py-6">
