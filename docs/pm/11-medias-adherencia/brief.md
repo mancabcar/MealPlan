@@ -29,7 +29,7 @@ El issue ya trae el problema, la propuesta y los criterios de aceptación, así 
 - Tolerancia fija ±10 % (la del Plan). Hacerla editable es un follow-up.
 
 ## Follow-ups
-- Tolerancia editable en Perfil, compartida por Plan y Diario (y en el backup). (spec)
-- Marcar en `WeekBarChart` los días que cumplen (pregunta abierta del spec). (spec)
+- Tolerancia editable en Perfil, compartida por Plan y Diario (y en el backup). (spec) → [#49](https://github.com/mancabcar/MealPlan/issues/49)
+- Marcar en `WeekBarChart` los días que cumplen (pregunta abierta del spec). (spec) → [#50](https://github.com/mancabcar/MealPlan/issues/50)
 - Gráfica de 30 días, periodos personalizados y comparativas entre periodos. (spec, non-goals)
 - Unificar el estado «por debajo / por encima» de kcal, carbohidratos y grasas en el Diario (`MacroBar`) con `macroStatus`, para que el día y las medias se presenten igual. (tech)
