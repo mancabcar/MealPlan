@@ -1,5 +1,5 @@
 # Registro rápido: recientes y personalizadas guardadas
-_Status: brainstorm · Updated: 2026-09-27 · Issue: [#12](https://github.com/mancabcar/MealPlan/issues/12) (@mancabcar)_
+_Status: prototype · Updated: 2026-09-27 · Issue: [#12](https://github.com/mancabcar/MealPlan/issues/12) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/67Fp8tdVv3BE9gSe15hkC8)_
 
 ## Follow-ups
 - «Copiar semana anterior» en el Plan. Sale de este issue porque no toca el dolor principal y el Plan solo muestra la semana en curso, así que pide su propio diseño. (brainstorm) → [#53](https://github.com/mancabcar/MealPlan/issues/53)
@@ -69,3 +69,22 @@ Pregunta que debe responder: **¿caben Recientes y Guardados en «Añadir comida
 - ¿Cuántos recientes exactamente? Se propone ~8.
 - ¿Qué cuenta como «distinto» en Recientes? Por ejemplo, la misma receta con otras raciones, o una personalizada con el mismo nombre y otros macros.
 - ¿Qué pasa al guardar una personalizada con un nombre que ya existe en Guardados?
+
+## Prototype
+_Design: https://claude.ai/artifact/67Fp8tdVv3BE9gSe15hkC8 · 2026-09-27_
+- Screens: `1A · Listas sobre las pestañas`, `1B · Pestaña «Rápido»`, `1C · Chips en carrusel` (tres encajes de la misma pantalla para compararlos) y `2 · Personalizada con «Guardar»` (sobre el encaje A). Móvil, tema oscuro de la app, franja Pre-entreno, con una línea que marca el pliegue de 844 px.
+- Decisions (confirmed by the user):
+  - Comparar los tres encajes A, B y C.
+  - Un toque registra directo; aviso «Añadido a <franja> · Deshacer» (~4 s) con el panel abierto.
+  - Filas con nombre + raciones + kcal; 3 recientes y 3 guardados visibles + «Ver más».
+  - Estado extra: Personalizada con la casilla «Guardar para reutilizar».
+  - Aspecto de la app actual y datos reales (recetario + plan de septiembre).
+- Pending ASSUMPTIONs:
+  - Toda la fila es el botón; el «+» lima solo lo señala.
+  - Un mismo alimento puede salir en Recientes y en Guardados a la vez.
+  - «Ver más» despliega la lista en el sitio, sin pantalla nueva.
+  - (B) El panel abre en «Rápido»; el formulario solo vive en Receta y Personalizada.
+  - (C) Chips con nombre + kcal en carrusel horizontal; borrar guardados con pulsación larga.
+  - La casilla «Guardar para reutilizar» sale desmarcada; guardar ocurre al pulsar «Añadir», que también registra.
+  - Se guardan nombre y macros, no la franja.
+- What to learn from testing it: qué encaje deja lo habitual a 1–2 toques sin empujar el formulario por debajo del pliegue.
