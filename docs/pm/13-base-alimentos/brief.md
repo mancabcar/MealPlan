@@ -1,5 +1,5 @@
 # Base de datos de alimentos: buscar por nombre y registrar por gramos
-_Status: brainstorm · Updated: 2026-09-27 · Issue: [#13](https://github.com/mancabcar/MealPlan/issues/13) (@mancabcar)_
+_Status: prototype · Updated: 2026-09-27 · Issue: [#13](https://github.com/mancabcar/MealPlan/issues/13) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK)_
 
 ## Follow-ups
 - Escáner de código de barras para envasados (fuera de esta entrega por decisión del usuario). (brainstorm) → ya cubierto por [#14](https://github.com/mancabcar/MealPlan/issues/14) (depende de #13)
@@ -80,3 +80,25 @@ Pregunta que debe responder: **¿se distingue lo local de lo de OFF sin confundi
 - ¿La licencia de BEDCA permite empaquetar sus valores en la app? Si no, ¿todo desde USDA?
 - ¿Cómo se marca en el Diario una entrada de alimento frente a una personalizada (p. ej., «150 g» junto al nombre)? ¿Tiene que verse la fuente?
 - ¿Qué hacemos con los productos de OFF a los que les faltan macros por 100 g: se ocultan o se muestran marcados?
+
+## Prototype
+_Design: https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK · 2026-09-27_
+- Screens: `0 · Escribiendo: solo básicos`, `1A · Resultados en dos bloques` y `1B · Una lista con etiqueta de fuente` (variantes a comparar), `2 · Cantidad en gramos`, `3 · Cantidad en unidades`, `4A · Marcas: sin conexión`, `4B · Marcas: demasiadas búsquedas`, `5 · Registrado en el Diario`. Móvil (390 px), tema oscuro de la app, franja Almuerzo, con la línea del pliegue a 844 px.
+- Decisions (confirmed by the user):
+  - Tercera pestaña «Alimento» (Receta / Alimento / Personalizada), con Recientes y Guardados de #12 encima, tal cual.
+  - Los básicos (tabla local) salen al escribir; Open Food Facts solo al pulsar «Buscar «…» en productos de marca», por el límite de ~10 búsquedas por minuto.
+  - Crudo y cocido son filas distintas. Cada fila muestra nombre + kcal/100 g (+ marca en OFF).
+  - Al tocar un resultado, la lista se sustituye por la tarjeta del alimento, con «← Otro alimento» para volver.
+  - Cantidad: campo de gramos + chips rápidos, con selector gramos/unidades cuando el alimento tiene unidad; macros en vivo.
+  - Si OFF falla, los básicos siguen y el error se queda en el bloque de marcas, con Reintentar; Personalizada sigue a mano.
+  - La entrada guarda nombre + gramos + macros; en el Diario se ve «150 g» junto al nombre.
+- Pending ASSUMPTIONs:
+  - Se añadió la pantalla `0` (antes de buscar en marcas) y el error de OFF se partió en `4A` y `4B`.
+  - El botón de marcas va debajo de los básicos y repite la búsqueda entre comillas.
+  - Máximo 4–5 resultados de OFF, con un pie de licencia ODbL y «revisa la etiqueta».
+  - Chips 50/100/150/200 g (y 1–4 ud); macros redondeados a entero, grasa con un decimal si es < 1 g; el botón dice «Añadir 150 g».
+  - El selector Gramos/Unidades solo aparece si el alimento tiene unidad y abre en Unidades; se muestra el peso equivalente.
+  - Texto de los errores; al llegar al límite, el botón de marcas se desactiva con cuenta atrás.
+  - Aviso «Añadido a Almuerzo · 150 g · Deshacer»; el Diario no muestra la fuente.
+  - Marcas y productos de OFF inventados; valores de la tabla aproximados.
+- What to learn from testing it: si se distingue lo local de lo de marca (1A frente a 1B) y si el paso de gramos o unidades es cómodo en móvil.
