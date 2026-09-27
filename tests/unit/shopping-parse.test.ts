@@ -216,16 +216,16 @@ describe("Normalización (spec › Normalization rules)", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Corpus: las 210 líneas distintas de las 64 recetas semilla (tech.md › "Parser coverage" medía 145 con 40; +14 de otoño, +10 desayunos).
+// Corpus: las 233 líneas distintas de las 74 recetas semilla (tech.md › "Parser coverage" medía 145 con 40; +14 de otoño, +10 desayunos, +10 de cuchara).
 // ---------------------------------------------------------------------------
 const SEED_LINES = [...new Set((seed.recipes as { ingredients: string[] }[]).flatMap((r) => r.ingredients))].sort();
 
 describe("R3: corpus de recetas semilla (src/data/recipes.json)", () => {
-  it("el corpus tiene 210 líneas distintas (145 del tech design + las recetas de otoño y desayunos)", () => {
-    expect(SEED_LINES).toHaveLength(210);
+  it("el corpus tiene 233 líneas distintas (145 del tech design + las tandas de otoño, desayunos y cuchara)", () => {
+    expect(SEED_LINES).toHaveLength(233);
   });
 
-  it("ninguna línea se pierde y todas se entienden (210/210 limpias)", () => {
+  it("ninguna línea se pierde y todas se entienden (233/233 limpias)", () => {
     const failures = SEED_LINES.filter((line) => {
       const items = parseIngredientLine(line);
       return items.length === 0 || items.some((i) => !i.parsed);
@@ -239,9 +239,9 @@ describe("R3: corpus de recetas semilla (src/data/recipes.json)", () => {
     expect(bad).toEqual([]);
   });
 
-  it("135 ingredientes distintos (107 del tech design + 21 de otoño + 7 de desayunos)", () => {
+  it("144 ingredientes distintos (107 del tech design + 21 de otoño + 7 de desayunos + 9 de cuchara)", () => {
     const keys = new Set(SEED_LINES.flatMap((line) => parseIngredientLine(line).map((i) => i.key)));
-    expect(keys.size).toBe(135);
+    expect(keys.size).toBe(144);
   });
 
   it("snapshot del conjunto de claves: cualquier cambio de reglas se ve en la revisión", () => {

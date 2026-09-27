@@ -1560,6 +1560,285 @@
       "carbs": 40,
       "fat": 14,
       "tags": ["desayuno", "rápido", "sin cocinar"]
+    },
+    {
+      "id": "recipe_065",
+      "name": "Garbanzos con espinacas y huevo duro",
+      "ingredients": [
+        "200g garbanzos cocidos",
+        "150g espinacas frescas",
+        "2 huevos",
+        "1 diente de ajo",
+        "1 rebanada de pan integral",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "200ml caldo de verduras",
+        "comino y sal"
+      ],
+      "instructions": [
+        "Cocer los huevos 10 minutos, enfriarlos y pelarlos.",
+        "Freír el ajo laminado y el pan en dados con el aceite hasta que se doren; triturarlos con el pimentón, el comino y un poco de caldo hasta hacer un majado.",
+        "Saltear las espinacas en la misma cazuela hasta que se ablanden.",
+        "Añadir los garbanzos escurridos, el majado y el resto del caldo y cocer 10 minutos a fuego suave.",
+        "Servir con los huevos duros en cuartos."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 625,
+      "protein": 36,
+      "carbs": 61,
+      "fat": 25,
+      "tags": ["comida", "legumbres", "vegetariano", "alto fibra", "de cuchara"]
+    },
+    {
+      "id": "recipe_066",
+      "name": "Alubias blancas con langostinos",
+      "ingredients": [
+        "80g alubias blancas (en seco)",
+        "150g langostinos pelados",
+        "1/2 cebolla",
+        "1/2 pimiento verde",
+        "1 tomate",
+        "1 diente de ajo",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "1 hoja de laurel",
+        "500ml caldo de pescado"
+      ],
+      "instructions": [
+        "Dejar las alubias en remojo la noche anterior.",
+        "Pochar la cebolla, el pimiento y el ajo picados con el aceite 6-7 minutos.",
+        "Añadir el tomate rallado y el pimentón y sofreír 3 minutos.",
+        "Incorporar las alubias escurridas, el laurel y el caldo y cocer a fuego suave 60-70 minutos, hasta que estén tiernas.",
+        "Añadir los langostinos al final y cocer 2-3 minutos, solo hasta que cambien de color."
+      ],
+      "prepTimeMinutes": 90,
+      "calories": 565,
+      "protein": 52,
+      "carbs": 60,
+      "fat": 13,
+      "tags": ["comida", "legumbres", "marisco", "alto proteína", "sin gluten", "de cuchara"]
+    },
+    {
+      "id": "recipe_067",
+      "name": "Cocido ligero de garbanzos con pollo",
+      "ingredients": [
+        "150g garbanzos cocidos",
+        "150g muslo de pollo sin piel",
+        "1 zanahoria",
+        "1 puerro",
+        "100g repollo",
+        "30g fideos",
+        "1 hoja de laurel",
+        "sal"
+      ],
+      "instructions": [
+        "Poner en una olla el pollo, la zanahoria, el puerro y el laurel con 1 litro de agua y sal, y cocer 30 minutos, retirando la espuma.",
+        "Añadir el repollo troceado y los garbanzos escurridos y cocer 10 minutos más.",
+        "Colar parte del caldo, llevarlo a ebullición y cocer los fideos 3-4 minutos para hacer la sopa.",
+        "Servir primero la sopa y después los garbanzos con el pollo desmenuzado y las verduras."
+      ],
+      "prepTimeMinutes": 50,
+      "calories": 600,
+      "protein": 46,
+      "carbs": 76,
+      "fat": 12,
+      "tags": ["comida", "legumbres", "alto proteína", "clásico", "reconfortante", "otoño", "de cuchara"]
+    },
+    {
+      "id": "recipe_068",
+      "name": "Sopa de pescado y marisco",
+      "ingredients": [
+        "150g merluza",
+        "100g gambas peladas",
+        "1/2 cebolla",
+        "1 tomate",
+        "1 diente de ajo",
+        "40g arroz (en seco)",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "500ml caldo de pescado",
+        "perejil fresco"
+      ],
+      "instructions": [
+        "Sofreír la cebolla y el ajo picados con el aceite 5 minutos.",
+        "Añadir el tomate rallado y el pimentón y cocinar 3 minutos.",
+        "Agregar el caldo y el arroz y cocer 12 minutos.",
+        "Incorporar la merluza en trozos y las gambas y cocer 3-4 minutos más.",
+        "Servir con perejil picado."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 500,
+      "protein": 52,
+      "carbs": 41,
+      "fat": 13,
+      "tags": ["cena", "pescado", "marisco", "alto proteína", "sin gluten", "de cuchara"]
+    },
+    {
+      "id": "recipe_069",
+      "name": "Marmitako de bonito",
+      "ingredients": [
+        "150g bonito",
+        "200g patata",
+        "1/2 cebolla",
+        "1/2 pimiento verde",
+        "1/2 pimiento rojo",
+        "1 tomate",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "400ml caldo de pescado",
+        "sal"
+      ],
+      "instructions": [
+        "Pochar la cebolla y los pimientos picados con el aceite 8 minutos.",
+        "Añadir el tomate rallado y el pimentón y sofreír 3 minutos.",
+        "Incorporar la patata cascada (rompiéndola con el cuchillo para que suelte almidón) y rehogar 2 minutos.",
+        "Cubrir con el caldo y cocer 20 minutos, hasta que la patata esté tierna.",
+        "Apagar el fuego, añadir el bonito en dados, salar y dejar reposar tapado 5 minutos: se hace con el calor residual."
+      ],
+      "prepTimeMinutes": 40,
+      "calories": 525,
+      "protein": 40,
+      "carbs": 47,
+      "fat": 18,
+      "tags": ["comida", "pescado", "omega 3", "sin gluten", "clásico", "de cuchara"]
+    },
+    {
+      "id": "recipe_070",
+      "name": "Estofado de ternera con patatas y zanahoria",
+      "ingredients": [
+        "150g aguja de ternera",
+        "200g patata",
+        "1 zanahoria",
+        "1/2 cebolla",
+        "1 diente de ajo",
+        "1 tomate",
+        "50g guisantes",
+        "1 cucharada de aceite de oliva",
+        "300ml caldo de verduras",
+        "1 hoja de laurel",
+        "tomillo, sal y pimienta"
+      ],
+      "instructions": [
+        "Cortar la ternera en dados, salpimentar y dorarla con el aceite en una cazuela; reservar.",
+        "Pochar la cebolla, el ajo y la zanahoria picados 6 minutos y añadir el tomate rallado.",
+        "Devolver la carne, añadir el caldo, el laurel y el tomillo y cocer tapado a fuego suave 60 minutos.",
+        "Añadir la patata en dados y los guisantes y cocer 20 minutos más, hasta que la patata esté tierna."
+      ],
+      "prepTimeMinutes": 95,
+      "calories": 560,
+      "protein": 40,
+      "carbs": 58,
+      "fat": 18,
+      "tags": ["comida", "alto proteína", "sin gluten", "clásico", "reconfortante", "de cuchara"]
+    },
+    {
+      "id": "recipe_071",
+      "name": "Lentejas con pollo y calabaza",
+      "ingredients": [
+        "80g lentejas (en seco)",
+        "120g pechuga de pollo",
+        "200g calabaza",
+        "1/2 cebolla",
+        "1 zanahoria",
+        "1 diente de ajo",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "1 hoja de laurel",
+        "500ml caldo de verduras"
+      ],
+      "instructions": [
+        "Pochar la cebolla, la zanahoria y el ajo picados con el aceite 5 minutos.",
+        "Añadir el pollo en dados y dorarlo 3 minutos.",
+        "Incorporar el pimentón, las lentejas lavadas, el laurel y el caldo y cocer a fuego suave 25 minutos.",
+        "Añadir la calabaza en dados y cocer 15 minutos más, hasta que las lentejas estén tiernas."
+      ],
+      "prepTimeMinutes": 50,
+      "calories": 595,
+      "protein": 50,
+      "carbs": 66,
+      "fat": 13,
+      "tags": ["comida", "legumbres", "alto proteína", "sin gluten", "alto fibra", "otoño", "de cuchara"]
+    },
+    {
+      "id": "recipe_072",
+      "name": "Crema de puerros y coliflor con taquitos de jamón",
+      "ingredients": [
+        "2 puerros",
+        "250g coliflor",
+        "1 patata pequeña",
+        "100ml leche desnatada",
+        "1 cucharada de aceite de oliva",
+        "400ml caldo de verduras",
+        "40g taquitos de jamón serrano",
+        "sal y nuez moscada"
+      ],
+      "instructions": [
+        "Pochar los puerros en rodajas con el aceite 6 minutos.",
+        "Añadir la coliflor en ramilletes, la patata en dados y el caldo, y cocer 20 minutos.",
+        "Triturar con la leche, sal y nuez moscada hasta que quede una crema fina.",
+        "Dorar los taquitos de jamón en una sartén sin aceite 2 minutos y servirlos por encima."
+      ],
+      "prepTimeMinutes": 35,
+      "calories": 495,
+      "protein": 26,
+      "carbs": 62,
+      "fat": 15,
+      "tags": ["cena", "sin gluten", "otoño", "de cuchara"]
+    },
+    {
+      "id": "recipe_073",
+      "name": "Sopa castellana con huevo",
+      "ingredients": [
+        "4 dientes de ajo",
+        "2 rebanadas de pan integral",
+        "50g taquitos de jamón serrano",
+        "2 huevos",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "500ml caldo de pollo"
+      ],
+      "instructions": [
+        "Dorar los ajos laminados con el aceite a fuego suave.",
+        "Añadir el jamón y el pan en dados y rehogar 2 minutos.",
+        "Fuera del fuego, añadir el pimentón, remover y agregar el caldo.",
+        "Cocer 10 minutos a fuego suave.",
+        "Cascar los huevos en la sopa y dejar que cuajen 3-4 minutos sin remover."
+      ],
+      "prepTimeMinutes": 25,
+      "calories": 570,
+      "protein": 37,
+      "carbs": 40,
+      "fat": 28,
+      "tags": ["cena", "clásico", "reconfortante", "alto proteína", "de cuchara"]
+    },
+    {
+      "id": "recipe_074",
+      "name": "Arroz caldoso de pollo y alcachofas",
+      "ingredients": [
+        "70g arroz (en seco)",
+        "130g pechuga de pollo",
+        "150g alcachofas",
+        "1/2 pimiento rojo",
+        "1 tomate",
+        "1 diente de ajo",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "500ml caldo de pollo",
+        "cúrcuma y sal"
+      ],
+      "instructions": [
+        "Limpiar las alcachofas, quedarse con los corazones y cortarlos en cuartos.",
+        "Dorar el pollo en dados con el aceite y reservar.",
+        "Sofreír el pimiento y el ajo picados 5 minutos, añadir las alcachofas y el tomate rallado y cocinar 5 minutos más.",
+        "Incorporar el pimentón, la cúrcuma, el arroz y el pollo, remover y añadir el caldo caliente.",
+        "Cocer 17-18 minutos a fuego medio: debe quedar con caldo."
+      ],
+      "prepTimeMinutes": 40,
+      "calories": 590,
+      "protein": 44,
+      "carbs": 72,
+      "fat": 13,
+      "tags": ["comida", "arroz", "alto proteína", "sin gluten", "otoño", "de cuchara"]
     }
   ]
 }
