@@ -1,27 +1,38 @@
 "use client";
 
 // Búsqueda de productos de marca (docs/pm/13-base-alimentos/tech.md › APIs, R4, R11, R12): llama a
-// GET /api/foods/search solo al pulsar, cuenta las búsquedas del último minuto en sessionStorage (para que recargar
-// no salte el límite) y expone la cuenta atrás, calculada con Date.now() en cada tick.
+// GET /api/foods/search solo al pulsar, guarda en sessionStorage las búsquedas del último minuto y el Retry-After
+// del último 429 de OFF (para que recargar no salte el límite) y expone la cuenta atrás, calculada con Date.now()
+// en cada tick. sessionStorage se lee una vez al montar, no en cada render (review de #13).
 import { useCallback, useEffect, useRef, useState } from "react";
 import { OFF_LIMIT, offCooldown, type BrandProduct } from "./foods";
 
 export type BrandSearchState = "idle" | "loading" | "ok" | "offline" | "error" | "rate_limited";
 
-const STORAGE_KEY = "mp_off_searches";
+const STAMPS_KEY = "mp_off_searches";
+const BLOCKED_KEY = "mp_off_blocked_until";
 
 function readStamps(): number[] {
   try {
-    const parsed: unknown = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? "[]");
+    const parsed: unknown = JSON.parse(sessionStorage.getItem(STAMPS_KEY) ?? "[]");
     return Array.isArray(parsed) ? parsed.filter((t): t is number => typeof t === "number") : [];
   } catch {
     return [];
   }
 }
 
-function writeStamps(stamps: number[]) {
+function readBlockedUntil(): number {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stamps));
+    const n = Number(sessionStorage.getItem(BLOCKED_KEY));
+    return Number.isFinite(n) ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function write(key: string, value: unknown) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(value));
   } catch {
     // Sin sessionStorage (modo privado estricto): el límite solo dura lo que dure la página
   }
@@ -32,15 +43,17 @@ export function useBrandSearch() {
   const [products, setProducts] = useState<BrandProduct[]>([]);
   /** El texto de la última búsqueda (para Reintentar). */
   const [query, setQuery] = useState("");
+  /** Búsquedas (ms) de la ventana de OFF_LIMIT, como en sessionStorage. */
+  const [stamps, setStamps] = useState(readStamps);
   /** Hasta cuándo manda el 429 de OFF (Retry-After). */
-  const [blockedUntil, setBlockedUntil] = useState(0);
+  const [blockedUntil, setBlockedUntil] = useState(readBlockedUntil);
   const [now, setNow] = useState(() => Date.now());
   // Solo cuenta la respuesta de la última petición: si el texto cambia a mitad, la anterior se ignora
   const requestId = useRef(0);
 
   const cooldownAt = useCallback(
-    (at: number) => Math.max(offCooldown(readStamps(), at), Math.ceil((blockedUntil - at) / 1000), 0),
-    [blockedUntil],
+    (at: number) => Math.max(offCooldown(stamps, at), Math.ceil((blockedUntil - at) / 1000), 0),
+    [stamps, blockedUntil],
   );
   const cooldown = cooldownAt(now);
 
@@ -55,7 +68,9 @@ export function useBrandSearch() {
     async (q: string) => {
       const at = Date.now();
       if (cooldownAt(at) > 0) return;
-      writeStamps([...readStamps().filter((t) => at - t < OFF_LIMIT.windowMs), at]);
+      const nextStamps = [...stamps.filter((t) => at - t < OFF_LIMIT.windowMs), at];
+      setStamps(nextStamps);
+      write(STAMPS_KEY, nextStamps);
       setNow(at);
       const id = ++requestId.current;
       setQuery(q);
@@ -78,10 +93,11 @@ export function useBrandSearch() {
       if (next.retryAfter !== undefined) {
         const until = Date.now() + next.retryAfter * 1000;
         setBlockedUntil(until);
+        write(BLOCKED_KEY, until);
         setNow(Date.now());
       }
     },
-    [cooldownAt],
+    [cooldownAt, stamps],
   );
 
   const search = useCallback((q: string) => void run(q), [run]);

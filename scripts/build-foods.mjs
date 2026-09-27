@@ -35,9 +35,10 @@ if (!dir) {
 }
 
 const decoder = new TextDecoder("windows-1252");
+// alim_ + fecha: el zip trae también alim_grp_*.xml (grupos de alimentos), que no sirve aquí
 const readXml = (prefix) => {
-  const file = readdirSync(dir).find((f) => f.startsWith(prefix) && f.endsWith(".xml"));
-  if (!file) throw new Error(`No encuentro ${prefix}*.xml en ${dir}`);
+  const file = readdirSync(dir).find((f) => f.startsWith(prefix) && /^\d.*\.xml$/.test(f.slice(prefix.length)));
+  if (!file) throw new Error(`No encuentro ${prefix}<fecha>.xml en ${dir}`);
   return decoder.decode(readFileSync(join(dir, file)));
 };
 

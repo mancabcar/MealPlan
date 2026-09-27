@@ -3,8 +3,10 @@
 // En archivo aparte de diary.test.ts para que esos tests sigan en verde mientras no exista foodEntry.
 import { describe, expect, it } from "vitest";
 import { foodEntry, quantityLabel, recentMeals, repeatEntry } from "@/lib/diary";
+import { dailyTotals, periodStats } from "@/lib/diaryStats";
 import { ARROZ_COCIDO, HUEVO, YOGUR_GRIEGO, YOGUR_LIGERO } from "../fixtures/foods";
 import { TODAY, YESTERDAY, entry } from "../fixtures/diario";
+import { statsProfile } from "../fixtures/medias-adherencia";
 
 const per100 = (f: { kcal: number; protein: number; carbs: number; fat: number }) => ({
   kcal: f.kcal,
@@ -137,5 +139,20 @@ describe("R13: entradas de alimento en Recientes (#12)", () => {
     const original = foodEntry(off, YESTERDAY, "Merienda", { grams: 200 });
     const copy = repeatEntry(original, TODAY, "Comida", "e2");
     expect(copy).toEqual({ ...original, id: "e2", date: TODAY, mealType: "Comida" });
+  });
+});
+
+describe("Edge cases: totales, medias y adherencia cuentan las entradas de alimento (#11)", () => {
+  it("una entrada de alimento suma sus macros al día como cualquier otra", () => {
+    const food = foodEntry(arroz, YESTERDAY, "Comida", { grams: 150 });
+    const custom = entry(YESTERDAY, "Cena", { customName: "Yogur con nueces", calories: 250, protein: 10, carbs: 12, fat: 16 });
+    const totals = dailyTotals([food, custom], [YESTERDAY]).get(YESTERDAY)!;
+    expect(totals.calories).toBeCloseTo(445, 6);
+    expect(totals.protein).toBeCloseTo(14.05, 6);
+
+    const stats = periodStats({ entries: [food, custom], profile: statsProfile, dates: [YESTERDAY] })!;
+    expect(stats.loggedDays).toBe(1);
+    expect(stats.averages.calories).toBeCloseTo(445, 6);
+    expect(stats.averages.fat).toBeCloseTo(16.45, 6);
   });
 });

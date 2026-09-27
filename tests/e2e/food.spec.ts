@@ -387,6 +387,30 @@ test.describe("R10: aviso con Deshacer", () => {
   });
 });
 
+test.describe("R10: dos alimentos seguidos (review)", () => {
+  test("el aviso no tapa «Añadir comida»; el segundo dura sus 10 s enteros y su Deshacer quita el segundo", async ({ page }) => {
+    await openDiario(page);
+    const add = async (q: string, name: string) => {
+      await openFoodTab(page);
+      await searchBox(page).fill(q);
+      await result(page, name).click();
+      await addBtn(page, "100 g").click();
+    };
+    await add("arroz coc", "Arroz blanco, cocido");
+    await expect(toast(page)).toContainText("Añadido a Comida · 100 g");
+    await page.waitForTimeout(4_000);
+    // Con el aviso a la vista se puede volver a abrir el formulario (el aviso no tapa «Añadir comida»)
+    await add("arroz cru", "Arroz blanco, crudo");
+    await expect(toast(page)).toContainText("Añadido a Comida · 100 g");
+    // 8 s después del segundo (más de 10 s después del primero) sigue a la vista
+    await page.waitForTimeout(8_000);
+    await expect(toast(page)).toBeVisible();
+    await toast(page).getByRole("button", { name: "Deshacer" }).click();
+    const entries = await readStored<MealEntry[]>(page, "entries");
+    expect(entries.map((e) => e.customName)).toEqual(["Arroz blanco, cocido"]);
+  });
+});
+
 test.describe("R11: errores de OFF", () => {
   test("sin red: error en el bloque de marcas con Reintentar; los básicos siguen; al reintentar salen los productos", async ({
     page,

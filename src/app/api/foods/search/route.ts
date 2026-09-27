@@ -1,7 +1,7 @@
 // Productos de marca (docs/pm/13-base-alimentos/tech.md › APIs): proxy a Search-a-licious de Open Food Facts.
 // Va por el servidor para fijar el User-Agent que pide OFF. Los GET no se cachean por defecto (Next 16).
 import { NextResponse } from "next/server";
-import type { BrandProduct } from "@/lib/foods";
+import { plainQuery, type BrandProduct } from "@/lib/foods";
 
 const OFF_SEARCH = "https://search.openfoodfacts.org/search";
 const USER_AGENT = "MealPlan/0.1 (+https://github.com/mancabcar/MealPlan)";
@@ -59,7 +59,7 @@ function toProduct(hit: Hit): BrandProduct | null {
 const unavailable = () => NextResponse.json({ error: "unavailable" }, { status: 502 });
 
 export async function GET(request: Request) {
-  const q = (new URL(request.url).searchParams.get("q") ?? "").trim();
+  const q = plainQuery(new URL(request.url).searchParams.get("q") ?? "");
   if (q.length < 2) return NextResponse.json({ error: "bad_query" }, { status: 400 });
 
   const url = new URL(OFF_SEARCH);

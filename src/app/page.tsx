@@ -97,6 +97,14 @@ const singleClick = (action: () => void) => (ev: MouseEvent) => {
   action();
 };
 
+// Pestañas de «Añadir comida», en este orden (docs/pm/13-base-alimentos, R1)
+type AddMode = "recipe" | "food" | "custom";
+const MODES: [AddMode, string][] = [
+  ["recipe", "Receta"],
+  ["food", "Alimento"],
+  ["custom", "Personalizada"],
+];
+
 // Botones − / + de "Raciones": cuadrados con borde, como los toggles Receta/Personalizada
 const stepBtnCls =
   "shrink-0 flex items-center justify-center w-10 h-10 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] disabled:opacity-40";
@@ -112,7 +120,7 @@ export default function DiaryPage() {
   const [mealType, setMealType] = useState<MealType>(() =>
     !profile || profile.meals.includes("Comida") ? "Comida" : profile.meals[0],
   );
-  const [mode, setMode] = useState<"recipe" | "food" | "custom">("recipe");
+  const [mode, setMode] = useState<AddMode>("recipe");
   const [recipeId, setRecipeId] = useState("");
   const [customName, setCustomName] = useState("");
   const [customMacros, setCustomMacros] = useState({ calories: 0, protein: 0, carbs: 0, fat: 0 });
@@ -188,7 +196,9 @@ export default function DiaryPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    // Mientras se ve el aviso (fixed, bottom-24), hueco al final para que «Añadir comida» pueda quedar por encima
+    // y se pueda añadir otro alimento seguido (review de #13)
+    <div className={`flex flex-col gap-4 ${added ? "pb-20" : ""}`}>
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Diario</h1>
         <input type="date" aria-label="Fecha" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
@@ -322,36 +332,19 @@ export default function DiaryPage() {
             }
           />
           <div className="flex gap-2 text-sm">
-            <button
-              onClick={() => setMode("recipe")}
-              className={`flex-1 py-1.5 rounded-lg border ${
-                mode === "recipe"
-                  ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-[var(--color-accent)]"
-                  : "border-[var(--color-border)] text-[var(--color-text-muted)]"
-              }`}
-            >
-              Receta
-            </button>
-            <button
-              onClick={() => setMode("food")}
-              className={`flex-1 py-1.5 rounded-lg border ${
-                mode === "food"
-                  ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-[var(--color-accent)]"
-                  : "border-[var(--color-border)] text-[var(--color-text-muted)]"
-              }`}
-            >
-              Alimento
-            </button>
-            <button
-              onClick={() => setMode("custom")}
-              className={`flex-1 py-1.5 rounded-lg border ${
-                mode === "custom"
-                  ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-[var(--color-accent)]"
-                  : "border-[var(--color-border)] text-[var(--color-text-muted)]"
-              }`}
-            >
-              Personalizada
-            </button>
+            {MODES.map(([m, label]) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={`flex-1 py-1.5 rounded-lg border ${
+                  mode === m
+                    ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-[var(--color-accent)]"
+                    : "border-[var(--color-border)] text-[var(--color-text-muted)]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
           {/* R1, Edge cases: montado mientras el formulario está abierto, oculto fuera de su pestaña, para que la
               búsqueda y sus resultados sobrevivan a un cambio de pestaña */}
@@ -482,8 +475,10 @@ export default function DiaryPage() {
       )}
 
       {added && (
-        // R10: mismo componente y duración que el aviso de la Despensa
+        // R10: mismo componente y duración que el aviso de la Despensa. La key lo remonta con cada alimento añadido,
+        // así el segundo aviso seguido tiene sus 10 s enteros (review de #13).
         <Toast
+          key={added.entryId}
           onDismiss={hideAdded}
           action={{
             label: "Deshacer",
