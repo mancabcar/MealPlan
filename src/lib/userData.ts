@@ -2,7 +2,7 @@
 // la importación de copias (backup.ts), así una copia pasa exactamente por las mismas migraciones (backup-datos R7).
 import seedData from "@/data/recipes.json";
 import { sanitizeMeasurements } from "./measurements";
-import { migrateEntries, migrateProfile, migrateWeekPlan } from "./migrate";
+import { migrateEntries, migrateProfile, migrateWeekPlan, RETIRED_RECIPE_IDS } from "./migrate";
 import { EMPTY as EMPTY_SHOPPING, loadShoppingState, type ShoppingState } from "./shopping/state";
 import type { MealEntry, Measurement, PantryItem, Recipe, UserProfile, WeekPlan } from "./types";
 
@@ -38,9 +38,12 @@ export interface LoadOptions<T> {
   backup?: boolean;
 }
 
-/** Siembra idempotente: añade solo las recetas del JSON cuyo id falte. */
+/** Siembra idempotente: quita las recetas semilla retiradas y añade las del JSON cuyo id falte. */
 export function withSeedRecipes(raw: unknown): Recipe[] {
-  const stored = (raw as Recipe[] | null) ?? [];
+  const saved = (raw as Recipe[] | null) ?? [];
+  const stored = saved.some((r) => Object.hasOwn(RETIRED_RECIPE_IDS, r.id))
+    ? saved.filter((r) => !Object.hasOwn(RETIRED_RECIPE_IDS, r.id))
+    : saved;
   const existing = new Set(stored.map((r) => r.id));
   const missing = (seedData.recipes as Recipe[]).filter((r) => !existing.has(r.id));
   return missing.length > 0 ? [...stored, ...missing] : stored;
