@@ -75,10 +75,10 @@ La pestaña «Alimento» en móvil, dentro del encaje de #12: búsqueda con resu
 Pregunta que debe responder: **¿se distingue lo local de lo de OFF sin confundir?** Incluye cómo se ven crudo y cocido en los resultados y si el paso de los gramos o unidades es cómodo en móvil.
 
 ## Open questions
-- ¿Se busca en OFF al pulsar «Buscar» o con debounce mientras se teclea? Con el límite de ~10 peticiones por minuto, lo primero es lo seguro.
+- ~~¿Se busca en OFF al pulsar «Buscar» o con debounce?~~ Decidido en el prototipo: botón «Buscar en marcas».
 - ¿Qué unidades tiene cada alimento y de dónde sale su peso típico? En los productos de OFF, ¿se usa su `serving_size` cuando lo trae?
 - ¿La licencia de BEDCA permite empaquetar sus valores en la app? Si no, ¿todo desde USDA?
-- ¿Cómo se marca en el Diario una entrada de alimento frente a una personalizada (p. ej., «150 g» junto al nombre)? ¿Tiene que verse la fuente?
+- ~~¿Cómo se marca en el Diario una entrada de alimento? ¿Se ve la fuente?~~ Decidido en el prototipo: «150 g» junto al nombre, sin fuente.
 - ¿Qué hacemos con los productos de OFF a los que les faltan macros por 100 g: se ocultan o se muestran marcados?
 
 ## Prototype
@@ -92,7 +92,8 @@ _Design: https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK · 2026-09-27_
   - Cantidad: campo de gramos + chips rápidos, con selector gramos/unidades cuando el alimento tiene unidad; macros en vivo.
   - Si OFF falla, los básicos siguen y el error se queda en el bloque de marcas, con Reintentar; Personalizada sigue a mano.
   - La entrada guarda nombre + gramos + macros; en el Diario se ve «150 g» junto al nombre.
-- Pending ASSUMPTIONs:
+  - **Variante 1A (dos bloques: «Básicos» y «Productos de marca») elegida**; 1B (etiqueta por fila) descartada.
+  - Recientes y Guardados se mantienen encima aunque el buscador caiga cerca del pliegue: hay que desplazarse para ver los resultados.
   - Se añadió la pantalla `0` (antes de buscar en marcas) y el error de OFF se partió en `4A` y `4B`.
   - El botón de marcas va debajo de los básicos y repite la búsqueda entre comillas.
   - Máximo 4–5 resultados de OFF, con un pie de licencia ODbL y «revisa la etiqueta».
@@ -100,5 +101,5 @@ _Design: https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK · 2026-09-27_
   - El selector Gramos/Unidades solo aparece si el alimento tiene unidad y abre en Unidades; se muestra el peso equivalente.
   - Texto de los errores; al llegar al límite, el botón de marcas se desactiva con cuenta atrás.
   - Aviso «Añadido a Almuerzo · 150 g · Deshacer»; el Diario no muestra la fuente.
-  - Marcas y productos de OFF inventados; valores de la tabla aproximados.
+- Pending ASSUMPTIONs: ninguna. (Nota: las marcas y productos de OFF del canvas son inventados y los valores de la tabla, aproximados.)
 - What to learn from testing it: si se distingue lo local de lo de marca (1A frente a 1B) y si el paso de gramos o unidades es cómodo en móvil.
