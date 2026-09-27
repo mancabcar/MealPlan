@@ -141,7 +141,7 @@ Sin prototipo; se decide aquí la pregunta abierta: **tarjeta propia debajo de �
 1. [ ] Tests primero (dev-test): `tests/fixtures/medias-adherencia.ts`, `tests/unit/diaryStats.test.ts`, `tests/e2e/medias-adherencia.spec.ts`, caso nuevo en `DayMacroSummary.test.tsx` y escaneo en `accessibility.spec.ts`, en rojo. (R1–R11)
 2. [x] `week.ts`: exportar `toDateStr` y añadir `addDays`; `planMacros.ts`: `macroTarget` y `finiteOr0` exportados, y `DayMacroSummary` usa `macroTarget`. Sin cambios visibles; tests existentes en verde. (R4)
 3. [x] `src/lib/diaryStats.ts`: `statsPeriod`, `dailyTotals`, `isCompliantDay`, `periodStats`, `formatPeriod`; unit en verde. (R1–R4, R6–R8)
-4. [ ] Extraer `ChipRadios` a `src/components/ui/ChipRadios.tsx` y usarlo desde Evolución; e2e de Evolución en verde. (R5, R10)
+4. [x] Extraer `ChipRadios` a `src/components/ui/ChipRadios.tsx` y usarlo desde Evolución; e2e de Evolución en verde. (R5, R10)
 5. [ ] `DayMacroSummary`: prop `label` y aviso opcional. (R9)
 6. [ ] `src/components/diario/PeriodSummary.tsx` e integración en `src/app/page.tsx` con `days` en estado (7 por defecto); e2e de R1–R10 y axe en verde. (R1–R10)
 7. [ ] Recordar 7/30 en `localStorage` por usuario. (R11)
