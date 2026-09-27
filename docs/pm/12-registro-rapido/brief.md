@@ -2,10 +2,10 @@
 _Status: brainstorm · Updated: 2026-09-27 · Issue: [#12](https://github.com/mancabcar/MealPlan/issues/12) (@mancabcar)_
 
 ## Follow-ups
-- «Copiar semana anterior» en el Plan. Sale de este issue porque no toca el dolor principal y el Plan solo muestra la semana en curso, así que pide su propio diseño. (brainstorm)
-- Copiar una entrada o un día completo del Diario a otra fecha (dirección D, del issue original). (brainstorm)
-- Favoritos con estrella (recetas y guardados) y buscador único con autocompletado sobre recetas y guardados (dirección E). (brainstorm)
-- Pantalla «Mis alimentos» para editar guardados, y recientes ordenados por franja (dirección C). (brainstorm)
+- «Copiar semana anterior» en el Plan. Sale de este issue porque no toca el dolor principal y el Plan solo muestra la semana en curso, así que pide su propio diseño. (brainstorm) → [#53](https://github.com/mancabcar/MealPlan/issues/53)
+- Copiar una entrada o un día completo del Diario a otra fecha (dirección D, del issue original). (brainstorm) → [#54](https://github.com/mancabcar/MealPlan/issues/54)
+- Favoritos con estrella (recetas y guardados) y buscador único con autocompletado sobre recetas y guardados (dirección E). (brainstorm) → comentado en [#20](https://github.com/mancabcar/MealPlan/issues/20#issuecomment-5854883695)
+- Pantalla «Mis alimentos» para editar guardados, y recientes ordenados por franja (dirección C). (brainstorm) → [#55](https://github.com/mancabcar/MealPlan/issues/55)
 
 ## Problem
 Necesito que la app recuerde lo que como habitualmente, sea receta o personalizada, y me lo ofrezca primero al registrar, porque lo que como se repite mucho y hoy la app me hace empezar de cero cada vez.
