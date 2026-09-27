@@ -1,6 +1,6 @@
 # Medias semanales y adherencia en el Diario
 
-_Status: in review · Updated: 2026-09-27 · Issue: [#11](https://github.com/mancabcar/MealPlan/issues/11) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#46](https://github.com/mancabcar/MealPlan/pull/46) · Review: [review.md](review.md) — ✅ approved_
+_Status: shipped (2026-09-27) · Updated: 2026-09-27 · Issue: [#11](https://github.com/mancabcar/MealPlan/issues/11) (@mancabcar, cerrado) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#46](https://github.com/mancabcar/MealPlan/pull/46) (mergeado 2026-09-27) · Review: [review.md](review.md) — ✅ approved_
 
 ## Problema
 La gráfica semanal del Diario (`src/app/page.tsx`) solo muestra calorías. No enseña medias de proteínas, carbohidratos ni grasas, ni cuántos días se ha cumplido el plan de la nutricionista. Cada día se puede ver si se cumple (`MacroBar`), pero no la tendencia: una semana con dos días muy por encima y cinco correctos se ve igual que una semana entera fuera del objetivo.
@@ -27,6 +27,11 @@ El issue ya trae el problema, la propuesta y los criterios de aceptación, así 
 - Adherencia «X de N» con N = días con registros, no todos los días del periodo.
 - El día en curso no cuenta: el periodo termina en la fecha seleccionada si es pasada y, si no, ayer.
 - Tolerancia fija ±10 % (la del Plan). Hacerla editable es un follow-up.
+
+## Qué vigilar
+Las métricas del [spec](spec.md#success-metrics):
+- La media semanal de la app coincide, redondeando, con la cuenta a mano de una semana real.
+- La tarjeta se usa en la próxima consulta con la nutricionista.
 
 ## Follow-ups
 - Tolerancia editable en Perfil, compartida por Plan y Diario (y en el backup). (spec) → [#49](https://github.com/mancabcar/MealPlan/issues/49)
