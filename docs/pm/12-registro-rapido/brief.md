@@ -1,5 +1,5 @@
 # Registro rápido: recientes y personalizadas guardadas
-_Status: prototype · Updated: 2026-09-27 · Issue: [#12](https://github.com/mancabcar/MealPlan/issues/12) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/67Fp8tdVv3BE9gSe15hkC8)_
+_Status: spec · Updated: 2026-09-27 · Issue: [#12](https://github.com/mancabcar/MealPlan/issues/12) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/67Fp8tdVv3BE9gSe15hkC8) · Spec: [spec.md](spec.md)_
 
 ## Follow-ups
 - «Copiar semana anterior» en el Plan. Sale de este issue porque no toca el dolor principal y el Plan solo muestra la semana en curso, así que pide su propio diseño. (brainstorm) → [#53](https://github.com/mancabcar/MealPlan/issues/53)
@@ -66,9 +66,10 @@ La pantalla «Añadir comida» en móvil, con las secciones Recientes y Guardado
 Pregunta que debe responder: **¿caben Recientes y Guardados en «Añadir comida» sin estorbar?** Encima ya están el selector de franja, las pestañas Receta/Personalizada y el formulario. Lo habitual tiene que quedar a 1–2 toques sin enterrar el formulario.
 
 ## Open questions
-- Con solo 3 guardados visibles y sin «Ver más», ¿cómo se llega al 4.º guardado y siguientes? (¿qué 3 se muestran: los más recientes, los más usados, por orden alfabético?) Decidido en el prototipo: 3 recientes y 3 guardados.
-- ¿Qué cuenta como «distinto» en Recientes? Por ejemplo, la misma receta con otras raciones, o una personalizada con el mismo nombre y otros macros.
-- ¿Qué pasa al guardar una personalizada con un nombre que ya existe en Guardados?
+Resueltas en la [spec](spec.md):
+- ~~¿Cómo se llega al 4.º guardado y siguientes?~~ Se ven los 3 más usados (por entradas del Diario con su nombre; empate alfabético) y el resto en el desplegable «Otros guardados…» (R4).
+- ~~¿Qué cuenta como «distinto» en Recientes?~~ Receta + raciones, o nombre + macros (R1).
+- ~~¿Qué pasa al guardar con un nombre que ya existe en Guardados?~~ Sustituye al anterior (R3).
 
 ## Prototype
 _Design: https://claude.ai/artifact/67Fp8tdVv3BE9gSe15hkC8 · 2026-09-27_
