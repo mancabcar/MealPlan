@@ -136,8 +136,9 @@ export default function DiaryPage() {
   };
 
   const pending = pendingSlots({ date, today: todayStr(), weekPlan, recipes, entries, meals: profile.meals });
-  // Registro rápido (docs/pm/12-registro-rapido): se recalcula en cada render, así que sigue a la franja elegida (R3)
-  const recents = recentMeals({ entries, recipes, mealType });
+  // Registro rápido (docs/pm/12-registro-rapido): se recalcula en cada render, así que sigue a la franja elegida (R3).
+  // Solo con el formulario abierto, que es el único sitio donde se ve.
+  const recents = showAdd ? recentMeals({ entries, recipes, mealType }) : [];
 
   const dayEntries = entries.filter((e) => e.date === date);
   const totals = dayEntries.reduce(
@@ -159,6 +160,8 @@ export default function DiaryPage() {
   });
 
   const submitAdd = () => {
+    // Fecha borrada en el input: una entrada sin fecha no saldría en ningún día (review de #12)
+    if (date === "") return;
     if (mode === "recipe") {
       if (!selectedRecipe) return;
       // R6: no se añade y el formulario sigue abierto con el mensaje junto al campo
@@ -303,6 +306,8 @@ export default function DiaryPage() {
             recents={recents}
             onPick={(r, ev) =>
               singleClick(() => {
+                // Sin fecha no se añade nada, como en submitAdd
+                if (date === "") return;
                 addEntry(repeatEntry(r.entry, date, mealType));
                 setShowAdd(false);
               })(ev)

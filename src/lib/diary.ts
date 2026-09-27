@@ -128,6 +128,7 @@ export function recentMeals({
   limit?: number;
 }): RecentMeal[] {
   // R3: el orden del array es el orden de registro (addEntry añade al final), así que se recorre desde el final
+  const recipeById = new Map(recipes.map((r) => [r.id, r]));
   const byKey = new Map<string, RecentMeal>();
   const franja: string[] = [];
   const seenInFranja = new Set<string>();
@@ -136,7 +137,7 @@ export function recentMeals({
     let name = e.customName ?? "";
     if (e.recipeId) {
       // R7: sin receta no hay nombre fiable
-      const recipe = recipes.find((r) => r.id === e.recipeId);
+      const recipe = recipeById.get(e.recipeId);
       if (!recipe) continue;
       name = recipe.name;
     }

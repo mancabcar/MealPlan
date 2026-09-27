@@ -435,9 +435,11 @@ describe("Recientes · R6 y R7", () => {
     expect(recents([rec(TORTILLA), gone])).toEqual(["Tortilla francesa"]);
   });
 
-  it("R7: solo cuentan las entradas que se le pasan (una borrada ya no está)", () => {
-    const kept = rec(TORTILLA);
-    expect(recents([kept])).toEqual(["Tortilla francesa"]);
+  it("R7: al quitar la única entrada de una comida, deja de salir y las demás suben", () => {
+    const lentejas = rec(LENTEJAS);
+    const entries = [rec(TORTILLA), lentejas, rec(MERLUZA)];
+    expect(recents(entries)).toEqual(["Merluza al horno", "Lentejas", "Tortilla francesa"]);
+    expect(recents(entries.filter((e) => e !== lentejas))).toEqual(["Merluza al horno", "Tortilla francesa"]);
   });
 
   it("devuelve la entrada más reciente del grupo, sea de la franja que sea", () => {

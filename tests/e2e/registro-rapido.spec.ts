@@ -142,3 +142,13 @@ test.describe("R6 · R7", () => {
     await expect(rows(page)).toHaveText([/^Tortilla francesa/]);
   });
 });
+
+test.describe("Review de #12: fecha borrada", () => {
+  test("con el campo de fecha vacío, tocar una reciente no guarda una entrada sin fecha", async ({ page }) => {
+    await openDiario(page, [rec(LENTEJAS, "Comida")]);
+    await page.locator('input[type="date"]').fill("");
+    await openAddForm(page);
+    await rows(page).filter({ hasText: "Lentejas" }).click();
+    expect(await readStored<MealEntry[]>(page, "entries")).toHaveLength(1);
+  });
+});
