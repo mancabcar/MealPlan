@@ -30,7 +30,7 @@ Usuario único de la app, que sigue un plan nutricional y registra a diario.
 |---|---|---|
 | R1 | «Añadir comida» muestra una sección «Recientes» entre el selector de franja y las pestañas Receta/Personalizada, visible en los dos modos, con hasta 5 filas. | Must |
 | R2 | Recientes no repite comidas. Dos entradas de receta son la misma si tienen la misma receta y las mismas raciones. Dos personalizadas son la misma si tienen el mismo nombre (sin distinguir mayúsculas ni espacios al principio, al final o repetidos) y los mismos kcal, P, C y G. Se muestra el nombre de la vez más reciente. | Must |
-| R3 | Recientes se ordena por el momento en que se registró cada entrada, no por su fecha. Primero van las de la franja elegida y, si no llegan a 5, se completan con las de otras franjas en el mismo orden. La lista se recalcula al cambiar de franja. | Must |
+| R3 | Recientes se ordena por el momento en que se registró cada entrada, no por su fecha. Primero van las de la franja elegida (una comida es «de esa franja» si alguna de sus entradas se registró en ella, y se ordena por la última de esas entradas) y, si no llegan a 5, se completan con las de otras franjas en el mismo orden. La lista se recalcula al cambiar de franja. | Must |
 | R4 | Un toque en una reciente crea una entrada nueva (id nuevo) en la fecha del Diario y la franja elegidas, con los mismos macros y raciones que la reciente, y cierra el formulario. | Must |
 | R5 | Cada fila muestra el nombre, «× raciones» si no es 1 (como en la lista del Diario) y las kcal redondeadas. | Must |
 | R6 | Si no hay ninguna comida que mostrar, la sección no aparece y el formulario queda como hoy. | Should |
@@ -58,6 +58,7 @@ Usuario único de la app, que sigue un plan nutricional y registra a diario.
 - Given registré A (Desayuno), luego B (Cena), luego C (Desayuno), when abro el formulario con «Desayuno» elegido, then el orden es C, A, B.
 - Given con esas entradas cambio la franja a «Cena», then el orden pasa a ser B, C, A.
 - Given hoy registré una entrada con fecha de ayer después de las de hoy, when abro el formulario, then esa entrada va primero dentro de su grupo.
+- Given registré «Avena» en Desayuno, luego «Tostada» en Desayuno, luego «Avena» en Cena, when abro el formulario con «Desayuno» elegido, then el orden es Tostada, Avena (Avena cuenta como de Desayuno, por su último registro en Desayuno).
 - Given la franja elegida tiene 6 comidas distintas, when abro el formulario, then las 5 filas son de esa franja.
 
 **R4**

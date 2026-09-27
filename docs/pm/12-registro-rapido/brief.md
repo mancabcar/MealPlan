@@ -1,6 +1,6 @@
 # Registro rápido: comidas recientes en «Añadir comida»
 
-_Status: spec · Updated: 2026-09-27 · Issue: [#12](https://github.com/mancabcar/MealPlan/issues/12) (@mancabcar) · Spec: [spec.md](spec.md)_
+_Status: coding · Updated: 2026-09-27 · Issue: [#12](https://github.com/mancabcar/MealPlan/issues/12) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Follow-ups
 - Favoritos en «Añadir comida» (recetas y comidas personalizadas). (spec) → [#58](https://github.com/mancabcar/MealPlan/issues/58)
