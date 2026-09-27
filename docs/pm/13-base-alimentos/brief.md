@@ -1,12 +1,12 @@
 # Base de datos de alimentos: buscar por nombre y registrar por gramos
-_Status: prototype · Updated: 2026-09-27 · Issue: [#13](https://github.com/mancabcar/MealPlan/issues/13) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK)_
+_Status: spec · Updated: 2026-09-27 · Issue: [#13](https://github.com/mancabcar/MealPlan/issues/13) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK) · Spec: [spec.md](spec.md)_
 
 ## Follow-ups
 - Escáner de código de barras para envasados (fuera de esta entrega por decisión del usuario). (brainstorm) → ya cubierto por [#14](https://github.com/mancabcar/MealPlan/issues/14) (depende de #13)
 - Combinar varios alimentos con sus gramos en un plato y registrarlo como una sola entrada. (brainstorm) → [#56](https://github.com/mancabcar/MealPlan/issues/56)
 - Caché local de los alimentos de Open Food Facts usados, para volver a buscarlos sin red y sin llamar a la API. (brainstorm)
 - Editar los gramos de una entrada ya registrada (hoy solo se borran con la ✕). (brainstorm) → [#57](https://github.com/mancabcar/MealPlan/issues/57)
-- «Alimento no encontrado → Personalizada» con el nombre ya escrito. (brainstorm)
+- «Alimento no encontrado → Personalizada» con el nombre ya escrito. (brainstorm) → en el spec como R14 (Could)
 - Dirección E: escribir en texto libre y que Claude estime los macros. No encaja con «solo fuentes gratuitas». (brainstorm)
 - Dirección A: calculadora «por 100 g» en Personalizada para copiar la etiqueta. (brainstorm)
 - Ampliar la tabla local más allá de los ~150 alimentos del plan. (brainstorm)
@@ -76,10 +76,10 @@ Pregunta que debe responder: **¿se distingue lo local de lo de OFF sin confundi
 
 ## Open questions
 - ~~¿Se busca en OFF al pulsar «Buscar» o con debounce?~~ Decidido en el prototipo: botón «Buscar en marcas».
-- ¿Qué unidades tiene cada alimento y de dónde sale su peso típico? En los productos de OFF, ¿se usa su `serving_size` cuando lo trae?
-- ¿La licencia de BEDCA permite empaquetar sus valores en la app? Si no, ¿todo desde USDA?
+- ~~¿Qué unidades tiene cada alimento y de dónde sale su peso típico?~~ Decidido en el spec (R7): peso típico en la tabla local; en OFF, `serving_size` solo si viene en gramos.
+- ¿La licencia de BEDCA permite empaquetar sus valores en la app? Si no, ¿todo desde USDA? (Sigue abierta en el spec; se resuelve en la tech design.)
 - ~~¿Cómo se marca en el Diario una entrada de alimento? ¿Se ve la fuente?~~ Decidido en el prototipo: «150 g» junto al nombre, sin fuente.
-- ¿Qué hacemos con los productos de OFF a los que les faltan macros por 100 g: se ocultan o se muestran marcados?
+- ~~¿Qué hacemos con los productos de OFF a los que les faltan macros por 100 g?~~ Decidido en el spec (R4): se ocultan.
 
 ## Prototype
 _Design: https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK · 2026-09-27_
