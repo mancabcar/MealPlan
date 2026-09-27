@@ -66,25 +66,20 @@ La pantalla «Añadir comida» en móvil, con las secciones Recientes y Guardado
 Pregunta que debe responder: **¿caben Recientes y Guardados en «Añadir comida» sin estorbar?** Encima ya están el selector de franja, las pestañas Receta/Personalizada y el formulario. Lo habitual tiene que quedar a 1–2 toques sin enterrar el formulario.
 
 ## Open questions
-- ¿Cuántos recientes exactamente? Se propone ~8.
+- Con solo 3 guardados visibles y sin «Ver más», ¿cómo se llega al 4.º guardado y siguientes? (¿qué 3 se muestran: los más recientes, los más usados, por orden alfabético?) Decidido en el prototipo: 3 recientes y 3 guardados.
 - ¿Qué cuenta como «distinto» en Recientes? Por ejemplo, la misma receta con otras raciones, o una personalizada con el mismo nombre y otros macros.
 - ¿Qué pasa al guardar una personalizada con un nombre que ya existe en Guardados?
 
 ## Prototype
 _Design: https://claude.ai/artifact/67Fp8tdVv3BE9gSe15hkC8 · 2026-09-27_
-- Screens: `1A · Listas sobre las pestañas`, `1B · Pestaña «Rápido»`, `1C · Chips en carrusel` (tres encajes de la misma pantalla para compararlos) y `2 · Personalizada con «Guardar»` (sobre el encaje A). Móvil, tema oscuro de la app, franja Pre-entreno, con una línea que marca el pliegue de 844 px.
+- Screens: `1A · Listas sobre las pestañas` (**elegido**), `1B · Pestaña «Rápido»` y `1C · Chips en carrusel` (descartados), y `2 · Personalizada con «Guardar»` sobre el encaje A. Móvil, tema oscuro de la app, franja Pre-entreno, con una línea que marca el pliegue de 844 px.
 - Decisions (confirmed by the user):
-  - Comparar los tres encajes A, B y C.
-  - Un toque registra directo; aviso «Añadido a <franja> · Deshacer» (~4 s) con el panel abierto.
-  - Filas con nombre + raciones + kcal; 3 recientes y 3 guardados visibles + «Ver más».
-  - Estado extra: Personalizada con la casilla «Guardar para reutilizar».
-  - Aspecto de la app actual y datos reales (recetario + plan de septiembre).
-- Pending ASSUMPTIONs:
-  - Toda la fila es el botón; el «+» lima solo lo señala.
+  - **Encaje A**: dentro de «Añadir comida», franja → Recientes → Guardados → pestañas Receta/Personalizada → formulario.
+  - Un toque en cualquier parte de la fila registra directo en la franja elegida, con los mismos macros y raciones; aviso «Añadido a <franja> · Deshacer» (~4 s) y el panel sigue abierto.
+  - Filas con nombre + raciones + kcal. **3 recientes y 3 guardados, sin «Ver más»**.
   - Un mismo alimento puede salir en Recientes y en Guardados a la vez.
-  - «Ver más» despliega la lista en el sitio, sin pantalla nueva.
-  - (B) El panel abre en «Rápido»; el formulario solo vive en Receta y Personalizada.
-  - (C) Chips con nombre + kcal en carrusel horizontal; borrar guardados con pulsación larga.
-  - La casilla «Guardar para reutilizar» sale desmarcada; guardar ocurre al pulsar «Añadir», que también registra.
-  - Se guardan nombre y macros, no la franja.
-- What to learn from testing it: qué encaje deja lo habitual a 1–2 toques sin empujar el formulario por debajo del pliegue.
+  - Los guardados se borran con la ✕ de su fila.
+  - «Guardar para reutilizar»: solo al crear una personalizada, desmarcada por defecto; «Añadir» registra y, con la casilla marcada, además guarda. Se guardan nombre y macros, no la franja.
+  - Aspecto de la app actual y datos reales (recetario + plan de septiembre).
+- Pending ASSUMPTIONs: ninguna.
+- What to learn from testing it: si con 3 + 3 lo habitual queda a 1–2 toques sin empujar el formulario por debajo del pliegue.
