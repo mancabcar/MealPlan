@@ -1320,6 +1320,977 @@
       "carbs": 47,
       "fat": 16,
       "tags": ["comida", "legumbres", "pescado", "alto proteína", "sin gluten", "de cuchara", "otoño"]
+    },
+    {
+      "id": "recipe_055",
+      "name": "Huevos revueltos con jamón de pavo y pan de centeno",
+      "ingredients": [
+        "80g pan de centeno",
+        "2 huevos",
+        "2 claras de huevo",
+        "40g jamón de pavo",
+        "1 cucharadita de aceite de oliva",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Batir los huevos con las claras, sal y pimienta.",
+        "Cortar el jamón de pavo en tiras y dorarlo 1 minuto en una sartén con el aceite.",
+        "Añadir el huevo batido y remover a fuego bajo hasta que cuaje cremoso.",
+        "Servir con el pan de centeno tostado."
+      ],
+      "prepTimeMinutes": 10,
+      "calories": 450,
+      "protein": 34,
+      "carbs": 40,
+      "fat": 17,
+      "tags": ["desayuno", "alto proteína", "rápido", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_056",
+      "name": "Tostadas de centeno con salmón ahumado y aguacate",
+      "ingredients": [
+        "80g pan de centeno",
+        "100g queso fresco batido",
+        "60g salmón ahumado",
+        "50g aguacate",
+        "limón, sal y eneldo"
+      ],
+      "instructions": [
+        "Tostar el pan de centeno.",
+        "Untar el queso fresco batido sobre las tostadas.",
+        "Colocar el aguacate en láminas y el salmón ahumado encima.",
+        "Terminar con unas gotas de limón, eneldo y una pizca de sal."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 435,
+      "protein": 29,
+      "carbs": 46,
+      "fat": 15,
+      "tags": ["desayuno", "rápido", "omega 3", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_057",
+      "name": "Tortilla de claras y huevos con pavo, aguacate y tomate",
+      "ingredients": [
+        "3 claras de huevo",
+        "2 huevos",
+        "60g jamón de pavo",
+        "40g aguacate",
+        "1 tomate",
+        "1 cucharadita de aceite de oliva",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Batir los huevos con las claras, sal y pimienta.",
+        "Cuajar la tortilla en una sartén con el aceite a fuego medio, 2-3 minutos por cada lado.",
+        "Servir con el jamón de pavo, el aguacate en láminas y el tomate en rodajas."
+      ],
+      "prepTimeMinutes": 10,
+      "calories": 380,
+      "protein": 36,
+      "carbs": 10,
+      "fat": 22,
+      "tags": ["desayuno", "alto proteína", "bajo carbohidrato", "sin gluten", "rápido", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_058",
+      "name": "Overnight oats de cacao y plátano con proteína",
+      "ingredients": [
+        "50g copos de avena",
+        "150ml leche desnatada",
+        "125g yogur natural desnatado",
+        "15g proteína en polvo",
+        "1 cucharadita de cacao puro en polvo",
+        "1/2 plátano"
+      ],
+      "instructions": [
+        "Mezclar en un tarro la avena, la leche, el yogur, la proteína y el cacao.",
+        "Tapar y dejar en la nevera toda la noche, o al menos 4 horas.",
+        "Por la mañana, añadir el plátano en rodajas por encima."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 400,
+      "protein": 30,
+      "carbs": 57,
+      "fat": 5,
+      "tags": ["desayuno", "vegetariano", "sin cocinar", "para llevar", "alto proteína"]
+    },
+    {
+      "id": "recipe_059",
+      "name": "Bowl de kéfir con granada, avena y nueces",
+      "ingredients": [
+        "250ml kéfir natural",
+        "15g proteína en polvo",
+        "30g copos de avena",
+        "1/2 granada",
+        "10g nueces"
+      ],
+      "instructions": [
+        "Mezclar el kéfir con la proteína en polvo hasta que no queden grumos.",
+        "Tostar la avena en una sartén sin aceite 2-3 minutos, removiendo.",
+        "Desgranar la granada.",
+        "Servir el kéfir con la avena, la granada y las nueces troceadas por encima."
+      ],
+      "prepTimeMinutes": 8,
+      "calories": 455,
+      "protein": 27,
+      "carbs": 46,
+      "fat": 18,
+      "tags": ["desayuno", "vegetariano", "rápido", "otoño"]
+    },
+    {
+      "id": "recipe_060",
+      "name": "Huevos al horno con espinacas, champiñones y pavo",
+      "ingredients": [
+        "2 huevos",
+        "100g champiñones",
+        "60g espinacas frescas",
+        "40g jamón de pavo",
+        "1 cucharadita de aceite de oliva",
+        "1 rebanada de pan integral",
+        "sal, pimienta y orégano"
+      ],
+      "instructions": [
+        "Precalentar el horno a 200°C.",
+        "Saltear los champiñones laminados con el aceite 4 minutos, añadir las espinacas y dejar que se ablanden.",
+        "Pasar las verduras a una cazuelita de horno con el pavo en tiras, hacer dos huecos y cascar los huevos.",
+        "Salpimentar, añadir orégano y hornear 8-10 minutos, hasta que la clara cuaje.",
+        "Servir con el pan integral tostado para mojar."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 405,
+      "protein": 30,
+      "carbs": 32,
+      "fat": 17,
+      "tags": ["desayuno", "alto proteína", "al horno"]
+    },
+    {
+      "id": "recipe_061",
+      "name": "Tostada de centeno con tomate, jamón serrano y huevo duro",
+      "ingredients": [
+        "80g pan de centeno",
+        "1 tomate",
+        "1 cucharadita de aceite de oliva",
+        "40g jamón serrano",
+        "1 huevo"
+      ],
+      "instructions": [
+        "Cocer el huevo 10 minutos, enfriarlo en agua y pelarlo.",
+        "Tostar el pan y rallar el tomate por encima.",
+        "Aliñar con el aceite y colocar el jamón serrano.",
+        "Servir con el huevo duro en rodajas."
+      ],
+      "prepTimeMinutes": 12,
+      "calories": 420,
+      "protein": 26,
+      "carbs": 42,
+      "fat": 16,
+      "tags": ["desayuno", "clásico", "rápido"]
+    },
+    {
+      "id": "recipe_062",
+      "name": "Crepes de avena y claras con queso fresco batido y pera",
+      "ingredients": [
+        "30g copos de avena",
+        "3 claras de huevo",
+        "100ml leche desnatada",
+        "1 cucharadita de aceite de oliva",
+        "150g queso fresco batido",
+        "1 pera",
+        "canela al gusto"
+      ],
+      "instructions": [
+        "Triturar la avena con las claras y la leche hasta obtener una masa líquida.",
+        "Pincelar una sartén antiadherente con el aceite y hacer 3-4 crepes finos, 1 minuto por cada lado.",
+        "Cortar la pera en láminas finas.",
+        "Rellenar los crepes con el queso fresco batido y la pera y espolvorear canela."
+      ],
+      "prepTimeMinutes": 15,
+      "calories": 395,
+      "protein": 31,
+      "carbs": 50,
+      "fat": 7,
+      "tags": ["desayuno", "vegetariano", "alto proteína", "otoño"]
+    },
+    {
+      "id": "recipe_063",
+      "name": "Wrap de huevo, pavo y espinacas",
+      "ingredients": [
+        "1 tortilla integral grande",
+        "2 huevos",
+        "40g jamón de pavo",
+        "30g espinacas frescas",
+        "1 quesito light",
+        "1 cucharadita de aceite de oliva",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Batir los huevos con sal y pimienta y hacer una tortilla francesa fina con el aceite.",
+        "Calentar la tortilla integral en una sartén 30 segundos por cada lado.",
+        "Untar el quesito, colocar la tortilla francesa, el pavo y las espinacas.",
+        "Enrollar y cortar por la mitad."
+      ],
+      "prepTimeMinutes": 10,
+      "calories": 435,
+      "protein": 29,
+      "carbs": 34,
+      "fat": 21,
+      "tags": ["desayuno", "alto proteína", "rápido", "para llevar"]
+    },
+    {
+      "id": "recipe_064",
+      "name": "Tostadas integrales con atún, tomate y aguacate",
+      "ingredients": [
+        "2 rebanadas de pan integral",
+        "1 lata de atún al natural",
+        "1 tomate",
+        "40g aguacate",
+        "1 cucharadita de aceite de oliva",
+        "sal y orégano"
+      ],
+      "instructions": [
+        "Tostar el pan integral.",
+        "Rallar el tomate sobre las tostadas y aliñar con el aceite.",
+        "Colocar el aguacate en láminas y el atún escurrido por encima.",
+        "Terminar con sal y orégano."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 380,
+      "protein": 23,
+      "carbs": 40,
+      "fat": 14,
+      "tags": ["desayuno", "rápido", "sin cocinar"]
+    },
+    {
+      "id": "recipe_065",
+      "name": "Garbanzos con espinacas y huevo duro",
+      "ingredients": [
+        "200g garbanzos cocidos",
+        "150g espinacas frescas",
+        "2 huevos",
+        "1 diente de ajo",
+        "1 rebanada de pan integral",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "200ml caldo de verduras",
+        "comino y sal"
+      ],
+      "instructions": [
+        "Cocer los huevos 10 minutos, enfriarlos y pelarlos.",
+        "Freír el ajo laminado y el pan en dados con el aceite hasta que se doren; triturarlos con el pimentón, el comino y un poco de caldo hasta hacer un majado.",
+        "Saltear las espinacas en la misma cazuela hasta que se ablanden.",
+        "Añadir los garbanzos escurridos, el majado y el resto del caldo y cocer 10 minutos a fuego suave.",
+        "Servir con los huevos duros en cuartos."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 625,
+      "protein": 36,
+      "carbs": 61,
+      "fat": 25,
+      "tags": ["comida", "legumbres", "vegetariano", "alto fibra", "de cuchara"]
+    },
+    {
+      "id": "recipe_066",
+      "name": "Alubias blancas con langostinos",
+      "ingredients": [
+        "80g alubias blancas (en seco)",
+        "150g langostinos pelados",
+        "1/2 cebolla",
+        "1/2 pimiento verde",
+        "1 tomate",
+        "1 diente de ajo",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "1 hoja de laurel",
+        "500ml caldo de pescado"
+      ],
+      "instructions": [
+        "Dejar las alubias en remojo la noche anterior.",
+        "Pochar la cebolla, el pimiento y el ajo picados con el aceite 6-7 minutos.",
+        "Añadir el tomate rallado y el pimentón y sofreír 3 minutos.",
+        "Incorporar las alubias escurridas, el laurel y el caldo y cocer a fuego suave 60-70 minutos, hasta que estén tiernas.",
+        "Añadir los langostinos al final y cocer 2-3 minutos, solo hasta que cambien de color."
+      ],
+      "prepTimeMinutes": 90,
+      "calories": 565,
+      "protein": 52,
+      "carbs": 60,
+      "fat": 13,
+      "tags": ["comida", "legumbres", "marisco", "alto proteína", "sin gluten", "de cuchara"]
+    },
+    {
+      "id": "recipe_067",
+      "name": "Cocido ligero de garbanzos con pollo",
+      "ingredients": [
+        "150g garbanzos cocidos",
+        "150g muslo de pollo sin piel",
+        "1 zanahoria",
+        "1 puerro",
+        "100g repollo",
+        "30g fideos",
+        "1 hoja de laurel",
+        "sal"
+      ],
+      "instructions": [
+        "Poner en una olla el pollo, la zanahoria, el puerro y el laurel con 1 litro de agua y sal, y cocer 30 minutos, retirando la espuma.",
+        "Añadir el repollo troceado y los garbanzos escurridos y cocer 10 minutos más.",
+        "Colar parte del caldo, llevarlo a ebullición y cocer los fideos 3-4 minutos para hacer la sopa.",
+        "Servir primero la sopa y después los garbanzos con el pollo desmenuzado y las verduras."
+      ],
+      "prepTimeMinutes": 50,
+      "calories": 600,
+      "protein": 46,
+      "carbs": 76,
+      "fat": 12,
+      "tags": ["comida", "legumbres", "alto proteína", "clásico", "reconfortante", "otoño", "de cuchara"]
+    },
+    {
+      "id": "recipe_068",
+      "name": "Sopa de pescado y marisco",
+      "ingredients": [
+        "150g merluza",
+        "100g gambas peladas",
+        "1/2 cebolla",
+        "1 tomate",
+        "1 diente de ajo",
+        "40g arroz (en seco)",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "500ml caldo de pescado",
+        "perejil fresco"
+      ],
+      "instructions": [
+        "Sofreír la cebolla y el ajo picados con el aceite 5 minutos.",
+        "Añadir el tomate rallado y el pimentón y cocinar 3 minutos.",
+        "Agregar el caldo y el arroz y cocer 12 minutos.",
+        "Incorporar la merluza en trozos y las gambas y cocer 3-4 minutos más.",
+        "Servir con perejil picado."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 500,
+      "protein": 52,
+      "carbs": 41,
+      "fat": 13,
+      "tags": ["cena", "pescado", "marisco", "alto proteína", "sin gluten", "de cuchara"]
+    },
+    {
+      "id": "recipe_069",
+      "name": "Marmitako de bonito",
+      "ingredients": [
+        "150g bonito",
+        "200g patata",
+        "1/2 cebolla",
+        "1/2 pimiento verde",
+        "1/2 pimiento rojo",
+        "1 tomate",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "400ml caldo de pescado",
+        "sal"
+      ],
+      "instructions": [
+        "Pochar la cebolla y los pimientos picados con el aceite 8 minutos.",
+        "Añadir el tomate rallado y el pimentón y sofreír 3 minutos.",
+        "Incorporar la patata cascada (rompiéndola con el cuchillo para que suelte almidón) y rehogar 2 minutos.",
+        "Cubrir con el caldo y cocer 20 minutos, hasta que la patata esté tierna.",
+        "Apagar el fuego, añadir el bonito en dados, salar y dejar reposar tapado 5 minutos: se hace con el calor residual."
+      ],
+      "prepTimeMinutes": 40,
+      "calories": 525,
+      "protein": 40,
+      "carbs": 47,
+      "fat": 18,
+      "tags": ["comida", "pescado", "omega 3", "sin gluten", "clásico", "de cuchara"]
+    },
+    {
+      "id": "recipe_070",
+      "name": "Estofado de ternera con patatas y zanahoria",
+      "ingredients": [
+        "150g aguja de ternera",
+        "200g patata",
+        "1 zanahoria",
+        "1/2 cebolla",
+        "1 diente de ajo",
+        "1 tomate",
+        "50g guisantes",
+        "1 cucharada de aceite de oliva",
+        "300ml caldo de verduras",
+        "1 hoja de laurel",
+        "tomillo, sal y pimienta"
+      ],
+      "instructions": [
+        "Cortar la ternera en dados, salpimentar y dorarla con el aceite en una cazuela; reservar.",
+        "Pochar la cebolla, el ajo y la zanahoria picados 6 minutos y añadir el tomate rallado.",
+        "Devolver la carne, añadir el caldo, el laurel y el tomillo y cocer tapado a fuego suave 60 minutos.",
+        "Añadir la patata en dados y los guisantes y cocer 20 minutos más, hasta que la patata esté tierna."
+      ],
+      "prepTimeMinutes": 95,
+      "calories": 560,
+      "protein": 40,
+      "carbs": 58,
+      "fat": 18,
+      "tags": ["comida", "alto proteína", "sin gluten", "clásico", "reconfortante", "de cuchara"]
+    },
+    {
+      "id": "recipe_071",
+      "name": "Lentejas con pollo y calabaza",
+      "ingredients": [
+        "80g lentejas (en seco)",
+        "120g pechuga de pollo",
+        "200g calabaza",
+        "1/2 cebolla",
+        "1 zanahoria",
+        "1 diente de ajo",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "1 hoja de laurel",
+        "500ml caldo de verduras"
+      ],
+      "instructions": [
+        "Pochar la cebolla, la zanahoria y el ajo picados con el aceite 5 minutos.",
+        "Añadir el pollo en dados y dorarlo 3 minutos.",
+        "Incorporar el pimentón, las lentejas lavadas, el laurel y el caldo y cocer a fuego suave 25 minutos.",
+        "Añadir la calabaza en dados y cocer 15 minutos más, hasta que las lentejas estén tiernas."
+      ],
+      "prepTimeMinutes": 50,
+      "calories": 595,
+      "protein": 50,
+      "carbs": 66,
+      "fat": 13,
+      "tags": ["comida", "legumbres", "alto proteína", "sin gluten", "alto fibra", "otoño", "de cuchara"]
+    },
+    {
+      "id": "recipe_072",
+      "name": "Crema de puerros y coliflor con taquitos de jamón",
+      "ingredients": [
+        "2 puerros",
+        "250g coliflor",
+        "1 patata pequeña",
+        "100ml leche desnatada",
+        "1 cucharada de aceite de oliva",
+        "400ml caldo de verduras",
+        "40g taquitos de jamón serrano",
+        "sal y nuez moscada"
+      ],
+      "instructions": [
+        "Pochar los puerros en rodajas con el aceite 6 minutos.",
+        "Añadir la coliflor en ramilletes, la patata en dados y el caldo, y cocer 20 minutos.",
+        "Triturar con la leche, sal y nuez moscada hasta que quede una crema fina.",
+        "Dorar los taquitos de jamón en una sartén sin aceite 2 minutos y servirlos por encima."
+      ],
+      "prepTimeMinutes": 35,
+      "calories": 495,
+      "protein": 26,
+      "carbs": 62,
+      "fat": 15,
+      "tags": ["cena", "sin gluten", "otoño", "de cuchara"]
+    },
+    {
+      "id": "recipe_073",
+      "name": "Sopa castellana con huevo",
+      "ingredients": [
+        "4 dientes de ajo",
+        "2 rebanadas de pan integral",
+        "50g taquitos de jamón serrano",
+        "2 huevos",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "500ml caldo de pollo"
+      ],
+      "instructions": [
+        "Dorar los ajos laminados con el aceite a fuego suave.",
+        "Añadir el jamón y el pan en dados y rehogar 2 minutos.",
+        "Fuera del fuego, añadir el pimentón, remover y agregar el caldo.",
+        "Cocer 10 minutos a fuego suave.",
+        "Cascar los huevos en la sopa y dejar que cuajen 3-4 minutos sin remover."
+      ],
+      "prepTimeMinutes": 25,
+      "calories": 570,
+      "protein": 37,
+      "carbs": 40,
+      "fat": 28,
+      "tags": ["cena", "clásico", "reconfortante", "alto proteína", "de cuchara"]
+    },
+    {
+      "id": "recipe_074",
+      "name": "Arroz caldoso de pollo y alcachofas",
+      "ingredients": [
+        "70g arroz (en seco)",
+        "130g pechuga de pollo",
+        "150g alcachofas",
+        "1/2 pimiento rojo",
+        "1 tomate",
+        "1 diente de ajo",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "500ml caldo de pollo",
+        "cúrcuma y sal"
+      ],
+      "instructions": [
+        "Limpiar las alcachofas, quedarse con los corazones y cortarlos en cuartos.",
+        "Dorar el pollo en dados con el aceite y reservar.",
+        "Sofreír el pimiento y el ajo picados 5 minutos, añadir las alcachofas y el tomate rallado y cocinar 5 minutos más.",
+        "Incorporar el pimentón, la cúrcuma, el arroz y el pollo, remover y añadir el caldo caliente.",
+        "Cocer 17-18 minutos a fuego medio: debe quedar con caldo."
+      ],
+      "prepTimeMinutes": 40,
+      "calories": 590,
+      "protein": 44,
+      "carbs": 72,
+      "fat": 13,
+      "tags": ["comida", "arroz", "alto proteína", "sin gluten", "otoño", "de cuchara"]
+    },
+    {
+      "id": "recipe_075",
+      "name": "Lubina al horno con verduras asadas",
+      "ingredients": [
+        "150g lomos de lubina",
+        "1/2 calabacín",
+        "1/2 pimiento rojo",
+        "1/2 cebolla",
+        "1 cucharada de aceite de oliva",
+        "zumo de 1/2 limón",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Precalentar el horno a 200°C.",
+        "Cortar las verduras en tiras, aliñarlas con la mitad del aceite, sal y pimienta y hornear 15 minutos.",
+        "Colocar los lomos de lubina sobre las verduras, regar con el resto del aceite y el limón y salar.",
+        "Hornear 10-12 minutos más."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 310,
+      "protein": 30,
+      "carbs": 12,
+      "fat": 16,
+      "tags": ["cena", "ligero", "pescado", "sin gluten", "al horno", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_076",
+      "name": "Pollo al limón con judías verdes salteadas",
+      "ingredients": [
+        "150g pechuga de pollo",
+        "200g judías verdes",
+        "1 diente de ajo",
+        "1 cucharada de aceite de oliva",
+        "zumo de 1/2 limón",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Cocer las judías verdes troceadas en agua con sal 8 minutos y escurrir.",
+        "Salpimentar el pollo y hacerlo a la plancha con la mitad del aceite, 4-5 minutos por cada lado; al final, regar con el limón.",
+        "Saltear el ajo laminado con el resto del aceite, añadir las judías y saltear 2-3 minutos.",
+        "Servir el pollo en filetes con las judías."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 320,
+      "protein": 38,
+      "carbs": 11,
+      "fat": 12,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_077",
+      "name": "Tortilla de calabacín y cebolla",
+      "ingredients": [
+        "2 huevos",
+        "3 claras de huevo",
+        "1 calabacín",
+        "1/2 cebolla",
+        "1 cucharadita de aceite de oliva",
+        "sal"
+      ],
+      "instructions": [
+        "Cortar el calabacín en dados pequeños y la cebolla en juliana.",
+        "Pocharlos con el aceite a fuego medio 8-10 minutos, hasta que estén tiernos.",
+        "Batir los huevos con las claras y sal, añadir las verduras y mezclar.",
+        "Cuajar la tortilla en la sartén 3 minutos por cada lado."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 290,
+      "protein": 26,
+      "carbs": 12,
+      "fat": 15,
+      "tags": ["cena", "ligero", "vegetariano", "sin gluten", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_078",
+      "name": "Ensalada templada de judías verdes, atún y huevo",
+      "ingredients": [
+        "150g judías verdes",
+        "2 latas de atún al natural",
+        "1 huevo",
+        "8 tomates cherry",
+        "30g rúcula",
+        "1 cucharada de aceite de oliva",
+        "vinagre balsámico, sal y pimienta"
+      ],
+      "instructions": [
+        "Cocer el huevo 10 minutos, enfriarlo y pelarlo.",
+        "Cocer las judías verdes troceadas en agua con sal 8 minutos y escurrir.",
+        "Mezclar en un bol la rúcula, las judías templadas, los tomates cherry en mitades y el atún escurrido.",
+        "Añadir el huevo en cuartos y aliñar con el aceite, el vinagre, sal y pimienta."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 350,
+      "protein": 39,
+      "carbs": 12,
+      "fat": 16,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_079",
+      "name": "Sepia a la plancha con ajo, perejil y ensalada de tomate",
+      "ingredients": [
+        "200g sepia limpia",
+        "2 dientes de ajo",
+        "perejil fresco",
+        "1 tomate grande",
+        "1/4 cebolla morada",
+        "1 cucharada de aceite de oliva",
+        "sal"
+      ],
+      "instructions": [
+        "Picar el ajo y el perejil y mezclarlos con la mitad del aceite.",
+        "Cortar la sepia en tiras y hacerla a la plancha muy caliente 3-4 minutos, con una pizca de sal.",
+        "Retirar y regar con el aceite de ajo y perejil.",
+        "Servir con el tomate en rodajas y la cebolla morada en juliana, aliñados con el resto del aceite y sal."
+      ],
+      "prepTimeMinutes": 15,
+      "calories": 295,
+      "protein": 34,
+      "carbs": 11,
+      "fat": 12,
+      "tags": ["cena", "ligero", "pescado", "marisco", "alto proteína", "sin gluten", "rápido"]
+    },
+    {
+      "id": "recipe_080",
+      "name": "Hamburguesas de pollo con ensalada de pepino, tomate y aguacate",
+      "ingredients": [
+        "150g pechuga de pollo picada",
+        "1 clara de huevo",
+        "1/4 cebolla",
+        "perejil fresco",
+        "sal, pimienta y ajo en polvo",
+        "1 pepino",
+        "1 tomate",
+        "40g aguacate",
+        "1 cucharadita de aceite de oliva"
+      ],
+      "instructions": [
+        "Mezclar el pollo picado con la clara, la cebolla y el perejil muy picados, sal, pimienta y ajo en polvo.",
+        "Formar dos hamburguesas y hacerlas a la plancha 4-5 minutos por cada lado.",
+        "Cortar el pepino, el tomate y el aguacate en dados y aliñarlos con el aceite y sal.",
+        "Servir las hamburguesas con la ensalada."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 350,
+      "protein": 41,
+      "carbs": 15,
+      "fat": 14,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_081",
+      "name": "Salteado de langostinos con brócoli y jengibre",
+      "ingredients": [
+        "150g langostinos pelados",
+        "200g brócoli",
+        "2 dientes de ajo",
+        "1 cucharadita de jengibre rallado",
+        "1 cucharada de salsa de soja",
+        "1 cucharada de aceite de oliva"
+      ],
+      "instructions": [
+        "Cortar el brócoli en ramilletes pequeños y escaldarlo 2 minutos en agua hirviendo.",
+        "Saltear el ajo laminado y el jengibre con el aceite 30 segundos.",
+        "Añadir el brócoli y saltear a fuego fuerte 3 minutos.",
+        "Incorporar los langostinos y la soja y saltear 2-3 minutos más, hasta que los langostinos estén hechos."
+      ],
+      "prepTimeMinutes": 15,
+      "calories": 315,
+      "protein": 37,
+      "carbs": 13,
+      "fat": 13,
+      "tags": ["cena", "ligero", "marisco", "alto proteína", "asiático", "rápido"]
+    },
+    {
+      "id": "recipe_082",
+      "name": "Revuelto de espárragos trigueros y jamón",
+      "ingredients": [
+        "2 huevos",
+        "2 claras de huevo",
+        "150g espárragos verdes",
+        "40g taquitos de jamón serrano",
+        "1 cucharadita de aceite de oliva"
+      ],
+      "instructions": [
+        "Cortar los espárragos en trozos, descartando la parte dura.",
+        "Saltearlos con el aceite 5 minutos y añadir el jamón 1 minuto más.",
+        "Batir los huevos con las claras, añadirlos a la sartén y remover a fuego bajo hasta que cuajen cremosos."
+      ],
+      "prepTimeMinutes": 15,
+      "calories": 335,
+      "protein": 35,
+      "carbs": 5,
+      "fat": 19,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato", "rápido"]
+    },
+    {
+      "id": "recipe_083",
+      "name": "Brochetas de pavo con pimientos y salsa de yogur",
+      "ingredients": [
+        "150g pechuga de pavo",
+        "1/2 pimiento rojo",
+        "1/2 pimiento verde",
+        "1/2 cebolla",
+        "1 cucharadita de aceite de oliva",
+        "2 cucharadas de yogur griego natural",
+        "pimentón, comino y sal"
+      ],
+      "instructions": [
+        "Cortar el pavo y las verduras en dados y ensartarlos alternados en brochetas.",
+        "Pincelar con el aceite y condimentar con pimentón, comino y sal.",
+        "Hacerlas a la plancha 8-10 minutos, girándolas a menudo.",
+        "Servir con el yogur mezclado con una pizca de comino y sal."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 285,
+      "protein": 37,
+      "carbs": 11,
+      "fat": 10,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_084",
+      "name": "Calabacín relleno de atún gratinado",
+      "ingredients": [
+        "1 calabacín",
+        "2 latas de atún al natural",
+        "100g tomate triturado",
+        "1/2 cebolla",
+        "30g mozzarella rallada",
+        "1 cucharadita de aceite de oliva",
+        "sal y orégano"
+      ],
+      "instructions": [
+        "Precalentar el horno a 200°C.",
+        "Partir el calabacín a lo largo, vaciarlo con una cuchara y hornear las barcas 10 minutos.",
+        "Pochar la cebolla y la pulpa del calabacín picadas con el aceite 5 minutos, añadir el tomate y cocinar 5 minutos más.",
+        "Mezclar con el atún escurrido, sal y orégano y rellenar las barcas.",
+        "Cubrir con la mozzarella y gratinar 8-10 minutos."
+      ],
+      "prepTimeMinutes": 35,
+      "calories": 340,
+      "protein": 39,
+      "carbs": 17,
+      "fat": 13,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "al horno"]
+    },
+    {
+      "id": "recipe_085",
+      "name": "Tortitas de arroz con jamón de pavo y tomate",
+      "ingredients": [
+        "3 tortitas de arroz",
+        "60g jamón de pavo",
+        "1/2 tomate"
+      ],
+      "instructions": [
+        "Cortar el tomate en rodajas finas.",
+        "Colocar el jamón de pavo y el tomate sobre las tortitas."
+      ],
+      "prepTimeMinutes": 3,
+      "calories": 175,
+      "protein": 13,
+      "carbs": 25,
+      "fat": 2,
+      "tags": ["snack", "rápido", "sin cocinar", "para llevar", "sin gluten", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_086",
+      "name": "Batido de proteína con higos",
+      "ingredients": [
+        "30g proteína en polvo",
+        "2 higos",
+        "200ml leche desnatada"
+      ],
+      "instructions": [
+        "Quitar el tallo a los higos.",
+        "Triturar todo en la batidora hasta que quede cremoso y servir frío."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 250,
+      "protein": 31,
+      "carbs": 27,
+      "fat": 2,
+      "tags": ["snack", "rápido", "sin cocinar", "alto proteína", "plan nutricionista", "otoño"]
+    },
+    {
+      "id": "recipe_087",
+      "name": "Batido pre-gym de proteína y plátano",
+      "ingredients": [
+        "30g proteína en polvo",
+        "1 plátano",
+        "300ml agua"
+      ],
+      "instructions": [
+        "Triturar todo en la batidora, o agitar la proteína con el agua en un vaso mezclador y comer el plátano aparte.",
+        "Tomar 45-60 minutos antes de entrenar."
+      ],
+      "prepTimeMinutes": 2,
+      "calories": 230,
+      "protein": 25,
+      "carbs": 29,
+      "fat": 2,
+      "tags": ["snack", "pre-gym", "rápido", "sin cocinar", "alto proteína", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_088",
+      "name": "Mandarinas con almendras",
+      "ingredients": [
+        "2 mandarinas",
+        "20g almendras"
+      ],
+      "instructions": [
+        "Pelar las mandarinas.",
+        "Acompañarlas con las almendras, mejor naturales o tostadas sin sal."
+      ],
+      "prepTimeMinutes": 2,
+      "calories": 190,
+      "protein": 5,
+      "carbs": 21,
+      "fat": 10,
+      "tags": ["snack", "rápido", "sin cocinar", "para llevar", "vegano", "vegetariano", "sin gluten", "plan nutricionista", "otoño"]
+    },
+    {
+      "id": "recipe_089",
+      "name": "Hummus de calabaza con crudités",
+      "ingredients": [
+        "100g garbanzos cocidos",
+        "80g calabaza",
+        "1 cucharadita de pasta de sésamo",
+        "zumo de 1/2 limón",
+        "1 cucharadita de aceite de oliva",
+        "comino y sal",
+        "1 zanahoria",
+        "1/2 pepino"
+      ],
+      "instructions": [
+        "Cocer la calabaza en dados en el microondas 4-5 minutos.",
+        "Triturar los garbanzos escurridos con la calabaza, la pasta de sésamo, el limón, el aceite, comino y sal hasta que quede cremoso; si queda espeso, añadir un poco de agua.",
+        "Cortar la zanahoria y el pepino en bastones y servirlos para mojar."
+      ],
+      "prepTimeMinutes": 12,
+      "calories": 275,
+      "protein": 11,
+      "carbs": 35,
+      "fat": 10,
+      "tags": ["snack", "para llevar", "vegano", "vegetariano", "sin gluten", "legumbres", "otoño"]
+    },
+    {
+      "id": "recipe_090",
+      "name": "Mousse de cacao con queso fresco batido",
+      "ingredients": [
+        "250g queso fresco batido",
+        "1 cucharada de cacao puro en polvo",
+        "1 cucharadita de miel",
+        "10g chocolate negro"
+      ],
+      "instructions": [
+        "Mezclar el queso fresco batido con el cacao y la miel hasta que no queden grumos.",
+        "Repartir en un vaso y dejar en la nevera al menos 15 minutos.",
+        "Servir con el chocolate rallado por encima (mejor de 85% de cacao o más)."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 225,
+      "protein": 23,
+      "carbs": 17,
+      "fat": 7,
+      "tags": ["snack", "postre", "sin cocinar", "vegetariano", "sin gluten", "alto proteína"]
+    },
+    {
+      "id": "recipe_091",
+      "name": "Huevos duros con tomates cherry",
+      "ingredients": [
+        "2 huevos",
+        "8 tomates cherry",
+        "sal y pimentón"
+      ],
+      "instructions": [
+        "Cocer los huevos 10 minutos, enfriarlos en agua y pelarlos.",
+        "Cortarlos por la mitad y espolvorear sal y pimentón.",
+        "Acompañar con los tomates cherry."
+      ],
+      "prepTimeMinutes": 12,
+      "calories": 160,
+      "protein": 13,
+      "carbs": 5,
+      "fat": 10,
+      "tags": ["snack", "para llevar", "vegetariano", "sin gluten", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_092",
+      "name": "Rollitos de pavo con queso fresco y espárragos",
+      "ingredients": [
+        "80g jamón de pavo",
+        "100g queso fresco batido",
+        "100g espárragos verdes",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Hacer los espárragos a la plancha 4-5 minutos con una pizca de sal.",
+        "Untar cada loncha de pavo con queso fresco batido y pimienta.",
+        "Colocar un espárrago en cada loncha y enrollar."
+      ],
+      "prepTimeMinutes": 10,
+      "calories": 150,
+      "protein": 25,
+      "carbs": 7,
+      "fat": 2,
+      "tags": ["snack", "alto proteína", "sin gluten", "bajo carbohidrato", "para llevar"]
+    },
+    {
+      "id": "recipe_093",
+      "name": "Edamame salteado con sal y lima",
+      "ingredients": [
+        "150g edamame",
+        "zumo de 1/2 lima",
+        "sal"
+      ],
+      "instructions": [
+        "Cocer el edamame congelado en agua hirviendo 4-5 minutos y escurrir.",
+        "Saltearlo 1 minuto en una sartén caliente sin aceite.",
+        "Aliñar con el zumo de lima y sal en escamas."
+      ],
+      "prepTimeMinutes": 8,
+      "calories": 185,
+      "protein": 17,
+      "carbs": 13,
+      "fat": 8,
+      "tags": ["snack", "vegano", "vegetariano", "sin gluten", "asiático", "rápido"]
+    },
+    {
+      "id": "recipe_094",
+      "name": "Bolitas de avena, dátil y almendra",
+      "ingredients": [
+        "30g copos de avena",
+        "2 dátiles",
+        "15g proteína en polvo",
+        "10g almendras",
+        "canela al gusto"
+      ],
+      "instructions": [
+        "Deshuesar los dátiles y dejarlos 10 minutos en agua caliente para ablandarlos.",
+        "Triturar todo con 1-2 cucharadas del agua de remojo hasta obtener una masa compacta.",
+        "Formar 4-5 bolitas y dejarlas en la nevera 30 minutos.",
+        "Se conservan hasta 5 días en la nevera en un recipiente cerrado."
+      ],
+      "prepTimeMinutes": 15,
+      "calories": 270,
+      "protein": 18,
+      "carbs": 31,
+      "fat": 7,
+      "tags": ["snack", "pre-gym", "sin cocinar", "para llevar", "vegetariano"]
     }
   ]
 }
