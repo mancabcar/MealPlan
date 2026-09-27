@@ -2,14 +2,19 @@
 // Tech: docs/pm/diario-desde-plan/tech.md › APIs / interfaces (`recipeEntry`, `pendingSlots`, reglas 1–4).
 // Raciones: docs/pm/raciones/spec.md › R2–R8 y docs/pm/raciones/tech.md › APIs / interfaces (`recipeEntry` con
 // `{ servings, id }`, `SERVINGS`, `SERVINGS_ERROR`, `parseServings`, `stepServings`, `formatServings`, `servingsLabel`).
+// Recientes: docs/pm/12-registro-rapido/spec.md › R2, R3, R6, R7 y docs/pm/12-registro-rapido/tech.md › APIs
+// (`recentMeals`, `repeatEntry`, clave de duplicado y algoritmo).
 import { describe, expect, it } from "vitest";
 import {
+  RECENT_LIMIT,
   SERVINGS,
   SERVINGS_ERROR,
   formatServings,
   parseServings,
   pendingSlots,
+  recentMeals,
   recipeEntry,
+  repeatEntry,
   servingsLabel,
   stepServings,
 } from "@/lib/diary";
@@ -345,5 +350,121 @@ describe("R4 · R5 · servingsLabel", () => {
     expect(servingsLabel({ servings: NaN })).toBeNull();
     expect(servingsLabel({ servings: Infinity })).toBeNull();
     expect(servingsLabel({ servings: "0.5" as unknown as number })).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Recientes (docs/pm/12-registro-rapido)
+
+/** Resumen legible: ["Lentejas", "Tortilla francesa × 0,5", ...]. */
+const recents = (entries: MealEntry[], mealType: MealType = "Desayuno", recipes: Recipe[] = DIARIO_RECIPES) =>
+  recentMeals({ entries, recipes, mealType }).map((r) => [r.name, servingsLabel(r.entry)].filter(Boolean).join(" "));
+
+const rec = (r: Recipe, mealType: MealType = "Desayuno", servings = 1, date = TODAY) =>
+  recipeEntry(r, date, mealType, { servings });
+const custom = (customName: string, mealType: MealType = "Desayuno", calories = 120) =>
+  entry(TODAY, mealType, { customName, calories, protein: 5, carbs: 10, fat: 6 });
+
+describe("Recientes · R2: sin duplicados", () => {
+  it("la misma receta con las mismas raciones sale una vez", () => {
+    expect(recents([rec(LENTEJAS), rec(LENTEJAS)])).toEqual(["Lentejas"]);
+  });
+
+  it("la misma receta con otras raciones sale aparte", () => {
+    expect(recents([rec(LENTEJAS), rec(LENTEJAS, "Desayuno", 0.5)])).toEqual(["Lentejas × 0,5", "Lentejas"]);
+  });
+
+  it("personalizadas con el mismo nombre sin mayúsculas ni espacios extra y mismos macros: una, con el nombre más reciente", () => {
+    expect(recents([custom("yogur  con nueces"), custom(" Yogur con Nueces ")])).toEqual([" Yogur con Nueces "]);
+  });
+
+  it("personalizadas con el mismo nombre y otros macros salen aparte", () => {
+    expect(recents([custom("Yogur", "Desayuno", 120), custom("Yogur", "Desayuno", 150)])).toHaveLength(2);
+  });
+
+  it("una personalizada con el nombre de una receta no se junta con la receta", () => {
+    const r = rec(LENTEJAS);
+    expect(recents([r, custom("Lentejas", "Desayuno", r.calories)])).toHaveLength(2);
+  });
+});
+
+describe("Recientes · R3: orden de registro y franja primero", () => {
+  const a = rec(LENTEJAS, "Desayuno");
+  const b = rec(TORTILLA, "Cena");
+  const c = rec(MERLUZA, "Desayuno");
+
+  it("A (Desayuno), B (Cena), C (Desayuno) con Desayuno → C, A, B", () => {
+    expect(recents([a, b, c], "Desayuno")).toEqual(["Merluza al horno", "Lentejas", "Tortilla francesa"]);
+  });
+
+  it("las mismas con Cena → B, C, A", () => {
+    expect(recents([a, b, c], "Cena")).toEqual(["Tortilla francesa", "Merluza al horno", "Lentejas"]);
+  });
+
+  it("cuenta como de la franja si alguna entrada es de ella, por la última de esas entradas", () => {
+    // Avena (Lentejas) en Desayuno, Tostada (Tortilla) en Desayuno, Avena en Cena → Tostada, Avena
+    const entries = [rec(LENTEJAS, "Desayuno"), rec(TORTILLA, "Desayuno"), rec(LENTEJAS, "Cena")];
+    expect(recents(entries, "Desayuno")).toEqual(["Tortilla francesa", "Lentejas"]);
+  });
+
+  it("el orden es el de registro, no la fecha: una entrada de ayer registrada al final va primero", () => {
+    const entries = [rec(LENTEJAS, "Desayuno", 1, TODAY), rec(TORTILLA, "Desayuno", 1, YESTERDAY)];
+    expect(recents(entries)).toEqual(["Tortilla francesa", "Lentejas"]);
+  });
+
+  it(`como mucho ${RECENT_LIMIT}, y si la franja tiene 6 distintas, las 5 son de la franja`, () => {
+    expect(RECENT_LIMIT).toBe(5);
+    const other = rec(KEFIR, "Cena");
+    const franja = ["A", "B", "C", "D", "E", "F"].map((n) => custom(n, "Desayuno"));
+    expect(recents([...franja, other])).toEqual(["F", "E", "D", "C", "B"]);
+  });
+
+  it("si la franja no llega a 5, completa con otras franjas en orden de registro", () => {
+    const entries = [rec(KEFIR, "Cena"), rec(LENTEJAS, "Comida"), rec(TORTILLA, "Desayuno")];
+    expect(recents(entries)).toEqual(["Tortilla francesa", "Lentejas", "Batido de kéfir"]);
+  });
+});
+
+describe("Recientes · R6 y R7", () => {
+  it("R6: sin entradas → lista vacía", () => {
+    expect(recentMeals({ entries: [], recipes: DIARIO_RECIPES, mealType: "Desayuno" })).toEqual([]);
+  });
+
+  it("R7: una entrada de receta que ya no existe no sale", () => {
+    const gone = { ...rec(LENTEJAS), recipeId: "no-existe" };
+    expect(recents([rec(TORTILLA), gone])).toEqual(["Tortilla francesa"]);
+  });
+
+  it("R7: al quitar la única entrada de una comida, deja de salir y las demás suben", () => {
+    const lentejas = rec(LENTEJAS);
+    const entries = [rec(TORTILLA), lentejas, rec(MERLUZA)];
+    expect(recents(entries)).toEqual(["Merluza al horno", "Lentejas", "Tortilla francesa"]);
+    expect(recents(entries.filter((e) => e !== lentejas))).toEqual(["Merluza al horno", "Tortilla francesa"]);
+  });
+
+  it("devuelve la entrada más reciente del grupo, sea de la franja que sea", () => {
+    const old = rec(LENTEJAS, "Desayuno");
+    const last = rec(LENTEJAS, "Cena");
+    const [r] = recentMeals({ entries: [old, last], recipes: DIARIO_RECIPES, mealType: "Desayuno" });
+    expect(r.entry).toBe(last);
+  });
+});
+
+describe("Recientes · R4: repeatEntry", () => {
+  it("copia macros, receta y raciones con id, fecha y franja nuevos", () => {
+    const src = recipeEntry(GUISO, YESTERDAY, "Cena", { servings: 0.5, id: "src" });
+    expect(repeatEntry(src, TODAY, "Comida", "nuevo")).toEqual({ ...src, id: "nuevo", date: TODAY, mealType: "Comida" });
+  });
+
+  it("copia una personalizada tal cual (nombre y macros)", () => {
+    const src = custom("Yogur con nueces");
+    const copy = repeatEntry(src, TOMORROW, "Merienda");
+    expect(copy).toMatchObject({ customName: "Yogur con nueces", calories: 120, protein: 5, carbs: 10, fat: 6, date: TOMORROW });
+    expect(copy.recipeId).toBeUndefined();
+  });
+
+  it("sin id explícito genera uno nuevo, distinto del de la reciente", () => {
+    const src = rec(CALDO);
+    expect(repeatEntry(src, TODAY, "Desayuno").id).not.toBe(src.id);
   });
 });
