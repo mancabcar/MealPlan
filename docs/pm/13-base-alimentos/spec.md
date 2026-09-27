@@ -1,6 +1,6 @@
 # Base de datos de alimentos: Spec
 _Status: Draft · Owner: @mancabcar · Updated: 2026-09-27_
-_Related: [brief](brief.md) · [prototype](https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK) · [issue #13](https://github.com/mancabcar/MealPlan/issues/13)_
+_Related: [brief](brief.md) · [tech](tech.md) · [prototype](https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK) · [issue #13](https://github.com/mancabcar/MealPlan/issues/13)_
 
 ## TL;DR
 Lo que como fuera de receta no lo registro, porque calcular sus macros a mano (etiqueta o tabla, más la regla de tres) cuesta demasiado. Añadimos a «Añadir comida» una pestaña «Alimento»: se busca por nombre en una tabla local de genéricos del plan y, al pulsar un botón, en Open Food Facts para los productos de marca; se indican gramos o unidades y la app calcula los macros. Habrá funcionado si aparecen entradas de alimento en el Diario cada semana, es decir, si registro lo que antes me saltaba.
@@ -34,7 +34,7 @@ Usuario único de la app, que sigue un plan nutricional y registra a diario.
 |---|---|---|
 | R1 | «Añadir comida» tiene una tercera pestaña «Alimento» (Receta / Alimento / Personalizada), debajo de Recientes (#12) cuando exista. | Must |
 | R2 | Al escribir 2 letras o más, el bloque «Básicos» muestra coincidencias de la tabla local: casa si el nombre contiene todas las palabras escritas, sin distinguir tildes ni mayúsculas; primero las que empiezan por lo escrito; hasta 8 filas. Crudo y cocido son filas distintas. Cada fila muestra nombre + kcal por 100 g. | Must |
-| R3 | La app trae empaquetada una tabla de ~150 alimentos genéricos, centrada en los alimentos de los planes de agosto y septiembre y en básicos de despensa, con kcal, P, C y G por 100 g. Cada alimento anota su fuente (BEDCA o USDA), que no se muestra en la interfaz. Los que tienen una unidad natural (huevo, pieza de fruta, rebanada, yogur…) llevan su peso típico. | Must |
+| R3 | La app trae empaquetada una tabla de ~150 alimentos genéricos, centrada en los alimentos de los planes de agosto y septiembre y en básicos de despensa, con kcal, P, C y G por 100 g. Cada alimento anota su fuente (CIQUAL o USDA), que no se muestra por alimento; el pie del bloque «Básicos» lleva una línea con la cita de las fuentes. Los que tienen una unidad natural (huevo, pieza de fruta, rebanada, yogur…) llevan su peso típico. | Must |
 | R4 | Bajo los básicos hay un botón «Buscar «…» en productos de marca», que repite lo escrito entre comillas. Al pulsarlo, se busca en Open Food Facts solo entre productos vendidos en España, con el nombre en español cuando exista, y se muestra el bloque «Productos de marca» con hasta 5 resultados (nombre, marca, kcal por 100 g) y un pie con la licencia ODbL y «revisa la etiqueta». Los productos a los que les falten kcal, P, C o G por 100 g no se muestran. No se busca en OFF mientras se escribe. | Must |
 | R5 | Al tocar un resultado, la lista se sustituye por la tarjeta del alimento, con «← Otro alimento» para volver a la búsqueda tal como estaba. | Must |
 | R6 | La cantidad se indica en gramos enteros (1–2000) con un campo y chips 50/100/150/200 g. Los macros se recalculan en vivo y se muestran redondeados a entero; la grasa, con un decimal si es menor que 1 g. Fuera de rango, el botón de añadir se desactiva y se muestra un aviso. | Must |
@@ -85,7 +85,8 @@ Usuario único de la app, que sigue un plan nutricional y registra a diario.
 
 **R3**
 - Given la tabla local, then contiene los alimentos genéricos de los planes de agosto y septiembre de `docs/referencia/`, con crudo y cocido por separado cuando el plan los distingue.
-- Given cualquier alimento de la tabla, then tiene kcal, P, C y G por 100 g y una fuente (BEDCA o USDA).
+- Given cualquier alimento de la tabla, then tiene kcal, P, C y G por 100 g y una fuente (CIQUAL o USDA).
+- Given el bloque «Básicos» tiene resultados, then su pie cita las fuentes (CIQUAL/USDA).
 - Given estoy sin red, when busco en básicos, then los resultados salen igual.
 
 **R4**
@@ -161,7 +162,7 @@ Usuario único de la app, que sigue un plan nutricional y registra a diario.
 | Entradas de alimento (con gramos) registradas por semana | 0 | TBD | Contarlas en los datos del usuario (localStorage o copia de seguridad), revisión a las 2 semanas del lanzamiento |
 
 ## Risks & dependencies
-- **Licencia de BEDCA** sin confirmar: si no permite empaquetar sus valores, toda la tabla sale de USDA (ver Open questions).
+- **Licencias de los datos:** BEDCA solo permite el uso no comercial, citando la fuente y sin modificar los datos, así que la tabla sale de CIQUAL (Licence Ouverte Etalab), con USDA (dominio público) de reserva, citando ambas (ver [tech.md](tech.md) › Spec feedback).
 - **Límite de OFF** (~10 búsquedas por minuto por IP; pide un User-Agent identificable): las peticiones pasan por un route handler de servidor, como `src/app/api/recipes/route.ts`. En Next 16, leer antes la guía de route handlers en `node_modules/next/dist/docs/`.
 - **Calidad de OFF:** datos aportados por la comunidad, incompletos o erróneos; de ahí «revisa la etiqueta» y ocultar los productos sin macros.
 - **#12 (Recientes)** no está mergeado. #13 funciona sin él; R13 aplica cuando exista.
@@ -169,4 +170,4 @@ Usuario único de la app, que sigue un plan nutricional y registra a diario.
 - Preparar la tabla de ~150 alimentos es trabajo manual de datos, no solo de código.
 
 ## Open questions
-- [ ] ¿La licencia de BEDCA permite empaquetar sus valores en la app? Si no, todo desde USDA. (Se resuelve en la tech design; no bloquea el spec.)
+- [x] ~~¿La licencia de BEDCA permite empaquetar sus valores en la app?~~ Solo para uso no comercial, con cita y sin modificar los datos: se usa CIQUAL + USDA (resuelto en la tech design, 2026-09-27).

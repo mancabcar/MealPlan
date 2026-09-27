@@ -1,5 +1,5 @@
 # Base de datos de alimentos: buscar por nombre y registrar por gramos
-_Status: spec · Updated: 2026-09-27 · Issue: [#13](https://github.com/mancabcar/MealPlan/issues/13) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK) · Spec: [spec.md](spec.md)_
+_Status: tech design · Updated: 2026-09-27 · Issue: [#13](https://github.com/mancabcar/MealPlan/issues/13) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Follow-ups
 - Escáner de código de barras para envasados (fuera de esta entrega por decisión del usuario). (brainstorm) → ya cubierto por [#14](https://github.com/mancabcar/MealPlan/issues/14) (depende de #13)
@@ -77,7 +77,7 @@ Pregunta que debe responder: **¿se distingue lo local de lo de OFF sin confundi
 ## Open questions
 - ~~¿Se busca en OFF al pulsar «Buscar» o con debounce?~~ Decidido en el prototipo: botón «Buscar en marcas».
 - ~~¿Qué unidades tiene cada alimento y de dónde sale su peso típico?~~ Decidido en el spec (R7): peso típico en la tabla local; en OFF, `serving_size` solo si viene en gramos.
-- ¿La licencia de BEDCA permite empaquetar sus valores en la app? Si no, ¿todo desde USDA? (Sigue abierta en el spec; se resuelve en la tech design.)
+- ~~¿La licencia de BEDCA permite empaquetar sus valores en la app?~~ Solo para uso no comercial, con cita y sin modificar los datos. Decidido en la tech design: CIQUAL + USDA, con la cita en el pie de «Básicos».
 - ~~¿Cómo se marca en el Diario una entrada de alimento? ¿Se ve la fuente?~~ Decidido en el prototipo: «150 g» junto al nombre, sin fuente.
 - ~~¿Qué hacemos con los productos de OFF a los que les faltan macros por 100 g?~~ Decidido en el spec (R4): se ocultan.
 
