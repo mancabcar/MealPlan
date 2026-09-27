@@ -145,7 +145,7 @@ Sin prototipo; se decide aquí la pregunta abierta: **tarjeta propia debajo de �
 5. [x] `DayMacroSummary`: prop `label` y aviso opcional. (R9)
 6. [x] `src/components/diario/PeriodSummary.tsx` e integración en `src/app/page.tsx` con `days` en estado (7 por defecto); e2e de R1–R10 y axe en verde. (R1–R10)
 7. [x] Recordar 7/30 en `localStorage` por usuario. (R11)
-8. [ ] Revisión a 375 px, lint, typecheck, build.
+8. [x] Revisión a 375 px, lint, typecheck, build.
 
 ## Spec feedback
 1. **Pregunta abierta resuelta: ubicación.** Tarjeta propia debajo de «Calorías esta semana», no fusionada (enfoque C descartado): la gráfica incluye hoy y no cambia con 30 días; en la misma tarjeta parecería un fallo.
@@ -157,18 +157,18 @@ Sin prototipo; se decide aquí la pregunta abierta: **tarjeta propia debajo de �
 Ninguno de estos puntos bloquea empezar a programar.
 
 ## Test coverage
-Datos en `tests/fixtures/medias-adherencia.ts` (hoy = 2026-09-22). «Hecho» = todo en verde.
+Datos en `tests/fixtures/medias-adherencia.ts` (hoy = 2026-09-22). Todo en verde (2026-09-27): 610 unit, 230 e2e.
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | tests/unit/diaryStats.test.ts › «R1 · R2: medias solo de los días con registros»; tests/e2e/medias-adherencia.spec.ts › «R1 · R2 · R3 · R8…» | unit + e2e | 🔴 failing (not built) |
-| R2 | tests/unit/diaryStats.test.ts › «1800, 2000 y 2200 kcal en 3 de 7 días → media 2000», «un día con dos registros…», raciones, `NaN` | unit | 🔴 failing (not built) |
-| R3 | tests/unit/diaryStats.test.ts › «R3: adherencia…» (2 de 3, 5 de 6, día con 0 kcal); e2e «2 de 3 días dentro del objetivo» | unit + e2e | 🔴 failing (not built) |
-| R4 | tests/unit/diaryStats.test.ts › «R4: un día cumple…» (casos del spec, límites, sin rango, equivalencia con `macroStatus` del Plan), «macroTarget» | unit | 🔴 failing (not built) |
-| R5 | tests/unit/diaryStats.test.ts › «R5: cambiar a 30 días…»; e2e › «R5: selector 7 / 30 días» | unit + e2e | 🔴 failing (not built) |
-| R6 | tests/unit/diaryStats.test.ts › «addDays…», «R6: el periodo son N días completos…»; e2e › «R6: días completos; hoy no cuenta» | unit + e2e | 🔴 failing (not built) |
-| R7 | tests/unit/diaryStats.test.ts › «R7…»; e2e › «R7: sin registros en el periodo» | unit + e2e | 🔴 failing (not built) |
-| R8 | tests/unit/diaryStats.test.ts › «R8: rango de fechas del periodo»; e2e subtítulos | unit + e2e | 🔴 failing (not built) |
-| R9 | tests/e2e/medias-adherencia.spec.ts › «R9…»; tests/unit/DayMacroSummary.test.tsx › «Medias del periodo…» | e2e + componente | 🔴 failing (not built) |
-| R10 | tests/e2e/medias-adherencia.spec.ts › «R10…» (radios + flechas); tests/e2e/accessibility.spec.ts › «Diario con medias y adherencia» | e2e | 🔴 failing (not built) |
-| R11 | tests/e2e/medias-adherencia.spec.ts › «R11: se recuerda la opción elegida» | e2e | 🔴 failing (not built) |
+| R1 | tests/unit/diaryStats.test.ts › «R1 · R2: medias solo de los días con registros»; tests/e2e/medias-adherencia.spec.ts › «R1 · R2 · R3 · R8…» | unit + e2e | ✅ passing |
+| R2 | tests/unit/diaryStats.test.ts › «1800, 2000 y 2200 kcal en 3 de 7 días → media 2000», «un día con dos registros…», raciones, `NaN` | unit | ✅ passing |
+| R3 | tests/unit/diaryStats.test.ts › «R3: adherencia…» (2 de 3, 5 de 6, día con 0 kcal); e2e «2 de 3 días dentro del objetivo» | unit + e2e | ✅ passing |
+| R4 | tests/unit/diaryStats.test.ts › «R4: un día cumple…» (casos del spec, límites, sin rango, equivalencia con `macroStatus` del Plan), «macroTarget» | unit | ✅ passing |
+| R5 | tests/unit/diaryStats.test.ts › «R5: cambiar a 30 días…»; e2e › «R5: selector 7 / 30 días» | unit + e2e | ✅ passing |
+| R6 | tests/unit/diaryStats.test.ts › «addDays…», «R6: el periodo son N días completos…»; e2e › «R6: días completos; hoy no cuenta» | unit + e2e | ✅ passing |
+| R7 | tests/unit/diaryStats.test.ts › «R7…»; e2e › «R7: sin registros en el periodo» | unit + e2e | ✅ passing |
+| R8 | tests/unit/diaryStats.test.ts › «R8: rango de fechas del periodo»; e2e subtítulos | unit + e2e | ✅ passing |
+| R9 | tests/e2e/medias-adherencia.spec.ts › «R9…»; tests/unit/DayMacroSummary.test.tsx › «Medias del periodo…» | e2e + componente | ✅ passing |
+| R10 | tests/e2e/medias-adherencia.spec.ts › «R10…» (radios + flechas); tests/e2e/accessibility.spec.ts › «Diario con medias y adherencia» | e2e | ✅ passing |
+| R11 | tests/e2e/medias-adherencia.spec.ts › «R11: se recuerda la opción elegida» | e2e | ✅ passing |

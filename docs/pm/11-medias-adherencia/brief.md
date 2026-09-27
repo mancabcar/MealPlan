@@ -1,6 +1,6 @@
 # Medias semanales y adherencia en el Diario
 
-_Status: tests · Updated: 2026-09-27 · Issue: [#11](https://github.com/mancabcar/MealPlan/issues/11) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: coding · Updated: 2026-09-27 · Issue: [#11](https://github.com/mancabcar/MealPlan/issues/11) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Problema
 La gráfica semanal del Diario (`src/app/page.tsx`) solo muestra calorías. No enseña medias de proteínas, carbohidratos ni grasas, ni cuántos días se ha cumplido el plan de la nutricionista. Cada día se puede ver si se cumple (`MacroBar`), pero no la tendencia: una semana con dos días muy por encima y cinco correctos se ve igual que una semana entera fuera del objetivo.
