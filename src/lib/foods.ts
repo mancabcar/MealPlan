@@ -45,6 +45,17 @@ export const FOODS_CITATION = "Valores de CIQUAL (ANSES, 2020) y USDA FoodData C
 
 export const BASICS_LIMIT = 8;
 
+// Nombres normalizados una sola vez por tabla (se busca en cada tecla; review de #13)
+const normalizedCache = new WeakMap<LocalFood[], { food: LocalFood; name: string }[]>();
+function normalizedNames(foods: LocalFood[]) {
+  let entries = normalizedCache.get(foods);
+  if (!entries) {
+    entries = foods.map((food) => ({ food, name: normalize(food.name) }));
+    normalizedCache.set(foods, entries);
+  }
+  return entries;
+}
+
 /**
  * R2: con 2 caracteres o más, los alimentos cuyo nombre contiene todas las palabras escritas, sin tildes ni
  * mayúsculas. Primero los que empiezan por la primera palabra; dentro de cada grupo, el orden de la tabla.
@@ -53,9 +64,7 @@ export function searchLocalFoods(query: string, foods: LocalFood[] = FOODS, limi
   const q = normalize(query);
   if (q.length < 2) return [];
   const words = q.split(" ");
-  const matches = foods
-    .map((food) => ({ food, name: normalize(food.name) }))
-    .filter(({ name }) => words.every((w) => name.includes(w)));
+  const matches = normalizedNames(foods).filter(({ name }) => words.every((w) => name.includes(w)));
   // sort es estable: dentro de cada grupo se conserva el orden de la tabla
   const starts = (name: string) => (name.startsWith(words[0]) ? 0 : 1);
   return matches
