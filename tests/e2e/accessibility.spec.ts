@@ -77,6 +77,20 @@ test.describe("R6: contraste de color", () => {
     await expectNoContrastViolations(page);
   });
 
+  // docs/pm/12-registro-rapido/tech.md › Testing strategy: formulario de añadir con Recientes (título, filas con
+  // nombre, «× 0,5» en texto atenuado y kcal).
+  test("Diario con Recientes", async ({ page }) => {
+    const entries = [
+      { id: "r1", date: "2026-09-21", mealType: "Comida", recipeId: GUISO.id, calories: 300, protein: 20, carbs: 30, fat: 10, servings: 0.5 },
+      { id: "r2", date: "2026-09-21", mealType: "Cena", customName: "Yogur con nueces", calories: 210, protein: 9, carbs: 12, fat: 14 },
+    ];
+    await signIn(page, { profile: lucia, recipes: RACIONES_RECIPES, weekplan: {}, entries });
+    await page.goto("/");
+    await page.getByRole("button", { name: "Añadir comida" }).click();
+    await expect(page.getByRole("list", { name: "Recientes" }).getByRole("button")).toHaveCount(2);
+    await expectNoContrastViolations(page);
+  });
+
   // docs/pm/11-medias-adherencia/tech.md › Testing strategy: tarjeta «Medias y adherencia» llena (selector 7/30,
   // rango de fechas, medias con estado y adherencia). Falla hasta que exista (tarea 6).
   test("Diario con medias y adherencia", async ({ page }) => {
