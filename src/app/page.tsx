@@ -188,7 +188,9 @@ export default function DiaryPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    // Mientras se ve el aviso (fixed, bottom-24), hueco al final para que «Añadir comida» pueda quedar por encima
+    // y se pueda añadir otro alimento seguido (review de #13)
+    <div className={`flex flex-col gap-4 ${added ? "pb-20" : ""}`}>
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Diario</h1>
         <input type="date" aria-label="Fecha" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
@@ -482,8 +484,10 @@ export default function DiaryPage() {
       )}
 
       {added && (
-        // R10: mismo componente y duración que el aviso de la Despensa
+        // R10: mismo componente y duración que el aviso de la Despensa. La key lo remonta con cada alimento añadido,
+        // así el segundo aviso seguido tiene sus 10 s enteros (review de #13).
         <Toast
+          key={added.entryId}
           onDismiss={hideAdded}
           action={{
             label: "Deshacer",
