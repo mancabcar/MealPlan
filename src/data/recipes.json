@@ -2086,6 +2086,211 @@
       "carbs": 17,
       "fat": 13,
       "tags": ["cena", "ligero", "alto proteína", "sin gluten", "al horno"]
+    },
+    {
+      "id": "recipe_085",
+      "name": "Tortitas de arroz con jamón de pavo y tomate",
+      "ingredients": [
+        "3 tortitas de arroz",
+        "60g jamón de pavo",
+        "1/2 tomate"
+      ],
+      "instructions": [
+        "Cortar el tomate en rodajas finas.",
+        "Colocar el jamón de pavo y el tomate sobre las tortitas."
+      ],
+      "prepTimeMinutes": 3,
+      "calories": 175,
+      "protein": 13,
+      "carbs": 25,
+      "fat": 2,
+      "tags": ["snack", "rápido", "sin cocinar", "para llevar", "sin gluten", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_086",
+      "name": "Batido de proteína con higos",
+      "ingredients": [
+        "30g proteína en polvo",
+        "2 higos",
+        "200ml leche desnatada"
+      ],
+      "instructions": [
+        "Quitar el tallo a los higos.",
+        "Triturar todo en la batidora hasta que quede cremoso y servir frío."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 250,
+      "protein": 31,
+      "carbs": 27,
+      "fat": 2,
+      "tags": ["snack", "rápido", "sin cocinar", "alto proteína", "plan nutricionista", "otoño"]
+    },
+    {
+      "id": "recipe_087",
+      "name": "Batido pre-gym de proteína y plátano",
+      "ingredients": [
+        "30g proteína en polvo",
+        "1 plátano",
+        "300ml agua"
+      ],
+      "instructions": [
+        "Triturar todo en la batidora, o agitar la proteína con el agua en un vaso mezclador y comer el plátano aparte.",
+        "Tomar 45-60 minutos antes de entrenar."
+      ],
+      "prepTimeMinutes": 2,
+      "calories": 230,
+      "protein": 25,
+      "carbs": 29,
+      "fat": 2,
+      "tags": ["snack", "pre-gym", "rápido", "sin cocinar", "alto proteína", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_088",
+      "name": "Mandarinas con almendras",
+      "ingredients": [
+        "2 mandarinas",
+        "20g almendras"
+      ],
+      "instructions": [
+        "Pelar las mandarinas.",
+        "Acompañarlas con las almendras, mejor naturales o tostadas sin sal."
+      ],
+      "prepTimeMinutes": 2,
+      "calories": 190,
+      "protein": 5,
+      "carbs": 21,
+      "fat": 10,
+      "tags": ["snack", "rápido", "sin cocinar", "para llevar", "vegano", "vegetariano", "sin gluten", "plan nutricionista", "otoño"]
+    },
+    {
+      "id": "recipe_089",
+      "name": "Hummus de calabaza con crudités",
+      "ingredients": [
+        "100g garbanzos cocidos",
+        "80g calabaza",
+        "1 cucharadita de pasta de sésamo",
+        "zumo de 1/2 limón",
+        "1 cucharadita de aceite de oliva",
+        "comino y sal",
+        "1 zanahoria",
+        "1/2 pepino"
+      ],
+      "instructions": [
+        "Cocer la calabaza en dados en el microondas 4-5 minutos.",
+        "Triturar los garbanzos escurridos con la calabaza, la pasta de sésamo, el limón, el aceite, comino y sal hasta que quede cremoso; si queda espeso, añadir un poco de agua.",
+        "Cortar la zanahoria y el pepino en bastones y servirlos para mojar."
+      ],
+      "prepTimeMinutes": 12,
+      "calories": 275,
+      "protein": 11,
+      "carbs": 35,
+      "fat": 10,
+      "tags": ["snack", "para llevar", "vegano", "vegetariano", "sin gluten", "legumbres", "otoño"]
+    },
+    {
+      "id": "recipe_090",
+      "name": "Mousse de cacao con queso fresco batido",
+      "ingredients": [
+        "250g queso fresco batido",
+        "1 cucharada de cacao puro en polvo",
+        "1 cucharadita de miel",
+        "10g chocolate negro"
+      ],
+      "instructions": [
+        "Mezclar el queso fresco batido con el cacao y la miel hasta que no queden grumos.",
+        "Repartir en un vaso y dejar en la nevera al menos 15 minutos.",
+        "Servir con el chocolate rallado por encima (mejor de 85% de cacao o más)."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 225,
+      "protein": 23,
+      "carbs": 17,
+      "fat": 7,
+      "tags": ["snack", "postre", "sin cocinar", "vegetariano", "sin gluten", "alto proteína"]
+    },
+    {
+      "id": "recipe_091",
+      "name": "Huevos duros con tomates cherry",
+      "ingredients": [
+        "2 huevos",
+        "8 tomates cherry",
+        "sal y pimentón"
+      ],
+      "instructions": [
+        "Cocer los huevos 10 minutos, enfriarlos en agua y pelarlos.",
+        "Cortarlos por la mitad y espolvorear sal y pimentón.",
+        "Acompañar con los tomates cherry."
+      ],
+      "prepTimeMinutes": 12,
+      "calories": 160,
+      "protein": 13,
+      "carbs": 5,
+      "fat": 10,
+      "tags": ["snack", "para llevar", "vegetariano", "sin gluten", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_092",
+      "name": "Rollitos de pavo con queso fresco y espárragos",
+      "ingredients": [
+        "80g jamón de pavo",
+        "100g queso fresco batido",
+        "100g espárragos verdes",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Hacer los espárragos a la plancha 4-5 minutos con una pizca de sal.",
+        "Untar cada loncha de pavo con queso fresco batido y pimienta.",
+        "Colocar un espárrago en cada loncha y enrollar."
+      ],
+      "prepTimeMinutes": 10,
+      "calories": 150,
+      "protein": 25,
+      "carbs": 7,
+      "fat": 2,
+      "tags": ["snack", "alto proteína", "sin gluten", "bajo carbohidrato", "para llevar"]
+    },
+    {
+      "id": "recipe_093",
+      "name": "Edamame salteado con sal y lima",
+      "ingredients": [
+        "150g edamame",
+        "zumo de 1/2 lima",
+        "sal"
+      ],
+      "instructions": [
+        "Cocer el edamame congelado en agua hirviendo 4-5 minutos y escurrir.",
+        "Saltearlo 1 minuto en una sartén caliente sin aceite.",
+        "Aliñar con el zumo de lima y sal en escamas."
+      ],
+      "prepTimeMinutes": 8,
+      "calories": 185,
+      "protein": 17,
+      "carbs": 13,
+      "fat": 8,
+      "tags": ["snack", "vegano", "vegetariano", "sin gluten", "asiático", "rápido"]
+    },
+    {
+      "id": "recipe_094",
+      "name": "Bolitas de avena, dátil y almendra",
+      "ingredients": [
+        "30g copos de avena",
+        "2 dátiles",
+        "15g proteína en polvo",
+        "10g almendras",
+        "canela al gusto"
+      ],
+      "instructions": [
+        "Deshuesar los dátiles y dejarlos 10 minutos en agua caliente para ablandarlos.",
+        "Triturar todo con 1-2 cucharadas del agua de remojo hasta obtener una masa compacta.",
+        "Formar 4-5 bolitas y dejarlas en la nevera 30 minutos.",
+        "Se conservan hasta 5 días en la nevera en un recipiente cerrado."
+      ],
+      "prepTimeMinutes": 15,
+      "calories": 270,
+      "protein": 18,
+      "carbs": 31,
+      "fat": 7,
+      "tags": ["snack", "pre-gym", "sin cocinar", "para llevar", "vegetariano"]
     }
   ]
 }

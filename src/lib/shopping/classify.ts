@@ -17,7 +17,7 @@ const AISLE_KEYWORDS: Record<Exclude<Aisle, "Otros">, string[]> = {
     "plátano", "puerro", "rúcula", "seta", "tomate", "zanahoria", "cilantro", "menta", "pera", "fruta", "verdura",
     // De las tandas de otoño y platos de cuchara (recipe_041 en adelante)
     "acelga", "boniato", "caqui", "castaña", "col", "coliflor", "granada", "higo", "lombarda",
-    "alcachofa", "repollo",
+    "alcachofa", "repollo", "mandarina", "edamame",
   ],
   "Carne y pescado": [
     "pollo", "pavo", "ternera", "cerdo", "carne", "pechuga", "solomillo", "jamón", "fiambre", "bacalao", "merluza",
