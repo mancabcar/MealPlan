@@ -21,7 +21,7 @@ const AISLE_KEYWORDS: Record<Exclude<Aisle, "Otros">, string[]> = {
   ],
   "Carne y pescado": [
     "pollo", "pavo", "ternera", "cerdo", "carne", "pechuga", "solomillo", "jamón", "fiambre", "bacalao", "merluza",
-    "salmón", "gamba", "langostino", "pescado", "atún fresco", "sardina", "lubina", "dorada", "chorizo", "caballa", "bonito",
+    "salmón", "gamba", "langostino", "pescado", "atún fresco", "sardina", "lubina", "dorada", "chorizo", "caballa", "bonito", "sepia",
   ],
   "Lácteos y huevos": [
     "huevo", "claras de huevo", "leche", "yogur", "queso", "quesito", "mozzarella", "mantequilla", "kéfir", "nata", "tofu",

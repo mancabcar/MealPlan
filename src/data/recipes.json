@@ -1839,6 +1839,253 @@
       "carbs": 72,
       "fat": 13,
       "tags": ["comida", "arroz", "alto proteína", "sin gluten", "otoño", "de cuchara"]
+    },
+    {
+      "id": "recipe_075",
+      "name": "Lubina al horno con verduras asadas",
+      "ingredients": [
+        "150g lomos de lubina",
+        "1/2 calabacín",
+        "1/2 pimiento rojo",
+        "1/2 cebolla",
+        "1 cucharada de aceite de oliva",
+        "zumo de 1/2 limón",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Precalentar el horno a 200°C.",
+        "Cortar las verduras en tiras, aliñarlas con la mitad del aceite, sal y pimienta y hornear 15 minutos.",
+        "Colocar los lomos de lubina sobre las verduras, regar con el resto del aceite y el limón y salar.",
+        "Hornear 10-12 minutos más."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 310,
+      "protein": 30,
+      "carbs": 12,
+      "fat": 16,
+      "tags": ["cena", "ligero", "pescado", "sin gluten", "al horno", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_076",
+      "name": "Pollo al limón con judías verdes salteadas",
+      "ingredients": [
+        "150g pechuga de pollo",
+        "200g judías verdes",
+        "1 diente de ajo",
+        "1 cucharada de aceite de oliva",
+        "zumo de 1/2 limón",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Cocer las judías verdes troceadas en agua con sal 8 minutos y escurrir.",
+        "Salpimentar el pollo y hacerlo a la plancha con la mitad del aceite, 4-5 minutos por cada lado; al final, regar con el limón.",
+        "Saltear el ajo laminado con el resto del aceite, añadir las judías y saltear 2-3 minutos.",
+        "Servir el pollo en filetes con las judías."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 320,
+      "protein": 38,
+      "carbs": 11,
+      "fat": 12,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_077",
+      "name": "Tortilla de calabacín y cebolla",
+      "ingredients": [
+        "2 huevos",
+        "3 claras de huevo",
+        "1 calabacín",
+        "1/2 cebolla",
+        "1 cucharadita de aceite de oliva",
+        "sal"
+      ],
+      "instructions": [
+        "Cortar el calabacín en dados pequeños y la cebolla en juliana.",
+        "Pocharlos con el aceite a fuego medio 8-10 minutos, hasta que estén tiernos.",
+        "Batir los huevos con las claras y sal, añadir las verduras y mezclar.",
+        "Cuajar la tortilla en la sartén 3 minutos por cada lado."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 290,
+      "protein": 26,
+      "carbs": 12,
+      "fat": 15,
+      "tags": ["cena", "ligero", "vegetariano", "sin gluten", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_078",
+      "name": "Ensalada templada de judías verdes, atún y huevo",
+      "ingredients": [
+        "150g judías verdes",
+        "2 latas de atún al natural",
+        "1 huevo",
+        "8 tomates cherry",
+        "30g rúcula",
+        "1 cucharada de aceite de oliva",
+        "vinagre balsámico, sal y pimienta"
+      ],
+      "instructions": [
+        "Cocer el huevo 10 minutos, enfriarlo y pelarlo.",
+        "Cocer las judías verdes troceadas en agua con sal 8 minutos y escurrir.",
+        "Mezclar en un bol la rúcula, las judías templadas, los tomates cherry en mitades y el atún escurrido.",
+        "Añadir el huevo en cuartos y aliñar con el aceite, el vinagre, sal y pimienta."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 350,
+      "protein": 39,
+      "carbs": 12,
+      "fat": 16,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_079",
+      "name": "Sepia a la plancha con ajo, perejil y ensalada de tomate",
+      "ingredients": [
+        "200g sepia limpia",
+        "2 dientes de ajo",
+        "perejil fresco",
+        "1 tomate grande",
+        "1/4 cebolla morada",
+        "1 cucharada de aceite de oliva",
+        "sal"
+      ],
+      "instructions": [
+        "Picar el ajo y el perejil y mezclarlos con la mitad del aceite.",
+        "Cortar la sepia en tiras y hacerla a la plancha muy caliente 3-4 minutos, con una pizca de sal.",
+        "Retirar y regar con el aceite de ajo y perejil.",
+        "Servir con el tomate en rodajas y la cebolla morada en juliana, aliñados con el resto del aceite y sal."
+      ],
+      "prepTimeMinutes": 15,
+      "calories": 295,
+      "protein": 34,
+      "carbs": 11,
+      "fat": 12,
+      "tags": ["cena", "ligero", "pescado", "marisco", "alto proteína", "sin gluten", "rápido"]
+    },
+    {
+      "id": "recipe_080",
+      "name": "Hamburguesas de pollo con ensalada de pepino, tomate y aguacate",
+      "ingredients": [
+        "150g pechuga de pollo picada",
+        "1 clara de huevo",
+        "1/4 cebolla",
+        "perejil fresco",
+        "sal, pimienta y ajo en polvo",
+        "1 pepino",
+        "1 tomate",
+        "40g aguacate",
+        "1 cucharadita de aceite de oliva"
+      ],
+      "instructions": [
+        "Mezclar el pollo picado con la clara, la cebolla y el perejil muy picados, sal, pimienta y ajo en polvo.",
+        "Formar dos hamburguesas y hacerlas a la plancha 4-5 minutos por cada lado.",
+        "Cortar el pepino, el tomate y el aguacate en dados y aliñarlos con el aceite y sal.",
+        "Servir las hamburguesas con la ensalada."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 350,
+      "protein": 41,
+      "carbs": 15,
+      "fat": 14,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "plan nutricionista"]
+    },
+    {
+      "id": "recipe_081",
+      "name": "Salteado de langostinos con brócoli y jengibre",
+      "ingredients": [
+        "150g langostinos pelados",
+        "200g brócoli",
+        "2 dientes de ajo",
+        "1 cucharadita de jengibre rallado",
+        "1 cucharada de salsa de soja",
+        "1 cucharada de aceite de oliva"
+      ],
+      "instructions": [
+        "Cortar el brócoli en ramilletes pequeños y escaldarlo 2 minutos en agua hirviendo.",
+        "Saltear el ajo laminado y el jengibre con el aceite 30 segundos.",
+        "Añadir el brócoli y saltear a fuego fuerte 3 minutos.",
+        "Incorporar los langostinos y la soja y saltear 2-3 minutos más, hasta que los langostinos estén hechos."
+      ],
+      "prepTimeMinutes": 15,
+      "calories": 315,
+      "protein": 37,
+      "carbs": 13,
+      "fat": 13,
+      "tags": ["cena", "ligero", "marisco", "alto proteína", "asiático", "rápido"]
+    },
+    {
+      "id": "recipe_082",
+      "name": "Revuelto de espárragos trigueros y jamón",
+      "ingredients": [
+        "2 huevos",
+        "2 claras de huevo",
+        "150g espárragos verdes",
+        "40g taquitos de jamón serrano",
+        "1 cucharadita de aceite de oliva"
+      ],
+      "instructions": [
+        "Cortar los espárragos en trozos, descartando la parte dura.",
+        "Saltearlos con el aceite 5 minutos y añadir el jamón 1 minuto más.",
+        "Batir los huevos con las claras, añadirlos a la sartén y remover a fuego bajo hasta que cuajen cremosos."
+      ],
+      "prepTimeMinutes": 15,
+      "calories": 335,
+      "protein": 35,
+      "carbs": 5,
+      "fat": 19,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato", "rápido"]
+    },
+    {
+      "id": "recipe_083",
+      "name": "Brochetas de pavo con pimientos y salsa de yogur",
+      "ingredients": [
+        "150g pechuga de pavo",
+        "1/2 pimiento rojo",
+        "1/2 pimiento verde",
+        "1/2 cebolla",
+        "1 cucharadita de aceite de oliva",
+        "2 cucharadas de yogur griego natural",
+        "pimentón, comino y sal"
+      ],
+      "instructions": [
+        "Cortar el pavo y las verduras en dados y ensartarlos alternados en brochetas.",
+        "Pincelar con el aceite y condimentar con pimentón, comino y sal.",
+        "Hacerlas a la plancha 8-10 minutos, girándolas a menudo.",
+        "Servir con el yogur mezclado con una pizca de comino y sal."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 285,
+      "protein": 37,
+      "carbs": 11,
+      "fat": 10,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato"]
+    },
+    {
+      "id": "recipe_084",
+      "name": "Calabacín relleno de atún gratinado",
+      "ingredients": [
+        "1 calabacín",
+        "2 latas de atún al natural",
+        "100g tomate triturado",
+        "1/2 cebolla",
+        "30g mozzarella rallada",
+        "1 cucharadita de aceite de oliva",
+        "sal y orégano"
+      ],
+      "instructions": [
+        "Precalentar el horno a 200°C.",
+        "Partir el calabacín a lo largo, vaciarlo con una cuchara y hornear las barcas 10 minutos.",
+        "Pochar la cebolla y la pulpa del calabacín picadas con el aceite 5 minutos, añadir el tomate y cocinar 5 minutos más.",
+        "Mezclar con el atún escurrido, sal y orégano y rellenar las barcas.",
+        "Cubrir con la mozzarella y gratinar 8-10 minutos."
+      ],
+      "prepTimeMinutes": 35,
+      "calories": 340,
+      "protein": 39,
+      "carbs": 17,
+      "fat": 13,
+      "tags": ["cena", "ligero", "alto proteína", "sin gluten", "al horno"]
     }
   ]
 }
