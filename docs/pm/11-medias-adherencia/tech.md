@@ -143,8 +143,8 @@ Sin prototipo; se decide aquí la pregunta abierta: **tarjeta propia debajo de �
 3. [x] `src/lib/diaryStats.ts`: `statsPeriod`, `dailyTotals`, `isCompliantDay`, `periodStats`, `formatPeriod`; unit en verde. (R1–R4, R6–R8)
 4. [x] Extraer `ChipRadios` a `src/components/ui/ChipRadios.tsx` y usarlo desde Evolución; e2e de Evolución en verde. (R5, R10)
 5. [x] `DayMacroSummary`: prop `label` y aviso opcional. (R9)
-6. [ ] `src/components/diario/PeriodSummary.tsx` e integración en `src/app/page.tsx` con `days` en estado (7 por defecto); e2e de R1–R10 y axe en verde. (R1–R10)
-7. [ ] Recordar 7/30 en `localStorage` por usuario. (R11)
+6. [x] `src/components/diario/PeriodSummary.tsx` e integración en `src/app/page.tsx` con `days` en estado (7 por defecto); e2e de R1–R10 y axe en verde. (R1–R10)
+7. [x] Recordar 7/30 en `localStorage` por usuario. (R11)
 8. [ ] Revisión a 375 px, lint, typecheck, build.
 
 ## Spec feedback
