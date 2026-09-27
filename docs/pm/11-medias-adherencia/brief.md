@@ -28,6 +28,11 @@ El issue ya trae el problema, la propuesta y los criterios de aceptación, así 
 - El día en curso no cuenta: el periodo termina en la fecha seleccionada si es pasada y, si no, ayer.
 - Tolerancia fija ±10 % (la del Plan). Hacerla editable es un follow-up.
 
+## Qué vigilar
+Las métricas del [spec](spec.md#success-metrics):
+- La media semanal de la app coincide, redondeando, con la cuenta a mano de una semana real.
+- La tarjeta se usa en la próxima consulta con la nutricionista.
+
 ## Follow-ups
 - Tolerancia editable en Perfil, compartida por Plan y Diario (y en el backup). (spec) → [#49](https://github.com/mancabcar/MealPlan/issues/49)
 - Marcar en `WeekBarChart` los días que cumplen (pregunta abierta del spec). (spec) → [#50](https://github.com/mancabcar/MealPlan/issues/50)
