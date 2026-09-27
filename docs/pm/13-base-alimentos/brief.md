@@ -2,10 +2,10 @@
 _Status: brainstorm · Updated: 2026-09-27 · Issue: [#13](https://github.com/mancabcar/MealPlan/issues/13) (@mancabcar)_
 
 ## Follow-ups
-- Escáner de código de barras para envasados (fuera de esta entrega por decisión del usuario). (brainstorm)
-- Combinar varios alimentos con sus gramos en un plato y registrarlo como una sola entrada. (brainstorm)
+- Escáner de código de barras para envasados (fuera de esta entrega por decisión del usuario). (brainstorm) → ya cubierto por [#14](https://github.com/mancabcar/MealPlan/issues/14) (depende de #13)
+- Combinar varios alimentos con sus gramos en un plato y registrarlo como una sola entrada. (brainstorm) → [#56](https://github.com/mancabcar/MealPlan/issues/56)
 - Caché local de los alimentos de Open Food Facts usados, para volver a buscarlos sin red y sin llamar a la API. (brainstorm)
-- Editar los gramos de una entrada ya registrada (hoy solo se borran con la ✕). (brainstorm)
+- Editar los gramos de una entrada ya registrada (hoy solo se borran con la ✕). (brainstorm) → [#57](https://github.com/mancabcar/MealPlan/issues/57)
 - «Alimento no encontrado → Personalizada» con el nombre ya escrito. (brainstorm)
 - Dirección E: escribir en texto libre y que Claude estime los macros. No encaja con «solo fuentes gratuitas». (brainstorm)
 - Dirección A: calculadora «por 100 g» en Personalizada para copiar la etiqueta. (brainstorm)
