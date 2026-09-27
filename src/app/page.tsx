@@ -97,6 +97,14 @@ const singleClick = (action: () => void) => (ev: MouseEvent) => {
   action();
 };
 
+// Pestañas de «Añadir comida», en este orden (docs/pm/13-base-alimentos, R1)
+type AddMode = "recipe" | "food" | "custom";
+const MODES: [AddMode, string][] = [
+  ["recipe", "Receta"],
+  ["food", "Alimento"],
+  ["custom", "Personalizada"],
+];
+
 // Botones − / + de "Raciones": cuadrados con borde, como los toggles Receta/Personalizada
 const stepBtnCls =
   "shrink-0 flex items-center justify-center w-10 h-10 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] disabled:opacity-40";
@@ -112,7 +120,7 @@ export default function DiaryPage() {
   const [mealType, setMealType] = useState<MealType>(() =>
     !profile || profile.meals.includes("Comida") ? "Comida" : profile.meals[0],
   );
-  const [mode, setMode] = useState<"recipe" | "food" | "custom">("recipe");
+  const [mode, setMode] = useState<AddMode>("recipe");
   const [recipeId, setRecipeId] = useState("");
   const [customName, setCustomName] = useState("");
   const [customMacros, setCustomMacros] = useState({ calories: 0, protein: 0, carbs: 0, fat: 0 });
@@ -324,36 +332,19 @@ export default function DiaryPage() {
             }
           />
           <div className="flex gap-2 text-sm">
-            <button
-              onClick={() => setMode("recipe")}
-              className={`flex-1 py-1.5 rounded-lg border ${
-                mode === "recipe"
-                  ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-[var(--color-accent)]"
-                  : "border-[var(--color-border)] text-[var(--color-text-muted)]"
-              }`}
-            >
-              Receta
-            </button>
-            <button
-              onClick={() => setMode("food")}
-              className={`flex-1 py-1.5 rounded-lg border ${
-                mode === "food"
-                  ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-[var(--color-accent)]"
-                  : "border-[var(--color-border)] text-[var(--color-text-muted)]"
-              }`}
-            >
-              Alimento
-            </button>
-            <button
-              onClick={() => setMode("custom")}
-              className={`flex-1 py-1.5 rounded-lg border ${
-                mode === "custom"
-                  ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-[var(--color-accent)]"
-                  : "border-[var(--color-border)] text-[var(--color-text-muted)]"
-              }`}
-            >
-              Personalizada
-            </button>
+            {MODES.map(([m, label]) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={`flex-1 py-1.5 rounded-lg border ${
+                  mode === m
+                    ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-[var(--color-accent)]"
+                    : "border-[var(--color-border)] text-[var(--color-text-muted)]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
           {/* R1, Edge cases: montado mientras el formulario está abierto, oculto fuera de su pestaña, para que la
               búsqueda y sus resultados sobrevivan a un cambio de pestaña */}
