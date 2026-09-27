@@ -1,5 +1,5 @@
 # Base de datos de alimentos: Technical design
-_Status: Draft · Updated: 2026-09-27_
+_Status: Built · Updated: 2026-09-27_
 _Related: [spec](spec.md) · [brief](brief.md) · [prototype](https://claude.ai/artifact/8TZ5a1jtbR6xst5EvzzBJK)_
 
 ## Summary
@@ -192,47 +192,59 @@ Los tests se escriben antes del código, con dev-test.
 ## Test coverage
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | tests/e2e/food.spec.ts › "R1: pestaña Alimento" | e2e | 🔴 failing (not built) |
-| R2 | tests/unit/foods.test.ts › "R2: búsqueda en los básicos" (8) | unit | 🔴 failing (not built) |
-| R2 | tests/e2e/food.spec.ts › "R2 · R3: búsqueda en los básicos" (1 letra, «arroz coc», «platano», crudo/cocido, sin coincidencias) | e2e | 🔴 failing (not built) |
-| R3 | tests/unit/foods-data.test.ts › "R3: forma de la tabla local", "R3: cubre los alimentos de los planes" | unit | 🔴 failing (not built) |
-| R3 | tests/e2e/food.spec.ts › "el pie de Básicos cita las fuentes", "sin red, los básicos salen igual" | e2e | 🔴 failing (not built) |
-| R4 | tests/unit/foods-route.test.ts › "R4: petición a Search-a-licious", "R4: normalización de los productos" | unit | 🔴 failing (not built) |
-| R4 | tests/e2e/food.spec.ts › "R4: productos de marca" (3) | e2e | 🔴 failing (not built) |
-| R5 | tests/e2e/food.spec.ts › "R5: tarjeta del alimento" (+ Edge cases de pestañas y de cambio de texto) | e2e | 🔴 failing (not built) |
-| R6 | tests/unit/foods.test.ts › "R6: macros por gramos", "R6: gramos válidos" | unit | 🔴 failing (not built) |
-| R6 | tests/e2e/food.spec.ts › "R6 · R8 · R9: registrar en gramos" (chips, inválidos, doble toque) | e2e | 🔴 failing (not built) |
-| R7 | tests/unit/foods.test.ts › "R7: unidades válidas" | unit | 🔴 failing (not built) |
-| R7 | tests/e2e/food.spec.ts › "R7: registrar en unidades" (4) | e2e | 🔴 failing (not built) |
-| R8 | tests/unit/diary-food.test.ts › "R8: entrada de alimento" (6) | unit | 🔴 failing (not built) |
-| R8 | tests/e2e/food.spec.ts › "R8: producto de marca", "150 g de «Arroz blanco, cocido» …" | e2e | 🔴 failing (not built) |
-| R9 | tests/unit/diary-food.test.ts › "R9: cantidad junto al nombre en el Diario" (5) | unit | 🔴 failing (not built) |
-| R9 | tests/e2e/food.spec.ts › "… el Diario muestra «150 g»", "2 ud → «2 ud · N g»", "se ven como antes" | e2e | 🔴 failing (not built) |
-| R10 | tests/e2e/food.spec.ts › "R10: aviso con Deshacer" | e2e | 🔴 failing (not built) |
-| R11 | tests/unit/foods-route.test.ts › "R11: errores de OFF" (7) | unit | 🔴 failing (not built) |
-| R11 | tests/e2e/food.spec.ts › "R11: errores de OFF" (3) | e2e | 🔴 failing (not built) |
-| R12 | tests/unit/foods.test.ts › "R12: límite de búsquedas en OFF" | unit | 🔴 failing (not built) |
-| R12 | tests/e2e/food.spec.ts › "R12: límite de búsquedas" (429 + cuenta atrás) | e2e | 🔴 failing (not built) |
-| R13 | — | — | ⏸ pending (#12 sin mergear; tarea 11) |
-| R14 | tests/e2e/food.spec.ts › "R14: no lo encuentro → Personalizada" | e2e | 🔴 failing (not built) |
-| — | tests/e2e/food.spec.ts › "Accesibilidad de la pestaña Alimento" (axe) | e2e | 🔴 failing (not built) |
+| R1 | tests/e2e/food.spec.ts › "R1: pestaña Alimento" | e2e | ✅ passing |
+| R2 | tests/unit/foods.test.ts › "R2: búsqueda en los básicos" (8) | unit | ✅ passing |
+| R2 | tests/e2e/food.spec.ts › "R2 · R3: búsqueda en los básicos" (1 letra, «arroz coc», «platano», crudo/cocido, sin coincidencias) | e2e | ✅ passing |
+| R3 | tests/unit/foods-data.test.ts › "R3: forma de la tabla local", "R3: cubre los alimentos de los planes" | unit | ✅ passing |
+| R3 | tests/e2e/food.spec.ts › "el pie de Básicos cita las fuentes", "sin red, los básicos salen igual" | e2e | ✅ passing |
+| R4 | tests/unit/foods-route.test.ts › "R4: petición a Search-a-licious", "R4: normalización de los productos" | unit | ✅ passing |
+| R4 | tests/e2e/food.spec.ts › "R4: productos de marca" (3) | e2e | ✅ passing |
+| R5 | tests/e2e/food.spec.ts › "R5: tarjeta del alimento" (+ Edge cases de pestañas y de cambio de texto) | e2e | ✅ passing |
+| R6 | tests/unit/foods.test.ts › "R6: macros por gramos", "R6: gramos válidos" | unit | ✅ passing |
+| R6 | tests/e2e/food.spec.ts › "R6 · R8 · R9: registrar en gramos" (chips, inválidos, doble toque) | e2e | ✅ passing |
+| R7 | tests/unit/foods.test.ts › "R7: unidades válidas" | unit | ✅ passing |
+| R7 | tests/e2e/food.spec.ts › "R7: registrar en unidades" (4) | e2e | ✅ passing |
+| R8 | tests/unit/diary-food.test.ts › "R8: entrada de alimento" (6) | unit | ✅ passing |
+| R8 | tests/e2e/food.spec.ts › "R8: producto de marca", "150 g de «Arroz blanco, cocido» …" | e2e | ✅ passing |
+| R9 | tests/unit/diary-food.test.ts › "R9: cantidad junto al nombre en el Diario" (5) | unit | ✅ passing |
+| R9 | tests/e2e/food.spec.ts › "… el Diario muestra «150 g»", "2 ud → «2 ud · N g»", "se ven como antes" | e2e | ✅ passing |
+| R10 | tests/e2e/food.spec.ts › "R10: aviso con Deshacer" | e2e | ✅ passing |
+| R11 | tests/unit/foods-route.test.ts › "R11: errores de OFF" (7) | unit | ✅ passing |
+| R11 | tests/e2e/food.spec.ts › "R11: errores de OFF" (3) | e2e | ✅ passing |
+| R12 | tests/unit/foods.test.ts › "R12: límite de búsquedas en OFF" | unit | ✅ passing |
+| R12 | tests/e2e/food.spec.ts › "R12: límite de búsquedas" (429 + cuenta atrás) | e2e | ✅ passing |
+| R13 | tests/unit/diary-food.test.ts › "R13: entradas de alimento en Recientes (#12)" (5) | unit | ✅ passing |
+| R13 | tests/e2e/food.spec.ts › "R13: entradas de alimento en Recientes" | e2e | ✅ passing |
+| R14 | tests/e2e/food.spec.ts › "R14: no lo encuentro → Personalizada" | e2e | ✅ passing |
+| — | tests/e2e/food.spec.ts › "Accesibilidad de la pestaña Alimento" (axe) | e2e | ✅ passing |
 
 ## Tasks
-1. [ ] Script `scripts/build-foods.mjs` + lista curada `scripts/foods-list.json` + `src/data/foods.json` generado (R3)
-2. [ ] `src/lib/foods.ts`: tipos, `searchLocalFoods`, `scaleMacros`, `displayMacro`, `parseGrams`, `parseUnits`, `offCooldown` (R2, R6, R7, R12)
-3. [ ] `MealEntry` + `foodEntry()` + `quantityLabel()`; el Diario muestra la cantidad (R8, R9)
-4. [ ] Route handler `GET /api/foods/search` (R4, R11)
-5. [ ] Hook `useBrandSearch` con limitador y sessionStorage (R4, R11, R12)
-6. [ ] `FoodPicker`: pestaña, bloque Básicos con cita, tarjeta en gramos y alta de la entrada en `page.tsx` (R1, R2, R5, R6, R8)
-7. [ ] Unidades en la tarjeta (R7)
-8. [ ] Bloque de productos de marca, errores 4A/4B y cuenta atrás (R4, R11, R12)
-9. [ ] Toast «Añadido a … · Deshacer» (R10)
-10. [ ] «¿No lo encuentras? Añádelo a mano» → Personalizada con el nombre (R14)
-11. [ ] Si #12 está mergeado: entradas de alimento en Recientes, con identidad `foodId` + `grams` + `units` (R13). Si no, anotarlo en `docs/pm/12-registro-rapido/` como pendiente.
-12. [ ] README: fuentes de datos, licencias y cómo regenerar la tabla
+1. [x] Script `scripts/build-foods.mjs` + lista curada `scripts/foods-list.json` + `src/data/foods.json` generado (R3)
+2. [x] `src/lib/foods.ts`: tipos, `searchLocalFoods`, `scaleMacros`, `displayMacro`, `parseGrams`, `parseUnits`, `offCooldown` (R2, R6, R7, R12)
+3. [x] `MealEntry` + `foodEntry()` + `quantityLabel()`; el Diario muestra la cantidad (R8, R9)
+4. [x] Route handler `GET /api/foods/search` (R4, R11)
+5. [x] Hook `useBrandSearch` con limitador y sessionStorage (R4, R11, R12)
+6. [x] `FoodPicker`: pestaña, bloque Básicos con cita, tarjeta en gramos y alta de la entrada en `page.tsx` (R1, R2, R5, R6, R8)
+7. [x] Unidades en la tarjeta (R7)
+8. [x] Bloque de productos de marca, errores 4A/4B y cuenta atrás (R4, R11, R12)
+9. [x] Toast «Añadido a … · Deshacer» (R10)
+10. [x] «¿No lo encuentras? Añádelo a mano» → Personalizada con el nombre (R14)
+11. [x] Si #12 está mergeado: entradas de alimento en Recientes, con identidad `foodId` + `grams` + `units` (R13). Si no, anotarlo en `docs/pm/12-registro-rapido/` como pendiente. (#12 ya estaba en main: hecho.)
+12. [x] README: fuentes de datos, licencias y cómo regenerar la tabla
 
 ## Spec feedback
 - **R3, fuente de los valores:** el spec decía «BEDCA o USDA» y «la fuente no se muestra». Las [condiciones de uso de BEDCA](https://www.bedca.net/bdpub/UsoBD.pdf) solo permiten el uso personal, educativo o no comercial, citando la fuente de forma clara y sin modificar los datos; el repo es público y la app está desplegada. El usuario decidió usar **CIQUAL, con USDA de reserva** (licencias abiertas), y mostrar **una línea de cita en el pie del bloque «Básicos»**, sin la fuente por alimento. `spec.md` y el brief están actualizados; la open question de BEDCA queda cerrada.
 - **R4, endpoint:** se usa Search-a-licious, el recomendado por OFF para texto libre (`search.pl` es heredado). El límite de 10 búsquedas por minuto es el mismo.
 - **R12, límite:** lo cuenta el cliente antes de llegar a OFF y persiste en sessionStorage durante la sesión del navegador.
 - No queda ninguna open question que bloquee el código.
+
+## Decisions during coding
+Decididas por el usuario en dev-code (2026-09-27):
+- **kcal que faltan en CIQUAL:** muchos alimentos traen P/C/G pero no la energía del Reglamento UE (campo 328). El script la calcula con los factores del mismo reglamento: 4·P + 4·C + 9·G + 2·fibra + 7·alcohol + 2,4·polioles + 3·ácidos orgánicos. «traces» y «< x» cuentan como 0.
+- **USDA de reserva** (valores copiados en `scripts/foods-list.json` con su `fdcId`): arroz basmati crudo, queso cottage y proteína whey (no están en CIQUAL), y lentejas, alubias blancas y rojas cocidas y semillas de chía (en CIQUAL su energía incluye la fibra y no pasan la comprobación de plausibilidad kcal ≈ 4P + 4C + 9G).
+- **Cantidad al abrir la tarjeta:** 100 g en gramos y 1 ud en unidades.
+- **Textos:** «Entre 1 y 2000 g, sin decimales»; «Entre 0,5 y 10 ud, en pasos de 0,5»; marcas vacías «Ningún producto de marca con los valores completos»; error de OFF «No se ha podido buscar en marcas» + «Parece que no hay conexión…» (sin red) u «Open Food Facts no responde ahora…» (otro error); cuenta atrás en el botón «Buscar «…» en productos de marca · 0:30»; subtítulo de la tarjeta «Básico · 130 kcal / 100 g» o «<marca> · 122 kcal / 100 g»; pie «Valores de CIQUAL (ANSES, 2020) y USDA FoodData Central.»; botón «Añadir 2 ud» (sin el «(120 g)» del prototipo).
+- **Selector de fecha del Diario:** gana `aria-label="Fecha"`; el análisis axe de `food.spec.ts` recorre toda la página y lo marcaba.
+- **Lista curada:** delegada a Claude (161 alimentos). «Lomo embuchado» no existe en CIQUAL ni en USDA: usa «Jambon sec, découenné, dégraissé» (CIQUAL 28802) como aproximación.
+
+Detalles internos: `useBrandSearch` expone también `reset()` (el texto cambió) y `query`; en la tarjeta con una cantidad no válida el botón dice lo escrito («Añadir 2001 g», desactivado).
