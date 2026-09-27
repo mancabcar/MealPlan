@@ -13,7 +13,9 @@ import {
   formatServings,
   parseServings,
   pendingSlots,
+  recentMeals,
   recipeEntry,
+  repeatEntry,
   servingsLabel,
   stepServings,
 } from "@/lib/diary";
@@ -30,6 +32,7 @@ import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { WeekBarChart } from "@/components/ui/WeekBarChart";
 import { PeriodSummary, loadStatsDays, saveStatsDays } from "@/components/diario/PeriodSummary";
+import { RecentMeals } from "@/components/diario/RecentMeals";
 import { inputCls } from "@/components/ui/input";
 
 // Rediseño visual (docs/pm/design-refresh, R7): proteína/carbohidratos/grasas se quedan como barras
@@ -133,6 +136,8 @@ export default function DiaryPage() {
   };
 
   const pending = pendingSlots({ date, today: todayStr(), weekPlan, recipes, entries, meals: profile.meals });
+  // Registro rápido (docs/pm/12-registro-rapido): se recalcula en cada render, así que sigue a la franja elegida (R3)
+  const recents = recentMeals({ entries, recipes, mealType });
 
   const dayEntries = entries.filter((e) => e.date === date);
   const totals = dayEntries.reduce(
@@ -292,6 +297,17 @@ export default function DiaryPage() {
               <option key={mt}>{mt}</option>
             ))}
           </select>
+          {/* R1: fuera del condicional de modo, visible en Receta y en Personalizada. R4: un toque añade y cierra;
+              no toca lo que hubiera a medio rellenar en el formulario */}
+          <RecentMeals
+            recents={recents}
+            onPick={(r, ev) =>
+              singleClick(() => {
+                addEntry(repeatEntry(r.entry, date, mealType));
+                setShowAdd(false);
+              })(ev)
+            }
+          />
           <div className="flex gap-2 text-sm">
             <button
               onClick={() => setMode("recipe")}
@@ -409,8 +425,9 @@ export default function DiaryPage() {
           </div>
         </Card>
       ) : (
+        // singleClick: el segundo clic de un doble toque en una reciente cae aquí al cerrarse el formulario (R4)
         <button
-          onClick={openAdd}
+          onClick={singleClick(openAdd)}
           className="flex items-center justify-center gap-1.5 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-xl py-3 font-semibold"
         >
           <Plus className="w-4 h-4" aria-hidden />

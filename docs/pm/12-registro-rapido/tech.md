@@ -117,7 +117,7 @@ Recientes
 
 ## Tasks
 1. [x] `recentMeals` + `repeatEntry` en `src/lib/diary.ts` con sus tests unitarios (covers R2, R3, R6, R7)
-2. [ ] `RecentMeals.tsx` en «Añadir comida» + `singleClick` en «Añadir comida» + `tests/e2e/registro-rapido.spec.ts` (covers R1, R4, R5, R6, R7)
+2. [x] `RecentMeals.tsx` en «Añadir comida» + `singleClick` en «Añadir comida» + `tests/e2e/registro-rapido.spec.ts` (covers R1, R4, R5, R6, R7)
 3. [ ] Caso axe con Recientes en `tests/e2e/accessibility.spec.ts` (covers R1)
 
 ## Spec feedback
