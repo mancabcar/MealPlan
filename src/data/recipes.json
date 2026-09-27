@@ -967,6 +967,359 @@
       "carbs": 48,
       "fat": 19,
       "tags": ["cena", "comida", "tex-mex", "alto proteína"]
+    },
+    {
+      "id": "recipe_041",
+      "name": "Crema de calabaza y boniato con garbanzos crujientes",
+      "ingredients": [
+        "300g calabaza",
+        "150g boniato",
+        "1/2 cebolla",
+        "100g garbanzos cocidos",
+        "1 cucharada de aceite de oliva",
+        "300ml caldo de verduras",
+        "pimentón, comino y sal"
+      ],
+      "instructions": [
+        "Precalentar el horno a 200°C.",
+        "Escurrir y secar los garbanzos, mezclarlos con una pizca de pimentón, comino y unas gotas de aceite, y hornearlos 20-25 minutos hasta que estén crujientes.",
+        "Mientras, pochar la cebolla picada con el resto del aceite 5 minutos.",
+        "Añadir la calabaza y el boniato en dados, cubrir con el caldo y cocer 20 minutos.",
+        "Triturar hasta obtener una crema fina y ajustar de sal.",
+        "Servir con los garbanzos crujientes por encima."
+      ],
+      "prepTimeMinutes": 40,
+      "calories": 485,
+      "protein": 14,
+      "carbs": 78,
+      "fat": 13,
+      "tags": ["cena", "vegano", "vegetariano", "sin gluten", "de cuchara", "legumbres", "otoño"]
+    },
+    {
+      "id": "recipe_042",
+      "name": "Pollo al horno con calabaza, patata y romero",
+      "ingredients": [
+        "150g pechuga de pollo",
+        "250g calabaza",
+        "150g patata",
+        "1/2 cebolla morada",
+        "1 cucharada de aceite de oliva",
+        "romero, sal y pimienta"
+      ],
+      "instructions": [
+        "Precalentar el horno a 200°C.",
+        "Cortar la calabaza y la patata en dados y la cebolla en gajos.",
+        "Mezclar las verduras con el aceite, romero, sal y pimienta y hornear 20 minutos.",
+        "Salpimentar el pollo, colocarlo sobre las verduras y hornear 18-20 minutos más, hasta que esté hecho por dentro."
+      ],
+      "prepTimeMinutes": 45,
+      "calories": 455,
+      "protein": 40,
+      "carbs": 47,
+      "fat": 12,
+      "tags": ["comida", "alto proteína", "sin gluten", "al horno", "otoño"]
+    },
+    {
+      "id": "recipe_043",
+      "name": "Solomillo de cerdo con setas y castañas",
+      "ingredients": [
+        "150g solomillo de cerdo",
+        "200g setas variadas",
+        "60g castañas peladas",
+        "1 diente de ajo",
+        "1 cucharada de aceite de oliva",
+        "tomillo, sal y pimienta"
+      ],
+      "instructions": [
+        "Cortar el solomillo en medallones gruesos y salpimentar.",
+        "Dorar los medallones en una sartén con la mitad del aceite, 3 minutos por cada lado, y reservar.",
+        "En la misma sartén, saltear el ajo laminado y las setas troceadas con el resto del aceite 6-7 minutos.",
+        "Añadir las castañas troceadas y el tomillo y saltear 2 minutos más.",
+        "Volver a poner el solomillo en la sartén, calentar 1 minuto y servir."
+      ],
+      "prepTimeMinutes": 25,
+      "calories": 440,
+      "protein": 38,
+      "carbs": 33,
+      "fat": 17,
+      "tags": ["comida", "cena", "alto proteína", "sin gluten", "otoño"]
+    },
+    {
+      "id": "recipe_044",
+      "name": "Merluza al horno con puré de coliflor",
+      "ingredients": [
+        "150g merluza",
+        "300g coliflor",
+        "100ml leche desnatada",
+        "1 diente de ajo",
+        "1 cucharada de aceite de oliva",
+        "perejil fresco",
+        "sal y nuez moscada"
+      ],
+      "instructions": [
+        "Cocer la coliflor en ramilletes con el ajo en agua con sal, 12-15 minutos.",
+        "Escurrir y triturar con la leche, la mitad del aceite, sal y nuez moscada hasta que quede un puré fino.",
+        "Precalentar el horno a 200°C.",
+        "Colocar la merluza en una bandeja, salar, regar con el resto del aceite y hornear 10-12 minutos.",
+        "Servir la merluza sobre el puré con perejil picado."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 325,
+      "protein": 35,
+      "carbs": 18,
+      "fat": 12,
+      "tags": ["cena", "pescado", "ligero", "bajo carbohidrato", "sin gluten", "otoño"]
+    },
+    {
+      "id": "recipe_045",
+      "name": "Tostadas de centeno con queso fresco batido, higos y nueces",
+      "ingredients": [
+        "80g pan de centeno",
+        "150g queso fresco batido",
+        "2 higos",
+        "10g nueces",
+        "1 cucharadita de miel (opcional)"
+      ],
+      "instructions": [
+        "Tostar el pan de centeno.",
+        "Untar el queso fresco batido sobre las tostadas.",
+        "Cortar los higos en gajos y colocarlos encima.",
+        "Terminar con las nueces troceadas y, si se quiere, un hilo de miel."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 415,
+      "protein": 21,
+      "carbs": 65,
+      "fat": 8,
+      "tags": ["desayuno", "vegetariano", "rápido", "otoño"]
+    },
+    {
+      "id": "recipe_046",
+      "name": "Batido de caqui, proteína y canela",
+      "ingredients": [
+        "1 caqui",
+        "30g proteína en polvo",
+        "200ml leche desnatada",
+        "canela al gusto"
+      ],
+      "instructions": [
+        "Pelar el caqui y trocearlo.",
+        "Triturar todo en la batidora hasta que quede cremoso.",
+        "Servir al momento, con un poco de canela por encima."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 320,
+      "protein": 32,
+      "carbs": 45,
+      "fat": 2,
+      "tags": ["snack", "pre-gym", "rápido", "sin cocinar", "alto proteína", "otoño"]
+    },
+    {
+      "id": "recipe_047",
+      "name": "Ensalada templada de quinoa, pollo, espinacas y granada",
+      "ingredients": [
+        "60g quinoa (en seco)",
+        "120g pechuga de pollo",
+        "60g espinacas frescas",
+        "1/2 granada",
+        "15g nueces",
+        "30g queso feta",
+        "1/2 cucharada de aceite de oliva",
+        "vinagre balsámico, sal y pimienta"
+      ],
+      "instructions": [
+        "Lavar la quinoa y cocerla 12-15 minutos en agua con sal; escurrir.",
+        "Hacer el pollo a la plancha, salpimentado, 4-5 minutos por cada lado, y cortarlo en tiras.",
+        "Desgranar la granada.",
+        "Mezclar en un bol las espinacas, la quinoa templada y el pollo.",
+        "Añadir la granada, las nueces y el feta desmenuzado y aliñar con el aceite y el vinagre."
+      ],
+      "prepTimeMinutes": 25,
+      "calories": 655,
+      "protein": 45,
+      "carbs": 58,
+      "fat": 27,
+      "tags": ["comida", "alto proteína", "sin gluten", "bowl", "otoño"]
+    },
+    {
+      "id": "recipe_048",
+      "name": "Alubias blancas estofadas con calabaza y espinacas",
+      "ingredients": [
+        "80g alubias blancas (en seco)",
+        "200g calabaza",
+        "1/2 cebolla",
+        "1 zanahoria",
+        "1 diente de ajo",
+        "80g espinacas frescas",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "1 hoja de laurel",
+        "500ml caldo de verduras"
+      ],
+      "instructions": [
+        "Dejar las alubias en remojo la noche anterior.",
+        "Pochar la cebolla, la zanahoria y el ajo picados con el aceite 5 minutos.",
+        "Añadir el pimentón, remover y agregar las alubias escurridas, el laurel y el caldo.",
+        "Cocer a fuego suave 60-70 minutos, hasta que las alubias estén tiernas.",
+        "Añadir la calabaza en dados y cocer 15 minutos más.",
+        "Incorporar las espinacas al final, dejar que se ablanden 2 minutos y servir."
+      ],
+      "prepTimeMinutes": 90,
+      "calories": 515,
+      "protein": 25,
+      "carbs": 79,
+      "fat": 12,
+      "tags": ["comida", "legumbres", "vegano", "vegetariano", "sin gluten", "de cuchara", "alto fibra", "otoño"]
+    },
+    {
+      "id": "recipe_049",
+      "name": "Dorada al horno con boniato y brócoli",
+      "ingredients": [
+        "150g lomos de dorada",
+        "150g boniato",
+        "150g brócoli",
+        "1 cucharada de aceite de oliva",
+        "zumo de 1/2 limón",
+        "sal, pimienta y ajo en polvo"
+      ],
+      "instructions": [
+        "Precalentar el horno a 200°C.",
+        "Cortar el boniato en rodajas finas, aliñar con la mitad del aceite y hornear 15 minutos.",
+        "Añadir el brócoli en ramilletes y los lomos de dorada a la bandeja.",
+        "Condimentar con sal, pimienta, ajo en polvo, el resto del aceite y el zumo de limón.",
+        "Hornear 12-15 minutos más."
+      ],
+      "prepTimeMinutes": 35,
+      "calories": 425,
+      "protein": 36,
+      "carbs": 37,
+      "fat": 15,
+      "tags": ["cena", "pescado", "sin gluten", "al horno", "otoño"]
+    },
+    {
+      "id": "recipe_050",
+      "name": "Caballa a la plancha con lombarda y manzana",
+      "ingredients": [
+        "130g lomos de caballa",
+        "200g col lombarda",
+        "1/2 manzana",
+        "150g patata",
+        "1 cucharadita de aceite de oliva",
+        "vinagre, sal y comino"
+      ],
+      "instructions": [
+        "Cocer la patata en dados en agua con sal 12-15 minutos.",
+        "Cortar la lombarda en tiras finas y la manzana en dados.",
+        "Saltear la lombarda con el aceite 8-10 minutos, añadir la manzana, un chorrito de vinagre, comino y sal, y cocinar 3 minutos más.",
+        "Hacer la caballa a la plancha, primero por el lado de la piel, 3 minutos por cada lado.",
+        "Servir la caballa con la lombarda y la patata."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 535,
+      "protein": 30,
+      "carbs": 50,
+      "fat": 23,
+      "tags": ["cena", "pescado", "omega 3", "sin gluten", "otoño"]
+    },
+    {
+      "id": "recipe_051",
+      "name": "Pasta integral con crema de calabaza y pavo",
+      "ingredients": [
+        "80g pasta integral (en seco)",
+        "130g pechuga de pavo",
+        "200g calabaza",
+        "1/2 cebolla",
+        "1 cucharada de aceite de oliva",
+        "15g queso parmesano rallado",
+        "nuez moscada, sal y pimienta"
+      ],
+      "instructions": [
+        "Cocer la calabaza en dados con la cebolla en poca agua 15 minutos y triturar con la nuez moscada, sal y pimienta hasta obtener una salsa.",
+        "Cocer la pasta según las instrucciones del paquete.",
+        "Cortar el pavo en tiras y dorarlo con el aceite en una sartén 5-6 minutos.",
+        "Mezclar la pasta con la crema de calabaza y el pavo.",
+        "Servir con el parmesano rallado por encima."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 640,
+      "protein": 47,
+      "carbs": 72,
+      "fat": 18,
+      "tags": ["comida", "pasta", "alto proteína", "otoño"]
+    },
+    {
+      "id": "recipe_052",
+      "name": "Manzana asada con queso fresco batido y nueces",
+      "ingredients": [
+        "1 manzana",
+        "150g queso fresco batido",
+        "10g nueces",
+        "canela al gusto"
+      ],
+      "instructions": [
+        "Precalentar el horno a 180°C.",
+        "Quitar el corazón a la manzana, espolvorear con canela y hornear 25-30 minutos.",
+        "Servir templada con el queso fresco batido y las nueces troceadas."
+      ],
+      "prepTimeMinutes": 35,
+      "calories": 235,
+      "protein": 14,
+      "carbs": 32,
+      "fat": 7,
+      "tags": ["snack", "postre", "vegetariano", "sin gluten", "al horno", "otoño"]
+    },
+    {
+      "id": "recipe_053",
+      "name": "Porridge de avena con calabaza especiada",
+      "ingredients": [
+        "50g copos de avena",
+        "200ml leche desnatada",
+        "100g calabaza",
+        "15g proteína en polvo",
+        "10g nueces",
+        "canela y nuez moscada"
+      ],
+      "instructions": [
+        "Cocer la calabaza en dados en el microondas 4-5 minutos y aplastarla con un tenedor.",
+        "Calentar la leche con la avena a fuego medio, removiendo, 4-5 minutos.",
+        "Añadir la calabaza, la canela y la nuez moscada y cocinar 1 minuto más.",
+        "Fuera del fuego, mezclar la proteína en polvo.",
+        "Servir con las nueces troceadas."
+      ],
+      "prepTimeMinutes": 12,
+      "calories": 410,
+      "protein": 28,
+      "carbs": 49,
+      "fat": 11,
+      "tags": ["desayuno", "vegetariano", "alto proteína", "otoño"]
+    },
+    {
+      "id": "recipe_054",
+      "name": "Potaje de garbanzos con bacalao y acelgas",
+      "ingredients": [
+        "200g garbanzos cocidos",
+        "150g bacalao desalado",
+        "200g acelgas",
+        "1/2 cebolla",
+        "1 diente de ajo",
+        "1 cucharada de aceite de oliva",
+        "1 cucharadita de pimentón",
+        "1 hoja de laurel",
+        "500ml caldo de verduras"
+      ],
+      "instructions": [
+        "Pochar la cebolla y el ajo picados con el aceite 5 minutos.",
+        "Añadir el pimentón, remover y agregar el caldo y el laurel.",
+        "Incorporar las acelgas troceadas y cocer 10 minutos.",
+        "Añadir los garbanzos escurridos y el bacalao en trozos, y cocer 6-8 minutos a fuego suave.",
+        "Dejar reposar 5 minutos antes de servir."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 530,
+      "protein": 46,
+      "carbs": 47,
+      "fat": 16,
+      "tags": ["comida", "legumbres", "pescado", "alto proteína", "sin gluten", "de cuchara", "otoño"]
     }
   ]
 }
