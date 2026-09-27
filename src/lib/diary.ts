@@ -95,3 +95,65 @@ export function pendingSlots({
   }
   return result;
 }
+
+// Recientes (docs/pm/12-registro-rapido/tech.md › APIs): derivado de `entries` en cada render, nunca se guarda (R7).
+export const RECENT_LIMIT = 5;
+
+export interface RecentMeal {
+  /** Clave de duplicado (R2). También sirve de React key. */
+  key: string;
+  /** Nombre a mostrar: el de la receta o el customName de la entrada más reciente del grupo. */
+  name: string;
+  /** La entrada más reciente del grupo (de cualquier franja): la que se copia. */
+  entry: MealEntry;
+}
+
+/** R2: misma receta y raciones, o mismo nombre (sin mayúsculas ni espacios extra) y mismos macros. */
+function recentKey(e: MealEntry): string {
+  if (e.recipeId) return `r|${e.recipeId}|${e.servings ?? 1}`;
+  const name = (e.customName ?? "").trim().replace(/\s+/g, " ").toLowerCase();
+  return `c|${name}|${e.calories}|${e.protein}|${e.carbs}|${e.fat}`;
+}
+
+/** Recientes (R2, R3, R7): hasta `limit` comidas distintas, primero las registradas alguna vez en `mealType`. */
+export function recentMeals({
+  entries,
+  recipes,
+  mealType,
+  limit = RECENT_LIMIT,
+}: {
+  entries: MealEntry[];
+  recipes: Recipe[];
+  mealType: MealType;
+  limit?: number;
+}): RecentMeal[] {
+  // R3: el orden del array es el orden de registro (addEntry añade al final), así que se recorre desde el final
+  const byKey = new Map<string, RecentMeal>();
+  const franja: string[] = [];
+  const seenInFranja = new Set<string>();
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const e = entries[i];
+    let name = e.customName ?? "";
+    if (e.recipeId) {
+      // R7: sin receta no hay nombre fiable
+      const recipe = recipes.find((r) => r.id === e.recipeId);
+      if (!recipe) continue;
+      name = recipe.name;
+    }
+    const key = recentKey(e);
+    // La primera vez que sale una clave es su entrada más reciente: de ella salen el nombre y lo que se copia
+    if (!byKey.has(key)) byKey.set(key, { key, name, entry: e });
+    // Cuenta como "de esa franja" si alguna de sus entradas es de ella, por la última de esas entradas
+    if (e.mealType === mealType && !seenInFranja.has(key)) {
+      seenInFranja.add(key);
+      franja.push(key);
+    }
+  }
+  const rest = [...byKey.keys()].filter((k) => !seenInFranja.has(k));
+  return [...franja, ...rest].slice(0, limit).map((k) => byKey.get(k)!);
+}
+
+/** Copia de una entrada con id, fecha y franja nuevos (R4): conserva macros, recipeId, customName y servings. */
+export function repeatEntry(entry: MealEntry, date: string, mealType: MealType, id = crypto.randomUUID()): MealEntry {
+  return { ...entry, id, date, mealType };
+}
