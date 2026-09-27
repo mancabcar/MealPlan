@@ -1,6 +1,6 @@
 // Medias y adherencia del Diario (docs/pm/11-medias-adherencia/tech.md › UI): tarjeta propia debajo de
 // «Calorías esta semana». La gráfica incluye hoy; este resumen solo cuenta días completos (R6), por eso no se fusionan.
-import { useId } from "react";
+import { useId, useMemo } from "react";
 import { Check } from "lucide-react";
 import { userKey } from "@/lib/auth";
 import { formatPeriod, periodStats, statsPeriod, STATS_PERIODS, type StatsPeriod } from "@/lib/diaryStats";
@@ -49,8 +49,11 @@ export function PeriodSummary({
   today: string;
 }) {
   const headingId = useId();
-  const { start, end, dates } = statsPeriod(date, today, days);
-  const stats = periodStats({ entries, profile, dates });
+  // Solo cambia con estos datos: no recalcular al escribir en el formulario de añadir (review.md › no bloqueante 4)
+  const { start, end, stats } = useMemo(() => {
+    const { start, end, dates } = statsPeriod(date, today, days);
+    return { start, end, stats: periodStats({ entries, profile, dates }) };
+  }, [entries, profile, date, today, days]);
 
   return (
     <Card as="section" aria-labelledby={headingId} className="flex flex-col gap-3">
@@ -67,19 +70,23 @@ export function PeriodSummary({
         />
       </div>
       <p className="text-xs text-[var(--color-text-muted)] -mt-1">
-        Últimos {days} días · {formatPeriod(start, end)}
+        {/* Sin «Últimos»: con una fecha pasada el periodo no son los últimos días (review.md › no bloqueante 2) */}
+        {days} días · {formatPeriod(start, end)}
       </p>
       {stats ? (
         <>
           <p className="flex items-center gap-1.5 text-sm font-medium">
-            <Check className="w-4 h-4 shrink-0 text-[var(--color-accent)]" aria-hidden />
+            {/* El check es una señal de éxito: solo si cumplen todos los días */}
+            {stats.compliantDays === stats.loggedDays && (
+              <Check className="w-4 h-4 shrink-0 text-[var(--color-accent)]" aria-hidden />
+            )}
             {/* Un solo nodo de texto: el lector lo lee completo (R10) */}
             <span>{`${stats.compliantDays} de ${stats.loggedDays} ${stats.loggedDays === 1 ? "día" : "días"} dentro del objetivo`}</span>
           </p>
           <DayMacroSummary summary={{ totals: stats.averages }} profile={profile} label="Medias del periodo" />
         </>
       ) : (
-        <p className="text-sm text-[var(--color-text-muted)]">Sin registros en los últimos {days} días</p>
+        <p className="text-sm text-[var(--color-text-muted)]">Sin registros en estos {days} días</p>
       )}
     </Card>
   );

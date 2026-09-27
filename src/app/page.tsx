@@ -5,6 +5,7 @@ import { Check, CheckCheck, Minus, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import type { StatsPeriod } from "@/lib/diaryStats";
+import { addDays } from "@/lib/week";
 import { allergenWarning } from "@/lib/allergens";
 import {
   SERVINGS,
@@ -146,9 +147,8 @@ export default function DiaryPage() {
 
   // Gráfica semanal: últimos 7 días terminando en la fecha seleccionada
   const week = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(date + "T00:00:00");
-    d.setDate(d.getDate() - (6 - i));
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const key = addDays(date, i - 6);
+    const d = new Date(key + "T00:00:00");
     const kcal = entries.filter((e) => e.date === key).reduce((s, e) => s + e.calories, 0);
     return { label: ["D", "L", "M", "X", "J", "V", "S"][d.getDay()], value: kcal };
   });

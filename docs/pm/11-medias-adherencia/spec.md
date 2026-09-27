@@ -38,7 +38,7 @@ Usuario único de la app, que sigue un plan nutricional prescrito y registra a d
 | R4 | Un día cumple si sus kcal están dentro de la tolerancia de `calorieGoal` y su proteína está «dentro» del objetivo: dentro de `proteinRange` si el perfil tiene rango y, si no, dentro de la tolerancia de `proteinGoal`. Es el mismo criterio que el Plan (`macroStatus`, ±10 %, valor redondeado). | Must |
 | R5 | Un selector permite elegir 7 o 30 días. Por defecto, 7. Al cambiarlo se recalculan medias y adherencia. | Must |
 | R6 | El periodo son los N días completos que terminan en la fecha seleccionada en el Diario. Si la fecha seleccionada es hoy o posterior, el periodo termina ayer: el día en curso nunca cuenta. | Must |
-| R7 | Si el periodo no tiene ningún día con registros, el resumen lo dice («Sin registros en los últimos 7 días») en lugar de mostrar medias a 0 o «0 de 0». | Must |
+| R7 | Si el periodo no tiene ningún día con registros, el resumen lo dice («Sin registros en estos 7 días») en lugar de mostrar medias a 0 o «0 de 0». | Must |
 | R8 | El resumen indica qué periodo cubre, con las fechas de inicio y fin (p. ej. «19–25 sep»). | Should |
 | R9 | Cada media se muestra junto a su objetivo (kcal y proteína con su rango si lo hay) y con el mismo estado «dentro / por debajo / por encima» que el Plan. | Should |
 | R10 | El selector 7/30 y el resumen son accesibles: el selector es un grupo de opciones con la opción activa anunciada y el texto de la adherencia se lee completo con lector de pantalla. | Should |
@@ -47,12 +47,12 @@ Usuario único de la app, que sigue un plan nutricional prescrito y registra a d
 ## User flows
 **Revisión semanal (escenarios 1 y 3)**
 1. El usuario abre el Diario (hoy, 26 sep).
-2. Bajo la tarjeta «Calorías esta semana» ve la tarjeta de resumen con «Últimos 7 días · 19–25 sep».
+2. Bajo la tarjeta «Calorías esta semana» ve la tarjeta de resumen con «7 días · 19–25 sep».
 3. Lee las medias (p. ej. «1.960 kcal», «142 g proteína»…) junto a sus objetivos, y la adherencia «4 de 5 días dentro del objetivo»: dos días no tenían registros.
 
 **Antes de la consulta (escenario 2)**
 1. En la tarjeta de resumen pulsa «30 días».
-2. El resumen pasa a «Últimos 30 días · 27 ago–25 sep» y medias y adherencia se recalculan sobre esos días.
+2. El resumen pasa a «30 días · 27 ago–25 sep» y medias y adherencia se recalculan sobre esos días.
 
 **Semana pasada (escenario 4)**
 1. Cambia la fecha del Diario al 14 sep.
@@ -85,7 +85,7 @@ Usuario único de la app, que sigue un plan nutricional prescrito y registra a d
 - Given la fecha del Diario es posterior a hoy, then el periodo termina ayer, como con hoy.
 
 **R7**
-- Given ningún registro en el periodo, then el resumen muestra «Sin registros en los últimos 7 días» (o «30 días») y no muestra medias ni adherencia.
+- Given ningún registro en el periodo, then el resumen muestra «Sin registros en estos 7 días» (o «30 días») y no muestra medias ni adherencia.
 - Given registros solo hoy, then con la fecha de hoy el resumen está vacío (hoy no cuenta).
 
 **R8**
