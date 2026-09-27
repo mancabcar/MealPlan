@@ -26,6 +26,12 @@ export interface MealEntry {
   fat: number;
   /** Raciones registradas (0,25–4). Solo existe en entradas de receta con raciones ≠ 1; ausente = 1 ración. Los macros ya vienen multiplicados. */
   servings?: number;
+  /** Alimento de origen (#13): "local:<id>" de foods.json u "off:<código de barras>". El nombre va en customName. */
+  foodId?: string;
+  /** Gramos registrados (#13); si se registró en unidades, el equivalente (units × peso de 1 ud). */
+  grams?: number;
+  /** Unidades (#13, 0,5–10 en pasos de 0,5); solo si se registró en unidades. */
+  units?: number;
 }
 
 export type PantryCategory = "Nevera" | "Despensa" | "Congelador";

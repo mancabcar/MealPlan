@@ -1,5 +1,6 @@
 // Diario desde el plan (docs/pm/diario-desde-plan/tech.md › APIs). Puro: sin React ni store.
 // "Pendiente" nunca se guarda: se deriva en cada render del plan y de las entradas.
+import { scaleMacros, type Per100 } from "./foods";
 import { parseDecimal } from "./nutrition";
 import { slotMacros } from "./planMacros";
 import { MEAL_TYPES, type MealEntry, type MealType, type Recipe, type WeekPlan } from "./types";
@@ -55,6 +56,38 @@ export function servingsLabel(entry: Pick<MealEntry, "servings">): string | null
   const s = entry.servings;
   if (typeof s !== "number" || !Number.isFinite(s) || s === 1) return null;
   return `× ${formatServings(s)}`;
+}
+
+/**
+ * Entrada de alimento (docs/pm/13-base-alimentos, R8): el nombre va en customName, así el Diario, las medias y las
+ * copias de seguridad la tratan como una personalizada. Macros sin redondear; `units` solo si se registró en unidades.
+ */
+export function foodEntry(
+  food: { foodId: string; name: string; per100: Per100 },
+  date: string,
+  mealType: MealType,
+  { grams, units, id = crypto.randomUUID() }: { grams: number; units?: number; id?: string },
+): MealEntry {
+  const entry: MealEntry = {
+    id,
+    date,
+    mealType,
+    customName: food.name,
+    foodId: food.foodId,
+    grams,
+    ...scaleMacros(food.per100, grams),
+  };
+  if (units !== undefined) entry.units = units;
+  return entry;
+}
+
+/** R9: «150 g», o «2 ud · 120 g» si se registró en unidades; null sin gramos (recetas, personalizadas, datos raros). */
+export function quantityLabel(entry: Pick<MealEntry, "grams" | "units">): string | null {
+  const g = entry.grams;
+  if (typeof g !== "number" || !Number.isFinite(g)) return null;
+  const grams = `${Math.round(g)} g`;
+  const u = entry.units;
+  return typeof u === "number" && Number.isFinite(u) ? `${formatServings(u)} ud · ${grams}` : grams;
 }
 
 export interface PendingSlot {
