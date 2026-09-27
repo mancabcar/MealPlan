@@ -141,9 +141,13 @@ export interface RecentMeal {
   entry: MealEntry;
 }
 
-/** R2: misma receta y raciones, o mismo nombre (sin mayúsculas ni espacios extra) y mismos macros. */
+/**
+ * R2: misma receta y raciones, o mismo nombre (sin mayúsculas ni espacios extra) y mismos macros.
+ * Alimentos (docs/pm/13-base-alimentos, R13): mismo alimento de origen y misma cantidad (gramos, o unidades).
+ */
 function recentKey(e: MealEntry): string {
   if (e.recipeId) return `r|${e.recipeId}|${e.servings ?? 1}`;
+  if (e.foodId) return e.units !== undefined ? `f|${e.foodId}|${e.units}ud` : `f|${e.foodId}|${e.grams}g`;
   const name = (e.customName ?? "").trim().replace(/\s+/g, " ").toLowerCase();
   return `c|${name}|${e.calories}|${e.protein}|${e.carbs}|${e.fat}`;
 }

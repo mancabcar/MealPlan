@@ -2,9 +2,9 @@
 // Tech: tech.md › Data model (`MealEntry.foodId/grams/units`) y APIs (`foodEntry`, `quantityLabel` en src/lib/diary.ts).
 // En archivo aparte de diary.test.ts para que esos tests sigan en verde mientras no exista foodEntry.
 import { describe, expect, it } from "vitest";
-import { foodEntry, quantityLabel } from "@/lib/diary";
+import { foodEntry, quantityLabel, recentMeals, repeatEntry } from "@/lib/diary";
 import { ARROZ_COCIDO, HUEVO, YOGUR_GRIEGO, YOGUR_LIGERO } from "../fixtures/foods";
-import { TODAY, entry } from "../fixtures/diario";
+import { TODAY, YESTERDAY, entry } from "../fixtures/diario";
 
 const per100 = (f: { kcal: number; protein: number; carbs: number; fat: number }) => ({
   kcal: f.kcal,
@@ -94,5 +94,48 @@ describe("R9: cantidad junto al nombre en el Diario", () => {
   it("datos raros en localStorage (NaN, string) → nada", () => {
     expect(quantityLabel({ grams: NaN })).toBeNull();
     expect(quantityLabel({ grams: "150" as unknown as number })).toBeNull();
+  });
+});
+
+describe("R13: entradas de alimento en Recientes (#12)", () => {
+  const recents = (entries: ReturnType<typeof foodEntry>[]) =>
+    recentMeals({ entries, recipes: [], mealType: "Comida" }).map((r) => [r.name, quantityLabel(r.entry)]);
+
+  it("150 g de arroz cocido registrados dos veces salen una sola vez", () => {
+    const a = foodEntry(arroz, YESTERDAY, "Comida", { grams: 150 });
+    const b = foodEntry(arroz, TODAY, "Comida", { grams: 150 });
+    expect(recents([a, b])).toEqual([["Arroz blanco, cocido", "150 g"]]);
+  });
+
+  it("100 g y 150 g de arroz cocido son dos filas", () => {
+    const a = foodEntry(arroz, YESTERDAY, "Comida", { grams: 100 });
+    const b = foodEntry(arroz, TODAY, "Comida", { grams: 150 });
+    expect(recents([a, b])).toEqual([
+      ["Arroz blanco, cocido", "150 g"],
+      ["Arroz blanco, cocido", "100 g"],
+    ]);
+  });
+
+  it("2 ud y 120 g del mismo alimento son dos filas (la cantidad cuenta en unidades o en gramos)", () => {
+    const a = foodEntry(huevo, YESTERDAY, "Desayuno", { grams: 120, units: 2 });
+    const b = foodEntry(huevo, TODAY, "Desayuno", { grams: 120 });
+    expect(recents([a, b])).toEqual([
+      ["Huevo", "120 g"],
+      ["Huevo", "2 ud · 120 g"],
+    ]);
+  });
+
+  it("dos productos de OFF con el mismo nombre y macros pero distinto código son dos filas", () => {
+    const off = (code: string) => ({ foodId: `off:${code}`, name: YOGUR_LIGERO.name, per100: per100(YOGUR_LIGERO) });
+    const a = foodEntry(off("1"), TODAY, "Merienda", { grams: 125 });
+    const b = foodEntry(off("2"), TODAY, "Merienda", { grams: 125 });
+    expect(recents([a, b])).toHaveLength(2);
+  });
+
+  it("repetir una reciente de OFF copia gramos, alimento de origen y macros, sin red", () => {
+    const off = { foodId: `off:${YOGUR_LIGERO.code}`, name: YOGUR_LIGERO.name, per100: per100(YOGUR_LIGERO) };
+    const original = foodEntry(off, YESTERDAY, "Merienda", { grams: 200 });
+    const copy = repeatEntry(original, TODAY, "Comida", "e2");
+    expect(copy).toEqual({ ...original, id: "e2", date: TODAY, mealType: "Comida" });
   });
 });

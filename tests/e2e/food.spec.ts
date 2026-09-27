@@ -1,5 +1,4 @@
-// Spec: docs/pm/13-base-alimentos/spec.md › Acceptance criteria R1–R12, R14 y Edge cases. R13 (Recientes) queda
-// pendiente de #12. Tech: docs/pm/13-base-alimentos/tech.md › UI, "UI test contract" y Testing strategy (E2E).
+// Spec: docs/pm/13-base-alimentos/spec.md › Acceptance criteria R1–R14 y Edge cases (R13, con Recientes de #12). Tech: docs/pm/13-base-alimentos/tech.md › UI, "UI test contract" y Testing strategy (E2E).
 //
 // `/api/foods/search` se intercepta: ningún test llama a Open Food Facts (la ruta la cubre tests/unit/foods-route.test.ts).
 // Los básicos salen de la tabla REAL (src/data/foods.json): los valores esperados se leen de ella, no se escriben a mano.
@@ -452,6 +451,40 @@ test.describe("R12: límite de búsquedas", () => {
     // signIn congela Date.now (los timers siguen): se adelanta el reloj 31 s
     await page.clock.setFixedTime(new Date(`${TODAY}T10:00:31`));
     await expect(btn).toBeEnabled({ timeout: 3_000 });
+  });
+});
+
+test.describe("R13: entradas de alimento en Recientes", () => {
+  const offEntry = (id: string, date: string): MealEntry => ({
+    id,
+    date,
+    mealType: "Comida",
+    customName: "Yogur griego ligero · Valle Blanco",
+    foodId: `off:${YOGUR_LIGERO.code}`,
+    grams: 200,
+    calories: 156,
+    protein: 10.4,
+    carbs: 10,
+    fat: 8,
+  });
+
+  test("la misma cantidad sale una vez, con «200 g»; sin red, tocarla la añade con los mismos gramos y macros", async ({
+    page,
+    context,
+  }) => {
+    await openDiario(page, { entries: [offEntry("e1", "2026-09-20"), offEntry("e2", "2026-09-21")] });
+    await page.getByRole("button", { name: "Añadir comida" }).click();
+    const rows = page.getByRole("list", { name: "Recientes" }).getByRole("button");
+    await expect(rows).toHaveCount(1);
+    await expect(rows.first()).toContainText("Yogur griego ligero · Valle Blanco 200 g");
+
+    await context.setOffline(true);
+    await rows.first().click();
+    await expect(meal(page, "Comida")).toContainText("200 g");
+    const entries = await readStored<MealEntry[]>(page, "entries");
+    expect(entries).toHaveLength(3);
+    expect(entries[2]).toMatchObject({ date: TODAY, foodId: `off:${YOGUR_LIGERO.code}`, grams: 200, calories: 156 });
+    await context.setOffline(false);
   });
 });
 
