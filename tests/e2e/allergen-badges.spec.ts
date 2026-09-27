@@ -12,8 +12,10 @@ test("Recetas: la receta con nueces muestra '⚠ contiene Frutos secos'", async 
   await page.goto("/recetas");
   const card = page.getByRole("button").filter({ hasText: "Yogur griego con avena" });
   await expect(card.getByText("⚠ contiene Frutos secos")).toBeVisible();
-  // Recetas sin alérgenos no llevan aviso
-  await expect(page.getByText("⚠ contiene")).toHaveCount(1);
+  // Recetas sin alérgenos no llevan aviso (sin recuento fijo: varias recetas semilla llevan nueces)
+  const sinAlergenos = page.getByRole("button").filter({ hasText: "Tortilla de claras con verduras" });
+  await expect(sinAlergenos).toBeVisible();
+  await expect(sinAlergenos.getByText("⚠ contiene")).toHaveCount(0);
 });
 
 test("Diario: el selector de recetas avisa del alérgeno sin bloquear la elección", async ({ page }) => {
