@@ -191,55 +191,6 @@
       "tags": ["desayuno", "rápido", "vegetariano"]
     },
     {
-      "id": "recipe_009",
-      "name": "Lentejas estofadas con verduras",
-      "ingredients": [
-        "80g lentejas (en seco)",
-        "1 zanahoria",
-        "1/2 cebolla",
-        "1/2 pimiento rojo",
-        "1 diente de ajo",
-        "pimentón dulce, laurel y sal"
-      ],
-      "instructions": [
-        "Sofreír la cebolla, el ajo y el pimiento picados.",
-        "Añadir la zanahoria en rodajas y el pimentón.",
-        "Incorporar las lentejas y cubrir con agua (2 dedos por encima).",
-        "Añadir el laurel y cocer 30-35 minutos a fuego medio.",
-        "Rectificar de sal antes de servir."
-      ],
-      "prepTimeMinutes": 45,
-      "calories": 380,
-      "protein": 22,
-      "carbs": 58,
-      "fat": 4,
-      "tags": ["comida", "legumbres", "vegano", "bajo en grasa", "de cuchara"]
-    },
-    {
-      "id": "recipe_010",
-      "name": "Revuelto de champiñones y gambas",
-      "ingredients": [
-        "2 huevos",
-        "100g champiñones",
-        "100g gambas peladas",
-        "1 diente de ajo",
-        "perejil, sal y aceite de oliva"
-      ],
-      "instructions": [
-        "Laminar los champiñones y el ajo.",
-        "Saltear el ajo, añadir los champiñones y cocinar 5 minutos.",
-        "Añadir las gambas y saltear 2-3 minutos.",
-        "Batir los huevos e incorporarlos, removiendo a fuego bajo hasta cuajar.",
-        "Terminar con perejil picado."
-      ],
-      "prepTimeMinutes": 15,
-      "calories": 290,
-      "protein": 30,
-      "carbs": 4,
-      "fat": 17,
-      "tags": ["cena", "rápido", "alto proteína", "bajo en carbos", "sin gluten"]
-    },
-    {
       "id": "recipe_011",
       "name": "Bowl de quinoa con pollo y aguacate",
       "ingredients": [
@@ -263,32 +214,6 @@
       "carbs": 55,
       "fat": 22,
       "tags": ["comida", "alto proteína", "sin gluten", "bowl"]
-    },
-    {
-      "id": "recipe_012",
-      "name": "Merluza en salsa verde con guisantes",
-      "ingredients": [
-        "150g lomo de merluza",
-        "100g guisantes",
-        "2 dientes de ajo",
-        "perejil fresco",
-        "100ml caldo de pescado",
-        "1 cucharada de harina (o maicena)",
-        "aceite de oliva"
-      ],
-      "instructions": [
-        "Dorar el ajo laminado en una cazuela con aceite.",
-        "Añadir la harina y remover 1 minuto.",
-        "Incorporar el caldo poco a poco sin dejar de remover.",
-        "Añadir la merluza y los guisantes, cocinar 8-10 minutos.",
-        "Terminar con abundante perejil picado."
-      ],
-      "prepTimeMinutes": 25,
-      "calories": 320,
-      "protein": 32,
-      "carbs": 18,
-      "fat": 12,
-      "tags": ["cena", "ligero", "alto proteína", "pescado"]
     },
     {
       "id": "recipe_013",

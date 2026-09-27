@@ -80,12 +80,28 @@ export function migrateProfile(raw: unknown): UserProfile | null {
 
 const toSlot = (mealType: string): MealType => (mealType === "Snack" ? "Merienda" : (mealType as MealType));
 
-/** "Snack" → "Merienda"; el resto de campos se conserva. */
-export function migrateEntries<T extends { mealType: string }>(entries: T[]): WithSlot<T>[] {
-  return entries.map((e) => ({ ...e, mealType: toSlot(e.mealType) }));
+/**
+ * Recetas semilla duplicadas que se quitaron del recetario: id retirado → id de la receta que se queda.
+ * Siguen en los datos guardados de cada usuario (la siembra solo añade), así que la carga las limpia.
+ */
+export const RETIRED_RECIPE_IDS: Record<string, string> = {
+  recipe_009: "recipe_017", // Lentejas estofadas con verduras
+  recipe_010: "recipe_022", // Revuelto de champiñones y gambas → Revuelto de gambas y champiñones
+  recipe_012: "recipe_020", // Merluza en salsa verde con guisantes
+};
+
+const toRecipeId = (id: string): string => (Object.hasOwn(RETIRED_RECIPE_IDS, id) ? RETIRED_RECIPE_IDS[id] : id);
+
+/** "Snack" → "Merienda" y recetas retiradas → la que se queda; el resto de campos se conserva. */
+export function migrateEntries<T extends { mealType: string; recipeId?: string }>(entries: T[]): WithSlot<T>[] {
+  return entries.map((e) => ({
+    ...e,
+    mealType: toSlot(e.mealType),
+    ...(typeof e.recipeId === "string" && { recipeId: toRecipeId(e.recipeId) }),
+  }));
 }
 
-export function migrateWeekPlan<T extends { mealType: string }>(
+export function migrateWeekPlan<T extends { mealType: string; recipeId?: string }>(
   plan: Record<string, T[]>,
 ): Record<string, WithSlot<T>[]> {
   return Object.fromEntries(Object.entries(plan).map(([date, slots]) => [date, migrateEntries(slots)]));
