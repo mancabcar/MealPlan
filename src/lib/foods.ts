@@ -115,3 +115,16 @@ export function offCooldown(timestamps: number[], now: number): number {
   const blocking = recent[recent.length - OFF_LIMIT.max];
   return Math.ceil((blocking + OFF_LIMIT.windowMs - now) / 1000);
 }
+
+/**
+ * Texto de búsqueda para GET /api/foods/search. Search-a-licious interpreta la consulta con sintaxis tipo Lucene:
+ * unas comillas o unos dos puntos del usuario se comerían el filtro de España (review de #13). Se quitan los
+ * caracteres de sintaxis y se pasa a minúsculas para que AND/OR/NOT no cuenten como operadores.
+ */
+export function plainQuery(text: string): string {
+  return text
+    .replace(/["():[\]{}~^\\/!*?+\-&|]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}

@@ -62,6 +62,18 @@ describe("R4: petición a Search-a-licious", () => {
     expect(offCall().headers.get("user-agent")).toBe("MealPlan/0.1 (+https://github.com/mancabcar/MealPlan)");
   });
 
+  it("quita la sintaxis de la consulta del texto: unas comillas no se comen el filtro de España (review)", async () => {
+    offReturns([]);
+    await search('Yogur "griego: (natural) OR -light\\');
+    expect(offCall().url.searchParams.get("q")).toBe('yogur griego natural or light countries_tags:"en:spain"');
+  });
+
+  it("un texto que solo tiene sintaxis cuenta como corto: 400 sin llamar a OFF", async () => {
+    const { status } = await search('"":()');
+    expect(status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("con menos de 2 caracteres responde 400 sin llamar a OFF", async () => {
     for (const q of [null, "", "a", "  a  "]) {
       const { status, body } = await search(q);
