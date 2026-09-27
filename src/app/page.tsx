@@ -3,6 +3,9 @@
 import { useId, useState, type MouseEvent } from "react";
 import { Check, CheckCheck, Minus, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
+import type { StatsPeriod } from "@/lib/diaryStats";
+import { addDays } from "@/lib/week";
 import { allergenWarning } from "@/lib/allergens";
 import {
   SERVINGS,
@@ -26,6 +29,7 @@ import { Chip, type ChipTone } from "@/components/ui/Chip";
 import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { WeekBarChart } from "@/components/ui/WeekBarChart";
+import { PeriodSummary, loadStatsDays, saveStatsDays } from "@/components/diario/PeriodSummary";
 import { inputCls } from "@/components/ui/input";
 
 // Rediseño visual (docs/pm/design-refresh, R7): proteína/carbohidratos/grasas se quedan como barras
@@ -92,6 +96,9 @@ const stepBtnCls =
 
 export default function DiaryPage() {
   const { profile, entries, recipes, weekPlan, addEntry, removeEntry } = useApp();
+  const userId = useAuth().user?.id;
+  // Medias y adherencia (docs/pm/11-medias-adherencia): 7 por defecto, la opción se recuerda por usuario (R11)
+  const [statsDays, setStatsDays] = useState<StatsPeriod>(() => loadStatsDays(userId));
   const idPrefix = useId();
   const [date, setDate] = useState(todayStr());
   const [showAdd, setShowAdd] = useState(false);
@@ -140,9 +147,8 @@ export default function DiaryPage() {
 
   // Gráfica semanal: últimos 7 días terminando en la fecha seleccionada
   const week = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(date + "T00:00:00");
-    d.setDate(d.getDate() - (6 - i));
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const key = addDays(date, i - 6);
+    const d = new Date(key + "T00:00:00");
     const kcal = entries.filter((e) => e.date === key).reduce((s, e) => s + e.calories, 0);
     return { label: ["D", "L", "M", "X", "J", "V", "S"][d.getDay()], value: kcal };
   });
@@ -184,6 +190,18 @@ export default function DiaryPage() {
         <h2 className="font-display text-sm font-semibold mb-3">Calorías esta semana</h2>
         <WeekBarChart data={week} goal={profile.calorieGoal} />
       </Card>
+
+      <PeriodSummary
+        days={statsDays}
+        onDaysChange={(d) => {
+          setStatsDays(d);
+          saveStatsDays(userId, d);
+        }}
+        entries={entries}
+        profile={profile}
+        date={date}
+        today={todayStr()}
+      />
 
       <Card className="flex flex-col gap-4">
         <MacroBar label="Proteínas" value={totals.protein} goal={profile.proteinGoal} range={profile.proteinRange} tone="protein" />

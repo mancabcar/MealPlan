@@ -15,6 +15,7 @@ import { DIARIO_RECIPES, GUISO, LENTEJAS, MACARRONES, MERLUZA, RACIONES_RECIPES,
 import { PLAN_SEED } from "../fixtures/plan-macros";
 import { SHOPPING_PANTRY, SHOPPING_PLAN, SHOPPING_RECIPES } from "../fixtures/shopping";
 import { HOME_WEIGHTS, NUTRI_REPORTS } from "../fixtures/measurements";
+import { ALL_ENTRIES, statsProfile } from "../fixtures/medias-adherencia";
 import { signIn, TODAY } from "./helpers";
 
 async function expectNoContrastViolations(page: Page) {
@@ -73,6 +74,16 @@ test.describe("R6: contraste de color", () => {
     await expect(page.getByRole("alert").filter({ hasText: "Entre 0,25 y 4, en pasos de 0,25" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Quitar 0,25 raciones" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Añadir 0,25 raciones" })).toBeVisible();
+    await expectNoContrastViolations(page);
+  });
+
+  // docs/pm/11-medias-adherencia/tech.md › Testing strategy: tarjeta «Medias y adherencia» llena (selector 7/30,
+  // rango de fechas, medias con estado y adherencia). Falla hasta que exista (tarea 6).
+  test("Diario con medias y adherencia", async ({ page }) => {
+    await signIn(page, { profile: statsProfile, entries: ALL_ENTRIES });
+    await page.goto("/");
+    await expect(page.getByRole("list", { name: "Medias del periodo" })).toBeVisible();
+    await expect(page.getByText("2 de 3 días dentro del objetivo")).toBeVisible();
     await expectNoContrastViolations(page);
   });
 

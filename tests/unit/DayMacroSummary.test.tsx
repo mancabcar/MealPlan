@@ -24,3 +24,14 @@ describe("Edge case: sin perfil", () => {
     expect(list.textContent).not.toMatch(/Dentro|Por debajo|Por encima/);
   });
 });
+
+// docs/pm/11-medias-adherencia/tech.md › Components & files: el Diario reutiliza el resumen para las medias del
+// periodo con otra etiqueta y sin el aviso "N de M comidas planificadas". Falla hasta la tarea 5.
+describe("Medias del periodo (docs/pm/11-medias-adherencia, R1 · R9)", () => {
+  it('con label y sin planned/total: lista "Medias del periodo" y sin aviso de comidas', () => {
+    render(<DayMacroSummary summary={{ totals: SUMMARY.totals }} profile={null} label="Medias del periodo" />);
+    expect(screen.getByRole("list", { name: "Medias del periodo" })).toBeTruthy();
+    expect(screen.queryByRole("list", { name: "Macros del día" })).toBeNull();
+    expect(screen.queryByText(/comidas planificadas/)).toBeNull();
+  });
+});
