@@ -85,16 +85,38 @@ Ninguno. `MealEntry.foodId = "off:<code>"` ya cubre tanto el producto encontrado
 - **`tests/unit/foods-barcode-route.test.ts`** (mismo patrón que `foods-route.test.ts`, `fetch` simulado): código válido con macros completos → `BrandProduct`; código inexistente (`status: 0`) → `404 not_found`; producto sin algún macro → `404 not_found`; `429` de OFF → `rate_limited` con `retryAfter`; timeout/red/JSON inválido → `502 unavailable`; código con formato inválido → `400`.
 - **`tests/unit/useBarcodeLookup.test.tsx`** (mismo patrón que `useBrandSearch.test.tsx`): transición de estados, contador de límite propio en `sessionStorage`, reintento.
 - **`tests/unit/BarcodeScanner.test.tsx`** (`// @vitest-environment jsdom`, mocks de `navigator.mediaDevices.getUserMedia` y de una clase `BarcodeDetector` falsa en `window`): permiso concedido → arranca el bucle y entrega el primer código detectado, cerrando el Sheet (R2, R3, R8); permiso denegado → mensaje + botón que cierra sin buscar nada (R6); cerrar sin escanear → no llama a la API (R7); sin `BarcodeDetector` nativo → importa el polyfill (se verifica con un mock del módulo).
-- **`tests/unit/FoodPicker.test.tsx`** (si no existe ya un test de este componente, se crea; si existe, se amplía): al recibir un código del escáner o del campo manual, con el proxy simulado, se abre la tarjeta de cantidad (R4) o se llama a `onManual` con el código anotado (R5).
-- **`tests/e2e/food.spec.ts`**: añade el camino de código escrito a mano (sin cámara real): escribir un código, pulsar «Buscar», interceptar `/api/foods/barcode` con Playwright (`page.route`) y comprobar que se abre la tarjeta de cantidad; y el camino de código no encontrado → Personalizada con el código anotado. No se prueba la cámara real en e2e (decisión del usuario).
+- **`tests/e2e/food.spec.ts`** (mismo patrón que #13: sin componente aparte para `FoodPicker`, la integración se prueba en e2e): añade el camino de código escrito a mano (sin cámara real), interceptando `/api/foods/barcode` con Playwright (`page.route`): botón y campo visibles (R1); código encontrado con macros completos → tarjeta de cantidad (R4, R6); código no encontrado → Personalizada con «Código `<código>`» ya escrito (R5); error de red → «Reintentar», que repite la búsqueda (R5); límite de peticiones (429) → mismo bloque de error (R5). La cámara/`BarcodeDetector` no se prueban en e2e (decisión del usuario): los cubre `BarcodeScanner.test.tsx`.
+
+#### UI test contract
+Nombres accesibles que usan `tests/unit/BarcodeScanner.test.tsx` y `tests/e2e/food.spec.ts` (acordados en dev-test, 2026-09-28):
+- Botón «Escanear» y campo con etiqueta «Código de barras», junto al buscador por nombre en `FoodPicker`.
+- Botón «Buscar código» junto al campo (distinto de «Buscar «‹q›» en productos de marca»).
+- `BarcodeScanner`: al detectar, llama a `onDetected(code)` una sola vez y para el stream de cámara; al cerrarse sin detectar (Escape, botón de `Sheet`), llama a `onClose()` sin llamar a `onDetected`.
+- Permiso de cámara denegado o no disponible: texto «No se ha podido acceder a la cámara» y botón «Escribe el código» que cierra el visor (llama a `onClose()`).
+- Código no encontrado / sin macros: cae a Personalizada con el campo «Nombre» relleno con «Código `<código>`» (mismo mecanismo `onManual(name)` que R14 de #13).
+- Error de red o límite de peticiones al buscar por código: botón «Reintentar» (igual que el bloque de errores de marcas de #13).
+- Sin `BarcodeDetector` nativo en `window`, `BarcodeScanner` importa `"barcode-detector/side-effect"` (define `window.BarcodeDetector` como efecto secundario) antes de instanciarlo, para no bifurcar el código de detección entre nativo y polyfill.
+
+## Test coverage
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | tests/e2e/food.spec.ts › "R1: el botón Escanear y el campo de código son visibles junto al buscador" | e2e | 🔴 failing (not built) |
+| R2 | tests/unit/BarcodeScanner.test.tsx › "R2: apertura del visor y permiso de cámara" (3 tests) | unit/component | 🔴 failing (not built) |
+| R3 | tests/unit/foods-barcode-route.test.ts › "R3: petición al endpoint de producto de OFF" (4 tests); tests/unit/BarcodeScanner.test.tsx › "R3 · R8: detección" | unit | 🔴 failing (not built) |
+| R4 | tests/unit/foods-barcode-route.test.ts › "R4: normalización del producto encontrado" (2 tests); tests/unit/useBarcodeLookup.test.tsx › "R4: búsqueda por código" (3 tests); tests/e2e/food.spec.ts › "R4 · R6: un código que existe en OFF..." | unit + e2e | 🔴 failing (not built) |
+| R5 | tests/unit/foods-barcode-route.test.ts › "R5: código no encontrado..." y "R5: error de red o límite de peticiones" (9 tests); tests/unit/useBarcodeLookup.test.tsx › "R5: límite propio de peticiones" (3 tests); tests/e2e/food.spec.ts › 3 tests "R5: ..." | unit + e2e | 🔴 failing (not built) |
+| R6 | tests/unit/BarcodeScanner.test.tsx › "R6: permiso denegado o sin cámara"; cubierto también por los e2e de código manual (R4/R5) | unit/component + e2e | 🔴 failing (not built) |
+| R7 | tests/unit/BarcodeScanner.test.tsx › "R7: cerrar sin escanear" | unit/component | 🔴 failing (not built) |
+| R8 | tests/unit/BarcodeScanner.test.tsx › "R3 · R8: detección" | unit/component | 🔴 failing (not built) |
+
+Los 3 archivos nuevos (`foods-barcode-route.test.ts`, `useBarcodeLookup.test.tsx`, `BarcodeScanner.test.tsx`) fallan hoy porque los módulos de producción no existen (`Cannot find module`/`Failed to resolve import`), no por ningún error de sintaxis: son los tests que dev-code debe poner en verde. El resto de la suite (779 tests) sigue en verde; `tests/e2e/food.spec.ts` no se ha podido ejecutar en este paso (Playwright necesita el servidor de la app), pero pasa `npx eslint` y `tsc --noEmit` sin avisos nuevos.
 
 ## Tasks
-1. [ ] `GET /api/foods/barcode` + fixtures + tests (R3, R4, R5 red/límite) — sin tocar UI.
-2. [ ] `useBarcodeLookup` + tests (state machine, límite propio).
-3. [ ] Añadir dependencia `barcode-detector`; componente `BarcodeScanner` (Sheet + getUserMedia + bucle de detección + polyfill perezoso) + tests con mocks (R2, R7, R8, permiso denegado).
-4. [ ] Cablear en `FoodPicker`: botón «Escanear», campo «o escribe el código» + «Buscar», integración con `useBarcodeLookup` y `BarcodeScanner`, caída a `onManual` (R1, R3–R6) + tests de componente.
-5. [ ] `tests/e2e/food.spec.ts`: camino de código manual, encontrado y no encontrado.
-6. [ ] Verificación manual en el móvil (criterio de aceptación del issue: escanear un producto real conocido) antes de abrir el PR.
+1. [ ] `GET /api/foods/barcode` + fixtures + tests (R3, R4, R5 red/límite) — sin tocar UI. **Tests que debe poner en verde**: `tests/unit/foods-barcode-route.test.ts`.
+2. [ ] `useBarcodeLookup` + tests (state machine, límite propio). **Tests**: `tests/unit/useBarcodeLookup.test.tsx`.
+3. [ ] Añadir dependencia `barcode-detector`; componente `BarcodeScanner` (Sheet + getUserMedia + bucle de detección + polyfill perezoso vía `barcode-detector/side-effect`) + tests con mocks (R2, R3, R6, R7, R8). **Tests**: `tests/unit/BarcodeScanner.test.tsx`.
+4. [ ] Cablear en `FoodPicker`: botón «Escanear», campo «Código de barras» + «Buscar código», integración con `useBarcodeLookup` y `BarcodeScanner`, caída a `onManual` con «Código `<código>`» (R1, R3–R6). **Tests que debe poner en verde**: los e2e de `tests/e2e/food.spec.ts › "Escáner de código de barras (#14)"`.
+5. [ ] Verificación manual en el móvil (criterio de aceptación del issue: escanear un producto real conocido) antes de abrir el PR.
 
 ## Spec feedback
 Ninguno: el spec se mantiene tal cual. La única pregunta abierta del spec (cómo instrumentar el % de escaneo vs. búsqueda por nombre para la métrica de éxito) sigue abierta — no bloquea estas tareas, ya que `MealEntry` no distingue el origen y añadirlo excede el alcance de esta entrega.

@@ -144,3 +144,89 @@ export const YOGUR_LIGERO: BrandProduct = {
   carbs: 5,
   fat: 4,
 };
+
+// ---------------------------------------------------------------------------
+// Open Food Facts (API de producto por código de barras, docs/pm/14-escaner-codigo-barras)
+// ---------------------------------------------------------------------------
+
+/**
+ * Forma de `GET world.openfoodfacts.org/api/v2/product/<code>.json`, comprobada el 2026-09-28: a diferencia de
+ * Search-a-licious (`brands` como lista), aquí `brands` es una cadena separada por comas.
+ */
+export interface V2Product {
+  code?: string;
+  product_name?: string;
+  product_name_es?: string;
+  brands?: string;
+  nutriments?: Record<string, number>;
+  serving_quantity?: number | string;
+  serving_quantity_unit?: string;
+}
+
+export interface V2Response {
+  code: string;
+  status: 0 | 1;
+  product?: V2Product;
+}
+
+export function v2Product(
+  code: string,
+  name: string,
+  brands: string | null,
+  n: { kcal?: number; protein?: number; carbs?: number; fat?: number },
+  extra: Partial<V2Product> = {},
+): V2Response {
+  const nutriments: Record<string, number> = {};
+  if (n.kcal !== undefined) nutriments["energy-kcal_100g"] = n.kcal;
+  if (n.protein !== undefined) nutriments.proteins_100g = n.protein;
+  if (n.carbs !== undefined) nutriments.carbohydrates_100g = n.carbs;
+  if (n.fat !== undefined) nutriments.fat_100g = n.fat;
+  return {
+    code,
+    status: 1,
+    product: { code, product_name: name, ...(brands && { brands }), nutriments, ...extra },
+  };
+}
+
+export function v2NotFound(code: string): V2Response {
+  return { code, status: 0 };
+}
+
+/** Producto conocido, con marca única y ración en gramos (caso "escaneo con éxito" del spec). */
+export const BARRITA_AVENA_CODE = "8410000123456";
+export const BARRITA_AVENA_V2 = v2Product(
+  BARRITA_AVENA_CODE,
+  "Barrita de avena y miel",
+  "Campo Dorado",
+  { kcal: 410, protein: 8.5, carbs: 62, fat: 13 },
+  { serving_quantity: 30, serving_quantity_unit: "g" },
+);
+export const BARRITA_AVENA: BrandProduct = {
+  code: BARRITA_AVENA_CODE,
+  name: "Barrita de avena y miel",
+  brand: "Campo Dorado",
+  kcal: 410,
+  protein: 8.5,
+  carbs: 62,
+  fat: 13,
+  servingGrams: 30,
+};
+
+/** Varias marcas en `brands` (separadas por coma): se usa la primera. */
+export const MULTIMARCA_CODE = "8410000999999";
+export const MULTIMARCA_V2 = v2Product(MULTIMARCA_CODE, "Galletas surtidas", "Dulcesol, Grupo Siro", {
+  kcal: 470,
+  protein: 6,
+  carbs: 65,
+  fat: 20,
+});
+
+/** Sin grasa por 100 g: como R4 de #13, se trata como "no encontrado" (R5 de #14). */
+export const SIN_GRASA_CODE = "8410000000001";
+export const SIN_GRASA_V2 = v2Product(SIN_GRASA_CODE, "Producto incompleto", "Marca X", {
+  kcal: 200,
+  protein: 5,
+  carbs: 30,
+});
+
+export const CODIGO_INEXISTENTE = "0000000000000";
