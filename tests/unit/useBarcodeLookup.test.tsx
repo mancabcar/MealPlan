@@ -43,7 +43,7 @@ describe("R4: búsqueda por código", () => {
     act(() => result.current.retry());
     await waitFor(() => expect(result.current.state).toBe("ok"));
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    const lastUrl = new URL(String((fetchMock.mock.calls[1] as [string])[0]));
+    const lastUrl = new URL(String((fetchMock.mock.calls[1] as [string])[0]), "http://localhost");
     expect(lastUrl.searchParams.get("code")).toBe(BARRITA_AVENA_CODE);
   });
 });
