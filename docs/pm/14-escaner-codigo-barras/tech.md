@@ -112,7 +112,7 @@ Nombres accesibles que usan `tests/unit/BarcodeScanner.test.tsx` y `tests/e2e/fo
 Los 3 archivos nuevos (`foods-barcode-route.test.ts`, `useBarcodeLookup.test.tsx`, `BarcodeScanner.test.tsx`) fallan hoy porque los módulos de producción no existen (`Cannot find module`/`Failed to resolve import`), no por ningún error de sintaxis: son los tests que dev-code debe poner en verde. El resto de la suite (779 tests) sigue en verde; `tests/e2e/food.spec.ts` no se ha podido ejecutar en este paso (Playwright necesita el servidor de la app), pero pasa `npx eslint` y `tsc --noEmit` sin avisos nuevos.
 
 ## Tasks
-1. [ ] `GET /api/foods/barcode` + fixtures + tests (R3, R4, R5 red/límite) — sin tocar UI. **Tests que debe poner en verde**: `tests/unit/foods-barcode-route.test.ts`.
+1. [x] `GET /api/foods/barcode` + fixtures + tests (R3, R4, R5 red/límite) — sin tocar UI. **Tests que debe poner en verde**: `tests/unit/foods-barcode-route.test.ts`.
 2. [ ] `useBarcodeLookup` + tests (state machine, límite propio). **Tests**: `tests/unit/useBarcodeLookup.test.tsx`.
 3. [ ] Añadir dependencia `barcode-detector`; componente `BarcodeScanner` (Sheet + getUserMedia + bucle de detección + polyfill perezoso vía `barcode-detector/side-effect`) + tests con mocks (R2, R3, R6, R7, R8). **Tests**: `tests/unit/BarcodeScanner.test.tsx`.
 4. [ ] Cablear en `FoodPicker`: botón «Escanear», campo «Código de barras» + «Buscar código», integración con `useBarcodeLookup` y `BarcodeScanner`, caída a `onManual` con «Código `<código>`» (R1, R3–R6). **Tests que debe poner en verde**: los e2e de `tests/e2e/food.spec.ts › "Escáner de código de barras (#14)"`.
