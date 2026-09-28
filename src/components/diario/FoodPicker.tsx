@@ -6,7 +6,7 @@
 // El Diario la mantiene montada (oculta) mientras el formulario está abierto: así la búsqueda sobrevive a un cambio
 // de pestaña (Edge cases).
 import { useId, useState, type MouseEvent } from "react";
-import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import {
   FOODS_CITATION,
   GRAMS_ERROR,
@@ -24,6 +24,8 @@ import {
 } from "@/lib/foods";
 import { formatServings } from "@/lib/diary";
 import { useBrandSearch } from "@/lib/useBrandSearch";
+import { useBarcodeLookup } from "@/lib/useBarcodeLookup";
+import { BarcodeScanner } from "./BarcodeScanner";
 import { ChipRadios } from "@/components/ui/ChipRadios";
 import { inputCls } from "@/components/ui/input";
 import { normalize } from "@/lib/text";
@@ -115,6 +117,9 @@ export function FoodPicker({
   const [gramsText, setGramsText] = useState("100");
   const [unitsText, setUnitsText] = useState("1");
   const brands = useBrandSearch();
+  const barcode = useBarcodeLookup();
+  const [scanning, setScanning] = useState(false);
+  const [codeText, setCodeText] = useState("");
 
   const query = text.trim();
   const searching = normalize(query).length >= 2;
@@ -133,6 +138,21 @@ export function FoodPicker({
     setGramsText("100");
     setUnitsText("1");
   };
+
+  // R4, R5: al terminar una búsqueda por código (escaneado o escrito a mano), se abre la tarjeta si hay macros
+  // completos, o se cae a Personalizada con el código anotado. Se reacciona en el propio manejador (no en un
+  // efecto que observe el estado) para no encadenar un setState sobre otro.
+  const onCodeResult = (result: Awaited<ReturnType<typeof barcode.lookup>>) => {
+    if (result?.state === "ok" && result.product) {
+      pick(fromBrand(result.product));
+      barcode.reset();
+    } else if (result?.state === "not_found") {
+      onManual(`Código ${result.code}`);
+      barcode.reset();
+    }
+  };
+  const runCode = async (c: string) => onCodeResult(await barcode.lookup(c));
+  const runRetry = async () => onCodeResult(await barcode.retry());
 
   if (selected) {
     const unitGrams = selected.unitGrams;
@@ -278,6 +298,70 @@ export function FoodPicker({
           )}
         </div>
       </div>
+
+      {/* R1: botón «Escanear» + campo «Código de barras», siempre visibles (no dependen de `searching`) */}
+      <div className="flex flex-col gap-1.5">
+        <button
+          type="button"
+          onClick={() => setScanning(true)}
+          className="min-h-11 flex items-center justify-center gap-2 rounded-lg border border-[var(--color-accent)] px-3 text-sm font-semibold text-[var(--color-accent)]"
+        >
+          <Camera className="w-4 h-4 shrink-0" aria-hidden />
+          Escanear
+        </button>
+        <div className="flex gap-1.5">
+          <label htmlFor={`${id}-code`} className="sr-only">
+            Código de barras
+          </label>
+          <input
+            id={`${id}-code`}
+            inputMode="numeric"
+            placeholder="o escribe el código"
+            value={codeText}
+            onChange={(e) => setCodeText(e.target.value)}
+            className={`${inputCls} flex-1`}
+          />
+          <button
+            type="button"
+            onClick={() => void runCode(codeText.trim())}
+            disabled={codeText.trim() === "" || barcode.cooldown > 0}
+            className="min-h-11 px-4 rounded-lg border border-[var(--color-accent)] text-sm font-semibold text-[var(--color-accent)] disabled:opacity-60"
+          >
+            Buscar código
+          </button>
+        </div>
+        {/* R5: no encontrado cae directo a Personalizada (efecto de arriba); red/límite muestran este aviso */}
+        {(barcode.state === "offline" || barcode.state === "error" || barcode.state === "rate_limited") && (
+          <div className="flex flex-col gap-2 rounded-lg border border-[var(--color-border)] p-3 text-sm">
+            <p className="font-semibold">No se ha podido comprobar ese código</p>
+            <p className="text-[var(--color-text-muted)]">
+              {barcode.state === "rate_limited"
+                ? "Demasiadas búsquedas seguidas. Podrás volver a intentarlo en unos segundos."
+                : barcode.state === "offline"
+                  ? "Parece que no hay conexión. Puedes meterlo a mano en Personalizada."
+                  : "Open Food Facts no responde ahora. Puedes meterlo a mano en Personalizada."}
+            </p>
+            <button
+              type="button"
+              onClick={() => void runRetry()}
+              disabled={barcode.cooldown > 0}
+              className="self-start min-h-11 px-4 rounded-lg border border-[var(--color-accent)] text-[var(--color-accent)] font-semibold disabled:opacity-60"
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
+      </div>
+      {scanning && (
+        <BarcodeScanner
+          onDetected={(code) => {
+            setScanning(false);
+            setCodeText(code);
+            void runCode(code);
+          }}
+          onClose={() => setScanning(false)}
+        />
+      )}
 
       {searching && (
         <section aria-labelledby={`${id}-basics`} className="flex flex-col gap-1.5">

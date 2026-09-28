@@ -72,7 +72,7 @@ export function useBarcodeLookup() {
   const run = useCallback(
     async (c: string) => {
       const at = Date.now();
-      if (cooldownAt(at) > 0) return;
+      if (cooldownAt(at) > 0) return null;
       const nextStamps = [...stamps.filter((t) => at - t < BARCODE_LIMIT.windowMs), at];
       setStamps(nextStamps);
       write(STAMPS_KEY, nextStamps);
@@ -93,7 +93,7 @@ export function useBarcodeLookup() {
         // fetch solo lanza sin red (o si el navegador corta la petición)
         next = { state: "offline" };
       }
-      if (id !== requestId.current) return;
+      if (id !== requestId.current) return null;
       setState(next.state);
       setProduct(next.product ?? null);
       if (next.retryAfter !== undefined) {
@@ -102,12 +102,16 @@ export function useBarcodeLookup() {
         write(BLOCKED_KEY, until);
         setNow(Date.now());
       }
+      // Se devuelve el resultado (y no solo se deja en el estado) para que quien llama pueda reaccionar en el
+      // mismo manejador de evento (p. ej. abrir la tarjeta o caer a Personalizada), sin un efecto que observe
+      // el estado y dispare otro setState.
+      return { state: next.state, product: next.product ?? null, code: c };
     },
     [cooldownAt, stamps],
   );
 
-  const lookup = useCallback((c: string) => void run(c), [run]);
-  const retry = useCallback(() => void run(code), [run, code]);
+  const lookup = useCallback((c: string) => run(c), [run]);
+  const retry = useCallback(() => run(code), [run, code]);
   const reset = useCallback(() => {
     requestId.current++;
     setState("idle");
