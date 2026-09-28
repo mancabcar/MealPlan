@@ -57,7 +57,7 @@ Ninguno. `MealEntry.foodId = "off:<code>"` ya cubre tanto el producto encontrado
 ### UI
 - **`FoodPicker`**: antes del buscador por nombre (o justo debajo, a decidir en la maqueta del propio código, sin prototipo previo), botón «Escanear» y, siempre visible bajo él, un campo de texto «o escribe el código» con un botón «Buscar». Al encontrar, mismo camino que un resultado de marca (`pick(fromBrand(...))`). Al fallar (no encontrado, sin macros, error, límite), llama a `onManual` con el código anotado en el nombre (p. ej. `Código 8410000123456`), igual que hace hoy con el texto buscado (R14 de #13).
 - **`BarcodeScanner`**: se monta dentro de un `Sheet` con título «Escanear código». Al montar, pide `getUserMedia({ video: { facingMode: "environment" } })`.
-  - Si se concede: muestra el `<video>` con el stream y arranca un bucle (`requestAnimationFrame`) que cada ~200 ms captura el frame en un `<canvas>` oculto y llama a `detector.detect(canvas)`. Al primer código válido, para el stream, cierra el Sheet y entrega el código al padre.
+  - Si se concede: muestra el `<video>` con el stream y arranca un bucle (`requestAnimationFrame`) que llama a `detector.detect(video)` en cada frame (`BarcodeDetector.detect()` acepta `HTMLVideoElement` directamente, sin canvas intermedio). Al primer código válido, para el stream, cierra el Sheet y entrega el código al padre.
   - Si se deniega o falla (`NotAllowedError`, `NotFoundError`, sin `mediaDevices`): muestra el mensaje «No se ha podido acceder a la cámara» con un botón «Escribe el código» que cierra el Sheet sin más (R6: el campo ya está visible en `FoodPicker`).
   - `BarcodeDetector`: si `window.BarcodeDetector` existe, se usa tal cual; si no, se importa `barcode-detector` de forma perezosa (`await import("barcode-detector/pure")` o equivalente) antes de instanciar, para no cargar el WASM en quien sí tiene soporte nativo.
   - Cerrar el Sheet (botón, Escape, tocar fuera) para el stream (`track.stop()`) y no busca nada.
@@ -95,7 +95,7 @@ Nombres accesibles que usan `tests/unit/BarcodeScanner.test.tsx` y `tests/e2e/fo
 - Permiso de cámara denegado o no disponible: texto «No se ha podido acceder a la cámara» y botón «Escribe el código» que cierra el visor (llama a `onClose()`).
 - Código no encontrado / sin macros: cae a Personalizada con el campo «Nombre» relleno con «Código `<código>`» (mismo mecanismo `onManual(name)` que R14 de #13).
 - Error de red o límite de peticiones al buscar por código: botón «Reintentar» (igual que el bloque de errores de marcas de #13).
-- Sin `BarcodeDetector` nativo en `window`, `BarcodeScanner` importa `"barcode-detector/side-effect"` (define `window.BarcodeDetector` como efecto secundario) antes de instanciarlo, para no bifurcar el código de detección entre nativo y polyfill.
+- Sin `BarcodeDetector` nativo en `window`, `BarcodeScanner` importa `"barcode-detector/side-effects"` (define `window.BarcodeDetector` como efecto secundario) antes de instanciarlo, para no bifurcar el código de detección entre nativo y polyfill.
 
 ## Test coverage
 | Req | Test | Layer | Status |
@@ -114,7 +114,7 @@ Los 3 archivos nuevos (`foods-barcode-route.test.ts`, `useBarcodeLookup.test.tsx
 ## Tasks
 1. [x] `GET /api/foods/barcode` + fixtures + tests (R3, R4, R5 red/límite) — sin tocar UI. **Tests que debe poner en verde**: `tests/unit/foods-barcode-route.test.ts`.
 2. [x] `useBarcodeLookup` + tests (state machine, límite propio). **Tests**: `tests/unit/useBarcodeLookup.test.tsx`.
-3. [ ] Añadir dependencia `barcode-detector`; componente `BarcodeScanner` (Sheet + getUserMedia + bucle de detección + polyfill perezoso vía `barcode-detector/side-effect`) + tests con mocks (R2, R3, R6, R7, R8). **Tests**: `tests/unit/BarcodeScanner.test.tsx`.
+3. [x] Añadir dependencia `barcode-detector`; componente `BarcodeScanner` (Sheet + getUserMedia + bucle de detección + polyfill perezoso vía `barcode-detector/side-effects`) + tests con mocks (R2, R3, R6, R7, R8). **Tests**: `tests/unit/BarcodeScanner.test.tsx`.
 4. [ ] Cablear en `FoodPicker`: botón «Escanear», campo «Código de barras» + «Buscar código», integración con `useBarcodeLookup` y `BarcodeScanner`, caída a `onManual` con «Código `<código>`» (R1, R3–R6). **Tests que debe poner en verde**: los e2e de `tests/e2e/food.spec.ts › "Escáner de código de barras (#14)"`.
 5. [ ] Verificación manual en el móvil (criterio de aceptación del issue: escanear un producto real conocido) antes de abrir el PR.
 

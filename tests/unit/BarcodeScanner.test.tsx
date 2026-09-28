@@ -1,13 +1,14 @@
 // @vitest-environment jsdom
 // Spec: docs/pm/14-escaner-codigo-barras/spec.md › R2, R3, R6, R7, R8. Tech: tech.md › UI (BarcodeScanner).
 //
-// Contrato asumido para dev-code (no hay polyfill instalado aún en este worktree, por eso se mockea el módulo):
-// si `window.BarcodeDetector` no existe, el componente importa "barcode-detector/side-effect" (que define
-// `window.BarcodeDetector` como efecto secundario) antes de instanciarlo, para no bifurcar el código de detección.
+// Contrato: si `window.BarcodeDetector` no existe, el componente importa "barcode-detector/side-effects" (que
+// define `window.BarcodeDetector` como efecto secundario si falta) antes de instanciarlo, para no bifurcar el
+// código de detección entre nativo y polyfill. El módulo se mockea aquí para no cargar el WASM real en los tests.
 //
-// jsdom no implementa cámara, <video>.play() ni canvas: se mockean navigator.mediaDevices.getUserMedia,
-// HTMLMediaElement.play, HTMLCanvasElement.getContext y requestAnimationFrame.
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+// jsdom no implementa cámara ni <video>.play(): se mockean navigator.mediaDevices.getUserMedia,
+// HTMLMediaElement.play y requestAnimationFrame. detect() recibe el <video> directamente (BarcodeDetector acepta
+// HTMLVideoElement), sin canvas intermedio.
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BarcodeScanner } from "@/components/diario/BarcodeScanner";
 
@@ -18,7 +19,7 @@ class FakeDetector {
   }
 }
 
-vi.mock("barcode-detector/side-effect", () => {
+vi.mock("barcode-detector/side-effects", () => {
   (window as unknown as { BarcodeDetector?: unknown }).BarcodeDetector ??= FakeDetector;
   return {};
 });
@@ -33,9 +34,6 @@ beforeEach(() => {
   delete (window as unknown as { BarcodeDetector?: unknown }).BarcodeDetector;
   vi.stubGlobal("navigator", { ...navigator, mediaDevices: { getUserMedia } });
   vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
-    drawImage: vi.fn(),
-  } as unknown as CanvasRenderingContext2D);
   vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
     setTimeout(() => cb(performance.now()), 0);
     return 0;
@@ -44,17 +42,22 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
 describe("R2: apertura del visor y permiso de cámara", () => {
-  it("pide la cámara trasera al montar", async () => {
+  // El import dinámico del polyfill se cachea por módulo tras la primera vez que se resuelve en el archivo, así
+  // que solo este primer test (sin BarcodeDetector nativo al montar) ejercita de verdad la carga perezosa; los
+  // demás tests no dependen de ese orden porque fijan `window.BarcodeDetector` ellos mismos antes de renderizar.
+  it("sin BarcodeDetector nativo, pide la cámara trasera y carga el polyfill antes de escanear", async () => {
     getUserMedia.mockResolvedValue(fakeStream);
     render(<BarcodeScanner onDetected={vi.fn()} onClose={vi.fn()} />);
     await waitFor(() =>
       expect(getUserMedia).toHaveBeenCalledWith(expect.objectContaining({ video: expect.objectContaining({ facingMode: "environment" }) })),
     );
+    await waitFor(() => expect((window as unknown as { BarcodeDetector?: unknown }).BarcodeDetector).toBe(FakeDetector));
   });
 
   it("con BarcodeDetector nativo, no importa el polyfill", async () => {
@@ -64,12 +67,6 @@ describe("R2: apertura del visor y permiso de cámara", () => {
     await waitFor(() => expect(getUserMedia).toHaveBeenCalled());
     // Sigue siendo la misma clase nativa, no ha sido sustituida por el mock del polyfill de otra forma
     expect((window as unknown as { BarcodeDetector: unknown }).BarcodeDetector).toBe(FakeDetector);
-  });
-
-  it("sin BarcodeDetector nativo, carga el polyfill antes de escanear", async () => {
-    getUserMedia.mockResolvedValue(fakeStream);
-    render(<BarcodeScanner onDetected={vi.fn()} onClose={vi.fn()} />);
-    await waitFor(() => expect((window as unknown as { BarcodeDetector?: unknown }).BarcodeDetector).toBe(FakeDetector));
   });
 });
 
@@ -111,11 +108,11 @@ describe("R6: permiso denegado o sin cámara", () => {
 });
 
 describe("R7: cerrar sin escanear", () => {
-  it("Escape cierra el visor, para la cámara y no entrega ningún código", async () => {
+  it("Escape llama a onClose sin entregar ningún código; al desmontar (como hace el padre al cerrar) para la cámara", async () => {
     getUserMedia.mockResolvedValue(fakeStream);
     const onDetected = vi.fn();
     const onClose = vi.fn();
-    render(<BarcodeScanner onDetected={onDetected} onClose={onClose} />);
+    const { unmount } = render(<BarcodeScanner onDetected={onDetected} onClose={onClose} />);
     await waitFor(() => expect(getUserMedia).toHaveBeenCalled());
 
     await act(async () => {
@@ -123,6 +120,8 @@ describe("R7: cerrar sin escanear", () => {
     });
     expect(onClose).toHaveBeenCalled();
     expect(onDetected).not.toHaveBeenCalled();
+
+    unmount();
     expect(stopTrack).toHaveBeenCalled();
   });
 });
