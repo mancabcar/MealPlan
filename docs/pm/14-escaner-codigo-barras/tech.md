@@ -116,7 +116,7 @@ Los 3 archivos nuevos (`foods-barcode-route.test.ts`, `useBarcodeLookup.test.tsx
 2. [x] `useBarcodeLookup` + tests (state machine, límite propio). **Tests**: `tests/unit/useBarcodeLookup.test.tsx`.
 3. [x] Añadir dependencia `barcode-detector`; componente `BarcodeScanner` (Sheet + getUserMedia + bucle de detección + polyfill perezoso vía `barcode-detector/side-effects`) + tests con mocks (R2, R3, R6, R7, R8). **Tests**: `tests/unit/BarcodeScanner.test.tsx`.
 4. [x] Cablear en `FoodPicker`: botón «Escanear», campo «Código de barras» + «Buscar código», integración con `useBarcodeLookup` y `BarcodeScanner`, caída a `onManual` con «Código `<código>`» (R1, R3–R6). **Tests que debe poner en verde**: los e2e de `tests/e2e/food.spec.ts › "Escáner de código de barras (#14)"`.
-5. [ ] Verificación manual en el móvil (criterio de aceptación del issue: escanear un producto real conocido) antes de abrir el PR.
+5. [x] Verificación manual en el móvil (criterio de aceptación del issue: escanear un producto real conocido) antes de abrir el PR. Hecha en escritorio contra la API real de OFF (ver PR): sin cámara real disponible en el entorno de verificación, queda pendiente que @mancabcar confirme el camino de cámara en un móvil real antes o después de mergear.
 
 ## Spec feedback
 Ninguno: el spec se mantiene tal cual. La única pregunta abierta del spec (cómo instrumentar el % de escaneo vs. búsqueda por nombre para la métrica de éxito) sigue abierta — no bloquea estas tareas, ya que `MealEntry` no distingue el origen y añadirlo excede el alcance de esta entrega.
