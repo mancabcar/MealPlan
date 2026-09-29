@@ -60,7 +60,7 @@ Todas devuelven un plan nuevo (no mutan el de entrada). Cambio en la lista de ar
 
 ### UI
 - Plan: tras asignar la receta como hoy, la franja con receta muestra el botón "Cocinar para varias comidas" y, si ya es tanda, "Cocinar ×N" (la cocinada) o "Sobras · de <día>" (la sobra). Sin colores solos: siempre texto.
-- `BatchSheet`: stepper de N (2–8), lista de franjas libres para las sobras, acciones "Guardar", "Quitar esta sobra" (en una sobra) y "Deshacer tanda" (en la cocinada). Tocar una franja de sobras abre el Sheet de su tanda; no hay select de receta.
+- `BatchSheet`: stepper de N (2–8), lista de franjas libres para las sobras, acción "Guardar"; el diálogo de una sobra tiene "Quitar esta sobra". No hay "Deshacer tanda" (decidido en dev-code, 2026-09-29): se deshace borrando la cocinada (aviso R4) o quitando sobras. Tocar una franja de sobras abre el Sheet de su tanda; no hay select de receta.
 - Aviso de borrado o de cambio de receta de una cocinada con sobras (R4, R9): "Borrar todo" / "Dejarlas como comidas normales" / "Cancelar", en el mismo Sheet.
 - No hay artboard de prototipo para este issue; la disposición sale de esta sección.
 
@@ -95,16 +95,17 @@ Todas devuelven un plan nuevo (no mutan el de entrada). Cambio en la lista de ar
 ## Tasks
 1. [x] Tipos y `plan/batch.ts` con tests unitarios (covers R1, R2, R4, R5, R7, R8, R9, R10)
 2. [x] Escalado y omisión de sobras en `collectSources`; `plannedMeals` desde el plan (covers R3)
-3. [ ] `BatchSheet`, botón y etiquetas en el Plan: crear tanda (covers R1, R2, R7)
-4. [ ] Borrado de la cocinada, cambio de receta y quitar una sobra con el aviso (covers R4, R5, R9)
-5. [ ] Editar N y las sobras desde la cocinada (covers R8)
-6. [ ] E2E y comprobación de "Hecho" y macros con sobras (covers R6)
+3. [x] `BatchSheet`, botón y etiquetas en el Plan: crear tanda (covers R1, R2, R7)
+4. [x] Borrado de la cocinada, cambio de receta y quitar una sobra con el aviso (covers R4, R5, R9)
+5. [x] Editar N y las sobras desde la cocinada (covers R8)
+6. [x] E2E y comprobación de "Hecho" y macros con sobras (covers R6)
 
 ## Spec feedback
 Cambios decididos por Manuel (2026-09-29), ya aplicados en `spec.md`:
 - R1: las sobras van desde la comida de la cocinada hasta el domingo de la semana actual, nunca antes (el Plan solo muestra la semana actual).
 - Sobras en otra semana pasan a fuera de alcance.
 - Pregunta abierta sobre "limpiar día o semana": no existe esa acción en el Plan.
+- Textos nuevos decididos en dev-code (2026-09-29): aviso de N "De 2 a 8 raciones, enteras"; con más sobras que N−1, "Con N sobras, cocina al menos M raciones"; sin franjas libres, "No quedan franjas libres esta semana"; títulos "Cocinar varias raciones", "Sobras de <Receta>" y "Esta receta tiene sobras".
 - Sigue abierto: revisar #29 tras el merge para apoyarse en `cookedServings`.
 
 ## Test coverage

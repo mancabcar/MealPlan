@@ -2,15 +2,14 @@
 // Tech: docs/pm/17-sobras-batch-cooking/tech.md › UI y Test coverage › contrato de UI (textos acordados con Manuel):
 //   - En cada franja con receta que no es una sobra, botón "Cocinar para varias comidas" (también en la cocinada, para editar).
 //   - Ese botón abre un diálogo (role="dialog") con el campo "Raciones cocinadas" (N), una casilla "<Día> · <Comida>" por
-//     franja elegible (las ocupadas, disabled) y los botones "Guardar", "Deshacer tanda" (en la cocinada) y
-//     "Quitar esta sobra" (en una sobra). Un valor de N o una selección inválidos muestran un role="alert" en el diálogo.
+//     franja elegible (las ocupadas, disabled) y el botón "Guardar". El diálogo de una sobra tiene "Quitar esta sobra". Un valor de N o una selección inválidos muestran un role="alert" en el diálogo.
 //   - La cocinada muestra el texto "Cocinar ×N"; cada sobra, "Sobras · de <Día>" (nombre del día de la cocinada).
 //   - Tocar la fila de una sobra abre el diálogo de su tanda (no hay select de receta).
 //   - Borrar o cambiar la receta de una cocinada con sobras abre un diálogo con "Borrar todo", "Dejarlas como comidas
 //     normales" y "Cancelar"; hasta elegir, el plan guardado no cambia.
 //
 // Datos: tests/fixtures/sobras.ts. Hoy = martes 2026-09-22 (signIn fija el reloj); Lucía hace Desayuno, Comida, Merienda y
-// Cena, objetivo 1750 kcal. Fallan hasta que exista la UI de tandas (tareas 3–6).
+// Cena, objetivo 1750 kcal. Construido en las tareas 3–5 del tech design.
 import { expect, test, type Page } from "@playwright/test";
 import type { DayPlanSlot, WeekPlan } from "@/lib/types";
 import { lucia } from "../fixtures/profiles";
