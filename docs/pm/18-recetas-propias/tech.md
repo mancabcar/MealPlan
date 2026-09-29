@@ -75,7 +75,7 @@ Página aparte para el formulario. **Pros:** encaja con `trailingSlash`. **Cons:
 ## Tasks
 1. [x] Tipos y `lib/recipeEdit.ts` puro con tests unitarios (covers R1, R3, R4, R6, R8, R9, R10)
 2. [x] `saveRecipe` y `removeRecipe` en el store, con tests (covers R2, R3, R8)
-3. [ ] `RecipeForm` en `Sheet` con tests de componente (covers R1, R7, R10)
+3. [x] `RecipeForm` en `Sheet` con tests de componente (covers R1, R7, R10)
 4. [ ] Recetas: "Nueva receta", "Editar", "Duplicar y editar" y distintivo "Propia" (covers R1, R2, R4, R5, R9)
 5. [ ] "Borrar" con aviso de Plan (covers R3, R8)
 6. [ ] Test e2e del flujo crear → planificar → borrar (covers R5, R7)

@@ -26,7 +26,7 @@ const lines = (text: string) =>
     .filter(Boolean);
 
 /** Número ≥ 0 con coma o punto decimal; null si no lo es. */
-function parseAmount(text: string): number | null {
+export function parseAmount(text: string): number | null {
   const t = text.trim();
   if (!/^(\d+([.,]\d+)?|[.,]\d+)$/.test(t)) return null;
   return Number(t.replace(",", "."));
