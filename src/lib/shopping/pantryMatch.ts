@@ -32,3 +32,12 @@ export function matchIndexed(key: string, index: PantryIndex, today: string): { 
 export function matchPantry(key: string, pantry: PantryItem[], today: string): { match?: PantryItem; expiredMatch?: PantryItem } {
   return matchIndexed(key, indexPantry(pantry), today);
 }
+
+/** Todos los artículos no caducados que cubren el ingrediente (para elegir la caducidad más próxima). */
+export function matchingItems(key: string, index: PantryIndex, today: string): PantryItem[] {
+  const wanted = words(key);
+  if (wanted.length === 0) return [];
+  return index
+    .filter(({ item, words: have }) => wanted.every((w) => have.has(w)) && !(item.expiryDate && item.expiryDate < today))
+    .map(({ item }) => item);
+}

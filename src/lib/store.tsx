@@ -17,6 +17,9 @@ interface AppState {
   /** Historial de peso y medidas (docs/pm/9-historial-medidas), en el orden en que se añadieron. */
   measurements: Measurement[];
   loaded: boolean;
+  /** Id del ítem de la Despensa por el que Recetas filtra ("Recetas con esto"). Efímero: no se persiste ni entra en el backup. */
+  recipeFocus: string | null;
+  setRecipeFocus: (id: string | null) => void;
   setProfile: (p: UserProfile | null) => void;
   addRecipes: (r: Recipe[]) => void;
   addEntry: (e: MealEntry) => void;
@@ -94,6 +97,8 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
   const [shopping, setShopping, reloadShopping] = usePersisted(k("shopping"), LOAD_OPTIONS.shopping);
   const [measurements, setMeasurements, reloadMeasurements] = usePersisted(k("measurements"), LOAD_OPTIONS.measurements);
 
+  const [recipeFocus, setRecipeFocus] = useState<string | null>(null);
+
   // backup-datos R6/R8: escribe todo o nada y, si ha ido bien, relee las siete claves en el estado. Como `data` ya
   // viene migrado (parseBackup), la relectura no reescribe nada ni crea copias *_v1_backup.
   const importData = (data: UserData) => {
@@ -116,6 +121,8 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     shopping,
     measurements,
     loaded: true,
+    recipeFocus,
+    setRecipeFocus,
     setProfile,
     addRecipes: (r) => setRecipes((prev) => [...prev, ...r]),
     addEntry: (e) => setEntries((prev) => [...prev, e]),
