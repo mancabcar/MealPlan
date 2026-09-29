@@ -71,12 +71,12 @@ Ninguno persistido. Tipo interno: `RecipeUsage = { matched: number; total: numbe
 
 ## Tasks
 1. [x] `src/lib/pantryRecipes.ts` + unit (covers R2–R4)
-2. [ ] `recipeFocus`/`setRecipeFocus` efímero en el store
-3. [ ] Recetas: toggle "Usa lo que tengo", orden, vacío y combinación con texto (covers R3, R4, R6, R7)
-4. [ ] Recetas: chip "con: <ítem>" leyendo `recipeFocus` (covers R2)
-5. [ ] Despensa: botón "Recetas con esto" (covers R1)
-6. [ ] Tarjeta "Tienes N de M" + chip caduca pronto (covers R8)
-7. [ ] E2E `despensa-recetas.spec.ts` (covers R1–R8)
+2. [x] `recipeFocus`/`setRecipeFocus` efímero en el store
+3. [x] Recetas: toggle "Usa lo que tengo", orden, vacío y combinación con texto (covers R3, R4, R6, R7)
+4. [x] Recetas: chip "con: <ítem>" leyendo `recipeFocus` (covers R2)
+5. [x] Despensa: botón "Recetas con esto" (covers R1)
+6. [x] Tarjeta "Tienes N de M" + chip caduca pronto (covers R8)
+7. [x] E2E `despensa-recetas.spec.ts` (covers R1–R8)
 
 ## Spec feedback
 - Pregunta abierta de la spec resuelta: "con: <ítem>" casa por palabras con el matcher de la compra (decidido 2026-09-29).

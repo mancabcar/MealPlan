@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import {
@@ -21,7 +22,8 @@ import { Toast } from "@/components/ui/Toast";
 const UNDO_MS = 10000;
 
 export default function PantryPage() {
-  const { pantry, addPantryItem, removePantryItem } = useApp();
+  const { pantry, addPantryItem, removePantryItem, setRecipeFocus } = useApp();
+  const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -102,6 +104,18 @@ export default function PantryPage() {
                   <span className="text-[var(--color-text-muted)] text-xs">{item.quantity}</span>
                   {isExpired(item) && <Chip tone="expired">caducado</Chip>}
                   {isExpiringSoon(item) && <Chip tone="expiring">caduca pronto</Chip>}
+                  {isExpiringSoon(item) && (
+                    <button
+                      onClick={() => {
+                        setRecipeFocus(item.id);
+                        router.push("/recetas");
+                      }}
+                      aria-label={`Recetas con esto: ${item.name}`}
+                      className="text-xs font-semibold text-[var(--color-accent)] underline"
+                    >
+                      Recetas con esto
+                    </button>
+                  )}
                   {item.addedFromListAt === today && <Chip tone="accent">Nuevo</Chip>}
                 </div>
                 <button onClick={() => removePantryItem(item.id)} aria-label="Eliminar" className="text-[var(--color-expired)]">

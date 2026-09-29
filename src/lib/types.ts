@@ -58,7 +58,7 @@ export function isExpired(item: PantryItem): boolean {
   return daysUntil(item.expiryDate) < 0;
 }
 
-function daysUntil(dateStr: string): number {
+export function daysUntil(dateStr: string): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const target = new Date(dateStr + "T00:00:00");

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeft, ChefHat, Clock, Flame, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ChefHat, Clock, Flame, Sparkles, X } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { Recipe } from "@/lib/types";
+import { Recipe, daysUntil, todayStr } from "@/lib/types";
+import { rankByPantry, recipesUsingItem, type RecipeUsage } from "@/lib/pantryRecipes";
 import { toRecipeProfile } from "@/lib/recipePrompt";
 import { apiUrl } from "@/lib/apiBase";
 import { Card } from "@/components/ui/Card";
@@ -24,18 +25,32 @@ function RecipeImagePlaceholder({ className = "" }: { className?: string }) {
 }
 
 export default function RecipesPage() {
-  const { recipes, addRecipes, profile, pantry } = useApp();
+  const { recipes, addRecipes, profile, pantry, recipeFocus, setRecipeFocus } = useApp();
   const [search, setSearch] = useState("");
+  const [usePantry, setUsePantry] = useState(false);
   const [selected, setSelected] = useState<Recipe | null>(null);
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
 
-  const filtered = recipes.filter(
-    (r) =>
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      r.tags.some((t) => t.toLowerCase().includes(search.toLowerCase())),
-  );
+  const today = todayStr();
+  const focusItem = recipeFocus ? pantry.find((i) => i.id === recipeFocus) : undefined;
+  // El ítem enfocado se borró de la Despensa: se ignora y se limpia
+  useEffect(() => {
+    if (recipeFocus && !focusItem) setRecipeFocus(null);
+  }, [recipeFocus, focusItem, setRecipeFocus]);
+
+  // Pipeline (R7): ítem enfocado → "Usa lo que tengo" → texto
+  const results = useMemo(() => {
+    let list: { recipe: Recipe; usage?: RecipeUsage }[];
+    const base = focusItem ? recipesUsingItem(recipes, focusItem, today) : recipes;
+    if (usePantry) list = rankByPantry(base, pantry, today);
+    else list = base.map((recipe) => ({ recipe }));
+    const q = search.toLowerCase();
+    return list.filter(
+      ({ recipe: r }) => r.name.toLowerCase().includes(q) || r.tags.some((t) => t.toLowerCase().includes(q)),
+    );
+  }, [recipes, pantry, focusItem, usePantry, search, today]);
 
   const selectRecipe = (r: Recipe) => {
     setSelected(r);
@@ -165,8 +180,34 @@ export default function RecipesPage() {
         </p>
       )}
       <input className={inputCls} placeholder="Buscar por nombre o etiqueta..." value={search} onChange={(e) => setSearch(e.target.value)} />
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => setUsePantry(!usePantry)}
+          aria-pressed={usePantry}
+          className={`rounded-full px-3 py-1 text-sm font-semibold border ${
+            usePantry
+              ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-transparent"
+              : "border-[var(--color-border)] text-[var(--color-text-muted)]"
+          }`}
+        >
+          Usa lo que tengo
+        </button>
+        {focusItem && (
+          <span className="flex items-center gap-1 rounded-full px-3 py-1 text-sm bg-[var(--color-surface-2)]">
+            con: {focusItem.name}
+            <button onClick={() => setRecipeFocus(null)} aria-label={`Quitar filtro con: ${focusItem.name}`}>
+              <X className="w-3.5 h-3.5" aria-hidden />
+            </button>
+          </span>
+        )}
+      </div>
+      {results.length === 0 && (focusItem || usePantry) && (
+        <div className="flex flex-col items-center gap-3 py-6 text-center text-sm text-[var(--color-text-muted)]">
+          <p>{focusItem ? `Ninguna receta usa ${focusItem.name}` : "Nada que aprovechar todavía"}</p>
+        </div>
+      )}
       <div className="flex flex-col gap-2">
-        {filtered.map((r) => (
+        {results.map(({ recipe: r, usage }) => (
           <button key={r.id} onClick={() => selectRecipe(r)} className="text-left w-full">
             <Card className="flex gap-3">
               <RecipeImagePlaceholder className="h-16 w-16" />
@@ -176,6 +217,14 @@ export default function RecipesPage() {
                   <span className="truncate">{r.name}</span>
                 </div>
                 <AllergenBadge recipe={r} allergies={profile?.allergies} className="mt-1" />
+                {usage && (
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-[var(--color-text-muted)]">
+                    <span>
+                      Tienes {usage.matched} de {usage.total} ingredientes
+                    </span>
+                    {usage.soonest && daysUntil(usage.soonest) <= 2 && <Chip tone="expiring">caduca pronto</Chip>}
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   <Chip icon={Flame}>{r.calories} kcal</Chip>
                   <Chip tone="protein">P {r.protein}g</Chip>
