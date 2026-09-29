@@ -3,6 +3,10 @@
 import { NextResponse } from "next/server";
 import { plainQuery, type BrandProduct } from "@/lib/foods";
 
+// Deshabilitada temporalmente: "output: export" (deploy estático en IONOS) no puede
+// servir esta ruta dinámica. Ver issue de seguimiento para hacerla compatible.
+export const dynamic = "force-static";
+
 const OFF_SEARCH = "https://search.openfoodfacts.org/search";
 const USER_AGENT = "MealPlan/0.1 (+https://github.com/mancabcar/MealPlan)";
 const TIMEOUT_MS = 8_000;
