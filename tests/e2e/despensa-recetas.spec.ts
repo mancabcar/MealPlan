@@ -176,6 +176,26 @@ test.describe("R7: 'Usa lo que tengo' se combina con la búsqueda por texto", ()
   });
 });
 
+test.describe("R6/R7: el vacío causado por la búsqueda no se atribuye al filtro", () => {
+  test("filtro + texto sin resultados → 'Sin resultados', no 'Nada que aprovechar'", async ({ page }) => {
+    await signIn(page, seed());
+    await page.goto("/recetas");
+    await useWhatIHave(page).click();
+    await page.getByPlaceholder("Buscar por nombre o etiqueta...").fill("zzzz");
+    await expect(page.getByText("Sin resultados para «zzzz»")).toBeVisible();
+    await expect(page.getByText("Nada que aprovechar todavía")).toHaveCount(0);
+  });
+
+  test("chip de ítem + texto sin resultados → 'Sin resultados', no 'Ninguna receta usa'", async ({ page }) => {
+    await signIn(page, seed());
+    await page.goto("/despensa");
+    await withThis(page, "Requesón").click();
+    await page.getByPlaceholder("Buscar por nombre o etiqueta...").fill("zzzz");
+    await expect(page.getByText("Sin resultados para «zzzz»")).toBeVisible();
+    await expect(page.getByText(/Ninguna receta usa/)).toHaveCount(0);
+  });
+});
+
 test.describe("R8: con el filtro activo, cada tarjeta muestra cuánto tengo", () => {
   test("'Tienes N de M ingredientes' y chip 'caduca pronto' solo si algún coincidente caduca en 0–2 días", async ({ page }) => {
     await signIn(page, seed());

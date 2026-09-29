@@ -19,6 +19,7 @@ R1–R8 implementados y cubiertos por tests unitarios y e2e (R9 fuera de alcance
 
 ## Blocking
 1. Mensaje de vacío engañoso: src/app/recetas/page.tsx:198: con el chip "con: leche" o "Usa lo que tengo" activo, una búsqueda sin resultados muestra "Ninguna receta usa leche" / "Nada que aprovechar todavía", que es falso → mostrar el mensaje solo si el vacío persiste sin texto de búsqueda (o usar "Sin resultados para «<texto>»" cuando `search` no está vacío).
+   **Resuelto** en el commit siguiente a esta revisión: con texto de búsqueda el vacío muestra "Sin resultados para «texto»"; 2 e2e nuevos; suite completa verde (299 e2e).
 
 ## Non-blocking
 - `recipeFocus` sobrevive a la navegación (src/lib/store.tsx:100): el chip reaparece al volver a Recetas desde otra página → limpiarlo al salir de Recetas.

@@ -203,7 +203,13 @@ export default function RecipesPage() {
       </div>
       {results.length === 0 && (focusItem || usePantry) && (
         <div className="flex flex-col items-center gap-3 py-6 text-center text-sm text-[var(--color-text-muted)]">
-          <p>{focusItem ? `Ninguna receta usa ${focusItem.name}` : "Nada que aprovechar todavía"}</p>
+          <p>
+            {search.trim()
+              ? `Sin resultados para «${search.trim()}»`
+              : focusItem
+                ? `Ninguna receta usa ${focusItem.name}`
+                : "Nada que aprovechar todavía"}
+          </p>
         </div>
       )}
       <div className="flex flex-col gap-2">
