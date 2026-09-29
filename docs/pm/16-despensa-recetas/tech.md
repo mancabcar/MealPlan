@@ -82,3 +82,32 @@ Ninguno persistido. Tipo interno: `RecipeUsage = { matched: number; total: numbe
 - Pregunta abierta de la spec resuelta: "con: <ítem>" casa por palabras con el matcher de la compra (decidido 2026-09-29).
 - Precisión sobre R8: M (y N) no cuentan ingredientes básicos ni opcionales; `spec.md` no se ha cambiado.
 - R9 queda fuera; se anota como follow-up en el brief.
+
+## Test coverage
+Tests escritos antes del código el 2026-09-29 (dev-test). Comandos: `npx vitest run tests/unit/pantry-recipes.test.ts` y `npx playwright test tests/e2e/despensa-recetas.spec.ts`. Los e2e usan ingredientes poco comunes (requesón, cuscús, membrillo, mascarpone, ricotta, remolacha) porque la app añade las ~90 recetas semilla al recetario; con estos nombres los resultados filtrados son exactos.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R2, R3 | `tests/unit/pantry-recipes.test.ts` › "R2: recipesUsingItem…" (orden del recetario, "leche entera" vs "leche de almendras", vacío, solo básicos) | unit | 🔴 failing (not built) |
+| R3 | `tests/unit/pantry-recipes.test.ts` › "R3: rankByPantry ordena por nº…" (orden, 0 coincidencias fuera, caducados fuera, despensa vacía) | unit | 🔴 failing (not built) |
+| R4 | `tests/unit/pantry-recipes.test.ts` › "R4: rankByPantry desempata…" y "R4: recipeUsage devuelve la caducidad más próxima…" | unit | 🔴 failing (not built) |
+| R8 | `tests/unit/pantry-recipes.test.ts` › "R8: recipeUsage cuenta…" (N de M, básicos, opcionales, caducados, duplicados) | unit | 🔴 failing (not built) |
+| R1 | `tests/e2e/despensa-recetas.spec.ts` › "R1: … solo en ítems que caducan pronto" | e2e | 🔴 failing (not built) |
+| R2 | `tests/e2e/despensa-recetas.spec.ts` › "R2: … lleva a las recetas que usan el ítem" (flujo, chip quitable, independencia con el toggle) | e2e | 🔴 failing (not built) |
+| R2 | `tests/e2e/despensa-recetas.spec.ts` › "R2: … sin pasar por la Despensa no hay chip" | e2e | 🟢 passing (guardia de regresión) |
+| R3, R4 | `tests/e2e/despensa-recetas.spec.ts` › "R3 / R4: …" (orden, caducados no cuentan, desactivar restaura) | e2e | 🔴 failing (not built) |
+| R5 | `tests/e2e/despensa-recetas.spec.ts` › "R5: los avisos de alérgenos se mantienen" | e2e | 🔴 failing (not built) |
+| R6 | `tests/e2e/despensa-recetas.spec.ts` › "R6: estados vacíos…" (ítem sin recetas, Despensa vacía) | e2e | 🔴 failing (not built) |
+| R7 | `tests/e2e/despensa-recetas.spec.ts` › "R7: … búsqueda por texto" | e2e | 🔴 failing (not built) |
+| R8 | `tests/e2e/despensa-recetas.spec.ts` › "R8: … cada tarjeta muestra cuánto tengo" | e2e | 🔴 failing (not built) |
+| R9 | — (fuera de alcance) | — | ⚪ not planned |
+
+### UI test contract
+Nombres accesibles y textos que los e2e esperan; dev-code debe respetarlos (si algo tiene que cambiar, se cambia aquí y en el test a la vez):
+- Despensa: botón por ítem que caduca pronto, texto visible "Recetas con esto" y `aria-label="Recetas con esto: <nombre del ítem>"`; ninguno en el resto de ítems.
+- Recetas: botón toggle "Usa lo que tengo" con `aria-pressed="true|false"`.
+- Chip de ítem: texto visible "con: <nombre del ítem>" y un botón `aria-label="Quitar filtro con: <nombre del ítem>"`. Tras el `router.push`, la URL es `/recetas`.
+- Vacíos: "Ninguna receta usa <nombre del ítem>" (chip de ítem sin resultados) y "Nada que aprovechar todavía" (toggle sin resultados); ambos con el botón "Sugerir con IA" visible.
+- Tarjeta con el toggle activo: "Tienes N de M ingredientes" y, si algún coincidente caduca en 0–2 días, el chip "caduca pronto". Sin toggle no aparece "Tienes …".
+- Las tarjetas siguen siendo botones que contienen el texto "kcal" (los e2e las localizan así); `AllergenBadge` dentro de la tarjeta.
+- Módulo `@/lib/pantryRecipes` con `recipeUsage(recipe, index, today)`, `recipesUsingItem(recipes, item, today)` y `rankByPantry(recipes, pantry, today)`, `index` = `indexPantry(pantry)`.
