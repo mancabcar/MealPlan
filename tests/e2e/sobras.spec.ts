@@ -316,6 +316,25 @@ test.describe("R8: editar la tanda desde la cocinada", () => {
   });
 });
 
+test.describe("R8 (review #80): sobras de comidas desactivadas en el perfil", () => {
+  test("editar N no borra una sobra cuya comida ya no está activa", async ({ page }) => {
+    const sinCena = { ...lucia, meals: lucia.meals.filter((m) => m !== "Cena") };
+    await signIn(page, { profile: sinCena, recipes: SOBRAS_RECIPES, weekplan: BATCH_PLAN, entries: [] });
+    await page.goto("/plan");
+    await expect(page.getByRole("heading", { name: "Martes", level: 2 })).toBeVisible();
+
+    await batchButton(page).click();
+    await expect(target(page, "Jueves", "Cena")).toHaveCount(0); // la Cena no está entre las comidas del perfil
+    await servingsField(page).fill("4");
+    await save(page).click();
+    await expect(dialog(page)).toHaveCount(0);
+
+    const plan = await storedPlan(page);
+    expect(plan[TUE][0]).toMatchObject({ cookedServings: 4 });
+    expect(plan[THU]).toEqual([{ mealType: "Cena", recipeId: "t-guiso-lentejas", batchId: BATCH_ID, leftover: true }]);
+  });
+});
+
 test.describe("R9: cambiar la receta de una cocinada con sobras", () => {
   test("dispara el mismo aviso; hasta elegir, el plan no cambia", async ({ page }) => {
     await openPlan(page, BATCH_PLAN);

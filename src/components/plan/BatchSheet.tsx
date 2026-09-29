@@ -84,7 +84,9 @@ export function BatchSheet({
   const submit = () => {
     const n = parseCooked(servingsText);
     if (n === null) return setError(servingsError);
-    const targets = slots.filter((s) => picked.has(key(s)));
+    // Las sobras de comidas que el perfil ya no tiene activas no salen como casilla: se conservan tal cual
+    const hidden = (existing?.leftovers ?? []).filter((l) => !slots.some((s) => key(s) === key(l)));
+    const targets = [...slots.filter((s) => picked.has(key(s))), ...hidden];
     if (targets.length > n - 1) return setError(`Con ${targets.length === 1 ? "1 sobra" : `${targets.length} sobras`}, cocina al menos ${targets.length + 1} raciones`);
     try {
       const refs = targets.map(({ date, mealType }) => ({ date, mealType }));

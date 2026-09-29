@@ -1,8 +1,8 @@
 # Sobras y batch cooking: Review
-_PR: [#80](https://github.com/mancabcar/MealPlan/pull/80) · Reviewed: 2026-09-29 · Verdict: 🔁 changes requested_
+_PR: [#80](https://github.com/mancabcar/MealPlan/pull/80) · Reviewed: 2026-09-29 · Verdict: ⚠️ approved with follow-ups_
 
 ## Summary
-Los 8 Must (R1–R7, R10) y los 2 Should (R8, R9) están implementados y tienen tests unitarios y e2e; las divergencias del tech design (`eligibleLeftoverSlots` sin `today`, sin "Deshacer tanda", `plannedMeals` desde `leftoverSlotKeys`) están documentadas en `tech.md`. Se pide cambios por un hallazgo confirmado del code review: editar una tanda borra en silencio las sobras de comidas desactivadas en el perfil. Cuando se arregle, el veredicto pasa a `⚠️ approved with follow-ups` con el resto como follow-ups. Clasificación y veredicto confirmados por Manuel (2026-09-29).
+Los 8 Must (R1–R7, R10) y los 2 Should (R8, R9) están implementados y tienen tests unitarios y e2e; las divergencias del tech design (`eligibleLeftoverSlots` sin `today`, sin "Deshacer tanda", `plannedMeals` desde `leftoverSlotKeys`) están documentadas en `tech.md`. La primera pasada pidió cambios (`🔁 changes requested`) por un hallazgo confirmado del code review: editar una tanda borraba en silencio las sobras de comidas desactivadas en el perfil. Quedó arreglado en la misma rama con un test que reproduce el fallo, y el veredicto pasa a `⚠️ approved with follow-ups`, con el resto como follow-ups. Clasificación y veredicto confirmados por Manuel (2026-09-29).
 
 ## Spec conformance
 | Req | Status | Where | Tested |
@@ -14,11 +14,12 @@ Los 8 Must (R1–R7, R10) y los 2 Should (R8, R9) están implementados y tienen 
 | R5 | ✅ Done | src/lib/plan/batch.ts:137 · src/components/plan/BatchSheet.tsx:187 | ✅ |
 | R6 | ✅ Done (sin cambios de código) | src/lib/planMacros.ts · src/lib/diary.ts | ✅ guardas de regresión |
 | R7 | ✅ Done | src/lib/plan/batch.ts:49 | ✅ |
-| R8 | ⚠️ Done con un fallo (ver Blocking 1) | src/lib/plan/batch.ts:118 | ✅ |
+| R8 | ✅ Done (fallo de Blocking 1 arreglado) | src/lib/plan/batch.ts:118 | ✅ |
 | R9 | ✅ Done | src/app/plan/page.tsx (`assign`) | ✅ |
 | R10 | ✅ Done, con una salvedad (ver Non-blocking 1) | src/lib/shopping/aggregate.ts:24 | ✅ |
 
 ## Blocking
+_Arreglado (2026-09-29): `BatchSheet` conserva las sobras cuya comida ya no está activa; test `tests/e2e/sobras.spec.ts` › "R8 (review #80)"._
 1. Editar una tanda borra sobras de comidas desactivadas: `src/components/plan/BatchSheet.tsx:87`. Los destinos se calculan filtrando las franjas elegibles, que solo incluyen las comidas activas del perfil; una sobra existente en una comida desactivada no aparece como casilla, queda fuera de `targets` y `editBatch` la elimina sin aviso. → Incluir en la lista (o conservar en `targets`) las sobras existentes de la tanda aunque su comida no esté activa.
 
 ## Non-blocking
