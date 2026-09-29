@@ -17,8 +17,10 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],
   webServer: {
-    // En CI se prueba el build de producción; en local se reutiliza el dev server si ya corre
-    command: process.env.CI ? `npm run start -- -p ${PORT}` : `npm run dev -- -p ${PORT}`,
+    // En CI se prueba el build de producción; en local se reutiliza el dev server si ya corre.
+    // "output: export" (deploy estático en IONOS, issue #69) genera out/ en vez de un servidor Next: "next
+    // start" no funciona con esa config, así que en CI se sirve out/ como archivos estáticos.
+    command: process.env.CI ? `npx serve@latest out -l ${PORT}` : `npm run dev -- -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
