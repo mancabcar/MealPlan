@@ -1,5 +1,3 @@
-import { Apple, Archive, Carrot, Coffee, Dumbbell, type LucideIcon, Moon, Refrigerator, Snowflake, UtensilsCrossed } from "lucide-react";
-
 export interface Recipe {
   id: string;
   name: string;
@@ -38,14 +36,6 @@ export type PantryCategory = "Nevera" | "Despensa" | "Congelador";
 
 export const PANTRY_CATEGORIES: PantryCategory[] = ["Nevera", "Despensa", "Congelador"];
 
-// Rediseño visual (docs/pm/design-refresh): único consumidor es despensa/page.tsx (pantalla en
-// alcance), sin ruta de Onboarding/Login por medio — se convierte a iconos Lucide en el sitio.
-export const PANTRY_CATEGORY_ICONS: Record<PantryCategory, LucideIcon> = {
-  Nevera: Refrigerator,
-  Despensa: Archive,
-  Congelador: Snowflake,
-};
-
 export interface PantryItem {
   id: string;
   name: string;
@@ -68,7 +58,7 @@ export function isExpired(item: PantryItem): boolean {
   return daysUntil(item.expiryDate) < 0;
 }
 
-function daysUntil(dateStr: string): number {
+export function daysUntil(dateStr: string): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const target = new Date(dateStr + "T00:00:00");
@@ -115,19 +105,6 @@ export const MEAL_TYPE_ICONS: Record<MealType, string> = {
   Merienda: "🥕",
   "Pre-entreno": "💪",
   Cena: "🌙",
-};
-
-// Rediseño visual (docs/pm/design-refresh, ver tech.md § Spec feedback): NO tocar MEAL_TYPE_ICONS
-// de arriba — profile/steps.tsx (Onboarding) lo interpola como string y no puede consumir un
-// componente. Este mapa hermano es solo para las pantallas rediseñadas (Diario, Plan, Perfil y el
-// fork components/perfil/steps.tsx), que sí pueden renderizar <Icon />.
-export const MEAL_TYPE_ICON_COMPONENTS: Record<MealType, LucideIcon> = {
-  Desayuno: Coffee,
-  "Media mañana": Apple,
-  Comida: UtensilsCrossed,
-  Merienda: Carrot,
-  "Pre-entreno": Dumbbell,
-  Cena: Moon,
 };
 
 export interface Allergies {

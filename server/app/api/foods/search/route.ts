@@ -1,11 +1,14 @@
 // Productos de marca (docs/pm/13-base-alimentos/tech.md › APIs): proxy a Search-a-licious de Open Food Facts.
 // Va por el servidor para fijar el User-Agent que pide OFF. Los GET no se cachean por defecto (Next 16).
+// Movida aquí desde src/app/api/foods/search/route.ts (issue #69): un export estático no puede
+// servir esta ruta dinámica, así que vive en su propio proyecto Next (server/), desplegado en Vercel.
 import { NextResponse } from "next/server";
-import { plainQuery, type BrandProduct } from "@/lib/foods";
+import { plainQuery, type BrandProduct } from "../../../../../src/lib/foods";
+import { preflight, withCors } from "../../../../lib/cors";
 
-// Deshabilitada temporalmente: "output: export" (deploy estático en IONOS) no puede
-// servir esta ruta dinámica. Ver issue de seguimiento para hacerla compatible.
-export const dynamic = "force-static";
+export async function OPTIONS(request: Request) {
+  return preflight(request);
+}
 
 const OFF_SEARCH = "https://search.openfoodfacts.org/search";
 const USER_AGENT = "MealPlan/0.1 (+https://github.com/mancabcar/MealPlan)";
@@ -62,7 +65,7 @@ function toProduct(hit: Hit): BrandProduct | null {
 
 const unavailable = () => NextResponse.json({ error: "unavailable" }, { status: 502 });
 
-export async function GET(request: Request) {
+async function handleGET(request: Request): Promise<NextResponse> {
   const q = plainQuery(new URL(request.url).searchParams.get("q") ?? "");
   if (q.length < 2) return NextResponse.json({ error: "bad_query" }, { status: 400 });
 
@@ -106,4 +109,8 @@ export async function GET(request: Request) {
     if (products.length === MAX_PRODUCTS) break;
   }
   return NextResponse.json({ products });
+}
+
+export async function GET(request: Request) {
+  return withCors(request, await handleGET(request));
 }

@@ -52,3 +52,9 @@ next-env.d.ts
 
 # Planes y mediciones personales (datos de salud): solo en local, el repo es público
 /docs/referencia/
+
+# server/ (proyecto Next aparte para las rutas de servidor, issue #69)
+/server/node_modules
+/server/.next
+/server/*.tsbuildinfo
+/server/next-env.d.ts
