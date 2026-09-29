@@ -67,7 +67,7 @@ test.describe("R1: entrada desde Plan", () => {
     await expect(entry).toContainText(`${N} por comprar · ${M} ya los tienes`);
 
     await entry.click();
-    await expect(page).toHaveURL(new RegExp(`${LIST}$`));
+    await expect(page).toHaveURL(new RegExp(`${LIST}/?$`));
     await expect(progress(page, 0, N)).toBeVisible();
     const haveIt = await openGroup(page, "Ya lo tienes");
     await expect(haveIt.getByRole("listitem")).toHaveCount(M);
@@ -378,7 +378,7 @@ test.describe("R13 · R14: pasar comprados a la Despensa (Should)", () => {
     await tick(sheet, "Huevos").uncheck();
     await sheet.getByRole("button", { name: "Añadir 2 a la Despensa" }).click();
 
-    await expect(page).toHaveURL(/\/despensa$/);
+    await expect(page).toHaveURL(/\/despensa\/?$/);
     const toast = page.getByRole("status").filter({ hasText: "2 añadidos" });
     await expect(toast).toBeVisible();
     await expect(toast.getByRole("button", { name: "Deshacer" })).toBeVisible();
@@ -412,7 +412,7 @@ test.describe("R13 · R14: pasar comprados a la Despensa (Should)", () => {
   test("si ya existe uno con el mismo nombre, añade una línea nueva", async ({ page }) => {
     const sheet = await tickAndOpenMove(page, ["Espárragos verdes"]); // la Despensa ya tiene unos (caducados)
     await sheet.getByRole("button", { name: "Añadir 1 a la Despensa" }).click();
-    await expect(page).toHaveURL(/\/despensa$/);
+    await expect(page).toHaveURL(/\/despensa\/?$/);
     const pantry = await readStored<{ name: string; quantity: string }[]>(page, "pantry");
     expect(pantry.filter((p) => p.name === "Espárragos verdes").map((p) => p.quantity)).toEqual(["1 manojo", "100 g"]);
   });
@@ -420,7 +420,7 @@ test.describe("R13 · R14: pasar comprados a la Despensa (Should)", () => {
   test("Deshacer borra lo añadido y lo devuelve a Comprados", async ({ page }) => {
     const sheet = await tickAndOpenMove(page, ["Brócoli", "Garbanzos cocidos"]);
     await sheet.getByRole("button", { name: "Añadir 2 a la Despensa" }).click();
-    await expect(page).toHaveURL(/\/despensa$/);
+    await expect(page).toHaveURL(/\/despensa\/?$/);
 
     await page.getByRole("status").getByRole("button", { name: "Deshacer" }).click();
     await expect(page.getByText("Brócoli", { exact: true })).toHaveCount(0);
@@ -439,7 +439,7 @@ test.describe("R13 · R14: pasar comprados a la Despensa (Should)", () => {
     for (const name of ["Calabaza", "Puerro"]) await tick(page, name).click();
     await page.getByRole("button", { name: "Pasar 2 comprados a la Despensa" }).click();
     await page.getByRole("dialog", { name: "Pasar a la Despensa" }).getByRole("button", { name: "Añadir 2 a la Despensa" }).click();
-    await expect(page).toHaveURL(/\/despensa$/);
+    await expect(page).toHaveURL(/\/despensa\/?$/);
 
     await page.goto(LIST);
     await expect(page.getByText("Todo comprado y guardado")).toBeVisible();

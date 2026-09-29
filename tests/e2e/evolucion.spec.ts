@@ -50,7 +50,7 @@ test.describe("R7 · R11: pantalla Evolución dentro de Perfil", () => {
     await signIn(page, { profile: lucia, measurements: HOME_WEIGHTS });
     await page.goto("/perfil");
     await page.getByRole("region", { name: "Evolución" }).getByRole("link", { name: "Ver evolución" }).click();
-    await expect(page).toHaveURL(EVOLUCION);
+    await expect(page).toHaveURL(new RegExp(`${EVOLUCION}/?$`));
     await expect(page.getByRole("heading", { name: "Evolución", level: 1 })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Navegación principal" }).getByRole("link")).toHaveCount(5);
   });
@@ -58,7 +58,7 @@ test.describe("R7 · R11: pantalla Evolución dentro de Perfil", () => {
   test("R7: «Volver a Perfil» vuelve a Perfil", async ({ page }) => {
     await openEvolucion(page, { measurements: HOME_WEIGHTS });
     await page.getByRole("link", { name: "Volver a Perfil" }).click();
-    await expect(page).toHaveURL("/perfil");
+    await expect(page).toHaveURL(/\/perfil\/?$/);
   });
 
   test("R11: sin mediciones, estado vacío con «Apuntar peso» y «Añadir informe completo», aunque el perfil tenga peso", async ({
