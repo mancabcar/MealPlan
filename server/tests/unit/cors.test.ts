@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { NextResponse } from "next/server";
 import { preflight, withCors } from "../../lib/cors";
 
-const ALLOWED = "https://home-5021530898.app-ionos.space";
+const ALLOWED = "https://home-5021533470.app-ionos.space";
 const request = (origin: string | null) =>
   new Request("http://localhost/api/recipes", { headers: origin ? { origin } : {} });
 

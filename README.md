@@ -60,7 +60,7 @@ Dos sitios, un repo (issue [#69](https://github.com/mancabcar/MealPlan/issues/69
 - **La app, estática, en IONOS.** Ya configurado con [IONOS Deploy Now](https://docs.ionos.space): cada push construye la raíz (`npm run build`, `output: "export"`) y publica `out/`, sin nada que tocar aquí (`.github/workflows/MealPlan-*.yaml`, `deploy-to-ionos.yaml`, generados por IONOS).
 - **Las tres rutas de servidor (`server/`), en Vercel:**
   1. Importa el repo en [vercel.com](https://vercel.com) (login con GitHub) como un proyecto nuevo, con **Root Directory: `server`**.
-  2. En **Settings → Environment Variables** añade `ANTHROPIC_API_KEY` y `CORS_ALLOWED_ORIGIN` (el origen del sitio en IONOS, p. ej. `https://home-5021530898.app-ionos.space`).
+  2. En **Settings → Environment Variables** añade `ANTHROPIC_API_KEY` y `CORS_ALLOWED_ORIGIN` (el origen del sitio en IONOS, p. ej. `https://home-5021533470.app-ionos.space`).
   3. Deploy. Anota la URL que te da Vercel.
   4. En el proyecto de **IONOS Deploy Now**, añade la variable de entorno `NEXT_PUBLIC_API_BASE_URL` con esa URL de Vercel, y vuelve a desplegar la raíz para que quede fijada en el HTML/JS estático (es `NEXT_PUBLIC_*`: se fija en build time, cambiarla exige reconstruir).
 
