@@ -1,6 +1,6 @@
 # Sugerencias para aprovechar lo que caduca en la despensa
 
-_Status: in review · Updated: 2026-09-29 · Issue: [#16](https://github.com/mancabcar/MealPlan/issues/16) (@mancabcar) · PR: [#71](https://github.com/mancabcar/MealPlan/pull/71) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: in review (⚠️ approved with follow-ups) · Updated: 2026-09-29 · Issue: [#16](https://github.com/mancabcar/MealPlan/issues/16) (@mancabcar) · PR: [#71](https://github.com/mancabcar/MealPlan/pull/71) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Problema
 La Despensa avisa de lo que caduca ("caduca pronto"), pero no conecta con las recetas. Hoy solo alimenta la generación con IA.
