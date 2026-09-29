@@ -53,7 +53,7 @@ async function fillForm(page: Page, v: Record<string, string>, dialog = form(pag
 }
 
 const CREMA = {
-  Nombre: "Crema de calabaza",
+  Nombre: "Gazpachuelo casero",
   Ingredientes: "300g calabaza\n1 cebolla",
   "Calorías (kcal)": "180",
 };
@@ -70,11 +70,11 @@ test.describe("R1 / R5 / R9: crear una receta propia y verla en Recetas, Plan y 
     await save(page).click();
 
     await expect(form(page)).toHaveCount(0);
-    const crema = card(page, "Crema de calabaza");
+    const crema = card(page, "Gazpachuelo casero");
     await expect(crema).toBeVisible();
     await expect(crema.getByText("Propia", { exact: true })).toBeVisible();
     await expect(crema.getByText("180 kcal")).toBeVisible();
-    const saved = (await storedRecipes(page)).find((r) => r.name === "Crema de calabaza");
+    const saved = (await storedRecipes(page)).find((r) => r.name === "Gazpachuelo casero");
     expect(saved).toMatchObject({ isCustom: true, calories: 180, ingredients: ["300g calabaza", "1 cebolla"], instructions: [], protein: 0 });
     expect(saved?.id).toMatch(/^custom_/);
   });
@@ -111,8 +111,8 @@ test.describe("R1 / R5 / R9: crear una receta propia y verla en Recetas, Plan y 
     await dialog.getByLabel("Etiquetas").fill("otoño");
     await dialog.getByLabel("Etiquetas").press("Enter");
     await save(page).click();
-    expect((await storedRecipes(page)).find((r) => r.name === "Crema de calabaza")?.tags).toEqual(["bowl", "otoño"]);
-    await expect(card(page, "Crema de calabaza").getByText("otoño")).toBeVisible();
+    expect((await storedRecipes(page)).find((r) => r.name === "Gazpachuelo casero")?.tags).toEqual(["bowl", "otoño"]);
+    await expect(card(page, "Gazpachuelo casero").getByText("otoño")).toBeVisible();
   });
 
   test("R5: la receta creada se puede elegir en el Plan y en el Diario", async ({ page }) => {
@@ -120,17 +120,17 @@ test.describe("R1 / R5 / R9: crear una receta propia y verla en Recetas, Plan y 
     await page.getByRole("button", { name: "Nueva receta" }).click();
     await fillForm(page, CREMA);
     await save(page).click();
-    await expect(card(page, "Crema de calabaza")).toBeVisible();
+    await expect(card(page, "Gazpachuelo casero")).toBeVisible();
 
     await page.goto("/plan");
     await page.getByRole("button", { name: /^Cena/ }).first().click();
-    await expect(page.locator("option").filter({ hasText: "Crema de calabaza (180 kcal)" })).toHaveCount(1);
-    await page.getByRole("combobox").selectOption({ label: "Crema de calabaza (180 kcal)" });
+    await expect(page.locator("option").filter({ hasText: "Gazpachuelo casero (180 kcal)" })).toHaveCount(1);
+    await page.getByRole("combobox").selectOption({ label: "Gazpachuelo casero (180 kcal)" });
     expect(Object.values((await storedPlan(page)) ?? {}).flat().some((s) => s.mealType === "Cena")).toBe(true);
 
     await page.goto("/");
     await page.getByRole("button", { name: "Añadir comida" }).click();
-    await expect(page.locator("option").filter({ hasText: "Crema de calabaza (180 kcal)" })).toHaveCount(1);
+    await expect(page.locator("option").filter({ hasText: "Gazpachuelo casero (180 kcal)" })).toHaveCount(1);
   });
 });
 
