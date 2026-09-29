@@ -70,7 +70,7 @@ Ninguno persistido. Tipo interno: `RecipeUsage = { matched: number; total: numbe
 - E2E (`tests/e2e/despensa-recetas.spec.ts`): ítem que caduca en 2 días → botón → recetas correctas y chip (R1, R2); ítem a 3+ días sin botón; toggle y orden (R3, R4); receta con alérgeno del perfil conserva aviso (R5); vacíos (R6); toggle + texto (R7); "Tienes N de M" (R8). Sembrado de despensa y recetas como en los e2e existentes.
 
 ## Tasks
-1. [ ] `src/lib/pantryRecipes.ts` + unit (covers R2–R4)
+1. [x] `src/lib/pantryRecipes.ts` + unit (covers R2–R4)
 2. [ ] `recipeFocus`/`setRecipeFocus` efímero en el store
 3. [ ] Recetas: toggle "Usa lo que tengo", orden, vacío y combinación con texto (covers R3, R4, R6, R7)
 4. [ ] Recetas: chip "con: <ítem>" leyendo `recipeFocus` (covers R2)
