@@ -1,20 +1,24 @@
-// Producto por código de barras (docs/pm/14-escaner-codigo-barras/tech.md › APIs): proxy al endpoint de producto
-// de Open Food Facts (distinto del de búsqueda por texto de #13: aquí `brands` es texto, no lista).
+// Productos de marca (docs/pm/13-base-alimentos/tech.md › APIs): proxy a Search-a-licious de Open Food Facts.
 // Va por el servidor para fijar el User-Agent que pide OFF. Los GET no se cachean por defecto (Next 16).
+// Movida aquí desde src/app/api/foods/search/route.ts (issue #69): un export estático no puede
+// servir esta ruta dinámica, así que vive en su propio proyecto Next (server/), desplegado en Vercel.
 import { NextResponse } from "next/server";
-import type { BrandProduct } from "@/lib/foods";
+import { plainQuery, type BrandProduct } from "../../../../../src/lib/foods";
+import { preflight, withCors } from "../../../../lib/cors";
 
-// Deshabilitada temporalmente: "output: export" (deploy estático en IONOS) no puede
-// servir esta ruta dinámica. Ver issue #69 para hacerla compatible.
-export const dynamic = "force-static";
+export async function OPTIONS(request: Request) {
+  return preflight(request);
+}
 
+const OFF_SEARCH = "https://search.openfoodfacts.org/search";
 const USER_AGENT = "MealPlan/0.1 (+https://github.com/mancabcar/MealPlan)";
 const TIMEOUT_MS = 8_000;
+/** R4: como mucho 5 productos; se piden más porque los que no traen macros se descartan. */
+const MAX_PRODUCTS = 5;
+const PAGE_SIZE = 20;
 const FIELDS = "code,product_name,product_name_es,brands,nutriments,serving_quantity,serving_quantity_unit";
-/** EAN-8, UPC-A (12), EAN-13, GTIN-14: solo dígitos, longitud típica de código de barras. */
-const CODE_RE = /^\d{8,14}$/;
 
-interface V2Product {
+interface Hit {
   code?: unknown;
   product_name?: unknown;
   product_name_es?: unknown;
@@ -31,11 +35,11 @@ const num = (v: unknown) => {
   return typeof n === "number" && Number.isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : undefined;
 };
 
-/** null si falta el código, el nombre o alguno de los cuatro macros por 100 g (mismo criterio que R4 de #13). */
-function toProduct(product: V2Product): BrandProduct | null {
-  const code = text(product.code);
-  const name = text(product.product_name_es) ?? text(product.product_name);
-  const n = product.nutriments ?? {};
+/** null si falta el código, el nombre o alguno de los cuatro macros por 100 g (R4). */
+function toProduct(hit: Hit): BrandProduct | null {
+  const code = text(hit.code);
+  const name = text(hit.product_name_es) ?? text(hit.product_name);
+  const n = hit.nutriments ?? {};
   const kcal = num(n["energy-kcal_100g"]);
   const protein = num(n.proteins_100g);
   const carbs = num(n.carbohydrates_100g);
@@ -43,11 +47,10 @@ function toProduct(product: V2Product): BrandProduct | null {
   if (!code || !name || kcal === undefined || protein === undefined || carbs === undefined || fat === undefined) {
     return null;
   }
-  // A diferencia de Search-a-licious (brands como lista), la API de producto trae brands como texto separado por comas
-  const brandsText = text(product.brands);
-  const brand = brandsText?.split(",")[0]?.trim() || undefined;
-  const serving = num(product.serving_quantity);
-  const servingGrams = product.serving_quantity_unit === "g" && serving ? serving : undefined;
+  const brand = Array.isArray(hit.brands) ? text(hit.brands[0]) : undefined;
+  const serving = num(hit.serving_quantity);
+  // Edge cases: una ración en ml o sin unidad no cuenta como unidad
+  const servingGrams = hit.serving_quantity_unit === "g" && serving ? serving : undefined;
   return {
     code,
     name,
@@ -60,15 +63,17 @@ function toProduct(product: V2Product): BrandProduct | null {
   };
 }
 
-const badCode = () => NextResponse.json({ error: "bad_code" }, { status: 400 });
-const notFound = () => NextResponse.json({ error: "not_found" }, { status: 404 });
 const unavailable = () => NextResponse.json({ error: "unavailable" }, { status: 502 });
 
-export async function GET(request: Request) {
-  const code = new URL(request.url).searchParams.get("code") ?? "";
-  if (!CODE_RE.test(code)) return badCode();
+async function handleGET(request: Request): Promise<NextResponse> {
+  const q = plainQuery(new URL(request.url).searchParams.get("q") ?? "");
+  if (q.length < 2) return NextResponse.json({ error: "bad_query" }, { status: 400 });
 
-  const url = new URL(`https://world.openfoodfacts.org/api/v2/product/${code}.json`);
+  const url = new URL(OFF_SEARCH);
+  // Solo productos vendidos en España; langs=es busca en los nombres en español
+  url.searchParams.set("q", `${q} countries_tags:"en:spain"`);
+  url.searchParams.set("langs", "es");
+  url.searchParams.set("page_size", String(PAGE_SIZE));
   url.searchParams.set("fields", FIELDS);
 
   // AbortController + setTimeout (no AbortSignal.timeout): el test usa timers falsos
@@ -94,13 +99,18 @@ export async function GET(request: Request) {
     clearTimeout(timer);
   }
 
-  const parsed = body as { status?: unknown; product?: unknown } | null;
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return unavailable();
-  // status 0: OFF confirma que no existe (R5). Cualquier otra forma inesperada, sin "status" reconocible: unavailable.
-  if (parsed.status === 0) return notFound();
-  if (parsed.status !== 1 || !parsed.product || typeof parsed.product !== "object") return unavailable();
+  const hits = (body as { hits?: unknown } | null)?.hits;
+  if (!Array.isArray(hits)) return unavailable();
 
-  const product = toProduct(parsed.product as V2Product);
-  if (!product) return notFound();
-  return NextResponse.json({ product });
+  const products: BrandProduct[] = [];
+  for (const hit of hits) {
+    const p = hit && typeof hit === "object" ? toProduct(hit as Hit) : null;
+    if (p) products.push(p);
+    if (products.length === MAX_PRODUCTS) break;
+  }
+  return NextResponse.json({ products });
+}
+
+export async function GET(request: Request) {
+  return withCors(request, await handleGET(request));
 }

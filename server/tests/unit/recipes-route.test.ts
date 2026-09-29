@@ -1,8 +1,8 @@
 // Spec: docs/pm/onboarding-profile/spec.md › R10–R12, R17, R18 (prompt y filtro de alérgenos).
 // El SDK de Anthropic se simula: ningún test llama a la API real.
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Recipe, UserProfile } from "@/lib/types";
-import { lucia, manuel } from "../fixtures/profiles";
+import type { Recipe, UserProfile } from "../../../src/lib/types";
+import { lucia, manuel } from "../../../tests/fixtures/profiles";
 
 const create = vi.fn();
 
@@ -17,7 +17,7 @@ vi.mock("@anthropic-ai/sdk", () => {
   return { default: Anthropic };
 });
 
-const { POST } = await import("@/app/api/recipes/route");
+const { POST } = await import("../../app/api/recipes/route");
 
 const recipe = (name: string, ingredients: string[]): Recipe => ({
   id: "x",

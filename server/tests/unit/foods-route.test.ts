@@ -10,7 +10,7 @@ import {
   manyHits,
   salHit,
   type SalHit,
-} from "../fixtures/foods";
+} from "../../../tests/fixtures/foods";
 
 const fetchMock = vi.fn();
 
@@ -23,7 +23,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const { GET } = await import("@/app/api/foods/search/route");
+const { GET } = await import("../../app/api/foods/search/route");
 
 function offReturns(hits: SalHit[]) {
   fetchMock.mockResolvedValue(Response.json({ hits, count: hits.length, page: 1, page_size: 20 }));
