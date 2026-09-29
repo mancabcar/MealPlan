@@ -9,7 +9,7 @@ import foodsJson from "@/data/foods.json";
 import type { LocalFood } from "@/lib/foods";
 import type { MealEntry } from "@/lib/types";
 import { lucia } from "../fixtures/profiles";
-import { YOGUR_GRIEGO, YOGUR_LIGERO } from "../fixtures/foods";
+import { BARRITA_AVENA, BARRITA_AVENA_CODE, CODIGO_INEXISTENTE, YOGUR_GRIEGO, YOGUR_LIGERO } from "../fixtures/foods";
 import { readStored, signIn, TODAY } from "./helpers";
 
 const FOODS = foodsJson as LocalFood[];
@@ -519,6 +519,79 @@ test.describe("R14: no lo encuentro → Personalizada", () => {
     await searchBox(page).fill("tortilla de mi abuela");
     await page.getByText("¿No lo encuentras? Añádelo a mano").click();
     await expect(page.getByPlaceholder("Nombre")).toHaveValue("tortilla de mi abuela");
+  });
+});
+
+test.describe("Escáner de código de barras (#14): código escrito a mano, sin cámara real", () => {
+  // La cámara y BarcodeDetector no se prueban en e2e (decisión de dev-test): los cubre
+  // tests/unit/BarcodeScanner.test.tsx con mocks. Aquí solo el camino de "o escribe el código" (R6),
+  // que ejercita lo mismo que un código escaneado a partir de R3 (buscar por código en OFF).
+  const BARCODE_ROUTE = "**/api/foods/barcode**";
+  const codeField = (page: Page) => page.getByLabel("Código de barras");
+  const scanButton = (page: Page) => page.getByRole("button", { name: "Escanear" });
+  const searchCodeButton = (page: Page) => page.getByRole("button", { name: "Buscar código" });
+
+  async function mockBarcode(page: Page, handler: (route: Route) => Promise<void> | void) {
+    const calls: string[] = [];
+    await page.route(BARCODE_ROUTE, async (route) => {
+      calls.push(route.request().url());
+      await handler(route);
+    });
+    return calls;
+  }
+
+  test("R1: el botón Escanear y el campo de código son visibles junto al buscador", async ({ page }) => {
+    await openDiario(page);
+    await openFoodTab(page);
+    await expect(scanButton(page)).toBeVisible();
+    await expect(codeField(page)).toBeVisible();
+  });
+
+  test("R4 · R6: un código que existe en OFF con macros completos abre la tarjeta de cantidad", async ({ page }) => {
+    const calls = await mockBarcode(page, (route) => route.fulfill({ json: { product: BARRITA_AVENA } }));
+    await openDiario(page);
+    await openFoodTab(page);
+    await codeField(page).fill(BARRITA_AVENA_CODE);
+    await searchCodeButton(page).click();
+
+    expect(calls).toHaveLength(1);
+    expect(new URL(calls[0]).searchParams.get("code")).toBe(BARRITA_AVENA_CODE);
+    await expect(page.getByText("Barrita de avena y miel · Campo Dorado")).toBeVisible();
+    await expect(qtyInput(page, "Unidades")).toBeVisible();
+  });
+
+  test("R5: código no encontrado cae a Personalizada con «Código <código>» ya escrito", async ({ page }) => {
+    await mockBarcode(page, (route) => route.fulfill({ status: 404, json: { error: "not_found" } }));
+    await openDiario(page);
+    await openFoodTab(page);
+    await codeField(page).fill(CODIGO_INEXISTENTE);
+    await searchCodeButton(page).click();
+    await expect(page.getByPlaceholder("Nombre")).toHaveValue(`Código ${CODIGO_INEXISTENTE}`);
+  });
+
+  test("R5: error de red muestra Reintentar; al reintentar con éxito abre la tarjeta", async ({ page }) => {
+    let fail = true;
+    await mockBarcode(page, (route) =>
+      fail ? route.abort("internetdisconnected") : route.fulfill({ json: { product: BARRITA_AVENA } }),
+    );
+    await openDiario(page);
+    await openFoodTab(page);
+    await codeField(page).fill(BARRITA_AVENA_CODE);
+    await searchCodeButton(page).click();
+    await expect(retry(page)).toBeVisible();
+
+    fail = false;
+    await retry(page).click();
+    await expect(page.getByText("Barrita de avena y miel · Campo Dorado")).toBeVisible();
+  });
+
+  test("R5: límite de peticiones (429) muestra el error con Reintentar", async ({ page }) => {
+    await mockBarcode(page, (route) => route.fulfill({ status: 429, json: { error: "rate_limited", retryAfter: 30 } }));
+    await openDiario(page);
+    await openFoodTab(page);
+    await codeField(page).fill(BARRITA_AVENA_CODE);
+    await searchCodeButton(page).click();
+    await expect(retry(page)).toBeVisible();
   });
 });
 
