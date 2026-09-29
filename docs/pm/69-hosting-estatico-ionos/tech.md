@@ -93,7 +93,7 @@ No aplica — esta entrega no viene de un `spec.md` (brainstorm sin prototipo, v
 2. [x] `server/lib/cors.ts` + aplicarlo a las tres rutas + `cors.test.ts`
 3. [x] Raíz: quitar `src/app/api/`; los tres call-sites (`recetas/page.tsx`, `useBrandSearch.ts`, `useBarcodeLookup.ts`) usan `NEXT_PUBLIC_API_BASE_URL` (vía `src/lib/apiBase.ts`); `.env.example` de `server/` creado (la raíz no tiene `.env.example` versionado, ver Spec feedback)
 4. [x] Confirmado: `npm run build` en la raíz genera `out/` sin errores y sin rutas `api/` dentro; 764 tests unitarios y 285 e2e en verde, incluidos contra `out/` servido con `serve` (modo CI)
-5. [ ] `.github/workflows/ci.yml`: job nuevo para `server/` (install, lint, typecheck, test, build)
+5. [x] `.github/workflows/ci.yml`: job nuevo para `server/` (install, lint, typecheck, test, build)
 6. [ ] Crear el proyecto en Vercel con Root Directory `server/`, variables `ANTHROPIC_API_KEY` y `CORS_ALLOWED_ORIGIN`; anotar la URL resultante para `NEXT_PUBLIC_API_BASE_URL`
 7. [ ] `README.md`: arquitectura de los dos despliegues (IONOS Deploy Now, sin cambios de config; Vercel para `server/`) y cómo levantar `server/` en local
 8. [ ] PR: `Closes #69`

@@ -30,3 +30,24 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # server/ (#69): proyecto Next aparte para las rutas de servidor, desplegado en Vercel. La raíz solo
+  # necesita generar out/ sin rutas api/ dentro (verificado arriba); server/ se comprueba aquí.
+  server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
