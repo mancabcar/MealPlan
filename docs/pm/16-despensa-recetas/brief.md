@@ -1,6 +1,6 @@
 # Sugerencias para aprovechar lo que caduca en la despensa
 
-_Status: in review (⚠️ approved with follow-ups) · Updated: 2026-09-29 · Issue: [#16](https://github.com/mancabcar/MealPlan/issues/16) (@mancabcar) · PR: [#71](https://github.com/mancabcar/MealPlan/pull/71) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: merged · Updated: 2026-09-29 · Issue: [#16](https://github.com/mancabcar/MealPlan/issues/16) (@mancabcar) · PR: [#71](https://github.com/mancabcar/MealPlan/pull/71) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Problema
 La Despensa avisa de lo que caduca ("caduca pronto"), pero no conecta con las recetas. Hoy solo alimenta la generación con IA.
@@ -27,4 +27,5 @@ La Despensa avisa de lo que caduca ("caduca pronto"), pero no conecta con las re
 - Tests: escritos antes del código el 2026-09-29 (dev-test): `tests/unit/pantry-recipes.test.ts` (19) y `tests/e2e/despensa-recetas.spec.ts` (12). Fallan porque la funcionalidad no existe (1 e2e, "sin pasar por la Despensa no hay chip", es guardia de regresión y pasa). Cobertura y contrato de UI en [tech.md › Test coverage](tech.md#test-coverage). Siguiente: código (dev-code).
 
 ## Follow-ups
-- R9 "caduca en X días" en la tarjeta (Could, fuera de alcance).
+- R9 "caduca en X días" en la tarjeta (Could, fuera de alcance): [#72](https://github.com/mancabcar/MealPlan/issues/72).
+- Follow-ups de la review: [#73](https://github.com/mancabcar/MealPlan/issues/73), [#74](https://github.com/mancabcar/MealPlan/issues/74), [#75](https://github.com/mancabcar/MealPlan/issues/75), [#76](https://github.com/mancabcar/MealPlan/issues/76).
