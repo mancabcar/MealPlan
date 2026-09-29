@@ -24,4 +24,6 @@ Al asignar una receta se puede "cocinar N raciones" y elegir en qué otras franj
 
 ## Follow-ups
 - Sobras en otras semanas: requiere que el Plan navegue por semanas → [#78](https://github.com/mancabcar/MealPlan/issues/78).
+- Robustez con datos importados (sobra huérfana y cookedServings sin validar) → [#81](https://github.com/mancabcar/MealPlan/issues/81).
+- Del review de #80, solo aquí: rendimiento de `leftoverSlotKeys` y `batchOf`, mover `dayName` a `lib/week.ts` y la línea de receta sin escalar en el detalle de la lista.
 - Revisar [#29](https://github.com/mancabcar/MealPlan/issues/29) tras el merge para apoyarse en `cookedServings`.
