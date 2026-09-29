@@ -5,6 +5,7 @@ import { ArrowLeft, ChefHat, Clock, Flame, Sparkles } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { Recipe } from "@/lib/types";
 import { toRecipeProfile } from "@/lib/recipePrompt";
+import { apiUrl } from "@/lib/apiBase";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { AllergenBadge } from "@/components/ui/AllergenBadge";
@@ -54,7 +55,7 @@ export default function RecipesPage() {
     setGenerating(true);
     setError("");
     try {
-      const res = await fetch("/api/recipes", {
+      const res = await fetch(apiUrl("/api/recipes"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // Solo lo que usa el prompt: sexo, edad y peso no salen del navegador
