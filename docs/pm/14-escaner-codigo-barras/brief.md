@@ -1,6 +1,6 @@
 # Escanear código de barras para registrar productos envasados
 
-_Status: tests · Updated: 2026-09-28 · Issue: [#14](https://github.com/mancabcar/MealPlan/issues/14) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: in review · Updated: 2026-09-29 · Issue: [#14](https://github.com/mancabcar/MealPlan/issues/14) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#68](https://github.com/mancabcar/MealPlan/pull/68)_
 
 > Brainstorm y prototipo omitidos (decisión del usuario, 2026-09-27): el issue #14 ya trae problema, propuesta y criterios de aceptación fijados — surgió como follow-up del brainstorm de [#13](../13-base-alimentos/brief.md), que ya evaluó y descartó meter el escáner en esa entrega. Se pasa directo a spec.
 
