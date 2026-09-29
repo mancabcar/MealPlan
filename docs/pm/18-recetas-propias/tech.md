@@ -73,8 +73,8 @@ Página aparte para el formulario. **Pros:** encaja con `trailingSlash`. **Cons:
 - **E2E** (Playwright, un flujo): crear una receta con un ingrediente alérgeno → ver aviso; planificarla; borrar con aviso de Plan; el Diario conserva la entrada. Comprobación axe del formulario.
 
 ## Tasks
-1. [ ] Tipos y `lib/recipeEdit.ts` puro con tests unitarios (covers R1, R3, R4, R6, R8, R9, R10)
-2. [ ] `saveRecipe` y `removeRecipe` en el store, con tests (covers R2, R3, R8)
+1. [x] Tipos y `lib/recipeEdit.ts` puro con tests unitarios (covers R1, R3, R4, R6, R8, R9, R10)
+2. [x] `saveRecipe` y `removeRecipe` en el store, con tests (covers R2, R3, R8)
 3. [ ] `RecipeForm` en `Sheet` con tests de componente (covers R1, R7, R10)
 4. [ ] Recetas: "Nueva receta", "Editar", "Duplicar y editar" y distintivo "Propia" (covers R1, R2, R4, R5, R9)
 5. [ ] "Borrar" con aviso de Plan (covers R3, R8)

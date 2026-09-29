@@ -5,6 +5,7 @@ import { UserProfile, Recipe, MealEntry, Measurement, PantryItem, WeekPlan } fro
 import { userKey } from "./auth";
 import type { ShoppingState } from "./shopping/state";
 import { writeUserData } from "./backup";
+import { withoutRecipe } from "./recipeEdit";
 import { LOAD_OPTIONS, type LoadOptions, type UserData } from "./userData";
 
 interface AppState {
@@ -22,6 +23,10 @@ interface AppState {
   setRecipeFocus: (id: string | null) => void;
   setProfile: (p: UserProfile | null) => void;
   addRecipes: (r: Recipe[]) => void;
+  /** Alta, o edición si ya hay una con ese id. */
+  saveRecipe: (r: Recipe) => void;
+  /** Borra la receta: sus entradas del Diario pasan a comida suelta y sus franjas del Plan se vacían. */
+  removeRecipe: (id: string) => void;
   addEntry: (e: MealEntry) => void;
   removeEntry: (id: string) => void;
   addPantryItem: (i: PantryItem) => void;
@@ -125,6 +130,16 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     setRecipeFocus,
     setProfile,
     addRecipes: (r) => setRecipes((prev) => [...prev, ...r]),
+    saveRecipe: (r) => setRecipes((prev) => (prev.some((x) => x.id === r.id) ? prev.map((x) => (x.id === r.id ? r : x)) : [...prev, r])),
+    removeRecipe: (id) => {
+      const recipe = recipes.find((r) => r.id === id);
+      if (!recipe) return;
+      // Orden seguro: entradas → plan → receta; si algo falla antes, no se pierde nada y se puede repetir.
+      const next = withoutRecipe({ entries, plan: weekPlan, recipe });
+      setEntries(next.entries);
+      setWeekPlan(next.plan);
+      setRecipes((prev) => prev.filter((r) => r.id !== id));
+    },
     addEntry: (e) => setEntries((prev) => [...prev, e]),
     removeEntry: (id) => setEntries((prev) => prev.filter((e) => e.id !== id)),
     addPantryItem: (i) => setPantry((prev) => [...prev, i]),
