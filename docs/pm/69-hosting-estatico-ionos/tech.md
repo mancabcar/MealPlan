@@ -16,7 +16,7 @@ _Related: [brief](brief.md) · Issue: [#69](https://github.com/mancabcar/MealPla
 - Tres puntos de `fetch` en el cliente, todos con ruta relativa: `src/app/recetas/page.tsx:57` (`/api/recipes`), `src/lib/useBrandSearch.ts:81` (`/api/foods/search`), `src/lib/useBarcodeLookup.ts:94` (`/api/foods/barcode`).
 - `tests/e2e/recipes.spec.ts`, `tests/e2e/food.spec.ts` y los e2e de #14 interceptan estas rutas con `page.route("**/api/...")` — el glob matchea también URLs absolutas, así que no cambian al mover las rutas a otro origen.
 - La doc local de Next 16 (`node_modules/next/dist/docs/01-app/02-guides/static-exports.md:282`, "Unsupported Features") confirma que un build con `output: "export"` no admite Route Handlers que dependan del `Request` — las tres rutas los necesitan (query params o body), de ahí el hack `force-static` actual y la necesidad de sacarlas del proyecto que se exporta.
-- IONOS: hosting estático confirmado por el usuario. Dominio de prueba dado por el usuario: `https://home-5021530898.app-ionos.space/`.
+- IONOS: hosting estático confirmado por el usuario. Dominio de prueba dado por el usuario: `https://home-5021533470.app-ionos.space/`.
 - Lógica reutilizable que `server/` necesita importar de `src/lib/`: `recipePrompt.ts` (`buildRecipePrompt`, `safeAllergies`, `RecipeProfile`), `allergens.ts` (`recipeViolations`), `foods.ts` (`plainQuery` y los tipos que usan `foods/search` y `foods/barcode`).
 
 ## Approaches considered
@@ -52,7 +52,7 @@ Descartado por el usuario: prefiere no reescribir código que ya funciona.
 | server/ (nuevo) | `server/app/api/foods/search/route.ts` | Movido desde `src/app/api/foods/search/route.ts`, sin `force-static`. |
 | server/ (nuevo) | `server/app/api/foods/barcode/route.ts` | Movido desde `src/app/api/foods/barcode/route.ts`, sin `force-static`. |
 | server/ (nuevo) | `server/lib/cors.ts` | Nuevo. Helper compartido por las tres rutas: valida `Origin` contra `CORS_ALLOWED_ORIGIN` y añade las cabeceras `Access-Control-Allow-*`. |
-| server/ (nuevo) | `server/.env.example` | Nuevo. `ANTHROPIC_API_KEY=sk-ant-...`, `CORS_ALLOWED_ORIGIN=https://home-5021530898.app-ionos.space`. |
+| server/ (nuevo) | `server/.env.example` | Nuevo. `ANTHROPIC_API_KEY=sk-ant-...`, `CORS_ALLOWED_ORIGIN=https://home-5021533470.app-ionos.space`. |
 | CI | `.github/workflows/ci.yml` | Job existente pasa a operar solo sobre la raíz (sin `api/`, ya no hace falta verificar `force-static`); se añade un segundo job para `server/` (install, lint, typecheck, test, build) con su propio `working-directory`. |
 | CI/CD IONOS | `.github/workflows/MealPlan-*.yaml`, `deploy-to-ionos.yaml` | **Sin cambios** — el pipeline generado por IONOS Deploy Now ya construye `out/` de la raíz y lo publica; solo se beneficia de que la raíz ya no tenga rutas `force-static` inútiles dentro del export. |
 | Docs | `README.md` | Sustituye «Despliegue gratis en Vercel» por la arquitectura de dos despliegues (IONOS Deploy Now + Vercel) y cómo levantar `server/` en local. |
