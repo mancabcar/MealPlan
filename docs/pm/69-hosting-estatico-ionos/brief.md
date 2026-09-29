@@ -1,5 +1,5 @@
 # Hosting estático en IONOS + rutas de servidor en Vercel
-_Status: tech design · Updated: 2026-09-29 · Issue: [#69](https://github.com/mancabcar/MealPlan/issues/69) · Tech: [tech.md](tech.md)_
+_Status: in review · Updated: 2026-09-29 · Issue: [#69](https://github.com/mancabcar/MealPlan/issues/69) · Tech: [tech.md](tech.md) · PR: [#70](https://github.com/mancabcar/MealPlan/pull/70)_
 
 ## Follow-ups
 - ~~Pipeline de despliegue a IONOS~~ — descubierto durante dev-technical-opinion: ya existe y está automatizado (IONOS Deploy Now, `.github/workflows/MealPlan-*.yaml`), no hace falta decidirlo.
