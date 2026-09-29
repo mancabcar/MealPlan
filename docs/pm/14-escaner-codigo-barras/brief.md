@@ -7,6 +7,7 @@ _Status: in review · Updated: 2026-09-29 · Issue: [#14](https://github.com/man
 - Un código mal formado escrito a mano muestra «Open Food Facts no responde ahora» en vez de avisar de un formato inválido (review). (`FoodPicker.tsx:342`)
 - `useBarcodeLookup`/`GET /api/foods/barcode` duplican casi literalmente el patrón de `useBrandSearch`/`GET /api/foods/search` de #13 en vez de reutilizarlo; candidato a extraer una base común (review).
 - El bucle de detección de `BarcodeScanner` llama a `detect()` en cada `requestAnimationFrame` sin throttling — coste de batería/CPU real en un móvil (review).
+- `GET /api/foods/barcode` quedó con `export const dynamic = "force-static"` (mismo parche temporal que `/api/foods/search`, ver [#69](https://github.com/mancabcar/MealPlan/issues/69)): mientras la app se despliegue en el plan Static de IONOS, el escaneo por código no funcionará en producción, igual que la búsqueda por nombre. Se resuelve junto con #69.
 
 > Brainstorm y prototipo omitidos (decisión del usuario, 2026-09-27): el issue #14 ya trae problema, propuesta y criterios de aceptación fijados — surgió como follow-up del brainstorm de [#13](../13-base-alimentos/brief.md), que ya evaluó y descartó meter el escáner en esa entrega. Se pasa directo a spec.
 
@@ -35,6 +36,3 @@ Estándar en MyFitnessPal, Yazio y Fitia: escanear el envase es la forma más r�
 - `src/lib/foods.ts`, `src/app/api/foods/search/route.ts` — búsqueda de productos de marca por nombre (Search-a-licious). OFF tiene además un endpoint de producto por código de barras (`/api/v2/product/<code>`), distinto del de búsqueda por texto.
 - `src/lib/types.ts` — `MealEntry.foodId` ya admite `"off:<code>"`; `PantryItem` (Despensa) solo tiene `name` y `quantity` (texto libre), sin macros.
 
-## Follow-ups
-
-_(vacío por ahora)_
