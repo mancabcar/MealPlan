@@ -216,16 +216,16 @@ describe("Normalización (spec › Normalization rules)", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Corpus: las 259 líneas distintas de las 91 recetas semilla (tech.md › "Parser coverage" medía 145 con 40; +14 de otoño, +10 desayunos, +10 de cuchara, +10 cenas ligeras, +10 snacks, −3 duplicadas).
+// Corpus: las 314 líneas distintas de las 107 recetas semilla (tech.md › "Parser coverage" medía 145 con 40; +14 de otoño, +10 desayunos, +10 de cuchara, +10 cenas ligeras, +10 snacks, −3 duplicadas, +16 del plan de tuppers).
 // ---------------------------------------------------------------------------
 const SEED_LINES = [...new Set((seed.recipes as { ingredients: string[] }[]).flatMap((r) => r.ingredients))].sort();
 
 describe("R3: corpus de recetas semilla (src/data/recipes.json)", () => {
-  it("el corpus tiene 259 líneas distintas (145 del tech design + las tandas nuevas − las 3 recetas duplicadas)", () => {
-    expect(SEED_LINES).toHaveLength(259);
+  it("el corpus tiene 314 líneas distintas (145 del tech design + las tandas nuevas − las 3 recetas duplicadas + las 16 del plan de tuppers)", () => {
+    expect(SEED_LINES).toHaveLength(314);
   });
 
-  it("ninguna línea se pierde y todas se entienden (259/259 limpias)", () => {
+  it("ninguna línea se pierde y todas se entienden (314/314 limpias)", () => {
     const failures = SEED_LINES.filter((line) => {
       const items = parseIngredientLine(line);
       return items.length === 0 || items.some((i) => !i.parsed);
@@ -239,9 +239,9 @@ describe("R3: corpus de recetas semilla (src/data/recipes.json)", () => {
     expect(bad).toEqual([]);
   });
 
-  it("155 ingredientes distintos (107 del tech design + 50 de las tandas nuevas − harina y pimentón dulce, que solo usaban las duplicadas)", () => {
+  it("181 ingredientes distintos (107 del tech design + 50 de las tandas nuevas − harina y pimentón dulce, que solo usaban las duplicadas + 26 del plan de tuppers)", () => {
     const keys = new Set(SEED_LINES.flatMap((line) => parseIngredientLine(line).map((i) => i.key)));
-    expect(keys.size).toBe(155);
+    expect(keys.size).toBe(181);
   });
 
   it("snapshot del conjunto de claves: cualquier cambio de reglas se ve en la revisión", () => {

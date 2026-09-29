@@ -18,17 +18,19 @@ const AISLE_KEYWORDS: Record<Exclude<Aisle, "Otros">, string[]> = {
     // De las tandas de otoño y platos de cuchara (recipe_041 en adelante)
     "acelga", "boniato", "caqui", "castaña", "col", "coliflor", "granada", "higo", "lombarda",
     "alcachofa", "repollo", "mandarina", "edamame",
+    // Del plan de tuppers (recipe_095 en adelante)
+    "nabo", "hierbabuena",
   ],
   "Carne y pescado": [
     "pollo", "pavo", "ternera", "cerdo", "carne", "pechuga", "solomillo", "jamón", "fiambre", "bacalao", "merluza",
     "salmón", "gamba", "langostino", "pescado", "atún fresco", "sardina", "lubina", "dorada", "chorizo", "caballa", "bonito", "sepia",
   ],
   "Lácteos y huevos": [
-    "huevo", "claras de huevo", "leche", "yogur", "queso", "quesito", "mozzarella", "mantequilla", "kéfir", "nata", "tofu",
+    "huevo", "claras de huevo", "leche", "yogur", "queso", "quesito", "mozzarella", "mantequilla", "kéfir", "nata", "tofu", "skyr",
   ],
   "Despensa y conservas": [
     "arroz", "garbanzo", "lenteja", "alubia", "atún", "pasta", "fideos", "quinoa", "harina", "avena", "pan",
-    "panecillo", "tortilla de trigo", "tortilla de maíz", "tortilla integral", "aceite", "salsa de soja", "miel",
+    "panecillo", "tortilla de trigo", "tortilla de maíz", "tortilla integral", "fajita", "vino", "aceite", "salsa de soja", "miel",
     "mostaza", "sésamo", "semillas", "maíz", "proteína", "leche de coco",
     // "caldo" pierde contra "verduras"/"pescado" por longitud: los caldos van explícitos
     "caldo", "caldo de pollo", "caldo de pescado", "caldo de verduras",
@@ -39,7 +41,7 @@ const AISLE_KEYWORDS: Record<Exclude<Aisle, "Otros">, string[]> = {
 
 // Especias, condimentos y básicos: plegados y fuera de los recuentos (R12). `aceite` NO es básico.
 const BASICS = [
-  "sal", "pimienta", "orégano", "vinagre", "agua", "comino", "pimentón", "canela", "caldo en pastilla", "laurel",
+  "sal", "pimienta", "orégano", "vinagre", "agua", "comino", "pimentón", "chile", "cayena", "azafrán", "canela", "caldo en pastilla", "laurel",
   "romero", "tomillo", "curry", "cúrcuma", "ajo en polvo", "nuez moscada", "hielo", "especias",
 ];
 
