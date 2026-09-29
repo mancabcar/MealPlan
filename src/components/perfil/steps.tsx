@@ -11,7 +11,6 @@ import type { Derivation } from "@/lib/nutrition";
 import { parseBody, parsePrescribed, type BodyDraft, type MacroDraft, type PrescribedDraft } from "@/lib/profileDraft";
 import {
   MEAL_TYPES,
-  MEAL_TYPE_ICON_COMPONENTS,
   type ActivityLevel,
   type Allergies,
   type DietType,
@@ -21,6 +20,7 @@ import {
   type Sex,
   type TargetSource,
 } from "@/lib/types";
+import { MEAL_TYPE_ICON_COMPONENTS } from "@/lib/categoryIcons";
 import { ChipInput, ChoiceGroup, Field, MultiChoice, type Option } from "./ui";
 
 // ---------------------------------------------------------------- 1 · Objetivo (R1)

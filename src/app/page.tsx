@@ -24,10 +24,10 @@ import {
 import { macroStatus } from "@/lib/planMacros";
 import {
   MEAL_TYPES,
-  MEAL_TYPE_ICON_COMPONENTS,
   MealType,
   todayStr,
 } from "@/lib/types";
+import { MEAL_TYPE_ICON_COMPONENTS } from "@/lib/categoryIcons";
 import { Card } from "@/components/ui/Card";
 import { Chip, type ChipTone } from "@/components/ui/Chip";
 import { AllergenBadge } from "@/components/ui/AllergenBadge";
