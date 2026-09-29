@@ -2216,6 +2216,538 @@
       "carbs": 31,
       "fat": 7,
       "tags": ["snack", "pre-gym", "sin cocinar", "para llevar", "vegetariano"]
+    },
+    {
+      "id": "recipe_095",
+      "name": "Chili con carne con arroz",
+      "ingredients": [
+        "150g carne picada de ternera (magra)",
+        "1/2 cebolla",
+        "1/2 pimiento rojo",
+        "1 diente de ajo",
+        "200g tomate triturado",
+        "80g alubias rojas cocidas",
+        "1 cucharadita de comino",
+        "1 cucharadita de pimentón",
+        "1 cucharadita de aceite de oliva",
+        "55g arroz basmati (en seco)",
+        "chile o cayena y orégano"
+      ],
+      "instructions": [
+        "Sofreír la cebolla, el pimiento y el ajo picados 8 minutos.",
+        "Añadir la carne y dorarla desmenuzándola.",
+        "Incorporar las especias 1 minuto, y luego el tomate y las alubias.",
+        "Cocer a fuego bajo 20-25 minutos hasta que espese.",
+        "Cocer el arroz y servir. Para el tupper: cocinar el doble y repartir en 2 raciones."
+      ],
+      "prepTimeMinutes": 45,
+      "calories": 500,
+      "protein": 40,
+      "carbs": 60,
+      "fat": 12,
+      "tags": [
+        "comida",
+        "para llevar",
+        "alto proteína",
+        "tex-mex",
+        "arroz",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_096",
+      "name": "Lentejas estofadas con chorizo",
+      "ingredients": [
+        "70g lentejas (en seco)",
+        "100g magro de cerdo",
+        "20g chorizo",
+        "80g patata",
+        "1/2 zanahoria",
+        "1/4 pimiento verde",
+        "1/4 cebolla",
+        "1 diente de ajo",
+        "1 hoja de laurel",
+        "1 cucharadita de pimentón",
+        "1 cucharadita de aceite de oliva"
+      ],
+      "instructions": [
+        "Sofreír la cebolla, el pimiento, la zanahoria y el ajo picados.",
+        "Dorar el magro en dados y el chorizo en rodajas.",
+        "Apartar del fuego, añadir el pimentón y remover unos segundos.",
+        "Añadir las lentejas, el laurel y agua hasta cubrir dos dedos. Cocer 25 minutos.",
+        "Añadir la patata chascada y cocer 15-20 minutos más. Con lentejas de bote bastan 15 minutos en total."
+      ],
+      "prepTimeMinutes": 60,
+      "calories": 600,
+      "protein": 44,
+      "carbs": 62,
+      "fat": 20,
+      "tags": [
+        "comida",
+        "para llevar",
+        "legumbres",
+        "alto proteína",
+        "de cuchara",
+        "otoño",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_097",
+      "name": "Carne con tomate con arroz",
+      "ingredients": [
+        "150g lomo de cerdo magro",
+        "200g tomate triturado",
+        "1/2 pimiento verde",
+        "1/2 cebolla",
+        "2 dientes de ajo",
+        "1 hoja de laurel",
+        "1 cucharadita de pimentón",
+        "comino",
+        "1 cucharadita de aceite de oliva",
+        "55g arroz basmati (en seco)"
+      ],
+      "instructions": [
+        "Dorar el lomo en dados con sal a fuego fuerte y reservar.",
+        "Sofreír la cebolla, el pimiento y el ajo 10 minutos a fuego medio.",
+        "Apartar del fuego, añadir el pimentón y el comino y remover unos segundos.",
+        "Añadir el tomate, el laurel y la carne. Cocer 25-30 minutos a fuego lento hasta que la salsa espese.",
+        "Servir con el arroz cocido. Recalentada al día siguiente está aún mejor."
+      ],
+      "prepTimeMinutes": 45,
+      "calories": 430,
+      "protein": 38,
+      "carbs": 50,
+      "fat": 9,
+      "tags": [
+        "comida",
+        "para llevar",
+        "alto proteína",
+        "clásico",
+        "arroz",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_098",
+      "name": "Espinacas con garbanzos y bacalao a la sevillana",
+      "ingredients": [
+        "150g bacalao desalado",
+        "150g garbanzos cocidos",
+        "150g espinacas",
+        "1/4 cebolla",
+        "1 diente de ajo",
+        "50g tomate triturado",
+        "1 cucharadita de pimentón",
+        "comino",
+        "1 cucharada de vinagre de Jerez",
+        "1 cucharadita de aceite de oliva"
+      ],
+      "instructions": [
+        "Majar en un mortero el ajo con el comino, el pimentón y el vinagre de Jerez.",
+        "Sofreír la cebolla, añadir el tomate y luego las espinacas hasta que reduzcan.",
+        "Incorporar el majado, los garbanzos y un chorro de agua. Cocer 10 minutos.",
+        "Añadir el bacalao en tacos los últimos 5-6 minutos, sin remover mucho."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 480,
+      "protein": 40,
+      "carbs": 45,
+      "fat": 15,
+      "tags": [
+        "comida",
+        "para llevar",
+        "legumbres",
+        "pescado",
+        "alto proteína",
+        "sin gluten",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_099",
+      "name": "Pollo al ajillo con papas",
+      "ingredients": [
+        "180g contramuslo de pollo deshuesado y sin piel",
+        "5 dientes de ajo",
+        "50ml vino blanco",
+        "1 hoja de laurel",
+        "perejil fresco",
+        "1 cucharada de aceite de oliva",
+        "150g patata"
+      ],
+      "instructions": [
+        "Cortar las papas en rodajas gruesas y cocerlas 8 minutos en el microondas tapadas, o al horno a 200 °C 25 minutos.",
+        "Dorar los ajos machacados en el aceite a fuego suave y sacarlos antes de que se quemen.",
+        "En ese aceite, dorar el pollo salpimentado en trozos a fuego fuerte.",
+        "Devolver los ajos, añadir el laurel y el vino. Tapar y cocer 15 minutos hasta que reduzca.",
+        "Espolvorear el perejil y servir con las papas."
+      ],
+      "prepTimeMinutes": 40,
+      "calories": 420,
+      "protein": 38,
+      "carbs": 32,
+      "fat": 16,
+      "tags": [
+        "comida",
+        "para llevar",
+        "alto proteína",
+        "sin gluten",
+        "clásico",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_100",
+      "name": "Puchero de garbanzos, carne y papa",
+      "ingredients": [
+        "60g garbanzos (en seco)",
+        "100g contramuslo de pollo sin piel",
+        "60g aguja de ternera",
+        "1 hueso de jamón",
+        "1 hueso de ternera",
+        "1 zanahoria",
+        "1/2 puerro",
+        "1/2 rama de apio",
+        "1/2 nabo",
+        "100g patata",
+        "hierbabuena"
+      ],
+      "instructions": [
+        "Dejar los garbanzos en remojo desde la noche anterior.",
+        "Poner todo menos las papas y los garbanzos en la olla con agua fría (1,2 l por ración). Hervir y retirar la espuma.",
+        "Añadir los garbanzos escurridos. Olla exprés 30 minutos (en olla normal, unas 2 h 30 min).",
+        "Abrir, añadir las papas y cocer 15 minutos más sin presión.",
+        "Desmenuzar la carne y descartar huesos y piel. Servir con un cazo de caldo.",
+        "Enfriar el caldo sobrante, quitar la grasa de arriba y congelarlo: sirve para el arroz con pollo."
+      ],
+      "prepTimeMinutes": 45,
+      "calories": 530,
+      "protein": 47,
+      "carbs": 64,
+      "fat": 10,
+      "tags": [
+        "comida",
+        "para llevar",
+        "legumbres",
+        "alto proteína",
+        "de cuchara",
+        "otoño",
+        "reconfortante",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_101",
+      "name": "Carne mechada con papas",
+      "ingredients": [
+        "150g lomo de cerdo en una pieza",
+        "10g jamón serrano",
+        "2 dientes de ajo",
+        "1/2 cebolla",
+        "1 zanahoria",
+        "50ml vino blanco",
+        "1 hoja de laurel",
+        "1 cucharadita de aceite de oliva",
+        "150g patata"
+      ],
+      "instructions": [
+        "Hacer cortes en el lomo con un cuchillo fino y meter en ellos las tiras de jamón y láminas de 1 diente de ajo.",
+        "Dorar la pieza entera por todas las caras y reservar.",
+        "Sofreír la cebolla, la zanahoria y el ajo restante. Devolver la carne con el vino, el laurel y agua hasta la mitad.",
+        "Cocer 45 minutos tapada a fuego lento, dándole la vuelta a media cocción (20 minutos en olla exprés).",
+        "Sacar la carne, triturar la verdura para la salsa y cocer las papas en ella 20 minutos.",
+        "Dejar enfriar la carne antes de cortarla en filetes: salen enteros."
+      ],
+      "prepTimeMinutes": 60,
+      "calories": 440,
+      "protein": 36,
+      "carbs": 40,
+      "fat": 15,
+      "tags": [
+        "comida",
+        "para llevar",
+        "alto proteína",
+        "reconfortante",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_102",
+      "name": "Arroz con pollo",
+      "ingredients": [
+        "150g pechuga de pollo",
+        "40g arroz redondo (en seco)",
+        "250ml caldo de pollo",
+        "1/2 pimiento rojo",
+        "1/2 cebolla",
+        "1 diente de ajo",
+        "50g tomate triturado",
+        "100g guisantes",
+        "1 cucharadita de pimentón",
+        "azafrán",
+        "1 cucharadita de aceite de oliva"
+      ],
+      "instructions": [
+        "Dorar el pollo salpimentado en trozos y reservar.",
+        "Sofreír la cebolla, el pimiento y el ajo 10 minutos. Añadir el pimentón fuera del fuego y luego el tomate.",
+        "Devolver el pollo, añadir el arroz y el azafrán y rehogar 1 minuto.",
+        "Verter el caldo caliente y los guisantes. Cocer 18 minutos a fuego medio, hasta que quede meloso: en el tupper el arroz sigue absorbiendo.",
+        "Al recalentarlo, añadir un chorrito de agua."
+      ],
+      "prepTimeMinutes": 40,
+      "calories": 435,
+      "protein": 39,
+      "carbs": 52,
+      "fat": 8,
+      "tags": [
+        "comida",
+        "para llevar",
+        "alto proteína",
+        "arroz",
+        "clásico",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_103",
+      "name": "Ensalada de pasta con pavo y pimientos asados",
+      "ingredients": [
+        "30g pasta integral (en seco)",
+        "150g filete de pavo",
+        "150g pimientos asados",
+        "6 tomates cherry",
+        "2 cucharaditas de aceite de oliva",
+        "1 cucharadita de vinagre",
+        "orégano y sal"
+      ],
+      "instructions": [
+        "Cocer la pasta y hacer el pavo a la plancha en tiras.",
+        "Mezclar todo en el tupper y llevar el aliño aparte, en un bote.",
+        "Se come fría: no necesita microondas."
+      ],
+      "prepTimeMinutes": 15,
+      "calories": 420,
+      "protein": 38,
+      "carbs": 38,
+      "fat": 13,
+      "tags": [
+        "comida",
+        "para llevar",
+        "pasta",
+        "alto proteína",
+        "sin cocinar",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_104",
+      "name": "Salmón con huevo duro, boniato y espárragos verdes",
+      "ingredients": [
+        "130g salmón fresco",
+        "1 huevo",
+        "150g boniato",
+        "150g espárragos verdes",
+        "1 cucharadita de aceite de oliva",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Cocer el huevo 10 minutos y enfriarlo en agua fría.",
+        "Asar el boniato en dados al horno a 200 °C durante 25 minutos.",
+        "Hacer el salmón a la plancha 3-4 minutos por lado.",
+        "Saltear los espárragos con el aceite 4 minutos.",
+        "Servir todo junto con el huevo duro partido por la mitad."
+      ],
+      "prepTimeMinutes": 35,
+      "calories": 510,
+      "protein": 33,
+      "carbs": 36,
+      "fat": 26,
+      "tags": [
+        "cena",
+        "pescado",
+        "omega 3",
+        "alto proteína",
+        "sin gluten",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_105",
+      "name": "Atún con arroz y judías verdes con jamón",
+      "ingredients": [
+        "2 latas de atún al natural",
+        "30g arroz basmati (en seco)",
+        "200g judías verdes",
+        "50g jamón serrano en taquitos",
+        "1 cucharadita de aceite de oliva"
+      ],
+      "instructions": [
+        "Cocer el arroz según las instrucciones del paquete.",
+        "Cocer las judías verdes 8-10 minutos y escurrirlas.",
+        "Saltear los taquitos de jamón con el aceite 2 minutos y añadir las judías.",
+        "Servir con el arroz y el atún escurrido."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 440,
+      "protein": 40,
+      "carbs": 36,
+      "fat": 15,
+      "tags": [
+        "cena",
+        "alto proteína",
+        "rápido",
+        "arroz",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_106",
+      "name": "Merluza con patata y crema de calabacín",
+      "ingredients": [
+        "180g merluza",
+        "150g patata",
+        "250g calabacín",
+        "1/2 puerro",
+        "200ml agua",
+        "1 cucharadita de aceite de oliva",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Cocer la patata en rodajas 15 minutos.",
+        "Pochar el puerro con el aceite, añadir el calabacín en trozos y el agua y cocer 12 minutos. Triturar para la crema.",
+        "Hacer la merluza a la plancha 3-4 minutos por lado.",
+        "Servir el pescado con la patata y la crema caliente."
+      ],
+      "prepTimeMinutes": 30,
+      "calories": 395,
+      "protein": 36,
+      "carbs": 40,
+      "fat": 10,
+      "tags": [
+        "cena",
+        "pescado",
+        "alto proteína",
+        "sin gluten",
+        "ligero",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_107",
+      "name": "Fajitas de pollo con pimiento y cebolla",
+      "ingredients": [
+        "2 fajitas integrales",
+        "150g pechuga de pollo",
+        "1 pimiento rojo",
+        "1/2 cebolla",
+        "60g skyr natural",
+        "1 cucharadita de aceite de oliva",
+        "comino, pimentón y sal"
+      ],
+      "instructions": [
+        "Cortar el pollo, el pimiento y la cebolla en tiras y sazonar con las especias.",
+        "Saltear todo con el aceite a fuego fuerte 8 minutos.",
+        "Calentar las fajitas, rellenarlas con el salteado y usar el skyr como salsa."
+      ],
+      "prepTimeMinutes": 20,
+      "calories": 510,
+      "protein": 48,
+      "carbs": 48,
+      "fat": 14,
+      "tags": [
+        "cena",
+        "alto proteína",
+        "rápido",
+        "tex-mex",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_108",
+      "name": "Dorada con patata y ensalada verde",
+      "ingredients": [
+        "150g dorada",
+        "150g patata",
+        "80g lechuga",
+        "100g tomate",
+        "1 cucharada de aceite de oliva",
+        "sal y limón"
+      ],
+      "instructions": [
+        "Cocer la patata en rodajas 15 minutos.",
+        "Hacer la dorada a la plancha 4 minutos por lado, con sal y unas gotas de limón.",
+        "Aliñar la lechuga y el tomate con el aceite y servir todo junto."
+      ],
+      "prepTimeMinutes": 25,
+      "calories": 380,
+      "protein": 32,
+      "carbs": 32,
+      "fat": 14,
+      "tags": [
+        "cena",
+        "pescado",
+        "alto proteína",
+        "sin gluten",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_109",
+      "name": "Revuelto de espinacas con jamón de pavo y ensalada",
+      "ingredients": [
+        "2 huevos",
+        "2 claras de huevo",
+        "100g espinacas",
+        "60g jamón de pavo",
+        "50g lechuga",
+        "1 cucharadita de aceite de oliva",
+        "sal y pimienta"
+      ],
+      "instructions": [
+        "Saltear las espinacas con el aceite 2 minutos y añadir el jamón de pavo en tiras.",
+        "Batir los huevos con las claras, sal y pimienta, verter y remover a fuego bajo hasta que cuaje cremoso.",
+        "Servir con la ensalada de lechuga."
+      ],
+      "prepTimeMinutes": 10,
+      "calories": 300,
+      "protein": 33,
+      "carbs": 6,
+      "fat": 16,
+      "tags": [
+        "cena",
+        "rápido",
+        "alto proteína",
+        "ligero",
+        "plan nutricionista"
+      ]
+    },
+    {
+      "id": "recipe_110",
+      "name": "Bol de avena con skyr y frutos rojos",
+      "ingredients": [
+        "250g skyr natural",
+        "40g copos de avena",
+        "100g frutos rojos",
+        "canela"
+      ],
+      "instructions": [
+        "La noche anterior, mezclar el skyr con los copos de avena en un bote.",
+        "Añadir los frutos rojos y la canela.",
+        "Dejar en la nevera y comer por la mañana."
+      ],
+      "prepTimeMinutes": 5,
+      "calories": 340,
+      "protein": 33,
+      "carbs": 42,
+      "fat": 4,
+      "tags": [
+        "desayuno",
+        "alto proteína",
+        "sin cocinar",
+        "para llevar",
+        "plan nutricionista"
+      ]
     }
   ]
 }
