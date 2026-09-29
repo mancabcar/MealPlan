@@ -125,3 +125,60 @@ describe("R7: cerrar sin escanear", () => {
     expect(stopTrack).toHaveBeenCalled();
   });
 });
+
+describe("review de #14: la cámara no se reinicia si onDetected cambia de identidad", () => {
+  it("re-renderizar con una nueva función onDetected no vuelve a pedir la cámara", async () => {
+    getUserMedia.mockResolvedValue(fakeStream);
+    const { rerender } = render(<BarcodeScanner onDetected={vi.fn()} onClose={vi.fn()} />);
+    await waitFor(() => expect(getUserMedia).toHaveBeenCalledTimes(1));
+
+    // Como en FoodPicker: una flecha nueva en cada render (p. ej. por la cuenta atrás del límite de peticiones)
+    for (let i = 0; i < 3; i++) {
+      rerender(<BarcodeScanner onDetected={vi.fn()} onClose={vi.fn()} />);
+    }
+    expect(getUserMedia).toHaveBeenCalledTimes(1);
+    expect(stopTrack).not.toHaveBeenCalled();
+  });
+
+  it("un código detectado después de la última función onDetected pasada se entrega con esa, no con la primera", async () => {
+    let resolveDetect!: (codes: { rawValue: string }[]) => void;
+    (window as unknown as { BarcodeDetector: unknown }).BarcodeDetector = class extends FakeDetector {
+      constructor() {
+        super(() => new Promise((resolve) => (resolveDetect = resolve)));
+      }
+    };
+    getUserMedia.mockResolvedValue(fakeStream);
+    const firstOnDetected = vi.fn();
+    const secondOnDetected = vi.fn();
+    const { rerender } = render(<BarcodeScanner onDetected={firstOnDetected} onClose={vi.fn()} />);
+    await waitFor(() => expect(resolveDetect).toBeDefined());
+    rerender(<BarcodeScanner onDetected={secondOnDetected} onClose={vi.fn()} />);
+
+    await act(async () => {
+      resolveDetect([{ rawValue: "8410000123456" }]);
+    });
+    expect(secondOnDetected).toHaveBeenCalledWith("8410000123456");
+    expect(firstOnDetected).not.toHaveBeenCalled();
+  });
+});
+
+describe("review de #14: no se entrega un código tras cerrar el visor a mitad de un detect() en curso", () => {
+  it("si detect() resuelve con un código después de desmontar, onDetected no se llama", async () => {
+    let resolveDetect!: (codes: { rawValue: string }[]) => void;
+    (window as unknown as { BarcodeDetector: unknown }).BarcodeDetector = class extends FakeDetector {
+      constructor() {
+        super(() => new Promise((resolve) => (resolveDetect = resolve)));
+      }
+    };
+    getUserMedia.mockResolvedValue(fakeStream);
+    const onDetected = vi.fn();
+    const { unmount } = render(<BarcodeScanner onDetected={onDetected} onClose={vi.fn()} />);
+    await waitFor(() => expect(resolveDetect).toBeDefined());
+
+    unmount();
+    await act(async () => {
+      resolveDetect([{ rawValue: "8410000123456" }]);
+    });
+    expect(onDetected).not.toHaveBeenCalled();
+  });
+});

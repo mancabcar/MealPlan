@@ -72,7 +72,15 @@ export function useBarcodeLookup() {
   const run = useCallback(
     async (c: string) => {
       const at = Date.now();
-      if (cooldownAt(at) > 0) return null;
+      if (cooldownAt(at) > 0) {
+        // Bloqueado por el límite (p. ej. un código escaneado con la cámara mientras ya estaba activo): se
+        // deja en "rate_limited" para que el aviso se muestre igual que si lo hubiera bloqueado el servidor
+        // (review de #14: antes se devolvía null y no pasaba nada, sin avisar).
+        setCode(c);
+        setState("rate_limited");
+        setProduct(null);
+        return { state: "rate_limited" as const, product: null, code: c };
+      }
       const nextStamps = [...stamps.filter((t) => at - t < BARCODE_LIMIT.windowMs), at];
       setStamps(nextStamps);
       write(STAMPS_KEY, nextStamps);

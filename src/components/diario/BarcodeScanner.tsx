@@ -22,6 +22,13 @@ function getBarcodeDetector(): (new () => Detector) | undefined {
 export function BarcodeScanner({ onDetected, onClose }: { onDetected: (code: string) => void; onClose: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [denied, setDenied] = useState(false);
+  // onDetected suele ser una flecha nueva en cada render del padre: se lee por ref para no reiniciar la cámara
+  // en cada render (review de #14: reinicio en bucle mientras el padre se re-renderiza, p. ej. por la cuenta
+  // atrás del límite de peticiones), igual que Sheet.tsx hace con onClose.
+  const onDetectedRef = useRef(onDetected);
+  useEffect(() => {
+    onDetectedRef.current = onDetected;
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -60,10 +67,12 @@ export function BarcodeScanner({ onDetected, onClose }: { onDetected: (code: str
           if (cancelled || detected) return;
           try {
             const codes = await detector.detect(video);
-            if (codes.length > 0) {
+            // Vuelve a comprobarse tras el await: el visor pudo cerrarse mientras detect() estaba en curso
+            // (review de #14: un código no debe entregarse después de cancelar el escaneo).
+            if (codes.length > 0 && !cancelled && !detected) {
               detected = true;
               stop();
-              onDetected(codes[0].rawValue);
+              onDetectedRef.current(codes[0].rawValue);
               return;
             }
           } catch {
@@ -82,7 +91,7 @@ export function BarcodeScanner({ onDetected, onClose }: { onDetected: (code: str
       cancelled = true;
       stop();
     };
-  }, [onDetected]);
+  }, []);
 
   return (
     <Sheet title="Escanear código" onClose={onClose}>

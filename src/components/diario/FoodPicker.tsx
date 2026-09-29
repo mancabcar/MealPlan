@@ -304,7 +304,8 @@ export function FoodPicker({
         <button
           type="button"
           onClick={() => setScanning(true)}
-          className="min-h-11 flex items-center justify-center gap-2 rounded-lg border border-[var(--color-accent)] px-3 text-sm font-semibold text-[var(--color-accent)]"
+          disabled={barcode.cooldown > 0}
+          className="min-h-11 flex items-center justify-center gap-2 rounded-lg border border-[var(--color-accent)] px-3 text-sm font-semibold text-[var(--color-accent)] disabled:opacity-60"
         >
           <Camera className="w-4 h-4 shrink-0" aria-hidden />
           Escanear

@@ -96,6 +96,26 @@ describe("R5: límite propio de peticiones (independiente del de búsqueda por n
     expect(fetchMock).toHaveBeenCalledTimes(10);
   });
 
+  it("review de #14: buscar con el límite ya activo deja el estado en rate_limited (no se queda en silencio)", async () => {
+    fetchMock.mockResolvedValue(Response.json({ error: "rate_limited", retryAfter: 30 }, { status: 429 }));
+    const { result } = renderHook(() => useBarcodeLookup());
+    // El primer intento consume el presupuesto y activa el bloqueo (retryAfter); el segundo, inmediato, se
+    // bloquea en el cliente sin llegar a llamar a fetch otra vez.
+    act(() => {
+      void result.current.lookup(BARRITA_AVENA_CODE);
+    });
+    await waitFor(() => expect(result.current.state).toBe("rate_limited"));
+    fetchMock.mockClear();
+
+    let resultado: Awaited<ReturnType<typeof result.current.lookup>> | undefined;
+    await act(async () => {
+      resultado = await result.current.lookup(BARRITA_AVENA_CODE);
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(resultado).toMatchObject({ state: "rate_limited", code: BARRITA_AVENA_CODE });
+    expect(result.current.state).toBe("rate_limited");
+  });
+
   it("no comparte el contador con useBrandSearch: sus claves de sessionStorage son distintas", async () => {
     fetchMock.mockResolvedValue(Response.json({ error: "rate_limited", retryAfter: 30 }, { status: 429 }));
     const { result } = renderHook(() => useBarcodeLookup());

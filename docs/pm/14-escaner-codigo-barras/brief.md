@@ -1,6 +1,12 @@
 # Escanear código de barras para registrar productos envasados
 
-_Status: in review · Updated: 2026-09-29 · Issue: [#14](https://github.com/mancabcar/MealPlan/issues/14) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#68](https://github.com/mancabcar/MealPlan/pull/68) · Review: [review.md](review.md) — 🔁 changes requested_
+_Status: in review · Updated: 2026-09-29 · Issue: [#14](https://github.com/mancabcar/MealPlan/issues/14) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#68](https://github.com/mancabcar/MealPlan/pull/68) · Review: [review.md](review.md) — ✅ approved with follow-ups_
+
+## Follow-ups
+- «Reintentar» del escáner reenvía el código obsoleto si el usuario edita el campo sin volver a pulsar «Buscar código» (review). (`useBarcodeLookup.ts:114`)
+- Un código mal formado escrito a mano muestra «Open Food Facts no responde ahora» en vez de avisar de un formato inválido (review). (`FoodPicker.tsx:342`)
+- `useBarcodeLookup`/`GET /api/foods/barcode` duplican casi literalmente el patrón de `useBrandSearch`/`GET /api/foods/search` de #13 en vez de reutilizarlo; candidato a extraer una base común (review).
+- El bucle de detección de `BarcodeScanner` llama a `detect()` en cada `requestAnimationFrame` sin throttling — coste de batería/CPU real en un móvil (review).
 
 > Brainstorm y prototipo omitidos (decisión del usuario, 2026-09-27): el issue #14 ya trae problema, propuesta y criterios de aceptación fijados — surgió como follow-up del brainstorm de [#13](../13-base-alimentos/brief.md), que ya evaluó y descartó meter el escáner en esa entrega. Se pasa directo a spec.
 
