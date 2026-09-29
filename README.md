@@ -8,19 +8,35 @@ Antes era una app iOS (SwiftUI/SwiftData) — el código está en el historial d
 
 - **Next.js 16** (App Router) + **Tailwind CSS** + TypeScript
 - **Persistencia:** localStorage del navegador (sin backend ni base de datos — los datos viven en tu dispositivo)
-- **IA:** API de Claude vía route handler de servidor ([src/app/api/recipes/route.ts](src/app/api/recipes/route.ts)) — la key nunca llega al navegador
+- **Dos proyectos Next en este repo** (issue [#69](https://github.com/mancabcar/MealPlan/issues/69)): la raíz es la app (`output: "export"`, sitio estático) y [server/](server/) son las tres rutas que necesitan servidor — se explica en «Despliegue» más abajo.
+- **IA:** API de Claude vía route handler de servidor ([server/app/api/recipes/route.ts](server/app/api/recipes/route.ts)) — la key nunca llega al navegador
 
 ## Desarrollo local
 
 ```sh
 npm install
-npm run dev        # http://localhost:3000
+npm run dev        # raíz (la app): http://localhost:3000
 ```
 
-Para usar la generación de recetas con IA, crea `.env.local` con:
+Así, sin nada más, funciona todo lo que no depende de red (la mayoría de la app). Para la generación de recetas con IA, la búsqueda de alimentos por nombre/marca (#13) y el escáner de código de barras (#14), hace falta levantar también `server/`:
+
+```sh
+cd server
+npm install
+npm run dev        # server/ (las 3 rutas): http://localhost:3001
+```
+
+Y decirle a la raíz dónde está, en `.env.local` (raíz, no `server/`):
+
+```
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
+```
+
+Y a `server/` qué origen puede llamarle, en `server/.env.local`:
 
 ```
 ANTHROPIC_API_KEY=sk-ant-...
+CORS_ALLOWED_ORIGIN=http://localhost:3000
 ```
 
 ## Tests
@@ -37,11 +53,16 @@ npm run typecheck   # tsc --noEmit
 - La primera vez: `npx playwright install chromium`.
 - CI (`.github/workflows/ci.yml`) ejecuta lint, typecheck, unitarios, build y e2e en cada PR.
 
-## Despliegue gratis en Vercel
+## Despliegue
 
-1. Importa el repo en [vercel.com](https://vercel.com) (login con GitHub).
-2. En **Settings → Environment Variables** añade `ANTHROPIC_API_KEY`.
-3. Deploy. Cada push a `main` redespliega automáticamente.
+Dos sitios, un repo (issue [#69](https://github.com/mancabcar/MealPlan/issues/69)):
+
+- **La app, estática, en IONOS.** Ya configurado con [IONOS Deploy Now](https://docs.ionos.space): cada push construye la raíz (`npm run build`, `output: "export"`) y publica `out/`, sin nada que tocar aquí (`.github/workflows/MealPlan-*.yaml`, `deploy-to-ionos.yaml`, generados por IONOS).
+- **Las tres rutas de servidor (`server/`), en Vercel:**
+  1. Importa el repo en [vercel.com](https://vercel.com) (login con GitHub) como un proyecto nuevo, con **Root Directory: `server`**.
+  2. En **Settings → Environment Variables** añade `ANTHROPIC_API_KEY` y `CORS_ALLOWED_ORIGIN` (el origen del sitio en IONOS, p. ej. `https://home-5021530898.app-ionos.space`).
+  3. Deploy. Anota la URL que te da Vercel.
+  4. En el proyecto de **IONOS Deploy Now**, añade la variable de entorno `NEXT_PUBLIC_API_BASE_URL` con esa URL de Vercel, y vuelve a desplegar la raíz para que quede fijada en el HTML/JS estático (es `NEXT_PUBLIC_*`: se fija en build time, cambiarla exige reconstruir).
 
 ## Secciones
 
@@ -66,7 +87,7 @@ Después eliges qué comidas haces al día y declaras alergias (exclusión estri
 La pestaña «Alimento» de «Añadir comida» busca en dos fuentes:
 
 - **Básicos** (`src/data/foods.json`, ~160 genéricos, sin red): valores por 100 g de [CIQUAL 2020](https://ciqual.anses.fr) (ANSES, Licence Ouverte Etalab) y, cuando CIQUAL no tiene el alimento, de [USDA FoodData Central](https://fdc.nal.usda.gov) (dominio público). La cita va en el pie del bloque.
-- **Productos de marca**: [Open Food Facts](https://world.openfoodfacts.org) (ODbL) a través de `GET /api/foods/search`, solo al pulsar el botón (OFF permite ~10 búsquedas por minuto).
+- **Productos de marca**: [Open Food Facts](https://world.openfoodfacts.org) (ODbL) a través de `GET /api/foods/search` (en [server/](server/), ver «Despliegue»), solo al pulsar el botón (OFF permite ~10 búsquedas por minuto).
 
 Para cambiar la tabla, edita la lista curada `scripts/foods-list.json` (nombre en español, código y nombre en la fuente, peso de 1 ud) y regenera el JSON con el XML de CIQUAL 2020 (`XML_2020_07_07.zip`, enlazado desde [data.gouv.fr](https://www.data.gouv.fr/datasets/table-de-composition-nutritionnelle-des-aliments-ciqual-2020/); no se commitea):
 
