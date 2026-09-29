@@ -5,21 +5,30 @@ import Link from "next/link";
 import { ChevronRight, ShoppingCart } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { allergenWarning } from "@/lib/allergens";
-import { MEAL_TYPES, MealType, todayStr } from "@/lib/types";
+import { MEAL_TYPES, MealType, WeekPlan, todayStr } from "@/lib/types";
 import { MEAL_TYPE_ICON_COMPONENTS } from "@/lib/categoryIcons";
 import { Card } from "@/components/ui/Card";
 import { DaySelector } from "@/components/ui/DaySelector";
 import { DayMacroSummary } from "@/components/plan/DayMacroSummary";
 import { dayPlanSummary } from "@/lib/planMacros";
+import { batchOf, deleteOrigin, type SlotRef } from "@/lib/plan/batch";
+import { BatchSheet, BatchWarningSheet, LeftoverSheet, dayName } from "@/components/plan/BatchSheet";
 import { inputCls } from "@/components/ui/input";
 import { DAY_NAMES, weekDates } from "@/lib/week";
 import { useShoppingList } from "@/lib/shopping/useShoppingList";
+
+/** Hoja abierta sobre una tanda (docs/pm/17-sobras-batch-cooking): crear/editar, ver una sobra o decidir qué hacer con ellas. */
+type Modal =
+  | { kind: "batch"; origin: SlotRef }
+  | { kind: "leftover"; at: SlotRef }
+  | { kind: "warning"; at: SlotRef; batchId: string; recipeId: string }; // recipeId "" = borrar la franja
 
 export default function PlanPage() {
   const { profile, weekPlan, setWeekPlan, recipes } = useApp();
   // Mismos recuentos que la lista (R1): ambos salen de buildShoppingView
   const shopping = useShoppingList();
   const [editing, setEditing] = useState<{ date: string; mealType: MealType } | null>(null);
+  const [modal, setModal] = useState<Modal | null>(null);
   // Selector de días (R8): qué día de la semana se muestra debajo
   const [selectedDate, setSelectedDate] = useState(todayStr());
   // Solo las comidas que el usuario hace, en el orden canónico (R8)
@@ -33,15 +42,30 @@ export default function PlanPage() {
   const effectiveSelectedDate = dates[dayIndex] ?? dates[0];
   const EditingIcon = editing ? MEAL_TYPE_ICON_COMPONENTS[editing.mealType] : null;
 
+  const commitAssign = (plan: WeekPlan, at: SlotRef, recipeId: string) => {
+    const slots = (plan[at.date] ?? []).filter((s) => s.mealType !== at.mealType);
+    setWeekPlan({
+      ...plan,
+      [at.date]: recipeId ? [...slots, { mealType: at.mealType, recipeId }] : slots,
+    });
+  };
+
   const assign = (recipeId: string) => {
     if (!editing) return;
-    const slots = (weekPlan[editing.date] ?? []).filter((s) => s.mealType !== editing.mealType);
-    setWeekPlan({
-      ...weekPlan,
-      [editing.date]: recipeId ? [...slots, { mealType: editing.mealType, recipeId }] : slots,
-    });
+    const current = (weekPlan[editing.date] ?? []).find((s) => s.mealType === editing.mealType);
+    const batch = current?.batchId && current.cookedServings !== undefined ? batchOf(weekPlan, current.batchId) : null;
     setEditing(null);
+    if (batch && batch.leftovers.length > 0) {
+      // Borrar o cambiar la receta de una cocinada con sobras: se pregunta antes de tocar nada (R4, R9)
+      setModal({ kind: "warning", at: editing, batchId: current!.batchId!, recipeId });
+      return;
+    }
+    // Una cocinada sin sobras deja de ser tanda al cambiar de receta
+    commitAssign(batch ? deleteOrigin(weekPlan, current!.batchId!, "all") : weekPlan, editing, recipeId);
   };
+
+  const recipeName = (id: string) => recipes.find((r) => r.id === id)?.name ?? "la receta";
+  const slotOf = (at: SlotRef) => (weekPlan[at.date] ?? []).find((s) => s.mealType === at.mealType);
 
   // Las asignaciones a comidas desmarcadas se conservan, pero no se muestran ni suman
   const slots = (weekPlan[effectiveSelectedDate] ?? []).filter((s) => meals.includes(s.mealType));
@@ -96,6 +120,42 @@ export default function PlanPage() {
         </Card>
       )}
 
+      {modal?.kind === "batch" && (
+        <BatchSheet
+          plan={weekPlan}
+          origin={modal.origin}
+          recipeName={recipeName(slotOf(modal.origin)?.recipeId ?? "")}
+          meals={meals}
+          onSave={(next) => {
+            setWeekPlan(next);
+            setModal(null);
+          }}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {modal?.kind === "leftover" && (
+        <LeftoverSheet
+          plan={weekPlan}
+          at={modal.at}
+          recipeName={recipeName(slotOf(modal.at)?.recipeId ?? "")}
+          onSave={(next) => {
+            setWeekPlan(next);
+            setModal(null);
+          }}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {modal?.kind === "warning" && (
+        <BatchWarningSheet
+          recipeName={recipeName(slotOf(modal.at)?.recipeId ?? "")}
+          leftovers={batchOf(weekPlan, modal.batchId)?.leftovers.length ?? 0}
+          onChoose={(mode) => {
+            if (mode) commitAssign(deleteOrigin(weekPlan, modal.batchId, mode), modal.at, modal.recipeId);
+            setModal(null);
+          }}
+        />
+      )}
+
       <Card>
         <h2 className="font-display text-lg font-semibold mb-2">{DAY_NAMES[dayIndex]}</h2>
         {daySummary && <DayMacroSummary summary={daySummary} profile={profile} />}
@@ -104,19 +164,37 @@ export default function PlanPage() {
             const slot = slots.find((s) => s.mealType === mt);
             const recipe = slot ? recipes.find((r) => r.id === slot.recipeId) : undefined;
             const Icon = MEAL_TYPE_ICON_COMPONENTS[mt];
+            const at = { date: effectiveSelectedDate, mealType: mt };
+            // Tanda (sobras y batch cooking): una sobra sin su cocinada se ve y se edita como una franja normal (R10)
+            const origin = slot?.leftover && slot.batchId ? batchOf(weekPlan, slot.batchId)?.origin : undefined;
+            const isLeftover = origin !== undefined;
+            const tag = isLeftover ? `Sobras · de ${dayName(origin.date)}` : slot?.cookedServings ? `Cocinar ×${slot.cookedServings}` : null;
             return (
-              <button
-                key={mt}
-                onClick={() => setEditing({ date: effectiveSelectedDate, mealType: mt })}
-                className="flex justify-between items-center text-sm py-1.5 text-left"
-              >
-                <span className="text-[var(--color-text-muted)] flex items-center gap-1.5">
-                  <Icon className="w-4 h-4" aria-hidden /> {mt}
-                </span>
-                <span className={recipe ? "text-[var(--color-text)]" : "text-[var(--color-text-muted)] italic"}>
-                  {recipe ? recipe.name : "Añadir"}
-                </span>
-              </button>
+              <div key={mt} className="flex flex-col">
+                <button
+                  onClick={() => (isLeftover ? setModal({ kind: "leftover", at }) : setEditing(at))}
+                  className="flex justify-between items-center text-sm py-1.5 text-left"
+                >
+                  <span className="text-[var(--color-text-muted)] flex items-center gap-1.5">
+                    <Icon className="w-4 h-4" aria-hidden /> {mt}
+                  </span>
+                  <span className={recipe ? "text-[var(--color-text)] text-right" : "text-[var(--color-text-muted)] italic"}>
+                    {recipe ? recipe.name : "Añadir"}
+                    {recipe && tag && (
+                      <span className="block text-xs text-[var(--color-accent)] not-italic">{tag}</span>
+                    )}
+                  </span>
+                </button>
+                {recipe && !isLeftover && (
+                  <button
+                    onClick={() => setModal({ kind: "batch", origin: at })}
+                    aria-label={`Cocinar para varias comidas (${mt})`}
+                    className="self-end text-xs text-[var(--color-accent)] pb-1"
+                  >
+                    Cocinar para varias comidas
+                  </button>
+                )}
+              </div>
             );
           })}
         </div>

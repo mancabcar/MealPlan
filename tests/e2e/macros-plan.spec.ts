@@ -22,7 +22,8 @@ async function openPlan(page: Page, seed: Record<string, unknown> = PLAN_SEED) {
 
 /** Toca la fila de una comida del día y elige receta (value "" = "— Sin asignar —"). */
 async function assign(page: Page, meal: string, recipeId: string) {
-  await page.getByRole("button").filter({ hasText: meal }).click();
+  // Nombre accesible que empieza por la comida: "Cocinar para varias comidas" (sobras, #17) no debe coincidir
+  await page.getByRole("button", { name: new RegExp(`^${meal}( |$)`) }).click();
   await page.getByRole("combobox").selectOption(recipeId);
 }
 
