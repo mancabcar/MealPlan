@@ -6,6 +6,7 @@
 // distintas). Mismo patrón que useBrandSearch.ts.
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BrandProduct } from "./foods";
+import { apiUrl } from "./apiBase";
 
 export type BarcodeLookupState = "idle" | "loading" | "ok" | "not_found" | "offline" | "error" | "rate_limited";
 
@@ -91,7 +92,7 @@ export function useBarcodeLookup() {
       setProduct(null);
       let next: { state: BarcodeLookupState; product?: BrandProduct; retryAfter?: number };
       try {
-        const res = await fetch(`/api/foods/barcode?code=${encodeURIComponent(c)}`);
+        const res = await fetch(apiUrl(`/api/foods/barcode?code=${encodeURIComponent(c)}`));
         const body = (await res.json().catch(() => null)) as { product?: BrandProduct; retryAfter?: number } | null;
         if (res.status === 429) next = { state: "rate_limited", retryAfter: body?.retryAfter ?? 60 };
         else if (res.status === 404) next = { state: "not_found" };

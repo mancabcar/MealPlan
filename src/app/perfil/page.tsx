@@ -17,7 +17,8 @@ import {
   prescribedDraftFrom,
   type MacroDraft,
 } from "@/lib/profileDraft";
-import { MEAL_TYPE_ICON_COMPONENTS, todayStr, type BodyData, type Measurement, type UserProfile } from "@/lib/types";
+import { todayStr, type BodyData, type Measurement, type UserProfile } from "@/lib/types";
+import { MEAL_TYPE_ICON_COMPONENTS } from "@/lib/categoryIcons";
 import {
   filterByRange,
   formatShortDate,

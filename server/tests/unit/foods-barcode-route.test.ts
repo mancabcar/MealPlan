@@ -11,7 +11,7 @@ import {
   SIN_GRASA_CODE,
   SIN_GRASA_V2,
   v2NotFound,
-} from "../fixtures/foods";
+} from "../../../tests/fixtures/foods";
 
 const fetchMock = vi.fn();
 
@@ -24,7 +24,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const { GET } = await import("@/app/api/foods/barcode/route");
+const { GET } = await import("../../app/api/foods/barcode/route");
 
 function offReturns(body: unknown, status = 200) {
   fetchMock.mockResolvedValue(Response.json(body, { status }));

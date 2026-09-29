@@ -1,12 +1,17 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
-import type { PantryItem, Recipe } from "@/lib/types";
-import { recipeViolations } from "@/lib/allergens";
-import { buildRecipePrompt, safeAllergies, type RecipeProfile } from "@/lib/recipePrompt";
+import type { PantryItem, Recipe } from "../../../../src/lib/types";
+import { recipeViolations } from "../../../../src/lib/allergens";
+import { buildRecipePrompt, safeAllergies, type RecipeProfile } from "../../../../src/lib/recipePrompt";
+import { preflight, withCors } from "../../../lib/cors";
 
 export const maxDuration = 60;
 
-export async function POST(request: Request) {
+export async function OPTIONS(request: Request) {
+  return preflight(request);
+}
+
+async function handlePOST(request: Request): Promise<NextResponse> {
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
       { error: "Falta la API key de Claude. Configura ANTHROPIC_API_KEY en el servidor." },
@@ -74,4 +79,8 @@ export async function POST(request: Request) {
       { status: 502 },
     );
   }
+}
+
+export async function POST(request: Request) {
+  return withCors(request, await handlePOST(request));
 }

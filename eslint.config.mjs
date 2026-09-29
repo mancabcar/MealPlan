@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Worktrees y ajustes locales de Claude Code (sin versionar; cada worktree tiene su propio .next)
     ".claude/**",
+    // server/ (issue #69): proyecto Next aparte, con su propio eslint.config.mjs y su propio job de CI
+    "server/**",
   ]),
 ]);
 

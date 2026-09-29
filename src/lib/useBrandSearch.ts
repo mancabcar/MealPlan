@@ -6,6 +6,7 @@
 // en cada tick. sessionStorage se lee una vez al montar, no en cada render (review de #13).
 import { useCallback, useEffect, useRef, useState } from "react";
 import { OFF_LIMIT, offCooldown, type BrandProduct } from "./foods";
+import { apiUrl } from "./apiBase";
 
 export type BrandSearchState = "idle" | "loading" | "ok" | "offline" | "error" | "rate_limited";
 
@@ -78,7 +79,7 @@ export function useBrandSearch() {
       setProducts([]);
       let next: { state: BrandSearchState; products?: BrandProduct[]; retryAfter?: number };
       try {
-        const res = await fetch(`/api/foods/search?q=${encodeURIComponent(q)}`);
+        const res = await fetch(apiUrl(`/api/foods/search?q=${encodeURIComponent(q)}`));
         const body = (await res.json().catch(() => null)) as { products?: BrandProduct[]; retryAfter?: number } | null;
         if (res.status === 429) next = { state: "rate_limited", retryAfter: body?.retryAfter ?? 60 };
         else if (res.ok && Array.isArray(body?.products)) next = { state: "ok", products: body.products };

@@ -5,12 +5,12 @@ import { Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import {
   PANTRY_CATEGORIES,
-  PANTRY_CATEGORY_ICONS,
   PantryCategory,
   isExpired,
   isExpiringSoon,
   todayStr,
 } from "@/lib/types";
+import { PANTRY_CATEGORY_ICONS } from "@/lib/categoryIcons";
 import { useShoppingList } from "@/lib/shopping/useShoppingList";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
