@@ -94,7 +94,7 @@ Todas devuelven un plan nuevo (no mutan el de entrada). Cambio en la lista de ar
 
 ## Tasks
 1. [x] Tipos y `plan/batch.ts` con tests unitarios (covers R1, R2, R4, R5, R7, R8, R9, R10)
-2. [ ] Escalado y omisión de sobras en `collectSources`; `plannedMeals` desde el plan (covers R3)
+2. [x] Escalado y omisión de sobras en `collectSources`; `plannedMeals` desde el plan (covers R3)
 3. [ ] `BatchSheet`, botón y etiquetas en el Plan: crear tanda (covers R1, R2, R7)
 4. [ ] Borrado de la cocinada, cambio de receta y quitar una sobra con el aviso (covers R4, R5, R9)
 5. [ ] Editar N y las sobras desde la cocinada (covers R8)

@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { useApp } from "@/lib/store";
 import { MEAL_TYPES, todayStr, type PantryCategory, type PantryItem } from "@/lib/types";
 import { mondayOf, weekDates } from "@/lib/week";
-import { aggregate, amountSignature, collectSources, formatAmount, type ShoppingItem } from "./aggregate";
+import { aggregate, amountSignature, collectSources, formatAmount, leftoverSlotKeys, type ShoppingItem } from "./aggregate";
 import { forWeek, pruneBought, recordMove, setOverride, toggleBought, undoLastMove, type ShoppingWeekState } from "./state";
 import { buildShoppingView } from "./view";
 
@@ -18,10 +18,10 @@ export function useShoppingList() {
   // Una semana nueva se lee como vacía; se guarda (y la anterior pasa a `usage`) en la próxima escritura
   const state = useMemo(() => forWeek(shopping, monday), [shopping, monday]);
   const week = state.current;
-  const items = useMemo(
-    () => aggregate(collectSources({ weekPlan, recipes, dates: weekDates(today), meals })),
-    [weekPlan, recipes, today, meals],
-  );
+  const { items, leftoverKeys } = useMemo(() => {
+    const input = { weekPlan, recipes, dates: weekDates(today), meals };
+    return { items: aggregate(collectSources(input)), leftoverKeys: leftoverSlotKeys(input) };
+  }, [weekPlan, recipes, today, meals]);
   const view = useMemo(
     () => buildShoppingView({ items, pantry, state: week, today }),
     [items, pantry, week, today],
@@ -39,8 +39,8 @@ export function useShoppingList() {
   return {
     view,
     meals,
-    /** Huecos con receta de la semana, incluidos los ya pasados a la Despensa (review N2) */
-    plannedMeals: new Set(items.flatMap((i) => i.sources.map((s) => `${s.date}|${s.mealType}`))).size,
+    /** Huecos con receta de la semana, incluidos los ya pasados a la Despensa (review N2) y las sobras */
+    plannedMeals: new Set([...items.flatMap((i) => i.sources.map((s) => `${s.date}|${s.mealType}`)), ...leftoverKeys]).size,
     /** Semana sin recetas en comidas activas (R10) */
     empty: items.length === 0,
     // Sin pasar por forWeek: un movimiento de justo antes del lunes sigue pudiéndose deshacer (review N4)

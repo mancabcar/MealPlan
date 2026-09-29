@@ -1,6 +1,6 @@
 // Del plan semanal a la lista agregada (docs/pm/lista-compra › R2, R4). Puro.
 import { normalize } from "@/lib/text";
-import { MEAL_TYPES, type MealType, type Recipe, type WeekPlan } from "@/lib/types";
+import { MEAL_TYPES, type DayPlanSlot, type MealType, type Recipe, type WeekPlan } from "@/lib/types";
 import { classify, type Aisle } from "./classify";
 import { normalizeKey, parseIngredientLine, type ParsedIngredient, type Unit } from "./parse";
 
@@ -18,10 +18,21 @@ export interface ShoppingItem {
   basic: boolean;
 }
 
-/** Fuentes de la semana: solo días de `dates`, comidas activas y recetas que existen (R2). */
-export function collectSources(i: { weekPlan: WeekPlan; recipes: Recipe[]; dates: string[]; meals: MealType[] }): ItemSource[] {
+type PlanInput = { weekPlan: WeekPlan; recipes: Recipe[]; dates: string[]; meals: MealType[] };
+
+/** Ids de las tandas que tienen su cocinada en el plan. Una sobra sin cocinada es una franja normal (sobras › R10). */
+function batchesWithOrigin(weekPlan: WeekPlan): Set<string> {
+  const ids = new Set<string>();
+  for (const slots of Object.values(weekPlan)) {
+    for (const s of slots) if (s.batchId !== undefined && s.cookedServings !== undefined) ids.add(s.batchId);
+  }
+  return ids;
+}
+
+/** Franjas de la semana con receta que existe, en comidas activas y por orden de día y comida. */
+function* plannedSlots(i: PlanInput): Generator<{ date: string; slot: DayPlanSlot; recipe: Recipe; isLeftover: boolean }> {
   const byId = new Map(i.recipes.map((r) => [r.id, r]));
-  const sources: ItemSource[] = [];
+  const origins = batchesWithOrigin(i.weekPlan);
   for (const date of i.dates) {
     const slots = (i.weekPlan[date] ?? [])
       .filter((s) => i.meals.includes(s.mealType))
@@ -29,14 +40,33 @@ export function collectSources(i: { weekPlan: WeekPlan; recipes: Recipe[]; dates
     for (const slot of slots) {
       const recipe = byId.get(slot.recipeId);
       if (!recipe) continue; // receta borrada después de planificarla
-      for (const line of recipe.ingredients) {
-        for (const parsed of parseIngredientLine(line)) {
-          sources.push({ date, mealType: slot.mealType, recipeId: recipe.id, recipeName: recipe.name, ...parsed });
-        }
+      yield { date, slot, recipe, isLeftover: !!slot.leftover && slot.batchId !== undefined && origins.has(slot.batchId) };
+    }
+  }
+}
+
+/**
+ * Fuentes de la semana: solo días de `dates`, comidas activas y recetas que existen (R2). Una cocinada cuenta sus
+ * ingredientes ×`cookedServings`; las sobras no suman nada (sobras › R3).
+ */
+export function collectSources(i: PlanInput): ItemSource[] {
+  const sources: ItemSource[] = [];
+  for (const { date, slot, recipe, isLeftover } of plannedSlots(i)) {
+    if (isLeftover) continue;
+    const factor = slot.cookedServings ?? 1;
+    for (const line of recipe.ingredients) {
+      for (const parsed of parseIngredientLine(line)) {
+        const qty = parsed.qty === null ? null : parsed.qty * factor;
+        sources.push({ date, mealType: slot.mealType, recipeId: recipe.id, recipeName: recipe.name, ...parsed, qty });
       }
     }
   }
   return sources;
+}
+
+/** Franjas de sobras de la semana ("fecha|comida"): no aportan ingredientes, pero siguen siendo comidas planificadas. */
+export function leftoverSlotKeys(i: PlanInput): string[] {
+  return [...plannedSlots(i)].filter((p) => p.isLeftover).map((p) => `${p.date}|${p.slot.mealType}`);
 }
 
 /** El stemmer cambió algo → el nombre estaba en plural. */
