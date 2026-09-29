@@ -84,3 +84,29 @@ Página aparte para el formulario. **Pros:** encaja con `trailingSlash`. **Cons:
 ## Spec feedback
 - Sin cambios en `spec.md`.
 - La pregunta abierta del distintivo queda resuelta: solo en Recetas (lista y detalle).
+
+## Test coverage
+Contrato de las funciones y de la UI: cabeceras de cada archivo de test. Fixtures compartidas: `tests/fixtures/recetas-propias.ts`. Decisiones de test acordadas: kcal válida = cualquier número ≥ 0 (coma o punto; vacío, texto o negativo se rechazan); P/C/G y tiempo vacíos valen 0.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | tests/unit/recipe-edit.test.ts › "R1: validar el borrador de una receta" | unit | 🔴 failing (not built) |
+| R1 | tests/unit/RecipeForm.test.tsx › "R1: crear una receta con el formulario" | component | 🔴 failing (not built) |
+| R1 | tests/e2e/recetas-propias.spec.ts › "R1 / R5 / R9: crear una receta propia…" (crear, error, sugerencia de kcal, etiquetas) | e2e | 🔴 failing (not built) |
+| R2 | tests/unit/store-recipes.test.tsx › "R2: saveRecipe da de alta o edita por id" | unit | 🔴 failing (not built) |
+| R2 | tests/unit/RecipeForm.test.tsx › "R2: editar una receta existente" | component | 🔴 failing (not built) |
+| R2 | tests/e2e/recetas-propias.spec.ts › "R2: editar recetas propias y de IA; las semilla son de solo lectura" | e2e | 🔴 failing (not built) |
+| R3 | tests/unit/recipe-edit.test.ts › "R3: franjas del Plan…" y "R3 / R8: borrar una receta…" | unit | 🔴 failing (not built) |
+| R3 | tests/unit/store-recipes.test.tsx › "R3 / R8: removeRecipe" (incluye el orden entradas → plan → receta) | unit | 🔴 failing (not built) |
+| R3 | tests/e2e/recetas-propias.spec.ts › "R3 / R8: borrar una receta" (aviso con franjas, cancelar, confirmar, sin Plan) | e2e | 🔴 failing (not built) |
+| R4 | tests/unit/recipe-edit.test.ts › "R4: duplicar una receta para editarla" | unit | 🔴 failing (not built) |
+| R4 | tests/unit/RecipeForm.test.tsx › "R4: Duplicar y editar una semilla" | component | 🔴 failing (not built) |
+| R4 | tests/e2e/recetas-propias.spec.ts › "R4: Duplicar y editar una semilla" | e2e | 🔴 failing (not built) |
+| R5 | tests/e2e/recetas-propias.spec.ts › "R5: la receta creada se puede elegir en el Plan y en el Diario" | e2e | 🔴 failing (not built) |
+| R6 | tests/unit/store-recipes.test.tsx › "R6: editar una receta no cambia las entradas…" | unit | 🔴 failing (not built) |
+| R6 | tests/e2e/recetas-propias.spec.ts › "R6: editar una receta no cambia lo ya registrado en el Diario" | e2e | 🔴 failing (not built) |
+| R7 | tests/e2e/recetas-propias.spec.ts › "R7: el aviso de alérgenos funciona en las recetas propias" | e2e | 🔴 failing (not built) |
+| R8 | tests/unit/recipe-edit.test.ts › "R3 / R8: borrar una receta…"; tests/unit/store-recipes.test.tsx; tests/e2e/recetas-propias.spec.ts › "R8: las entradas del Diario se conservan…" | unit + e2e | 🔴 failing (not built) |
+| R9 | tests/unit/recipe-edit.test.ts › "R9: etiquetas sugeridas"; e2e "las etiquetas se escriben o se eligen…" y chip "Propia" | unit + e2e | 🔴 failing (not built) |
+| R10 | tests/unit/recipe-edit.test.ts › "R10: sugerencia de kcal…"; tests/unit/RecipeForm.test.tsx › "R10"; e2e "Usar N kcal" | unit + component + e2e | 🔴 failing (not built) |
+| — | tests/e2e/recetas-propias.spec.ts › "Accesibilidad del formulario" (axe sobre el diálogo) | e2e | 🔴 failing (not built) |
