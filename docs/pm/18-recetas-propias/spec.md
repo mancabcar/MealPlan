@@ -84,4 +84,4 @@ Usuario único de la app que sigue un plan de macros.
 - Guardar en localStorage sigue el diseño actual; #42 puede migrarlo después.
 
 ## Open questions
-- [ ] ¿Un distintivo "Propia" también en el selector de Diario/Plan o solo en Recetas? (usuario, en tech design)
+- [x] Distintivo "Propia": solo en Recetas (resuelto en tech.md)

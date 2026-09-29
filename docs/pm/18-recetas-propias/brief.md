@@ -1,5 +1,5 @@
 # Crear y editar recetas propias
-_Status: spec · Updated: 2026-09-29 · Issue: [#18](https://github.com/mancabcar/MealPlan/issues/18) (@mancabcar) · Spec: [spec.md](spec.md)_
+_Status: tech design · Updated: 2026-09-29 · Issue: [#18](https://github.com/mancabcar/MealPlan/issues/18) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Problema
 Solo existen las 40 recetas semilla y las generadas por IA. No se pueden añadir recetas propias ni corregir las existentes (p. ej. ajustar macros o ingredientes).
