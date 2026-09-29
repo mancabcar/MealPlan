@@ -16,6 +16,7 @@ import {
   recipe,
 } from "../fixtures/shopping";
 import { lucia, manuel } from "../fixtures/profiles";
+import { BATCH_PLAN, GUISO, ORPHAN_LEFTOVER_PLAN, SOBRAS_RECIPES, THU, TUE, WED } from "../fixtures/sobras";
 
 function itemsFor(weekPlan: WeekPlan, { recipes = SHOPPING_RECIPES, meals = MEAL_TYPES }: { recipes?: Recipe[]; meals?: MealType[] } = {}) {
   return aggregate(collectSources({ weekPlan, recipes, dates: WEEK, meals }));
@@ -220,5 +221,77 @@ describe("amountSignature (R9: detectar que el total cambió)", () => {
     const s = amountSignature(itemOf("150g brócoli"));
     expect(typeof s).toBe("string");
     expect(amountSignature(itemOf("150g brócoli"))).toBe(s);
+  });
+});
+
+// Spec: docs/pm/17-sobras-batch-cooking/spec.md › R3, R10 y Casos límite.
+// Tech: docs/pm/17-sobras-batch-cooking/tech.md › `collectSources` escala por `cookedServings` y omite las sobras.
+// Guiso: 200g lentejas, 150g pechuga de pollo, 1 cebolla (tests/fixtures/sobras.ts). Fallan hasta la tarea 2.
+describe("R3: la lista cuenta la tanda una vez, escalada a las raciones cocinadas", () => {
+  const sobrasItems = (weekPlan: WeekPlan, meals: MealType[] = MEAL_TYPES) =>
+    aggregate(collectSources({ weekPlan, recipes: SOBRAS_RECIPES, dates: WEEK, meals }));
+
+  it("cocinada ×3 con 2 sobras → 450 g de pechuga y 600 g de lentejas, una sola vez", () => {
+    const items = sobrasItems(BATCH_PLAN);
+    expect(formatAmount(get(items, "pechuga de pollo"))).toBe("450 g");
+    expect(formatAmount(get(items, "lentejas"))).toBe("600 g");
+    expect(get(items, "pechuga de pollo").sources).toHaveLength(1);
+  });
+
+  it("la fuente única es la de la cocinada: día y comida de la Comida del martes", () => {
+    const { sources } = get(sobrasItems(BATCH_PLAN), "pechuga de pollo");
+    expect(sources).toHaveLength(1);
+    expect(sources[0]).toMatchObject({ date: TUE, mealType: "Comida", recipeId: GUISO.id });
+  });
+
+  it("las franjas de sobras no aportan fuentes", () => {
+    const sources = collectSources({ weekPlan: BATCH_PLAN, recipes: SOBRAS_RECIPES, dates: WEEK, meals: MEAL_TYPES });
+    expect(sources.filter((s) => s.date === WED || s.date === THU)).toEqual([]);
+  });
+
+  it("quitar una sobra no cambia las cantidades (se cocinó para N)", () => {
+    const withoutWed: WeekPlan = { ...BATCH_PLAN, [WED]: [] };
+    expect(formatAmount(get(sobrasItems(withoutWed), "pechuga de pollo"))).toBe("450 g");
+  });
+
+  it("una tanda sin sobras elegidas sigue contando N raciones", () => {
+    const solo: WeekPlan = { [TUE]: [{ mealType: "Comida", recipeId: GUISO.id, batchId: "solo", cookedServings: 4 }] };
+    expect(formatAmount(get(sobrasItems(solo), "pechuga de pollo"))).toBe("600 g");
+  });
+
+  it("los ingredientes por unidad se escalan igual (1 cebolla ×3 = 3)", () => {
+    const cebolla = get(sobrasItems(BATCH_PLAN), "cebolla");
+    expect(formatAmount(cebolla)).toBe("3");
+    expect(cebolla.sources).toHaveLength(1);
+  });
+
+  it("si la Comida está desactivada en el perfil, la tanda no suma nada", () => {
+    const meals = MEAL_TYPES.filter((m) => m !== "Comida");
+    expect(find(sobrasItems(BATCH_PLAN, meals), "pechuga de pollo")).toBeUndefined();
+  });
+
+  it("una receta borrada tras planificar la tanda se ignora", () => {
+    const items = aggregate(collectSources({ weekPlan: BATCH_PLAN, recipes: [], dates: WEEK, meals: MEAL_TYPES }));
+    expect(items).toEqual([]);
+  });
+});
+
+describe("R10: sin campos de tanda, la lista se comporta como hoy", () => {
+  it("la misma receta en tres franjas normales suma tres veces (450 g), con tres fuentes", () => {
+    const plain: WeekPlan = {
+      [TUE]: [{ mealType: "Comida", recipeId: GUISO.id }],
+      [WED]: [{ mealType: "Comida", recipeId: GUISO.id }],
+      [THU]: [{ mealType: "Cena", recipeId: GUISO.id }],
+    };
+    const items = aggregate(collectSources({ weekPlan: plain, recipes: SOBRAS_RECIPES, dates: WEEK, meals: MEAL_TYPES }));
+    expect(formatAmount(get(items, "pechuga de pollo"))).toBe("450 g");
+    expect(get(items, "pechuga de pollo").sources).toHaveLength(3);
+  });
+
+  it("una sobra sin su cocinada se trata como franja normal: suma 1 ración", () => {
+    const items = aggregate(
+      collectSources({ weekPlan: ORPHAN_LEFTOVER_PLAN, recipes: SOBRAS_RECIPES, dates: WEEK, meals: MEAL_TYPES }),
+    );
+    expect(formatAmount(get(items, "pechuga de pollo"))).toBe("150 g");
   });
 });
