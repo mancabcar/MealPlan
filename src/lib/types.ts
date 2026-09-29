@@ -83,6 +83,12 @@ export function todayStr(): string {
 export interface DayPlanSlot {
   mealType: MealType;
   recipeId: string;
+  /** Sobras y batch cooking (docs/pm/17-sobras-batch-cooking): cocinada y sobras comparten batchId. Ausente = franja normal. */
+  batchId?: string;
+  /** Solo la cocinada: raciones cocinadas (N entero, 2–8). Es lo que escala la lista de la compra. */
+  cookedServings?: number;
+  /** Solo las sobras: 1 ración de la receta que no suma ingredientes a la lista. */
+  leftover?: true;
 }
 
 /** Plan semanal: clave = fecha YYYY-MM-DD, valor = recetas asignadas. */

@@ -115,7 +115,7 @@ describe("R2: cada franja guarda su papel y el enlace a la tanda", () => {
   it("batchOf devuelve la cocinada y sus sobras; un id desconocido devuelve null", () => {
     const found = batchOf(BATCH_PLAN, BATCH_ID)!;
     expect(found.origin).toMatchObject({ date: TUE, mealType: "Comida" });
-    expect(found.leftovers.map((l) => `${l.date}|${l.mealType}`).sort()).toEqual([`${THU}|Cena`, `${WED}|Comida`]);
+    expect(found.leftovers.map((l) => `${l.date}|${l.mealType}`).sort()).toEqual([`${WED}|Comida`, `${THU}|Cena`]);
     expect(batchOf(BATCH_PLAN, "no-existe")).toBeNull();
   });
 });
