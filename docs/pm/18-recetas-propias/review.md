@@ -1,8 +1,8 @@
 # Crear y editar recetas propias: Review
-_PR: [#85](https://github.com/mancabcar/MealPlan/pull/85) · Reviewed: 2026-09-30 · Verdict: ⚠️ approved with follow-ups_
+_PR: [#85](https://github.com/mancabcar/MealPlan/pull/85) · Reviewed: 2026-09-30 · Verdict: ✅ approved_
 
 ## Summary
-R1–R10 están implementados y con test. Los 867 tests unitarios y los 19 e2e de la feature pasan; el único fallo es `BarcodeScanner.test.tsx`, por `barcode-detector` sin instalar en el worktree (ajeno al PR). No falta ningún Must ni hay bugs serios; los hallazgos son mejoras. Veredicto y clasificación confirmados por Manuel.
+R1–R10 están implementados y con test. Los 867 tests unitarios y los 19 e2e de la feature pasan; el único fallo es `BarcodeScanner.test.tsx`, por `barcode-detector` sin instalar en el worktree (ajeno al PR). No falta ningún Must ni hay bugs serios; los hallazgos son mejoras. Veredicto inicial ⚠️ approved with follow-ups, confirmado por Manuel; actualizado a ✅ approved el 2026-09-30 tras resolver los follow-ups (commit 7d50d5a), a petición de Manuel.
 
 ## Spec conformance
 | Req | Status | Where | Tested |
