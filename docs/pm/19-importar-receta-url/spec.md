@@ -1,6 +1,6 @@
 # Importar una receta desde una URL: Spec
 _Status: Draft · Owner: Manuel · Updated: 2026-09-30_
-_Related: [brief](brief.md)_
+_Related: [brief](brief.md) · [tech](tech.md)_
 
 ## TL;DR
 Hoy las recetas de otras webs hay que copiarlas a mano. Vamos a permitir pegar una URL: el servidor extrae la receta (JSON-LD `schema.org/Recipe` sin IA; con IA solo si no hay JSON-LD) y abre el formulario de #18 prerrellenado para revisar. El éxito es que 5 webs reales que elija Manuel se importen bien, al menos 3 por JSON-LD.
@@ -36,8 +36,8 @@ Usuario único de MealPlan.
 | R4 | Los macros estimados por IA se marcan como estimados: aviso en el formulario durante la revisión y distintivo persistente en la receta guardada (campo nuevo). | Must |
 | R5 | Nada se guarda sin que el usuario confirme en el formulario; cerrar o cancelar no deja rastro. | Must |
 | R6 | Si la descarga falla (bloqueo, 404, tiempo agotado) o la página no contiene receta (incluido fallo de la IA), se muestra un mensaje según la causa y la opción de crear la receta a mano; la IA no se reintenta. | Must |
-| R7 | El servidor solo acepta URLs http/https, rechaza destinos internos (localhost, IPs privadas), aplica límite de tamaño y de tiempo a la descarga, y tiene las mismas protecciones de acceso que `/api/recipes`. La clave de Claude nunca llega al cliente. | Must |
-| R8 | Si la web indica raciones (`recipeYield`) y los macros del JSON-LD son de la receta entera, se convierten a por ración y el formulario avisa de lo que se asumió. | Should |
+| R7 | El servidor solo acepta URLs http/https, rechaza destinos internos (localhost, IPs privadas, también tras redirecciones), aplica límite de tamaño y de tiempo a la descarga y un límite de peticiones por IP, además de CORS. La clave de Claude nunca llega al cliente. | Must |
+| R8 | Si la web indica raciones (`recipeYield`), el formulario lo muestra como pista para que el usuario revise que los macros sean por ración; no se convierten automáticamente. | Should |
 | R9 | Se guarda la URL de origen (campo nuevo) y se muestra como enlace en la receta. | Should |
 
 ## User flows
@@ -70,11 +70,12 @@ Usuario único de MealPlan.
 
 **R7**
 - Given una URL `ftp://…`, `http://localhost/…` o `http://192.168.x.x/…`, when se envía al servidor, then se rechaza sin realizar la descarga.
-- Given una respuesta mayor que el límite de tamaño o que tarda más que el límite de tiempo, when se descarga, then se corta y se devuelve error (límites concretos: los fija tech design).
-- Given una petición desde un origen no permitido, when llega a la ruta, then se aplica la misma política que `/api/recipes`.
+- Given una respuesta mayor que el límite de tamaño o que tarda más que el límite de tiempo, when se descarga, then se corta y se devuelve error (2 MB, 8 s, 3 redirecciones).
+- Given una petición desde un origen no permitido, when llega a la ruta, then no recibe cabeceras CORS (misma política que `/api/recipes`).
+- Given más de 10 importaciones desde la misma IP en 10 minutos, when llega otra, then se rechaza con un mensaje de límite alcanzado.
 
 **R8**
-- Given macros totales y `recipeYield` = 4, when importo, then los macros del formulario son la cuarta parte y el formulario indica el número de raciones asumido.
+- Given un JSON-LD con `recipeYield` = 4, when importo, then los macros se copian tal cual y el formulario muestra un aviso con las 4 raciones que indica la web.
 
 **R9**
 - Given una importación, when guardo, then la receta muestra un enlace a la URL de origen.
@@ -101,5 +102,4 @@ Usuario único de MealPlan.
 - Coste de IA por importación sin JSON-LD.
 
 ## Open questions
-- [ ] Límites concretos de tamaño y tiempo de descarga (los propone dev-technical-opinion y Manuel confirma).
-- [ ] ¿Cómo se aplica "las mismas protecciones que /api/recipes"? Revisar qué protege hoy esa ruta (tech design).
+- Ninguna abierta que bloquee la implementación (límites y protecciones resueltos en [tech.md](tech.md)).
