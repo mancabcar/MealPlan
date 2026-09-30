@@ -18,10 +18,7 @@ import {
   type SlotRef,
 } from "@/lib/plan/batch";
 import type { MealType, WeekPlan } from "@/lib/types";
-import { DAY_NAMES, weekDates } from "@/lib/week";
-
-/** "Martes" para una fecha YYYY-MM-DD. */
-export const dayName = (date: string) => DAY_NAMES[(new Date(date + "T00:00:00").getDay() + 6) % 7];
+import { DAY_NAMES, dayName, weekDates } from "@/lib/week";
 
 const key = (r: SlotRef) => `${r.date}|${r.mealType}`;
 const primaryBtn = "flex-1 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg py-2 font-semibold text-sm";

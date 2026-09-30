@@ -13,7 +13,7 @@ import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { inputCls } from "@/components/ui/input";
 import { Sheet } from "@/components/ui/Sheet";
 import { RecipeForm } from "@/components/recetas/RecipeForm";
-import { dayName } from "@/components/plan/BatchSheet";
+import { dayName } from "@/lib/week";
 import { duplicateRecipe, slotsUsingRecipe, suggestedTags } from "@/lib/recipeEdit";
 
 /** Placeholder de imagen (R9/non-goal: sin fotos reales todavía, ver spec § Non-goals). */

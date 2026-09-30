@@ -93,7 +93,9 @@ export function RecipeForm({
 
   const macros = [draft.protein, draft.carbs, draft.fat].map((v) => parseAmount(v));
   const hasMacros = [draft.protein, draft.carbs, draft.fat].some((v) => v.trim());
-  const kcalSuggestion = hasMacros ? suggestCalories(macros[0] ?? 0, macros[1] ?? 0, macros[2] ?? 0) : null;
+  // Los vacíos cuentan 0, pero con un macro inválido no se sugiere nada
+  const macrosValid = [draft.protein, draft.carbs, draft.fat].every((v, i) => !v.trim() || macros[i] !== null);
+  const kcalSuggestion = hasMacros && macrosValid ? suggestCalories(macros[0] ?? 0, macros[1] ?? 0, macros[2] ?? 0) : null;
 
   const save = () => {
     const result = validateRecipeDraft(draft);

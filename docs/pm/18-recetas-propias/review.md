@@ -22,6 +22,7 @@ R1–R10 están implementados y con test. Los 867 tests unitarios y los 19 e2e d
 Ninguno.
 
 ## Non-blocking
+_Resueltos después del review en el mismo PR: los cuatro primeros (test de R5 en `tests/unit/recipe-consumers.test.ts`, `removeRecipe` con setters funcionales, sin sugerencia de kcal con macros inválidos y `dayName` movido a `lib/week.ts`)._
 - R5 sin test automatizado para la lista de la compra y los macros del Plan → añadir un test con dev-test.
 - `src/lib/store.tsx:133`: `removeRecipe` usa `entries` y `weekPlan` del render, no el último valor escrito (`usePersisted` encadena escrituras con `latest`). Hoy ningún caller lo dispara en el mismo evento que otra escritura → pasar funciones a los setters.
 - `src/components/recetas/RecipeForm.tsx:97`: "Usar N kcal" cuenta como 0 un macro inválido y sugiere un valor engañoso; al guardar, la validación sí lo rechaza → no ofrecer la sugerencia mientras algún macro no sea válido.

@@ -135,9 +135,9 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
       const recipe = recipes.find((r) => r.id === id);
       if (!recipe) return;
       // Orden seguro: entradas → plan → receta; si algo falla antes, no se pierde nada y se puede repetir.
-      const next = withoutRecipe({ entries, plan: weekPlan, recipe });
-      setEntries(next.entries);
-      setWeekPlan(next.plan);
+      // Cada setter parte del último valor escrito, no del render (como el resto de acciones)
+      setEntries((prev) => withoutRecipe({ entries: prev, plan: {}, recipe }).entries);
+      setWeekPlan((prev) => withoutRecipe({ entries: [], plan: prev, recipe }).plan);
       setRecipes((prev) => prev.filter((r) => r.id !== id));
     },
     addEntry: (e) => setEntries((prev) => [...prev, e]),

@@ -186,3 +186,15 @@ describe("R4: Duplicar y editar una semilla", () => {
     expect(SEMILLA_TORTILLA).not.toHaveProperty("isCustom");
   });
 });
+
+describe("R10: sin sugerencia con un macro inválido", () => {
+  it("un macro no numérico o negativo no cuenta como 0: no se ofrece 'Usar N kcal'", () => {
+    const { dialog, fill } = setup();
+    fill("Carbos (g)", "45");
+    expect(within(dialog).getByRole("button", { name: "Usar 180 kcal" })).toBeTruthy();
+    fill("Proteínas (g)", "mucho");
+    expect(within(dialog).queryByRole("button", { name: /^Usar .* kcal$/ })).toBeNull();
+    fill("Proteínas (g)", "-3");
+    expect(within(dialog).queryByRole("button", { name: /^Usar .* kcal$/ })).toBeNull();
+  });
+});
