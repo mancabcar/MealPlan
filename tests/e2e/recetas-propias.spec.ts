@@ -44,7 +44,7 @@ const openDetail = async (page: Page, name: string) => {
   await card(page, name).first().click();
   await expect(page.getByRole("heading", { name, level: 1 })).toBeVisible();
 };
-const form = (page: Page, name = "Nueva receta") => page.getByRole("dialog", { name });
+const form = (page: Page, name: string | RegExp = "Nueva receta") => page.getByRole("dialog", { name });
 const save = (page: Page) => form(page, /receta/i).getByRole("button", { name: "Guardar", exact: true });
 
 /** Rellena el formulario abierto con la receta de la crema (o lo que se pase). */

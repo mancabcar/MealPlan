@@ -27,7 +27,7 @@ function setup(props: Partial<React.ComponentProps<typeof RecipeForm>> = {}) {
   const dialog = screen.getByRole("dialog", { name: props.recipe ? "Editar receta" : "Nueva receta" });
   const field = (label: string) => within(dialog).getByLabelText(label) as HTMLInputElement | HTMLTextAreaElement;
   const fill = (label: string, value: string) => fireEvent.change(field(label), { target: { value } });
-  const save = () => fireEvent.click(within(dialog).getByRole("button", { name: "Guardar", exact: true }));
+  const save = () => fireEvent.click(within(dialog).getByRole("button", { name: "Guardar" }));
   return { onSave, onClose, dialog, field, fill, save };
 }
 
