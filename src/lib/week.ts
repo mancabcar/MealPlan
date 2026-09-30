@@ -3,6 +3,9 @@
 
 export const DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
+/** "Martes" para una fecha YYYY-MM-DD. */
+export const dayName = (date: string) => DAY_NAMES[(new Date(date + "T00:00:00").getDay() + 6) % 7];
+
 export function toDateStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }

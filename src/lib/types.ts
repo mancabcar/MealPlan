@@ -10,6 +10,8 @@ export interface Recipe {
   fat: number;
   tags: string[];
   isAIGenerated?: boolean;
+  /** Receta creada o duplicada por el usuario (#18). Id `custom_<uuid>`. */
+  isCustom?: true;
 }
 
 export interface MealEntry {
