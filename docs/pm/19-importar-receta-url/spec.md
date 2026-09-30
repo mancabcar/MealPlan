@@ -58,7 +58,7 @@ Usuario único de MealPlan.
 **R3 / R4**
 - Given una web sin JSON-LD con una receta en el texto, when importo, then el formulario trae ingredientes, pasos y macros por ración, con aviso visible de "macros estimados por IA".
 - Given una receta guardada desde una importación con IA, when la abro en Recetas, then muestra el distintivo "estimado" junto a los macros.
-- Given una receta con macros estimados, when el usuario edita los macros a mano y guarda, then [Open question: ¿se quita el distintivo?].
+- Given una receta con macros estimados, when el usuario edita los macros a mano y guarda, then el distintivo "estimado" desaparece si cambió algún macro; si guarda sin cambiar ninguno, se mantiene.
 
 **R5**
 - Given el formulario prerrellenado, when lo cierro o cancelo, then la receta no aparece en Recetas ni en ningún selector.
@@ -101,6 +101,5 @@ Usuario único de MealPlan.
 - Coste de IA por importación sin JSON-LD.
 
 ## Open questions
-- [ ] Si el usuario edita los macros estimados a mano, ¿el distintivo "estimado" se quita? (Manuel; no bloquea tech design pero sí el criterio de R4)
 - [ ] Límites concretos de tamaño y tiempo de descarga (los propone dev-technical-opinion y Manuel confirma).
 - [ ] ¿Cómo se aplica "las mismas protecciones que /api/recipes"? Revisar qué protege hoy esa ruta (tech design).
