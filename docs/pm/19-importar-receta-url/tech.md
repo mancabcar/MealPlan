@@ -80,7 +80,7 @@ Sin prototipo (`pm-prototype` no aplica; se reutilizan Sheet, Chip e inputs del 
 - Cada criterio de aceptación de la spec se cubre con al menos uno de los anteriores.
 
 ## Tasks
-1. [ ] `src/lib/recipeImport.ts` + unit tests: parser JSON-LD, ISO 8601, HTML→texto, validación de URL/IP, tipos (covers R2, R7)
+1. [x] `src/lib/recipeImport.ts` + unit tests: parser JSON-LD, ISO 8601, HTML→texto, validación de URL/IP, tipos (covers R2, R7)
 2. [ ] `server/lib/safeFetch.ts` y `server/lib/rateLimit.ts` + tests (covers R7)
 3. [ ] `POST /api/recipes/import` con prompt y `parseAiRecipe`, CORS y errores + tests con mocks (covers R2, R3, R6, R7)
 4. [ ] `Recipe.macrosEstimated`/`sourceUrl` y chip/enlace en la ficha (covers R4, R9)
