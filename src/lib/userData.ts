@@ -6,7 +6,7 @@ import { migrateEntries, migrateProfile, migrateWeekPlan, RETIRED_RECIPE_IDS } f
 import { EMPTY as EMPTY_SHOPPING, loadShoppingState, type ShoppingState } from "./shopping/state";
 import type { MealEntry, Measurement, PantryItem, Recipe, UserProfile, WeekPlan } from "./types";
 
-export const USER_DATA_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements"] as const;
+export const USER_DATA_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites"] as const;
 export type UserDataKey = (typeof USER_DATA_KEYS)[number];
 
 export interface UserData {
@@ -17,6 +17,8 @@ export interface UserData {
   weekplan: WeekPlan;
   shopping: ShoppingState;
   measurements: Measurement[];
+  /** Ids de las recetas favoritas (docs/pm/20-recetas-filtros), sin duplicados. */
+  favorites: string[];
 }
 
 export const EMPTY_USER_DATA: UserData = {
@@ -27,6 +29,7 @@ export const EMPTY_USER_DATA: UserData = {
   weekplan: {},
   shopping: EMPTY_SHOPPING,
   measurements: [],
+  favorites: [],
 };
 
 export interface LoadOptions<T> {
@@ -49,6 +52,12 @@ export function withSeedRecipes(raw: unknown): Recipe[] {
   return missing.length > 0 ? [...stored, ...missing] : stored;
 }
 
+/** Lista de ids sin duplicados ni basura. Los ids de recetas que ya no existen se descartan al guardar (store). */
+export function sanitizeFavorites(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return [...new Set(raw.filter((id): id is string => typeof id === "string" && id !== ""))];
+}
+
 /** Mismas opciones que usa AppProvider al cargar: única fuente de las migraciones (R7). */
 export const LOAD_OPTIONS: { [K in UserDataKey]: LoadOptions<UserData[K]> } = {
   profile: { fallback: null, upgrade: migrateProfile, backup: true },
@@ -68,4 +77,6 @@ export const LOAD_OPTIONS: { [K in UserDataKey]: LoadOptions<UserData[K]> } = {
   shopping: { fallback: EMPTY_SHOPPING, upgrade: loadShoppingState },
   // Historial de medidas (docs/pm/9-historial-medidas): descarta lo mal formado; sin copia *_v1_backup
   measurements: { fallback: [], upgrade: sanitizeMeasurements },
+  // Favoritas (docs/pm/20-recetas-filtros): lista de ids, sin copia *_v1_backup
+  favorites: { fallback: [], upgrade: sanitizeFavorites },
 };

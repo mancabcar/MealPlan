@@ -111,6 +111,7 @@ const FULL_DATA: UserData = {
   weekplan: BACKUP_PLAN,
   shopping: SHOPPING_A as UserData["shopping"],
   measurements: BACKUP_MEASUREMENTS,
+  favorites: ACCOUNT_A_DATA.favorites,
 };
 
 function expectError(text: string, message: string) {
@@ -126,8 +127,8 @@ const badSection = (k: string) => `La sección «${k}» no tiene el formato espe
 // ---------------------------------------------------------------------------
 
 describe("userData: registro compartido de los datos del usuario (base de R7)", () => {
-  it("las siete claves, en este orden (historial-medidas añade «measurements» al final)", () => {
-    expect(USER_DATA_KEYS).toEqual(["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements"]);
+  it("las ocho claves, en este orden (historial-medidas añade «measurements» y #20 «favorites» al final)", () => {
+    expect(USER_DATA_KEYS).toEqual(["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites"]);
   });
 
   it("EMPTY_USER_DATA: sin perfil y todo vacío", () => {
@@ -139,6 +140,7 @@ describe("userData: registro compartido de los datos del usuario (base de R7)", 
       weekplan: {},
       shopping: EMPTY_SHOPPING,
       measurements: [],
+      favorites: [],
     });
   });
 
@@ -212,8 +214,8 @@ describe("R3: cabecera de la copia", () => {
   });
 });
 
-describe("R2: la copia contiene los siete datos del usuario tal como están guardados", () => {
-  it("perfil, recetas, diario, despensa, plan, lista de la compra y mediciones", () => {
+describe("R2: la copia contiene los ocho datos del usuario tal como están guardados", () => {
+  it("perfil, recetas, diario, despensa, plan, lista de la compra, mediciones y favoritas", () => {
     const { data } = buildBackup(browserWithAccounts(), U, NOW);
     expect(data).toEqual({ ...ACCOUNT_A_DATA, shopping: SHOPPING_A });
     expect(Object.keys(data).sort()).toEqual([...USER_DATA_KEYS].sort());
@@ -507,7 +509,7 @@ describe("formatExportDate: fecha de la confirmación (R5)", () => {
 describe("R8: writeUserData escribe todo o nada", () => {
   const keyOf = (k: string) => `mp_${U}_${k}`;
 
-  it("escribe las siete claves del usuario con JSON.stringify", () => {
+  it("escribe las ocho claves del usuario con JSON.stringify", () => {
     const s = new MemoryStorage();
     writeUserData(s, U, FULL_DATA);
     for (const k of USER_DATA_KEYS) expect(s.getItem(keyOf(k)), k).toBe(JSON.stringify(FULL_DATA[k]));
@@ -529,7 +531,7 @@ describe("R8: writeUserData escribe todo o nada", () => {
     expect(Object.keys(after).sort()).toEqual([...new Set([...Object.keys(before), ...userKeys])].sort());
   });
 
-  it("si falla la 4.ª escritura (cuota), lanza y las siete claves vuelven byte a byte a como estaban", () => {
+  it("si falla la 4.ª escritura (cuota), lanza y las ocho claves vuelven byte a byte a como estaban", () => {
     const s = new MemoryStorage(4); // profile, recipes, entries → OK; pantry → lanza
     // Unas claves existen (con formato propio) y otras no, para ver que se restaura y se borra según el caso.
     s.seed(keyOf("profile"), '{"schemaVersion":2,"name":"Antes"}');

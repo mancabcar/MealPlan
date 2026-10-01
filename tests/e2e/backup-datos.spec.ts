@@ -168,7 +168,7 @@ test.describe("R1–R4: exportar mis datos", () => {
     expect(name).toBe(`mealplan-backup-${TODAY}.json`);
   });
 
-  test("R2: contiene los siete datos del usuario tal como están guardados", async ({ page }) => {
+  test("R2: contiene los ocho datos del usuario tal como están guardados", async ({ page }) => {
     const { json } = await exportBackup(page);
     for (const k of USER_KEYS) {
       const stored = await readKey(page, ACCOUNT_A.id, k);

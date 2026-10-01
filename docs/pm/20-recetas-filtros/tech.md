@@ -82,7 +82,7 @@ Los tests de dev-test (`tests/e2e/favoritos-franja.spec.ts` y los helpers de `te
 - Cada criterio de aceptación del spec se cubre con al menos uno de estos tests; el «≤2 toques» se verifica contando clics en el e2e.
 
 ## Tasks
-1. [ ] Capa de datos de favoritos: `favorites` en `userData.ts`, `backup.ts` y `store.tsx`, con `sanitizeFavorites` y tests unitarios (covers R4)
+1. [x] Capa de datos de favoritos: `favorites` en `userData.ts`, `backup.ts` y `store.tsx`, con `sanitizeFavorites` y tests unitarios (covers R4)
 2. [ ] `src/lib/recipeSlots.ts` (`slotTag`, `groupRecipes`) con tests unitarios (covers R1, R2, R3)
 3. [ ] Componente `RecipePicker` (lista, buscador, ★, «Ver todas», aviso de alérgenos) (covers R1, R2, R3)
 4. [ ] Integrar en el Plan, helper `pickRecipe` y migrar los specs del Plan (covers R1, R2, R3)
