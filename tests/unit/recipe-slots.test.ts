@@ -156,6 +156,11 @@ describe("Edge: franja con menos de 5 recetas se completa con las de otras franj
     expect(names(g.slot)).toEqual(["Batido A", "Batido B"]);
     expect(names(g.others)).toEqual(["Cena X", "Desayuno X"]);
   });
+  it("una favorita de otra franja no desaparece al completar: sale en «otras»", () => {
+    const g = groupRecipes({ recipes: FEW, favorites: ["c1"], mealType: "Merienda", query: "", showAll: false });
+    expect(g.favorites).toEqual([]);
+    expect(names(g.others)).toEqual(["Cena X", "Desayuno X"]);
+  });
   it("con 5 en la franja ya no se completa", () => {
     const five = Array.from({ length: 5 }, (_, i) => favRecipe(`s${i}`, `Snack ${i}`, ["snack"]));
     const g = groupRecipes({ recipes: [...five, FEW[2]], favorites: [], mealType: "Merienda", query: "", showAll: false });
