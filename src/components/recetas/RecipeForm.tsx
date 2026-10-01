@@ -12,11 +12,38 @@ import {
   validateRecipeDraft,
   type RecipeDraft,
 } from "@/lib/recipeEdit";
+import type { ImportedRecipe } from "@/lib/recipeImport";
 import type { Recipe } from "@/lib/types";
 
-const num = (n: number) => (n === 0 ? "" : String(n));
+/** Receta traída de una URL (#19): llega como borrador de una receta NUEVA; nada se guarda hasta pulsar "Guardar". */
+export interface ImportedDraft {
+  recipe: ImportedRecipe;
+  source: "jsonld" | "ai";
+  sourceUrl?: string;
+  /** Raciones que indica la web, como pista (R8). */
+  servingsHint?: string;
+}
 
-function draftFrom(recipe?: Recipe): RecipeDraft {
+const MACRO_FIELDS = ["calories", "protein", "carbs", "fat"] as const;
+
+const num = (n: number) => (n === 0 ? "" : String(n));
+const opt = (n?: number) => (n === undefined ? "" : String(n));
+
+function draftFrom(recipe?: Recipe, imported?: ImportedDraft): RecipeDraft {
+  if (imported) {
+    const r = imported.recipe;
+    return {
+      name: r.name,
+      ingredients: r.ingredients.join("\n"),
+      instructions: r.instructions.join("\n"),
+      prepTimeMinutes: opt(r.prepTimeMinutes),
+      calories: opt(r.calories),
+      protein: opt(r.protein),
+      carbs: opt(r.carbs),
+      fat: opt(r.fat),
+      tags: [],
+    };
+  }
   if (!recipe) {
     return { name: "", ingredients: "", instructions: "", prepTimeMinutes: "", calories: "", protein: "", carbs: "", fat: "", tags: [] };
   }
@@ -68,16 +95,26 @@ function Field({
 
 export function RecipeForm({
   recipe,
+  imported,
   suggestedTags,
   onSave,
   onClose,
 }: {
   recipe?: Recipe;
+  imported?: ImportedDraft;
   suggestedTags: string[];
   onSave: (r: Recipe) => void;
   onClose: () => void;
 }) {
-  const [draft, setDraft] = useState<RecipeDraft>(() => draftFrom(recipe));
+  const [draft, setDraft] = useState<RecipeDraft>(() => draftFrom(recipe, imported));
+  // Valores de partida: el distintivo "estimado" se quita si el usuario cambia kcal, proteínas, carbos o grasas
+  const [initial] = useState<RecipeDraft>(draft);
+  const estimated = recipe ? !!recipe.macrosEstimated : imported?.source === "ai";
+  const macrosChanged = MACRO_FIELDS.some((k) => (parseAmount(draft[k]) ?? draft[k]) !== (parseAmount(initial[k]) ?? initial[k]));
+  const notices = [
+    estimated && "Macros estimados por IA: revísalos.",
+    imported?.servingsHint && `La web indica ${imported.servingsHint} raciones: revisa que los macros sean por ración.`,
+  ].filter((n): n is string => !!n);
   const [errors, setErrors] = useState<Partial<Record<keyof RecipeDraft, string>>>({});
   const [tagText, setTagText] = useState("");
   const set = <K extends keyof RecipeDraft>(key: K, value: RecipeDraft[K]) => setDraft((d) => ({ ...d, [key]: value }));
@@ -103,15 +140,29 @@ export function RecipeForm({
       setErrors(result.errors);
       return;
     }
-    onSave(
-      recipe
-        ? { ...recipe, ...result.recipe }
-        : { ...result.recipe, id: `custom_${crypto.randomUUID()}`, isCustom: true },
-    );
+    const keepEstimated = estimated && !macrosChanged;
+    if (recipe) {
+      const rest: Recipe = { ...recipe };
+      delete rest.macrosEstimated;
+      onSave({ ...rest, ...result.recipe, ...(keepEstimated && { macrosEstimated: true as const }) });
+      return;
+    }
+    onSave({
+      ...result.recipe,
+      id: `custom_${crypto.randomUUID()}`,
+      isCustom: true,
+      ...(imported?.sourceUrl && { sourceUrl: imported.sourceUrl }),
+      ...(keepEstimated && { macrosEstimated: true as const }),
+    });
   };
 
   return (
     <Sheet title={recipe ? "Editar receta" : "Nueva receta"} onClose={onClose}>
+      {notices.map((n) => (
+        <p key={n} role="status" className="text-sm rounded-lg bg-[var(--color-surface-2)] px-3 py-2">
+          {n}
+        </p>
+      ))}
       <Field label="Nombre" error={errors.name}>
         {(p) => <input {...p} className={inputCls} value={draft.name} onChange={(e) => set("name", e.target.value)} />}
       </Field>

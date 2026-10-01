@@ -82,6 +82,12 @@ Tras crear la cuenta, el onboarding pide nombre y objetivo y ofrece dos rutas:
 
 Después eliges qué comidas haces al día y declaras alergias (exclusión estricta), dieta y lo que no te gusta (preferencia). Los perfiles antiguos se migran solos al abrir la app.
 
+## Importar recetas desde una URL
+
+En Recetas, «Importar desde URL» pide la dirección de una receta y abre el formulario de receta prerrellenado para revisarla; nada se guarda hasta pulsar «Guardar». La ruta `POST /api/recipes/import` (en [server/](server/), ver «Despliegue») descarga la página, usa el JSON-LD `schema.org/Recipe` si lo hay (sin IA) y, si no, pide a Claude Haiku 4.5 que extraiga la receta y estime los macros (se marcan como «estimados»).
+
+Límites: solo http/https; rechaza destinos internos (también tras redirecciones); 2 MB, 8 s y 3 redirecciones por descarga; 10 importaciones por IP cada 10 minutos (en memoria, por instancia). Usa las mismas variables que `/api/recipes` (`ANTHROPIC_API_KEY`, `CORS_ALLOWED_ORIGIN`); tras añadirla hay que redesplegar `server/` en Vercel.
+
 ## Datos de alimentos
 
 La pestaña «Alimento» de «Añadir comida» busca en dos fuentes:
