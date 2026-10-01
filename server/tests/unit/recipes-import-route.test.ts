@@ -70,7 +70,10 @@ function claudeReturns(data: unknown) {
   create.mockResolvedValue({ content: [{ type: "text", text: typeof data === "string" ? data : JSON.stringify(data) }] });
 }
 
-async function importUrl(url: unknown = RECIPE_URL, headers: Record<string, string> = {}) {
+async function importUrl(...args: [url?: unknown, headers?: Record<string, string>]) {
+  // Con `url = RECIPE_URL` por defecto, pasar `undefined` enviaba la URL válida y no probaba el body sin url
+  const url = args.length > 0 ? args[0] : RECIPE_URL;
+  const headers = args[1] ?? {};
   const res = await POST(
     new Request("http://localhost/api/recipes/import", {
       method: "POST",

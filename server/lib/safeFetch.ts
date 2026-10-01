@@ -14,7 +14,7 @@ export const MAX_REDIRECTS = 3;
 export class SafeFetchError extends Error {
   constructor(
     public readonly code: "blocked" | "fetch_failed",
-    message: string,
+    message: string = code,
   ) {
     super(message);
     this.name = "SafeFetchError";

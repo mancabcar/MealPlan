@@ -285,3 +285,21 @@ export function parseAiRecipe(text: string): ImportedRecipe | null {
   }
   return recipe;
 }
+
+// ---------- Errores de la ruta ----------
+
+export const IMPORT_ERROR_MESSAGES: Record<ImportErrorCode, string> = {
+  invalid_url: "Escribe una URL válida (http o https).",
+  blocked: "Esa dirección no está permitida.",
+  fetch_failed: "No se pudo descargar la página.",
+  no_recipe: "No se encontró una receta en esa página.",
+  rate_limited: "Demasiadas importaciones seguidas. Prueba de nuevo en unos minutos.",
+};
+
+export const IMPORT_ERROR_STATUS: Record<ImportErrorCode, number> = {
+  invalid_url: 400,
+  blocked: 400,
+  fetch_failed: 502,
+  no_recipe: 422,
+  rate_limited: 429,
+};
