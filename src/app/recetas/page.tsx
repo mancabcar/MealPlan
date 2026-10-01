@@ -10,6 +10,7 @@ import { apiUrl } from "@/lib/apiBase";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { AllergenBadge } from "@/components/ui/AllergenBadge";
+import { FavoriteStar } from "@/components/recetas/FavoriteStar";
 import { inputCls } from "@/components/ui/input";
 import { Sheet } from "@/components/ui/Sheet";
 import { RecipeForm, type ImportedDraft } from "@/components/recetas/RecipeForm";
@@ -33,9 +34,12 @@ const secondaryBtn = "flex-1 border border-[var(--color-border)] rounded-lg py-2
 const newId = () => `custom_${crypto.randomUUID()}`;
 
 export default function RecipesPage() {
-  const { recipes, addRecipes, saveRecipe, removeRecipe, weekPlan, profile, pantry, recipeFocus, setRecipeFocus } = useApp();
+  const { recipes, favorites, addRecipes, saveRecipe, removeRecipe, weekPlan, profile, pantry, recipeFocus, setRecipeFocus } =
+    useApp();
   const [search, setSearch] = useState("");
   const [usePantry, setUsePantry] = useState(false);
+  // R5 (docs/pm/20-recetas-filtros): solo las marcadas con la estrella
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
   // Por id, para que el detalle muestre los cambios al editar
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // Receta en el formulario: "new" = nueva; una receta = editar (o la copia sin guardar de "Duplicar y editar")
@@ -64,9 +68,11 @@ export default function RecipesPage() {
     else list = base.map((recipe) => ({ recipe }));
     const q = search.toLowerCase();
     return list.filter(
-      ({ recipe: r }) => r.name.toLowerCase().includes(q) || r.tags.some((t) => t.toLowerCase().includes(q)),
+      ({ recipe: r }) =>
+        (!onlyFavorites || favorites.includes(r.id)) &&
+        (r.name.toLowerCase().includes(q) || r.tags.some((t) => t.toLowerCase().includes(q))),
     );
-  }, [recipes, pantry, focusItem, usePantry, search, today]);
+  }, [recipes, favorites, onlyFavorites, pantry, focusItem, usePantry, search, today]);
 
   const selectRecipe = (r: Recipe) => {
     setSelectedId(r.id);
@@ -186,10 +192,13 @@ export default function RecipesPage() {
           <ArrowLeft className="w-4 h-4" aria-hidden /> Volver
         </button>
         <RecipeImagePlaceholder className="h-40 w-full" />
-        <h1 className="font-display text-2xl font-bold flex items-center gap-2">
-          {selected.isAIGenerated && <Sparkles className="w-5 h-5 text-[var(--color-accent)]" aria-hidden />}
-          {selected.name}
-        </h1>
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="font-display text-2xl font-bold flex items-center gap-2">
+            {selected.isAIGenerated && <Sparkles className="w-5 h-5 text-[var(--color-accent)]" aria-hidden />}
+            {selected.name}
+          </h1>
+          <FavoriteStar recipe={selected} />
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <AllergenBadge recipe={selected} allergies={profile?.allergies} />
           {selected.isCustom && <Chip tone="accent">Propia</Chip>}
@@ -327,6 +336,17 @@ export default function RecipesPage() {
         >
           Usa lo que tengo
         </button>
+        <button
+          onClick={() => setOnlyFavorites(!onlyFavorites)}
+          aria-pressed={onlyFavorites}
+          className={`rounded-full px-3 py-1 text-sm font-semibold border ${
+            onlyFavorites
+              ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-transparent"
+              : "border-[var(--color-border)] text-[var(--color-text-muted)]"
+          }`}
+        >
+          Solo favoritas
+        </button>
         {focusItem && (
           <span className="flex items-center gap-1 rounded-full px-3 py-1 text-sm bg-[var(--color-surface-2)]">
             con: {focusItem.name}
@@ -336,50 +356,58 @@ export default function RecipesPage() {
           </span>
         )}
       </div>
-      {results.length === 0 && (focusItem || usePantry) && (
+      {results.length === 0 && (focusItem || usePantry || onlyFavorites) && (
         <div className="flex flex-col items-center gap-3 py-6 text-center text-sm text-[var(--color-text-muted)]">
           <p>
             {search.trim()
               ? `Sin resultados para «${search.trim()}»`
-              : focusItem
-                ? `Ninguna receta usa ${focusItem.name}`
-                : "Nada que aprovechar todavía"}
+              : onlyFavorites && favorites.length === 0
+                ? "Aún no tienes recetas favoritas. Toca la estrella de una receta para marcarla."
+                : focusItem
+                  ? `Ninguna receta usa ${focusItem.name}`
+                  : usePantry
+                    ? "Nada que aprovechar todavía"
+                    : "Ninguna favorita coincide con los filtros"}
           </p>
         </div>
       )}
       <div className="flex flex-col gap-2">
         {results.map(({ recipe: r, usage }) => (
-          <button key={r.id} onClick={() => selectRecipe(r)} className="text-left w-full">
-            <Card className="flex gap-3">
-              <RecipeImagePlaceholder className="h-16 w-16" />
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-sm flex items-center gap-1.5">
-                  {r.isAIGenerated && <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" aria-hidden />}
-                  <span className="truncate">{r.name}</span>
-                  {r.isCustom && <Chip tone="accent">Propia</Chip>}
-                </div>
-                <AllergenBadge recipe={r} allergies={profile?.allergies} className="mt-1" />
-                {usage && (
-                  <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-[var(--color-text-muted)]">
-                    <span>
-                      Tienes {usage.matched} de {usage.total} ingredientes
-                    </span>
-                    {usage.soonest && daysUntil(usage.soonest) <= 2 && <Chip tone="expiring">caduca pronto</Chip>}
+          // La estrella va fuera del botón de la tarjeta (un botón dentro de otro no es válido)
+          <div key={r.id} className="relative">
+            <button onClick={() => selectRecipe(r)} className="text-left w-full">
+              <Card className="flex gap-3">
+                <RecipeImagePlaceholder className="h-16 w-16" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm flex items-center gap-1.5 pr-10">
+                    {r.isAIGenerated && <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" aria-hidden />}
+                    <span className="truncate">{r.name}</span>
+                    {r.isCustom && <Chip tone="accent">Propia</Chip>}
                   </div>
-                )}
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  <Chip icon={Flame}>{r.calories} kcal</Chip>
-                  <Chip tone="protein">P {r.protein}g</Chip>
-                  <Chip icon={Clock}>{r.prepTimeMinutes} min</Chip>
-                  {r.tags.map((t) => (
-                    <Chip key={t} tone="neutral">
-                      {t}
-                    </Chip>
-                  ))}
+                  <AllergenBadge recipe={r} allergies={profile?.allergies} className="mt-1" />
+                  {usage && (
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-[var(--color-text-muted)]">
+                      <span>
+                        Tienes {usage.matched} de {usage.total} ingredientes
+                      </span>
+                      {usage.soonest && daysUntil(usage.soonest) <= 2 && <Chip tone="expiring">caduca pronto</Chip>}
+                    </div>
+                  )}
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    <Chip icon={Flame}>{r.calories} kcal</Chip>
+                    <Chip tone="protein">P {r.protein}g</Chip>
+                    <Chip icon={Clock}>{r.prepTimeMinutes} min</Chip>
+                    {r.tags.map((t) => (
+                      <Chip key={t} tone="neutral">
+                        {t}
+                      </Chip>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </Card>
-          </button>
+              </Card>
+            </button>
+            <FavoriteStar recipe={r} className="absolute top-1 right-1" />
+          </div>
         ))}
       </div>
     </div>

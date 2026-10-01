@@ -2,12 +2,12 @@
 // franja elegida, con ★ Favoritas arriba, buscador y «Ver todas». Sustituye al <select> largo.
 // Contrato de nombres accesibles: tech.md › UI test contract (lo comprueba tests/e2e/favoritos-franja.spec.ts).
 import { useId, useState } from "react";
-import { Star } from "lucide-react";
 import { allergenWarning } from "@/lib/allergens";
 import { groupRecipes, slotLabel } from "@/lib/recipeSlots";
 import { useApp } from "@/lib/store";
 import type { MealType, Recipe } from "@/lib/types";
 import { inputCls } from "@/components/ui/input";
+import { FavoriteStar } from "./FavoriteStar";
 
 const SECTION_TITLE = "px-1 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-muted)]";
 
@@ -24,7 +24,7 @@ export function RecipePicker({
   /** Solo en el Plan: deja la franja sin asignar. */
   onClear?: () => void;
 }) {
-  const { recipes, favorites, toggleFavorite, profile } = useApp();
+  const { recipes, favorites, profile } = useApp();
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
   const ids = useId();
@@ -34,7 +34,6 @@ export function RecipePicker({
   const row = (r: Recipe, withSlot: boolean) => {
     const warning = allergenWarning(r, profile?.allergies);
     const slot = withSlot ? slotLabel(r) : null;
-    const fav = favorites.includes(r.id);
     return (
       <li key={r.id} className="flex items-center gap-1 border-b border-[var(--color-border)] last:border-b-0">
         <button
@@ -58,18 +57,7 @@ export function RecipePicker({
             </span>
           )}
         </button>
-        <button
-          type="button"
-          onClick={() => toggleFavorite(r.id)}
-          aria-label={fav ? `Quitar ${r.name} de favoritas` : `Marcar ${r.name} como favorita`}
-          className="shrink-0 min-h-11 min-w-11 flex items-center justify-center"
-        >
-          <Star
-            className={`w-5 h-5 ${fav ? "text-[var(--color-accent)]" : "text-[var(--color-text-muted)]"}`}
-            fill={fav ? "currentColor" : "none"}
-            aria-hidden
-          />
-        </button>
+        <FavoriteStar recipe={r} />
       </li>
     );
   };

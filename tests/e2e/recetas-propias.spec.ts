@@ -132,7 +132,8 @@ test.describe("R1 / R5 / R9: crear una receta propia y verla en Recetas, Plan y 
 
     await page.goto("/");
     await page.getByRole("button", { name: "Añadir comida" }).click();
-    await expect(page.locator("option").filter({ hasText: "Gazpachuelo casero (180 kcal)" })).toHaveCount(1);
+    await showAllRecipes(page).click();
+    await expect(recipeRow(page, "Gazpachuelo casero")).toHaveCount(1);
   });
 });
 
