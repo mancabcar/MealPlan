@@ -88,22 +88,22 @@ Los tests de dev-test (`tests/e2e/favoritos-franja.spec.ts` y los helpers de `te
 4. [x] Integrar en el Plan, helper `pickRecipe` y migrar los specs del Plan (covers R1, R2, R3)
 5. [x] Integrar en «Añadir comida» del Diario y migrar sus specs (covers R1)
 6. [x] Estrella y «Solo favoritas» en la página Recetas (covers R5)
-7. [ ] Spec e2e `favoritos-franja.spec.ts` y comprobación de accesibilidad (covers R1–R5)
+7. [x] Spec e2e `favoritos-franja.spec.ts` y comprobación de accesibilidad (covers R1–R5)
 
 ## Test coverage
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | tests/unit/recipe-slots.test.ts › "R1: slotTag…", "R1: groupRecipes filtra por la franja elegida" | unit | 🔴 failing (not built) |
-| R1 | tests/e2e/favoritos-franja.spec.ts › "R1: el selector del Plan se filtra por la franja elegida" (2 toques, franja, snack, buscador, alérgenos, asignada y Quitar, Diario) | e2e | 🔴 failing (not built) |
-| R2 | tests/unit/recipe-slots.test.ts › "R2: groupRecipes y la sección ★ Favoritas" | unit | 🔴 failing (not built) |
-| R2 | tests/e2e/favoritos-franja.spec.ts › "R2: ★ Favoritas y la estrella de cada fila" | e2e | 🔴 failing (not built) |
-| R3 | tests/unit/recipe-slots.test.ts › "R3: …" y "Edge: franja con menos de 5…" | unit | 🔴 failing (not built) |
-| R3 | tests/e2e/favoritos-franja.spec.ts › "R3: «Ver todas»" | e2e | 🔴 failing (not built) |
-| R4 | tests/unit/favorites.test.ts (sanitizeFavorites, claves y copia de seguridad) | unit | 🔴 failing (not built) |
-| R4 | tests/unit/store-favorites.test.tsx (toggleFavorite, persistencia, importData) | unit | 🔴 failing (not built) |
-| R4 | tests/e2e/favoritos-franja.spec.ts › "R4: …" (recargar, otra cuenta, exportar, importar, copia antigua) | e2e | 🔴 failing (not built) |
-| R5 | tests/e2e/favoritos-franja.spec.ts › "R5: estrella y «Solo favoritas»…" | e2e | 🔴 failing (not built) |
-| R1–R3 | tests/e2e/favoritos-franja.spec.ts › "Accesibilidad del selector" (axe, ≥44 px) | e2e | 🔴 failing (not built) |
+| R1 | tests/unit/recipe-slots.test.ts › "R1: slotTag…", "R1: groupRecipes filtra por la franja elegida" | unit | 🟢 passing |
+| R1 | tests/e2e/favoritos-franja.spec.ts › "R1: el selector del Plan se filtra por la franja elegida" (2 toques, franja, snack, buscador, alérgenos, asignada y Quitar, Diario) | e2e | 🟢 passing |
+| R2 | tests/unit/recipe-slots.test.ts › "R2: groupRecipes y la sección ★ Favoritas" | unit | 🟢 passing |
+| R2 | tests/e2e/favoritos-franja.spec.ts › "R2: ★ Favoritas y la estrella de cada fila" | e2e | 🟢 passing |
+| R3 | tests/unit/recipe-slots.test.ts › "R3: …" y "Edge: franja con menos de 5…" | unit | 🟢 passing |
+| R3 | tests/e2e/favoritos-franja.spec.ts › "R3: «Ver todas»" | e2e | 🟢 passing |
+| R4 | tests/unit/favorites.test.ts (sanitizeFavorites, claves y copia de seguridad) | unit | 🟢 passing |
+| R4 | tests/unit/store-favorites.test.tsx (toggleFavorite, persistencia, importData) | unit | 🟢 passing |
+| R4 | tests/e2e/favoritos-franja.spec.ts › "R4: …" (recargar, otra cuenta, exportar, importar, copia antigua) | e2e | 🟢 passing |
+| R5 | tests/e2e/favoritos-franja.spec.ts › "R5: estrella y «Solo favoritas»…" | e2e | 🟢 passing |
+| R1–R3 | tests/e2e/favoritos-franja.spec.ts › "Accesibilidad del selector" (axe, ≥44 px) | e2e | 🟢 passing |
 | Riesgo | tests/unit/recipe-slots.test.ts › "el catálogo siempre tiene tag de franja" | unit | 🟢 passing |
 
 Los 7 specs e2e existentes que usan el `<select>` de recetas (macros-plan, raciones, sobras, diario-desde-plan, registro-rapido, shopping-list, accessibility) los migra dev-code con el helper `pickRecipe` en las tareas 4 y 5. `tests/unit/store.test.tsx` y `tests/unit/backup.test.ts` necesitarán `favorites` en sus datos de ejemplo (tarea 1).
