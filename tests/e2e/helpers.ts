@@ -74,3 +74,26 @@ export async function chooseMeals(page: Page, meals: string[]) {
 export async function expectOnDashboard(page: Page) {
   await expect(page.getByRole("heading", { name: "Diario" })).toBeVisible();
 }
+
+// ---------------------------------------------------------------------------
+// Selector de recetas (docs/pm/20-recetas-filtros/tech.md › UI test contract). Sustituye al <select> de recetas del
+// Plan y de «Añadir comida»: contenedor group «Elegir receta», filas = botón cuyo nombre empieza por el de la receta,
+// estrella = botón «Marcar <receta> como favorita» / «Quitar <receta> de favoritas».
+// ---------------------------------------------------------------------------
+
+export const recipePicker = (page: Page) => page.getByRole("group", { name: "Elegir receta" });
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Fila de una receta (el nombre accesible empieza por el de la receta; la estrella empieza por «Marcar»/«Quitar»). */
+export const recipeRow = (page: Page, name: string) =>
+  recipePicker(page).getByRole("button", { name: new RegExp(`^${escapeRe(name)}`) });
+
+/** Estrella de una receta: marcada («Quitar … de favoritas») o no («Marcar … como favorita»). */
+export const favStar = (page: Page, name: string, marked = false) =>
+  recipePicker(page).getByRole("button", { name: marked ? `Quitar ${name} de favoritas` : `Marcar ${name} como favorita` });
+
+/** Elige una receta en el selector abierto (por nombre, no por id). */
+export async function pickRecipe(page: Page, name: string) {
+  await recipeRow(page, name).click();
+}
