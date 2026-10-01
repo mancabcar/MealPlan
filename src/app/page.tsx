@@ -6,7 +6,6 @@ import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import type { StatsPeriod } from "@/lib/diaryStats";
 import { addDays } from "@/lib/week";
-import { allergenWarning } from "@/lib/allergens";
 import {
   SERVINGS,
   SERVINGS_ERROR,
@@ -35,6 +34,7 @@ import { ProgressRing } from "@/components/ui/ProgressRing";
 import { WeekBarChart } from "@/components/ui/WeekBarChart";
 import { PeriodSummary, loadStatsDays, saveStatsDays } from "@/components/diario/PeriodSummary";
 import { RecentMeals } from "@/components/diario/RecentMeals";
+import { RecipePicker } from "@/components/recetas/RecipePicker";
 import { FoodPicker } from "@/components/diario/FoodPicker";
 import { Toast } from "@/components/ui/Toast";
 import { inputCls } from "@/components/ui/input";
@@ -368,14 +368,9 @@ export default function DiaryPage() {
           />
           {mode === "food" ? null : mode === "recipe" ? (
             <>
-              <select value={recipeId} onChange={(e) => setRecipeId(e.target.value)} className={inputCls}>
-                <option value="">Elige una receta...</option>
-                {recipes.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {[`${r.name} (${r.calories} kcal)`, allergenWarning(r, profile.allergies)].filter(Boolean).join(" · ")}
-                  </option>
-                ))}
-              </select>
+              {/* Mismo selector que el Plan (docs/pm/20-recetas-filtros R1): filtrado por la franja elegida arriba. key: al
+                  cambiar de franja se reinician el buscador y «Ver todas» */}
+              <RecipePicker key={mealType} mealType={mealType} value={recipeId} onPick={setRecipeId} />
               {/* Raciones (docs/pm/raciones, R1/R6): independiente de la receta elegida; se valida al pulsar "Añadir" */}
               <div className="flex flex-col gap-1 text-sm">
                 <label htmlFor={servingsId} className="font-medium">

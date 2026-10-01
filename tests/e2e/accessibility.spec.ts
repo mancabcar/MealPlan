@@ -16,7 +16,7 @@ import { PLAN_SEED } from "../fixtures/plan-macros";
 import { SHOPPING_PANTRY, SHOPPING_PLAN, SHOPPING_RECIPES } from "../fixtures/shopping";
 import { HOME_WEIGHTS, NUTRI_REPORTS } from "../fixtures/measurements";
 import { ALL_ENTRIES, statsProfile } from "../fixtures/medias-adherencia";
-import { signIn, TODAY } from "./helpers";
+import { pickRecipe, signIn, TODAY } from "./helpers";
 
 async function expectNoContrastViolations(page: Page) {
   const results = await new AxeBuilder({ page }).withRules(["color-contrast"]).analyze();
@@ -65,10 +65,7 @@ test.describe("R6: contraste de color", () => {
     await signIn(page, { profile: lucia, recipes: RACIONES_RECIPES, weekplan: {}, entries: [] });
     await page.goto("/");
     await page.getByRole("button", { name: "Añadir comida" }).click();
-    await page
-      .getByRole("combobox")
-      .filter({ has: page.locator("option", { hasText: "Elige una receta..." }) })
-      .selectOption(GUISO.id);
+    await pickRecipe(page, GUISO.name);
     await page.getByLabel("Raciones", { exact: true }).fill("5");
     await page.getByRole("button", { name: "Añadir", exact: true }).click();
     await expect(page.getByRole("alert").filter({ hasText: "Entre 0,25 y 4, en pasos de 0,25" })).toBeVisible();
