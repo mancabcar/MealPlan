@@ -39,8 +39,13 @@ function toNumber(value: Json): number | undefined {
   return match ? Number(match[0]) : undefined;
 }
 
+/** Texto de una web: quita etiquetas (<p>, <br>) y decodifica entidades (&amp;, &frac12;). */
+function cleanText(text: string): string {
+  return decodeEntities(text.replace(/<\/?(?:br|p|div|li|ul|ol)\b[^>]*>/gi, " ").replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim();
+}
+
 function toText(value: Json): string | undefined {
-  if (typeof value === "string") return value.trim() || undefined;
+  if (typeof value === "string") return cleanText(value) || undefined;
   if (Array.isArray(value)) return value.map(toText).find(Boolean);
   return undefined;
 }
@@ -69,7 +74,10 @@ function isRecipeNode(node: Record<string, Json>): boolean {
 }
 
 function flattenSteps(value: Json): string[] {
-  if (typeof value === "string") return value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+  if (typeof value === "string") {
+    // Saltos de línea, de párrafo y de elemento de lista separan pasos; el resto de etiquetas se limpia
+    return value.split(/\r?\n|<\/(?:p|li)>|<br\s*\/?>/i).map(cleanText).filter(Boolean);
+  }
   if (Array.isArray(value)) return value.flatMap(flattenSteps);
   if (isObject(value)) {
     if (value.itemListElement !== undefined) return flattenSteps(value.itemListElement);
@@ -82,7 +90,7 @@ function recipeFromNode(node: Record<string, Json>): ImportedJsonLd | null {
   const name = toText(node.name) ?? toText(node.headline);
   const rawIngredients = typeof node.recipeIngredient === "string" ? [node.recipeIngredient] : node.recipeIngredient;
   const ingredients = Array.isArray(rawIngredients)
-    ? rawIngredients.filter((i): i is string => typeof i === "string").map((i) => i.trim()).filter(Boolean)
+    ? rawIngredients.filter((i): i is string => typeof i === "string").map(cleanText).filter(Boolean)
     : [];
   if (!name || ingredients.length === 0) return null;
 
@@ -139,7 +147,22 @@ export function extractJsonLdRecipe(html: string): ImportedJsonLd | null {
 
 // ---------- HTML → texto ----------
 
-const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+const ENTITIES: Record<string, string> = {
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
+  frac12: "½", frac14: "¼", frac34: "¾", deg: "°", ntilde: "ñ", aacute: "á", eacute: "é", iacute: "í", oacute: "ó", uacute: "ú",
+  uuml: "ü", iexcl: "¡", iquest: "¿", ndash: "–", mdash: "—", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”", hellip: "…",
+};
+
+/** Decodifica entidades HTML (nombradas habituales y numéricas); las desconocidas se dejan tal cual. */
+export function decodeEntities(text: string): string {
+  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z0-9]+);/gi, (whole, ent: string) => {
+    if (ent[0] === "#") {
+      const code = ent[1].toLowerCase() === "x" ? parseInt(ent.slice(2), 16) : Number(ent.slice(1));
+      return Number.isFinite(code) && code > 0 && code < 0x110000 ? String.fromCodePoint(code) : " ";
+    }
+    return ENTITIES[ent] ?? ENTITIES[ent.toLowerCase()] ?? whole;
+  });
+}
 
 /** Texto visible de la página (sin scripts, estilos ni etiquetas), recortado a `maxChars`. */
 export function htmlToText(html: string, maxChars: number): string {
@@ -148,13 +171,7 @@ export function htmlToText(html: string, maxChars: number): string {
     .replace(/<(script|style|noscript|svg|template)\b[\s\S]*?<\/\1\s*>/gi, " ")
     .replace(/<\/?(?:p|div|br|li|ul|ol|h[1-6]|tr|section|article|header|footer|table)\b[^>]*>/gi, "\n")
     .replace(/<[^>]+>/g, " ")
-    .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, ent: string) => {
-      if (ent[0] === "#") {
-        const code = ent[1].toLowerCase() === "x" ? parseInt(ent.slice(2), 16) : Number(ent.slice(1));
-        return Number.isFinite(code) && code > 0 && code < 0x110000 ? String.fromCodePoint(code) : " ";
-      }
-      return ENTITIES[ent.toLowerCase()] ?? whole;
-    })
+    .replace(/&(?:#x[0-9a-f]+|#\d+|[a-z0-9]+);/gi, decodeEntities)
     .replace(/[ \t\f\v]+/g, " ")
     .replace(/ ?\n ?/g, "\n")
     .replace(/\n{2,}/g, "\n")

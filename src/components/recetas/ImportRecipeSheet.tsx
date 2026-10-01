@@ -2,7 +2,7 @@
 
 // Diálogo para importar una receta desde una URL (#19). Llama a la ruta del servidor y, si sale bien, entrega el
 // borrador a la página para abrir el formulario de receta; no guarda nada.
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Sheet } from "@/components/ui/Sheet";
 import { inputCls } from "@/components/ui/input";
 import { apiUrl } from "@/lib/apiBase";
@@ -22,15 +22,21 @@ export function ImportRecipeSheet({
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Cerrar el diálogo cancela la petición en curso: su respuesta no debe abrir el formulario después
+  const abortRef = useRef<AbortController | null>(null);
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
     setError("");
+    const controller = new AbortController();
+    abortRef.current = controller;
     try {
       const res = await fetch(apiUrl("/api/recipes/import"), {
         method: "POST",
+        signal: controller.signal,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: url.trim() }),
       });
@@ -50,6 +56,7 @@ export function ImportRecipeSheet({
         return;
       }
     } catch {
+      if (controller.signal.aborted) return;
       setError(IMPORT_ERROR_MESSAGES.fetch_failed);
     }
     setLoading(false);

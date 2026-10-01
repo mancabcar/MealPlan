@@ -230,3 +230,28 @@ describe("R7: isPrivateAddress", () => {
     },
   );
 });
+
+describe("R2: texto del JSON-LD con entidades y etiquetas", () => {
+  const ld = (extra: Record<string, unknown>) => page(ldScript({ "@type": "Recipe", name: "Prueba", recipeIngredient: ["sal"], ...extra }));
+
+  it("decodifica entidades en nombre, ingredientes y pasos", () => {
+    const html = ld({
+      name: "Sal &amp; pimienta",
+      recipeIngredient: ["1&frac12; tazas de caldo", "Pan de l&#039;aire", "Jam&oacute;n &#x2013; curado"],
+      recipeInstructions: [{ "@type": "HowToStep", text: "Mezclar &amp; servir" }],
+    });
+    const { recipe } = extractJsonLdRecipe(html) ?? {};
+    expect(recipe?.name).toBe("Sal & pimienta");
+    expect(recipe?.ingredients).toEqual(["1½ tazas de caldo", "Pan de l'aire", "Jamón – curado"]);
+    expect(recipe?.instructions).toEqual(["Mezclar & servir"]);
+  });
+
+  it("quita etiquetas HTML y parte los pasos por párrafo o <br>", () => {
+    const html = ld({ recipeInstructions: "<p>Picar la cebolla.</p><p>Sofreírla.</p><br>Servir <b>caliente</b>." });
+    expect(extractJsonLdRecipe(html)?.recipe.instructions).toEqual(["Picar la cebolla.", "Sofreírla.", "Servir caliente."]);
+  });
+
+  it("deja tal cual las entidades que no conoce", () => {
+    expect(extractJsonLdRecipe(ld({ name: "Rollo &zzz; de canela" }))?.recipe.name).toBe("Rollo &zzz; de canela");
+  });
+});

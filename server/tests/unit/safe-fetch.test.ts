@@ -222,3 +222,24 @@ describe("R7: tiempo máximo", () => {
     expect(((await pending) as SafeFetchError).code).toBe("fetch_failed");
   });
 });
+
+describe("Codificación del documento", () => {
+  // «Sofreír la cebolla» en ISO-8859-1: la «í» es el byte 0xED
+  const latin1 = (text: string) => Uint8Array.from(text, (c) => c.charCodeAt(0));
+
+  it("usa el charset de la cabecera Content-Type", async () => {
+    const get = vi.fn().mockResolvedValue({ status: 200, contentType: "text/html; charset=ISO-8859-1", body: chunks(latin1("<p>Sofreír la cebolla</p>")) });
+    expect((await safeFetch(RECIPE_URL, deps(get))).html).toBe("<p>Sofreír la cebolla</p>");
+  });
+
+  it("sin charset en la cabecera, lo toma del <meta charset>", async () => {
+    const html = '<html><head><meta charset="windows-1252"></head><body>Sofreír la cebolla</body></html>';
+    const get = vi.fn().mockResolvedValue({ status: 200, contentType: "text/html", body: chunks(latin1(html)) });
+    expect((await safeFetch(RECIPE_URL, deps(get))).html).toContain("Sofreír la cebolla");
+  });
+
+  it("un charset desconocido cae a UTF-8", async () => {
+    const get = vi.fn().mockResolvedValue({ status: 200, contentType: "text/html; charset=inventado", body: chunks(bytes("<p>Sofreír</p>")) });
+    expect((await safeFetch(RECIPE_URL, deps(get))).html).toBe("<p>Sofreír</p>");
+  });
+});

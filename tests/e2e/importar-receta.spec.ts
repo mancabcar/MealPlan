@@ -213,6 +213,24 @@ test.describe("R5: nada se guarda sin confirmar", () => {
   });
 });
 
+test.describe("R5: cerrar con la importación en curso", () => {
+  test("cerrar el diálogo mientras importa cancela la petición y no abre el formulario después", async ({ page }) => {
+    await openRecetas(page);
+    await mockImport(page, async (route) => {
+      await new Promise((r) => setTimeout(r, 700));
+      await route.fulfill({ json: RESPONSE_AI }).catch(() => {}); // el navegador ya abortó la petición
+    });
+    await startImport(page);
+    await expect(importDialog(page).getByText("Importando…")).toBeVisible();
+    await importDialog(page).getByRole("button", { name: "Cerrar" }).click();
+    await expect(importDialog(page)).toHaveCount(0);
+
+    await page.waitForTimeout(1200);
+    await expect(form(page)).toHaveCount(0);
+    await expect(card(page, "Sopa de calabaza al curry")).toHaveCount(0);
+  });
+});
+
 test.describe("R6: errores", () => {
   for (const code of ["fetch_failed", "no_recipe", "invalid_url", "blocked", "rate_limited"] as const) {
     test(`${code}: muestra '${ERROR_TEXTS[code]}' y permite crear la receta a mano`, async ({ page }) => {

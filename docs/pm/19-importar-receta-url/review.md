@@ -21,9 +21,9 @@ R1–R9 están implementados y cubiertos por tests (970 unit en la raíz, 127 en
 Ninguno.
 
 ## Non-blocking
-1. Prioritario: la importación en curso no se cancela al cerrar el diálogo; `onImported` abre el formulario aunque el usuario ya lo cerró y el servidor sigue gastando IA (`src/components/recetas/ImportRecipeSheet.tsx:28`) → `AbortController` abortado al desmontar/cerrar.
-2. Prioritario: el HTML se decodifica siempre como UTF-8; webs en ISO-8859-1 dan «�» (`server/lib/safeFetch.ts:96`) → leer `charset` del `Content-Type` o del `<meta>`.
-3. Prioritario: el JSON-LD no decodifica entidades HTML ni quita etiquetas (`&amp;`, `&frac12;`, `<p>`) en nombre, ingredientes y pasos (`src/lib/recipeImport.ts:103`) → reutilizar el decodificador de `htmlToText`.
+1. ✅ Arreglado: la importación en curso no se cancela al cerrar el diálogo; `onImported` abre el formulario aunque el usuario ya lo cerró y el servidor sigue gastando IA (`src/components/recetas/ImportRecipeSheet.tsx:28`) → `AbortController` abortado al desmontar/cerrar.
+2. ✅ Arreglado: el HTML se decodifica siempre como UTF-8; webs en ISO-8859-1 dan «�» (`server/lib/safeFetch.ts:96`) → leer `charset` del `Content-Type` o del `<meta>`.
+3. ✅ Arreglado: el JSON-LD no decodifica entidades HTML ni quita etiquetas (`&amp;`, `&frac12;`, `<p>`) en nombre, ingredientes y pasos (`src/lib/recipeImport.ts:103`) → reutilizar el decodificador de `htmlToText`.
 4. `toNumber` interpreta «1,200 kcal» como 1.2 y toma el primer número de un rango (`src/lib/recipeImport.ts:38`).
 5. No se comprueba el `Content-Type`: PDFs o imágenes de hasta 2 MB acaban como texto en Claude (`server/lib/safeFetch.ts:71`).
 6. `isPrivateAddress` no cubre NAT64 (`64:ff9b::/96`), 6to4 (`2002::/16`) ni `::a.b.c.d` (`src/lib/recipeImport.ts:205`).

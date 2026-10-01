@@ -26,7 +26,7 @@ export interface SafeFetchDeps {
   get(
     target: { url: URL; address: string },
     signal: AbortSignal,
-  ): Promise<{ status: number; location?: string; body: AsyncIterable<Uint8Array> }>;
+  ): Promise<{ status: number; location?: string; contentType?: string; body: AsyncIterable<Uint8Array> }>;
 }
 
 const defaultDeps: SafeFetchDeps = {
@@ -55,7 +55,7 @@ const defaultDeps: SafeFetchDeps = {
         },
         (res) => {
           const location = res.headers.location;
-          resolve({ status: res.statusCode ?? 0, location, body: res });
+          resolve({ status: res.statusCode ?? 0, location, contentType: res.headers["content-type"], body: res });
         },
       );
       req.on("error", reject);
@@ -71,7 +71,20 @@ function abortError(signal: AbortSignal): Promise<never> {
   });
 }
 
-async function readBody(body: AsyncIterable<Uint8Array>, signal: AbortSignal): Promise<string> {
+/** Codificación del documento: `charset` de la cabecera Content-Type o, si no, del <meta> de los primeros bytes. */
+function detectCharset(contentType: string | undefined, bytes: Uint8Array): string {
+  const fromHeader = contentType?.match(/charset\s*=\s*["']?([\w.:-]+)/i)?.[1];
+  const head = new TextDecoder("latin1").decode(bytes.subarray(0, 2048));
+  const label = fromHeader ?? head.match(/<meta[^>]+charset\s*=\s*["']?([\w.:-]+)/i)?.[1] ?? "utf-8";
+  try {
+    new TextDecoder(label);
+    return label;
+  } catch {
+    return "utf-8";
+  }
+}
+
+async function readBody(body: AsyncIterable<Uint8Array>, signal: AbortSignal, contentType?: string): Promise<string> {
   const parts: Uint8Array[] = [];
   let total = 0;
   const iterator = body[Symbol.asyncIterator]();
@@ -92,7 +105,7 @@ async function readBody(body: AsyncIterable<Uint8Array>, signal: AbortSignal): P
     all.set(part, offset);
     offset += part.byteLength;
   }
-  return new TextDecoder("utf-8").decode(all);
+  return new TextDecoder(detectCharset(contentType, all)).decode(all);
 }
 
 async function download(rawUrl: string, deps: SafeFetchDeps, signal: AbortSignal): Promise<{ html: string; finalUrl: string }> {
@@ -123,7 +136,7 @@ async function download(rawUrl: string, deps: SafeFetchDeps, signal: AbortSignal
     if (response.status < 200 || response.status >= 300) {
       throw new SafeFetchError("fetch_failed", `La web respondió HTTP ${response.status}.`);
     }
-    return { html: await readBody(response.body, signal), finalUrl: url.href };
+    return { html: await readBody(response.body, signal, response.contentType), finalUrl: url.href };
   }
   throw new SafeFetchError("fetch_failed", "Demasiadas redirecciones.");
 }
