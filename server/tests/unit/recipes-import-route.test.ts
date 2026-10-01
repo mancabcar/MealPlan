@@ -163,7 +163,7 @@ describe("R3: sin JSON-LD, Claude extrae la receta", () => {
     claudeReturns("Aquí está:\n" + JSON.stringify(CALABAZA_AI));
     const { status, body } = await importUrl();
     expect(status).toBe(200);
-    expect(body.recipe.name).toBe("Crema de calabaza");
+    expect(body.recipe.name).toBe("Sopa de calabaza al curry");
   });
 
   it("sin ANTHROPIC_API_KEY y sin JSON-LD responde 500 con un mensaje de configuración", async () => {

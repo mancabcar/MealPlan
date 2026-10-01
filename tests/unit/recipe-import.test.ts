@@ -121,7 +121,7 @@ describe("R2: extractJsonLdRecipe", () => {
 describe("R3: htmlToText (lo que se envía a la IA)", () => {
   it("quita scripts, estilos y etiquetas y conserva el texto de la receta", () => {
     const text = htmlToText(HTML_TEXT_ONLY, 30_000);
-    expect(text).toContain("Crema de calabaza");
+    expect(text).toContain("Sopa de calabaza al curry");
     expect(text).toContain("500 g de calabaza");
     expect(text).not.toContain("window.track");
     expect(text).not.toContain("font-family");

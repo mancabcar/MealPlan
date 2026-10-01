@@ -93,7 +93,7 @@ export const HTML_TIME_1H30 = page(ldScript({ ...LENTEJAS_LD, totalTime: "PT1H30
 /** Receta sin JSON-LD: solo texto en la página (ruta de IA, R3). */
 export const HTML_TEXT_ONLY = page(
   "<style>body{font-family:sans-serif}</style><script>window.track = 1;</script>",
-  `<h1>Crema de calabaza</h1>
+  `<h1>Sopa de calabaza al curry</h1>
    <p>Ingredientes: 500 g de calabaza, 1 cebolla, 1 vaso de caldo.</p>
    <p>Pasos: cortar la calabaza, sofreír la cebolla, cocer con el caldo y triturar.</p>`,
 );
@@ -103,7 +103,7 @@ export const HTML_NO_RECIPE = page("", "<h1>Política de cookies</h1><p>Usamos c
 
 /** Lo que devuelve Claude para HTML_TEXT_ONLY: macros por ración estimados. */
 export const CALABAZA_AI = {
-  name: "Crema de calabaza",
+  name: "Sopa de calabaza al curry",
   ingredients: ["500 g de calabaza", "1 cebolla", "1 vaso de caldo"],
   instructions: ["Cortar la calabaza.", "Sofreír la cebolla.", "Cocer con el caldo y triturar."],
   prepTimeMinutes: 30,

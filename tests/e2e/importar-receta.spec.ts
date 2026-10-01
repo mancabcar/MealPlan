@@ -141,11 +141,11 @@ test.describe("R3 / R4: importación con IA", () => {
     await expect(form(page).getByLabel("Calorías (kcal)")).toHaveValue("180");
 
     await form(page).getByRole("button", { name: "Guardar", exact: true }).click();
-    const saved = (await storedRecipes(page)).find((r) => r.name === "Crema de calabaza");
+    const saved = (await storedRecipes(page)).find((r) => r.name === "Sopa de calabaza al curry");
     expect(saved).toMatchObject({ macrosEstimated: true, sourceUrl: RECIPE_URL, isCustom: true });
 
-    await card(page, "Crema de calabaza").first().click();
-    await expect(page.getByRole("heading", { name: "Crema de calabaza", level: 1 })).toBeVisible();
+    await card(page, "Sopa de calabaza al curry").first().click();
+    await expect(page.getByRole("heading", { name: "Sopa de calabaza al curry", level: 1 })).toBeVisible();
     await expect(page.getByText("Macros estimados", { exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "Ver receta original" })).toHaveAttribute("href", RECIPE_URL);
   });
@@ -157,10 +157,10 @@ test.describe("R3 / R4: importación con IA", () => {
     await form(page).getByLabel("Proteínas (g)").fill("8");
     await form(page).getByRole("button", { name: "Guardar", exact: true }).click();
 
-    const saved = (await storedRecipes(page)).find((r) => r.name === "Crema de calabaza");
+    const saved = (await storedRecipes(page)).find((r) => r.name === "Sopa de calabaza al curry");
     expect(saved?.protein).toBe(8);
     expect(saved).not.toHaveProperty("macrosEstimated");
-    await card(page, "Crema de calabaza").first().click();
+    await card(page, "Sopa de calabaza al curry").first().click();
     await expect(page.getByText("Macros estimados", { exact: true })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Ver receta original" })).toBeVisible();
   });
@@ -171,9 +171,9 @@ test.describe("R3 / R4: importación con IA", () => {
     await startImport(page);
     await form(page).getByRole("button", { name: "Guardar", exact: true }).click();
 
-    await card(page, "Crema de calabaza").first().click();
+    await card(page, "Sopa de calabaza al curry").first().click();
     await page.getByRole("button", { name: "Editar", exact: true }).click();
-    await page.getByRole("dialog", { name: "Editar receta" }).getByLabel("Nombre").fill("Crema de calabaza casera");
+    await page.getByRole("dialog", { name: "Editar receta" }).getByLabel("Nombre").fill("Sopa de calabaza al curry casera");
     await page.getByRole("dialog", { name: "Editar receta" }).getByRole("button", { name: "Guardar", exact: true }).click();
     await expect(page.getByText("Macros estimados", { exact: true })).toBeVisible();
 
@@ -195,11 +195,11 @@ test.describe("R5: nada se guarda sin confirmar", () => {
 
     await form(page).getByRole("button", { name: "Cerrar" }).click();
     await expect(form(page)).toHaveCount(0);
-    await expect(card(page, "Crema de calabaza")).toHaveCount(0);
+    await expect(card(page, "Sopa de calabaza al curry")).toHaveCount(0);
     expect(await storedRecipes(page)).toEqual(before);
 
     await page.reload();
-    await expect(card(page, "Crema de calabaza")).toHaveCount(0);
+    await expect(card(page, "Sopa de calabaza al curry")).toHaveCount(0);
   });
 
   test("cerrar el diálogo de importar sin importar tampoco llama al servidor", async ({ page }) => {
@@ -247,7 +247,7 @@ test.describe("R6: errores", () => {
     await expect(importDialog(page).getByRole("alert")).toBeVisible();
     await importDialog(page).getByLabel("URL de la receta").fill("https://www.recetas-ejemplo.es/otra");
     await importDialog(page).getByRole("button", { name: "Importar", exact: true }).click();
-    await expect(form(page).getByLabel("Nombre")).toHaveValue("Crema de calabaza");
+    await expect(form(page).getByLabel("Nombre")).toHaveValue("Sopa de calabaza al curry");
   });
 });
 

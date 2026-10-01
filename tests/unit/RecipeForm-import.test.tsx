@@ -86,7 +86,7 @@ describe("R4: macros estimados por IA", () => {
     expect(onSave).toHaveBeenCalledTimes(1);
     const saved: Recipe = onSave.mock.calls[0][0];
     expect(saved).toMatchObject({
-      name: "Crema de calabaza",
+      name: "Sopa de calabaza al curry",
       calories: 180,
       protein: 5,
       carbs: 28,
@@ -100,7 +100,7 @@ describe("R4: macros estimados por IA", () => {
 
   it("cambiar solo el nombre o los pasos no quita la marca", () => {
     const { onSave, fill, save } = setup({ imported: AI });
-    fill("Nombre", "Crema de calabaza casera");
+    fill("Nombre", "Sopa de calabaza al curry casera");
     fill("Pasos", "Triturar todo.");
     save();
     expect(onSave.mock.calls[0][0]).toMatchObject({ macrosEstimated: true });
@@ -141,7 +141,7 @@ describe("R4: macros estimados por IA", () => {
   it("editar una receta guardada con macros estimados: si no cambia ninguno, se mantiene la marca", () => {
     const saved: Recipe = { ...CALABAZA_AI, id: "custom_calabaza", tags: [], isCustom: true, macrosEstimated: true, sourceUrl: RECIPE_URL };
     const { onSave, fill, save } = setup({ recipe: saved });
-    fill("Nombre", "Crema de calabaza y jengibre");
+    fill("Nombre", "Sopa de calabaza al curry y jengibre");
     save();
     expect(onSave.mock.calls[0][0]).toMatchObject({ macrosEstimated: true, sourceUrl: RECIPE_URL });
   });

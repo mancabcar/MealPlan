@@ -1,5 +1,5 @@
 # Importar una receta desde una URL: Technical design
-_Status: Draft · Updated: 2026-09-30_
+_Status: Implemented · Updated: 2026-09-30_
 _Related: [spec](spec.md) · [brief](brief.md)_
 
 ## Summary
@@ -85,7 +85,7 @@ Sin prototipo (`pm-prototype` no aplica; se reutilizan Sheet, Chip e inputs del 
 3. [x] `POST /api/recipes/import` con prompt y `parseAiRecipe`, CORS y errores + tests con mocks (covers R2, R3, R6, R7)
 4. [x] `Recipe.macrosEstimated`/`sourceUrl` y chip/enlace en la ficha (covers R4, R9)
 5. [x] `ImportRecipeSheet`, prop `imported` en `RecipeForm`, botón en Recetas, avisos y limpieza de `macrosEstimated` (covers R1, R4, R5, R6, R8)
-6. [ ] E2E con la ruta interceptada y nota en README (covers R1–R6, R9)
+6. [x] E2E con la ruta interceptada y nota en README (covers R1–R6, R9)
 
 ## Spec feedback
 - **R7 ajustada** (decidido por el usuario): "las mismas protecciones que `/api/recipes`" significaba solo CORS. Se sustituye por CORS + límite de peticiones por IP en memoria + límites de tamaño/tiempo; sin autenticación (queda para #22).
@@ -99,25 +99,25 @@ Todos los tests están escritos antes del código (🔴 = falla porque la featur
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | tests/e2e/importar-receta.spec.ts › "R1: el botón y el flujo de importación" (botón, diálogo, "Importando…", formulario prerrellenado) | e2e | 🔴 failing (not built) |
-| R1, R2 | tests/unit/RecipeForm-import.test.tsx › "R1/R2: el formulario se abre prerrellenado con lo importado" | unit | 🔴 failing (not built) |
-| R2 | tests/unit/recipe-import.test.ts › "R2: extractJsonLdRecipe" (directo, `@graph`, lista, HowToSection, ISO 8601, sin `nutrition`, JSON mal formado, sin Recipe) | unit | 🔴 failing (not built) |
-| R2 | server/tests/unit/recipes-import-route.test.ts › "R2: con JSON-LD no se llama a la IA" (Anthropic no se llama, sin API key) | unit | 🔴 failing (not built) |
-| R2, R8, R9 | tests/e2e/importar-receta.spec.ts › "R2 / R8 / R9: importación con JSON-LD" | e2e | 🔴 failing (not built) |
-| R3 | tests/unit/recipe-import.test.ts › "R3: htmlToText" y "R3: parseAiRecipe" | unit | 🔴 failing (not built) |
-| R3 | server/tests/unit/recipes-import-route.test.ts › "R3: sin JSON-LD, Claude extrae la receta" (Haiku 4.5, 30.000 caracteres, por ración) | unit | 🔴 failing (not built) |
-| R3, R4 | tests/e2e/importar-receta.spec.ts › "R3 / R4: importación con IA" (aviso, chip, quitar marca al editar) | e2e | 🔴 failing (not built) |
-| R4 | tests/unit/RecipeForm-import.test.tsx › "R4: macros estimados por IA" (aviso, `macrosEstimated`, quitar al cambiar kcal/P/C/G, conservar al cambiar solo el nombre, receta guardada) | unit | 🔴 failing (not built) |
+| R1 | tests/e2e/importar-receta.spec.ts › "R1: el botón y el flujo de importación" (botón, diálogo, "Importando…", formulario prerrellenado) | e2e | 🟢 passes |
+| R1, R2 | tests/unit/RecipeForm-import.test.tsx › "R1/R2: el formulario se abre prerrellenado con lo importado" | unit | 🟢 passes |
+| R2 | tests/unit/recipe-import.test.ts › "R2: extractJsonLdRecipe" (directo, `@graph`, lista, HowToSection, ISO 8601, sin `nutrition`, JSON mal formado, sin Recipe) | unit | 🟢 passes |
+| R2 | server/tests/unit/recipes-import-route.test.ts › "R2: con JSON-LD no se llama a la IA" (Anthropic no se llama, sin API key) | unit | 🟢 passes |
+| R2, R8, R9 | tests/e2e/importar-receta.spec.ts › "R2 / R8 / R9: importación con JSON-LD" | e2e | 🟢 passes |
+| R3 | tests/unit/recipe-import.test.ts › "R3: htmlToText" y "R3: parseAiRecipe" | unit | 🟢 passes |
+| R3 | server/tests/unit/recipes-import-route.test.ts › "R3: sin JSON-LD, Claude extrae la receta" (Haiku 4.5, 30.000 caracteres, por ración) | unit | 🟢 passes |
+| R3, R4 | tests/e2e/importar-receta.spec.ts › "R3 / R4: importación con IA" (aviso, chip, quitar marca al editar) | e2e | 🟢 passes |
+| R4 | tests/unit/RecipeForm-import.test.tsx › "R4: macros estimados por IA" (aviso, `macrosEstimated`, quitar al cambiar kcal/P/C/G, conservar al cambiar solo el nombre, receta guardada) | unit | 🟢 passes |
 | R5 | tests/unit/RecipeForm-import.test.tsx › "R5: nada se guarda sin confirmar" | unit | 🟢 passes (guarda de regresión; no prueba la feature hasta que exista `imported`) |
-| R5 | tests/e2e/importar-receta.spec.ts › "R5: nada se guarda sin confirmar" (cerrar formulario y cerrar diálogo) | e2e | 🔴 failing (not built) |
-| R6 | server/tests/unit/recipes-import-route.test.ts › "R6: errores" (sin reintentos de IA) y server/tests/unit/safe-fetch.test.ts › "R6: fallos de descarga" | unit | 🔴 failing (not built) |
-| R6 | tests/e2e/importar-receta.spec.ts › "R6: errores" (los 5 códigos, sin conexión, reintento, "Crear a mano") | e2e | 🔴 failing (not built) |
-| R7 | tests/unit/recipe-import.test.ts › "R7: validateImportUrl" / "R7: isPrivateAddress" | unit | 🔴 failing (not built) |
-| R7 | server/tests/unit/safe-fetch.test.ts › "R7: destinos internos", "redirecciones", "tamaño máximo", "tiempo máximo" | unit | 🔴 failing (not built) |
-| R7 | server/tests/unit/rate-limit.test.ts › "R7: createRateLimiter" / "importLimiter" | unit | 🔴 failing (not built) |
-| R7 | server/tests/unit/recipes-import-route.test.ts › "R7: validación de la URL", "límite de peticiones por IP", "CORS" | unit | 🔴 failing (not built) |
-| R8 | tests/unit/RecipeForm-import.test.tsx › "R8: pista de raciones" y tests/unit/recipe-import.test.ts › `servingsHint` | unit | 🔴 failing (not built) |
-| R9 | tests/unit/RecipeForm-import.test.tsx › "R9: URL de origen" y tests/e2e/importar-receta.spec.ts (enlace "Ver receta original") | unit + e2e | 🔴 failing (not built) |
-| — | tests/e2e/importar-receta.spec.ts › "Accesibilidad" (axe en el diálogo y el formulario importado) | e2e | 🔴 failing (not built) |
+| R5 | tests/e2e/importar-receta.spec.ts › "R5: nada se guarda sin confirmar" (cerrar formulario y cerrar diálogo) | e2e | 🟢 passes |
+| R6 | server/tests/unit/recipes-import-route.test.ts › "R6: errores" (sin reintentos de IA) y server/tests/unit/safe-fetch.test.ts › "R6: fallos de descarga" | unit | 🟢 passes |
+| R6 | tests/e2e/importar-receta.spec.ts › "R6: errores" (los 5 códigos, sin conexión, reintento, "Crear a mano") | e2e | 🟢 passes |
+| R7 | tests/unit/recipe-import.test.ts › "R7: validateImportUrl" / "R7: isPrivateAddress" | unit | 🟢 passes |
+| R7 | server/tests/unit/safe-fetch.test.ts › "R7: destinos internos", "redirecciones", "tamaño máximo", "tiempo máximo" | unit | 🟢 passes |
+| R7 | server/tests/unit/rate-limit.test.ts › "R7: createRateLimiter" / "importLimiter" | unit | 🟢 passes |
+| R7 | server/tests/unit/recipes-import-route.test.ts › "R7: validación de la URL", "límite de peticiones por IP", "CORS" | unit | 🟢 passes |
+| R8 | tests/unit/RecipeForm-import.test.tsx › "R8: pista de raciones" y tests/unit/recipe-import.test.ts › `servingsHint` | unit | 🟢 passes |
+| R9 | tests/unit/RecipeForm-import.test.tsx › "R9: URL de origen" y tests/e2e/importar-receta.spec.ts (enlace "Ver receta original") | unit + e2e | 🟢 passes |
+| — | tests/e2e/importar-receta.spec.ts › "Accesibilidad" (axe en el diálogo y el formulario importado) | e2e | 🟢 passes |
 
 Supuestos de los tests que Manuel puede revisar (ver el hand-off de dev-test): las peticiones con URL inválida cuentan para el límite; sin `x-forwarded-for` todas comparten la clave "unknown"; el texto "Importando…"; el botón "Cerrar" de los diálogos.
