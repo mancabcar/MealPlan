@@ -83,9 +83,9 @@ Los tests de dev-test (`tests/e2e/favoritos-franja.spec.ts` y los helpers de `te
 
 ## Tasks
 1. [x] Capa de datos de favoritos: `favorites` en `userData.ts`, `backup.ts` y `store.tsx`, con `sanitizeFavorites` y tests unitarios (covers R4)
-2. [ ] `src/lib/recipeSlots.ts` (`slotTag`, `groupRecipes`) con tests unitarios (covers R1, R2, R3)
-3. [ ] Componente `RecipePicker` (lista, buscador, ★, «Ver todas», aviso de alérgenos) (covers R1, R2, R3)
-4. [ ] Integrar en el Plan, helper `pickRecipe` y migrar los specs del Plan (covers R1, R2, R3)
+2. [x] `src/lib/recipeSlots.ts` (`slotTag`, `groupRecipes`) con tests unitarios (covers R1, R2, R3)
+3. [x] Componente `RecipePicker` (lista, buscador, ★, «Ver todas», aviso de alérgenos) (covers R1, R2, R3)
+4. [x] Integrar en el Plan, helper `pickRecipe` y migrar los specs del Plan (covers R1, R2, R3)
 5. [ ] Integrar en «Añadir comida» del Diario y migrar sus specs (covers R1)
 6. [ ] Estrella y «Solo favoritas» en la página Recetas (covers R5)
 7. [ ] Spec e2e `favoritos-franja.spec.ts` y comprobación de accesibilidad (covers R1–R5)

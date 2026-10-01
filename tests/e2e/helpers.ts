@@ -85,15 +85,28 @@ export const recipePicker = (page: Page) => page.getByRole("group", { name: "Ele
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** Fila de una receta (el nombre accesible empieza por el de la receta; la estrella empieza por «Marcar»/«Quitar»). */
+/**
+ * Fila de una receta: su nombre accesible es «<receta> N kcal · …», así que «Crema de calabaza» no coincide con «Crema de
+ * calabaza con picatostes». La estrella empieza por «Marcar»/«Quitar».
+ */
 export const recipeRow = (page: Page, name: string) =>
-  recipePicker(page).getByRole("button", { name: new RegExp(`^${escapeRe(name)}`) });
+  recipePicker(page).getByRole("button", { name: new RegExp(`^${escapeRe(name)} \\d+ kcal`) });
 
 /** Estrella de una receta: marcada («Quitar … de favoritas») o no («Marcar … como favorita»). */
 export const favStar = (page: Page, name: string, marked = false) =>
   recipePicker(page).getByRole("button", { name: marked ? `Quitar ${name} de favoritas` : `Marcar ${name} como favorita` });
 
-/** Elige una receta en el selector abierto (por nombre, no por id). */
+/** «Ver todas las recetas» del selector abierto. */
+export const showAllRecipes = (page: Page) => recipePicker(page).getByRole("button", { name: "Ver todas las recetas" });
+
+/** Elige una receta en el selector abierto (por nombre, no por id); si no es de la franja, abre «Ver todas». */
 export async function pickRecipe(page: Page, name: string) {
-  await recipeRow(page, name).click();
+  const row = recipeRow(page, name);
+  if (!(await row.isVisible())) await showAllRecipes(page).click();
+  await row.click();
+}
+
+/** «Quitar» del selector del Plan: deja la franja sin asignar (solo sale si ya tenía receta). */
+export async function clearRecipe(page: Page) {
+  await recipePicker(page).getByRole("button", { name: "Quitar", exact: true }).click();
 }

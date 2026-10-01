@@ -26,7 +26,7 @@ import {
   RECETAS_PROPIAS,
   SEMILLA_TORTILLA,
 } from "../fixtures/recetas-propias";
-import { readStored, signIn } from "./helpers";
+import { pickRecipe, readStored, recipeRow, showAllRecipes, signIn } from "./helpers";
 
 const lactosa = { ...lucia, allergies: { preset: ["lactosa"], custom: [] } };
 
@@ -124,8 +124,10 @@ test.describe("R1 / R5 / R9: crear una receta propia y verla en Recetas, Plan y 
 
     await page.goto("/plan");
     await page.getByRole("button", { name: /^Cena/ }).first().click();
-    await expect(page.locator("option").filter({ hasText: "Gazpachuelo casero (180 kcal)" })).toHaveCount(1);
-    await page.getByRole("combobox").selectOption({ label: "Gazpachuelo casero (180 kcal)" });
+    // Una receta propia sin franja solo sale en «Ver todas»
+    await showAllRecipes(page).click();
+    await expect(recipeRow(page, "Gazpachuelo casero")).toHaveCount(1);
+    await pickRecipe(page, "Gazpachuelo casero");
     expect(Object.values((await storedPlan(page)) ?? {}).flat().some((s) => s.mealType === "Cena")).toBe(true);
 
     await page.goto("/");

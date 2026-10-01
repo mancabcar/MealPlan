@@ -23,7 +23,7 @@ export function favRecipe(id: string, name: string, tags: string[], extra: Parti
 
 // Cenas (tag "cena")
 export const CENA_ZARZUELA = favRecipe("f-zarzuela", "Zarzuela de pescado", ["cena", "pescado"]);
-export const CENA_PUERROS = favRecipe("f-puerros", "Crema de puerros", ["cena", "vegetariano"]);
+export const CENA_PUERROS = favRecipe("f-puerros", "Crema fina de puerros", ["cena", "vegetariano"]);
 export const CENA_ALCACHOFAS = favRecipe("f-alcachofas", "Alcachofas al horno", ["cena"]);
 /** Con alergia a la lactosa en el perfil: "⚠ contiene Lactosa" (el selector actual ya lo avisa). */
 export const CENA_QUESO = favRecipe("f-cena-queso", "Cena de macarrones con queso", ["cena"], {

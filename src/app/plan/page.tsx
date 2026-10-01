@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronRight, ShoppingCart } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { allergenWarning } from "@/lib/allergens";
 import { MEAL_TYPES, MealType, WeekPlan, todayStr } from "@/lib/types";
 import { MEAL_TYPE_ICON_COMPONENTS } from "@/lib/categoryIcons";
 import { Card } from "@/components/ui/Card";
@@ -14,7 +13,7 @@ import { dayPlanSummary } from "@/lib/planMacros";
 import { batchOf, deleteOrigin, type SlotRef } from "@/lib/plan/batch";
 import { BatchSheet, BatchWarningSheet, LeftoverSheet } from "@/components/plan/BatchSheet";
 import { dayName } from "@/lib/week";
-import { inputCls } from "@/components/ui/input";
+import { RecipePicker } from "@/components/recetas/RecipePicker";
 import { DAY_NAMES, weekDates } from "@/lib/week";
 import { useShoppingList } from "@/lib/shopping/useShoppingList";
 
@@ -102,20 +101,13 @@ export default function PlanPage() {
             {EditingIcon && <EditingIcon className="w-4 h-4" aria-hidden />}
             {editing.mealType} — {DAY_NAMES[dates.indexOf(editing.date)]}
           </h3>
-          <select
-            autoFocus
-            className={inputCls}
-            defaultValue={weekPlan[editing.date]?.find((s) => s.mealType === editing.mealType)?.recipeId ?? ""}
-            onChange={(e) => assign(e.target.value)}
-          >
-            <option value="">— Sin asignar —</option>
-            {recipes.map((r) => (
-              <option key={r.id} value={r.id}>
-                {[`${r.name} (${r.calories} kcal)`, allergenWarning(r, profile?.allergies)].filter(Boolean).join(" · ")}
-              </option>
-            ))}
-          </select>
-          <button onClick={() => setEditing(null)} className="text-sm text-[var(--color-text-muted)] self-start">
+          <RecipePicker
+            mealType={editing.mealType}
+            value={weekPlan[editing.date]?.find((s) => s.mealType === editing.mealType)?.recipeId ?? ""}
+            onPick={assign}
+            onClear={() => assign("")}
+          />
+          <button onClick={() => setEditing(null)} className="text-sm text-[var(--color-text-muted)] self-start min-h-11">
             Cancelar
           </button>
         </Card>
