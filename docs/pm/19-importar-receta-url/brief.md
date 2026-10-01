@@ -1,5 +1,5 @@
 # Importar una receta desde una URL
-_Status: coding · Updated: 2026-09-30 · Issue: [#19](https://github.com/mancabcar/MealPlan/issues/19) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: in review · Updated: 2026-10-01 · Issue: [#19](https://github.com/mancabcar/MealPlan/issues/19) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#88](https://github.com/mancabcar/MealPlan/pull/88)_
 
 _Entrada en el pipeline: resumen del issue confirmado por el usuario; se saltan brainstorm completo y prototype (el formulario de receta ya existe por #18) y se entra en spec._
 
