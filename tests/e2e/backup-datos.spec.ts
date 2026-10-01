@@ -28,7 +28,7 @@ import { POLLO_BROCOLI } from "../fixtures/shopping";
 import { lucia, manuel } from "../fixtures/profiles";
 
 // docs/pm/9-historial-medidas: las mediciones son el séptimo dato y viajan en la copia.
-const USER_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements"] as const;
+const USER_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites"] as const;
 
 type Account = { id: string; username: string; salt: string; hash: string };
 
