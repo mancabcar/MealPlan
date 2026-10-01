@@ -83,8 +83,8 @@ Sin prototipo (`pm-prototype` no aplica; se reutilizan Sheet, Chip e inputs del 
 1. [x] `src/lib/recipeImport.ts` + unit tests: parser JSON-LD, ISO 8601, HTML→texto, validación de URL/IP, tipos (covers R2, R7)
 2. [x] `server/lib/safeFetch.ts` y `server/lib/rateLimit.ts` + tests (covers R7)
 3. [x] `POST /api/recipes/import` con prompt y `parseAiRecipe`, CORS y errores + tests con mocks (covers R2, R3, R6, R7)
-4. [ ] `Recipe.macrosEstimated`/`sourceUrl` y chip/enlace en la ficha (covers R4, R9)
-5. [ ] `ImportRecipeSheet`, prop `imported` en `RecipeForm`, botón en Recetas, avisos y limpieza de `macrosEstimated` (covers R1, R4, R5, R6, R8)
+4. [x] `Recipe.macrosEstimated`/`sourceUrl` y chip/enlace en la ficha (covers R4, R9)
+5. [x] `ImportRecipeSheet`, prop `imported` en `RecipeForm`, botón en Recetas, avisos y limpieza de `macrosEstimated` (covers R1, R4, R5, R6, R8)
 6. [ ] E2E con la ruta interceptada y nota en README (covers R1–R6, R9)
 
 ## Spec feedback

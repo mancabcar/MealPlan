@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ChefHat, Clock, Flame, Plus, Sparkles, X } from "lucide-react";
+import { ArrowLeft, ChefHat, Clock, Download, ExternalLink, Flame, Plus, Sparkles, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { Recipe, daysUntil, todayStr } from "@/lib/types";
 import { rankByPantry, recipesUsingItem, type RecipeUsage } from "@/lib/pantryRecipes";
@@ -12,7 +12,8 @@ import { Chip } from "@/components/ui/Chip";
 import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { inputCls } from "@/components/ui/input";
 import { Sheet } from "@/components/ui/Sheet";
-import { RecipeForm } from "@/components/recetas/RecipeForm";
+import { RecipeForm, type ImportedDraft } from "@/components/recetas/RecipeForm";
+import { ImportRecipeSheet } from "@/components/recetas/ImportRecipeSheet";
 import { dayName } from "@/lib/week";
 import { duplicateRecipe, slotsUsingRecipe, suggestedTags } from "@/lib/recipeEdit";
 
@@ -39,6 +40,9 @@ export default function RecipesPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // Receta en el formulario: "new" = nueva; una receta = editar (o la copia sin guardar de "Duplicar y editar")
   const [editing, setEditing] = useState<Recipe | "new" | null>(null);
+  // Importación desde URL (#19): el diálogo, y el borrador que abre el formulario de receta nueva (nada se guarda antes)
+  const [importing, setImporting] = useState(false);
+  const [importedDraft, setImportedDraft] = useState<ImportedDraft | null>(null);
   const [deleting, setDeleting] = useState(false);
   const selected = recipes.find((r) => r.id === selectedId) ?? null;
   const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
@@ -105,13 +109,34 @@ export default function RecipesPage() {
     saveRecipe(r);
     setSelectedId(editing === "new" ? null : r.id);
     setEditing(null);
+    setImportedDraft(null);
   };
   const formSheet = editing && (
     <RecipeForm
       recipe={editing === "new" ? undefined : editing}
+      imported={editing === "new" ? (importedDraft ?? undefined) : undefined}
       suggestedTags={suggestedTags(recipes)}
       onSave={onSave}
-      onClose={() => setEditing(null)}
+      onClose={() => {
+        setEditing(null);
+        setImportedDraft(null);
+      }}
+    />
+  );
+  const importSheet = importing && (
+    <ImportRecipeSheet
+      onImported={(draft) => {
+        setImporting(false);
+        setImportedDraft(draft);
+        setEditing("new");
+      }}
+      onManual={(sourceUrl) => {
+        setImporting(false);
+        // Formulario vacío; con la URL como origen si era válida (R9)
+        setImportedDraft(sourceUrl ? { recipe: { name: "", ingredients: [], instructions: [] }, source: "jsonld", sourceUrl } : null);
+        setEditing("new");
+      }}
+      onClose={() => setImporting(false)}
     />
   );
 
@@ -168,7 +193,18 @@ export default function RecipesPage() {
         <div className="flex flex-wrap items-center gap-2">
           <AllergenBadge recipe={selected} allergies={profile?.allergies} />
           {selected.isCustom && <Chip tone="accent">Propia</Chip>}
+          {selected.macrosEstimated && <Chip tone="expiring">Macros estimados</Chip>}
         </div>
+        {selected.sourceUrl && /^https?:[/][/]/i.test(selected.sourceUrl) && (
+          <a
+            href={selected.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-sm text-[var(--color-accent)] self-start"
+          >
+            <ExternalLink className="w-4 h-4" aria-hidden /> Ver receta original
+          </a>
+        )}
         <div className="flex gap-2">
           {editable ? (
             <>
@@ -245,9 +281,17 @@ export default function RecipesPage() {
   return (
     <div className="flex flex-col gap-4">
       {formSheet}
+      {importSheet}
       <div className="flex items-center justify-between gap-2">
         <h1 className="font-display text-2xl font-bold">Recetas</h1>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
+          <button
+            onClick={() => setImporting(true)}
+            className="flex items-center gap-1.5 border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-sm font-semibold"
+          >
+            <Download className="w-4 h-4" aria-hidden />
+            Importar desde URL
+          </button>
           <button
             onClick={() => setEditing("new")}
             className="flex items-center gap-1.5 border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-sm font-semibold"
