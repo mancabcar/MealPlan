@@ -2,6 +2,7 @@
 _Status: in review · Updated: 2026-10-02 · Issue: [#21](https://github.com/mancabcar/MealPlan/issues/21) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#92](https://github.com/mancabcar/MealPlan/pull/92) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
+- **Issues creados desde la revisión (2026-10-02):** [#93](https://github.com/mancabcar/MealPlan/issues/93) (WASM del escáner), [#94](https://github.com/mancabcar/MealPlan/issues/94) (instalación robusta del SW), [#95](https://github.com/mancabcar/MealPlan/issues/95) (tests y rendimiento del SW), [#96](https://github.com/mancabcar/MealPlan/issues/96) (barra de estado de iOS).
 - **Entrega 2: Web Push real con servidor (dirección C).** Suscripciones guardadas en Vercel, planificador externo gratuito, horas configurables en Perfil y aviso de caducidad (el cliente sube un resumen de fechas). Puede depender de #22 (cuentas y datos en servidor).
 - **Avisos dentro de la app (dirección B):** al abrirla, «caduca mañana: X» y «aún no has registrado la comida», con toggle en Perfil.
 - Validar si el plan Hobby de Vercel solo permite tareas programadas diarias y, si es así, elegir planificador externo (GitHub Actions, cron-job.org).
