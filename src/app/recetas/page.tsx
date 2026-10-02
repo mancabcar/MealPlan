@@ -92,12 +92,14 @@ export default function RecipesPage() {
     setGenerating(true);
     setError("");
     try {
+      // fetch solo rechaza si no hay red (PWA, issue #21 R5): mejor que el "Failed to fetch" del navegador
       const res = await fetch(apiUrl("/api/recipes"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // Solo lo que usa el prompt: sexo, edad y peso no salen del navegador
         body: JSON.stringify({ profile: profile && toRecipeProfile(profile), pantryItems: pantry }),
-      });
+      }).catch(() => null);
+      if (!res) throw new Error("Sin conexión. Prueba de nuevo cuando vuelvas a tener red.");
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error generando recetas");
       if (data.recipes.length === 0 && data.droppedCount > 0) {

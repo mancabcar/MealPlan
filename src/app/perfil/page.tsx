@@ -46,6 +46,7 @@ import {
 } from "@/components/perfil/steps";
 import { Field, inputCls } from "@/components/perfil/ui";
 import { DataSection } from "@/components/perfil/DataSection";
+import { InstallSection } from "@/components/perfil/InstallSection";
 import { RecalcOffer, recalcPatch } from "@/components/perfil/RecalcOffer";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
@@ -612,6 +613,7 @@ export default function ProfilePage() {
           setRecalc(null);
         }}
       />
+      <InstallSection />
 
       <button
         onClick={logout}
