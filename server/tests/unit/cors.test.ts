@@ -45,6 +45,14 @@ describe("preflight", () => {
     expect(res.headers.get("Access-Control-Allow-Methods")).toContain("GET");
   });
 
+  // docs/pm/22-sincronizacion-dispositivos/tech.md › Tasks 3: el cliente manda Authorization y usa PUT.
+  it("R2 (#22): permite PUT y la cabecera Authorization", () => {
+    const res = preflight(request(ALLOWED));
+    expect(res.headers.get("Access-Control-Allow-Methods")).toContain("PUT");
+    expect(res.headers.get("Access-Control-Allow-Headers")).toContain("Authorization");
+    expect(res.headers.get("Access-Control-Allow-Headers")).toContain("Content-Type");
+  });
+
   it("responde 204 sin cabeceras CORS con un origen distinto", () => {
     const res = preflight(request("https://otro-origen.example"));
     expect(res.status).toBe(204);

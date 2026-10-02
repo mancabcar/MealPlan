@@ -1,12 +1,13 @@
 "use client";
 
-import { createContext, useContext, useRef, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { UserProfile, Recipe, MealEntry, Measurement, PantryItem, WeekPlan } from "./types";
 import { userKey } from "./auth";
 import type { ShoppingState } from "./shopping/state";
 import { writeUserData } from "./backup";
 import { withoutRecipe } from "./recipeEdit";
-import { LOAD_OPTIONS, type LoadOptions, type UserData } from "./userData";
+import { useSync } from "./syncContext";
+import { LOAD_OPTIONS, USER_DATA_KEYS, type LoadOptions, type UserData, type UserDataKey } from "./userData";
 
 interface AppState {
   profile: UserProfile | null;
@@ -75,7 +76,11 @@ function load<T>(key: string, { fallback, upgrade, backup }: LoadOptions<T>): T 
 // AppProvider solo se monta en el cliente, tras cargar la sesión (ver AppShell), así que se puede
 // leer localStorage de forma síncrona: el primer render ya tiene los datos y no hay parpadeo del onboarding.
 // reload() vuelve a leer lo guardado (tras importar una copia) sin remontar el árbol.
-function usePersisted<T>(key: string, options: LoadOptions<T>): [T, Setter<T>, () => void] {
+function usePersisted<T>(
+  key: string,
+  options: LoadOptions<T>,
+  onWrite: () => void,
+): [T, Setter<T>, () => void] {
   const [value, setValue] = useState<T>(() => (typeof window === "undefined" ? options.fallback : load(key, options)));
   // Último valor escrito, no el del render: dos escrituras en el mismo evento se encadenan en vez de
   // pisarse (antes, llamar a addPantryItem dos veces seguidas solo conservaba la última).
@@ -85,6 +90,7 @@ function usePersisted<T>(key: string, options: LoadOptions<T>): [T, Setter<T>, (
     latest.current = next;
     setValue(next);
     localStorage.setItem(key, JSON.stringify(next));
+    onWrite(); // sincronización (#22): la clave queda pendiente de subir
   };
   const reload = () => {
     const next = load(key, options);
@@ -97,16 +103,18 @@ function usePersisted<T>(key: string, options: LoadOptions<T>): [T, Setter<T>, (
 export function AppProvider({ userId, children }: { userId: string; children: ReactNode }) {
   // Cada usuario tiene sus propias claves: mp_<userId>_<dato>. Migraciones y siembra: LOAD_OPTIONS (userData.ts).
   const k = (key: string) => userKey(userId, key);
+  const { markDirty, subscribeRemote } = useSync();
+  const dirty = (key: UserDataKey) => () => markDirty(key);
 
-  const [profile, setProfile, reloadProfile] = usePersisted(k("profile"), LOAD_OPTIONS.profile);
-  const [recipes, setRecipes, reloadRecipes] = usePersisted(k("recipes"), LOAD_OPTIONS.recipes);
-  const [entries, setEntries, reloadEntries] = usePersisted(k("entries"), LOAD_OPTIONS.entries);
-  const [pantry, setPantry, reloadPantry] = usePersisted(k("pantry"), LOAD_OPTIONS.pantry);
-  const [weekPlan, setWeekPlan, reloadWeekPlan] = usePersisted(k("weekplan"), LOAD_OPTIONS.weekplan);
-  const [shopping, setShopping, reloadShopping] = usePersisted(k("shopping"), LOAD_OPTIONS.shopping);
-  const [measurements, setMeasurements, reloadMeasurements] = usePersisted(k("measurements"), LOAD_OPTIONS.measurements);
+  const [profile, setProfile, reloadProfile] = usePersisted(k("profile"), LOAD_OPTIONS.profile, dirty("profile"));
+  const [recipes, setRecipes, reloadRecipes] = usePersisted(k("recipes"), LOAD_OPTIONS.recipes, dirty("recipes"));
+  const [entries, setEntries, reloadEntries] = usePersisted(k("entries"), LOAD_OPTIONS.entries, dirty("entries"));
+  const [pantry, setPantry, reloadPantry] = usePersisted(k("pantry"), LOAD_OPTIONS.pantry, dirty("pantry"));
+  const [weekPlan, setWeekPlan, reloadWeekPlan] = usePersisted(k("weekplan"), LOAD_OPTIONS.weekplan, dirty("weekplan"));
+  const [shopping, setShopping, reloadShopping] = usePersisted(k("shopping"), LOAD_OPTIONS.shopping, dirty("shopping"));
+  const [measurements, setMeasurements, reloadMeasurements] = usePersisted(k("measurements"), LOAD_OPTIONS.measurements, dirty("measurements"));
 
-  const [favorites, setFavorites, reloadFavorites] = usePersisted(k("favorites"), LOAD_OPTIONS.favorites);
+  const [favorites, setFavorites, reloadFavorites] = usePersisted(k("favorites"), LOAD_OPTIONS.favorites, dirty("favorites"));
 
   const [recipeFocus, setRecipeFocus] = useState<string | null>(null);
 
@@ -122,7 +130,26 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     reloadShopping();
     reloadMeasurements();
     reloadFavorites();
+    // #22 R11: lo importado se sube entero
+    for (const key of USER_DATA_KEYS) markDirty(key);
   };
+
+  // Cambios traídos del servidor: ya están en localStorage, solo hay que releerlos en el estado (#22 R5)
+  const reloaders: Record<UserDataKey, () => void> = {
+    profile: reloadProfile,
+    recipes: reloadRecipes,
+    entries: reloadEntries,
+    pantry: reloadPantry,
+    weekplan: reloadWeekPlan,
+    shopping: reloadShopping,
+    measurements: reloadMeasurements,
+    favorites: reloadFavorites,
+  };
+  const latestReloaders = useRef(reloaders);
+  useEffect(() => {
+    latestReloaders.current = reloaders;
+  });
+  useEffect(() => subscribeRemote((key) => latestReloaders.current[key]()), [subscribeRemote]);
 
   const value: AppState = {
     profile,

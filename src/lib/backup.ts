@@ -1,6 +1,6 @@
 // Copia de seguridad de los datos del usuario (docs/pm/backup-datos). Funciones puras con el Storage inyectado:
 // la página de Perfil les pasa localStorage y los tests uno en memoria.
-import { userKey } from "./auth";
+import { userKey } from "./userKey";
 import { sanitizeMeasurements } from "./measurements";
 import { PROFILE_SCHEMA_VERSION } from "./migrate";
 import { todayStr } from "./types";

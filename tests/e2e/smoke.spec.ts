@@ -4,7 +4,7 @@ import { signIn } from "./helpers";
 test("sin sesión se muestra la pantalla de acceso", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /MealPlanner/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Crear cuenta" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible();
 });
 
 test("con sesión y sin perfil empieza el onboarding", async ({ page }) => {
