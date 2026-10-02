@@ -1,45 +1,37 @@
 # PWA instalable y offline: Review
-_PR: [#92](https://github.com/mancabcar/MealPlan/pull/92) · Reviewed: 2026-10-02 · Verdict: 🔁 changes requested_
+_PR: [#92](https://github.com/mancabcar/MealPlan/pull/92) · Reviewed: 2026-10-02 (segunda revisión) · Verdict: ⚠️ approved with follow-ups_
 
 ## Summary
-La entrega 1 cubre R1, R2, R4, R5, R6 y R7 con tests en verde (lint y typecheck limpios, 1044 unitarios y 394 e2e en modo CI). Se piden cambios por dos bloqueantes: el botón «Instalar app» (R7) no aparecería en la práctica porque el listener de `beforeinstallprompt` vive solo en Perfil, y el service worker nuevo borra la caché vieja con pestañas abiertas, lo que contradice el edge case de la spec («una versión nueva no debe dejar una app rota»). R3 (instalación en Android, iPhone y PC y Lighthouse) sigue sin probarse en dispositivos reales.
+Segunda revisión tras los arreglos de la primera (`🔁 changes requested`, mismo día). Los dos bloqueantes, el botón «Instalar app» que no aparecía (R7) y el service worker que borraba la caché vieja con pestañas abiertas (R6), están resueltos y cubiertos por tests. R1, R2, R4, R5, R6 y R7 están implementados con tests en verde (lint y typecheck limpios, 1046 unitarios y 395 e2e en modo CI). Queda R3 sin probar en dispositivos reales, que Manuel comprobará en el móvil antes de fusionar, y cinco hallazgos no bloqueantes como follow-ups.
 
 ## Spec conformance
 | Req | Status | Where | Tested |
 |---|---|---|---|
 | R1 | ✅ Done | `src/app/manifest.ts:1`, `src/app/layout.tsx:28` | ✅ unit + e2e |
 | R2 | ✅ Done | `public/icons/`, `scripts/generate-icons.mjs` | ✅ unit + e2e |
-| R3 | ⚠️ Not verified | manifest, SW y metadatos de iPhone | ❌ manual pendiente |
-| R4 | ✅ Done | `scripts/generate-sw.mjs`, `scripts/sw.template.js:43` | ✅ unit + e2e |
-| R5 | ✅ Done | `src/app/recetas/page.tsx:109` | ✅ e2e |
-| R6 | ⚠️ Partial | `scripts/sw.template.js:21` | ✅ test de versión; ❌ pestañas abiertas |
-| R7 | ⚠️ Partial | `src/lib/useInstallPrompt.ts:16`, `src/components/perfil/InstallSection.tsx` | ✅ unit; ❌ montaje tardío |
+| R3 | ⚠️ Not verified | manifest, SW y metadatos de iPhone | ❌ manual pendiente (Android, iPhone, PC, Lighthouse) |
+| R4 | ✅ Done | `scripts/generate-sw.mjs`, `scripts/sw.template.js:56` | ✅ unit + e2e |
+| R5 | ✅ Done | `src/app/recetas/page.tsx:100` | ✅ e2e |
+| R6 | ✅ Done | `scripts/sw.template.js:31` | ✅ unit + e2e (dos actualizaciones) |
+| R7 | ✅ Done | `src/lib/useInstallPrompt.ts:26`, `src/components/InstallPromptCapture.tsx` | ✅ unit + e2e (montaje tardío) |
 
-Divergencias del tech design (documentadas en `tech.md`): el CI no se toca porque ya ejecuta los e2e contra `out/`; el test de R6 sirve `out/` en un puerto propio porque Playwright no intercepta la descarga del `sw.js`. Aceptadas: tienen razón documentada. Sin cambios fuera de alcance.
+Divergencias del tech design (documentadas en `tech.md`, aceptadas): CI sin tocar, servidor propio en el test de R6 y estrategia de caché (se conserva la versión anterior). Sin cambios fuera de alcance.
 
 ## Blocking
-1. **R7: el botón «Instalar app» no aparece**: `src/lib/useInstallPrompt.ts:26`. El navegador lanza `beforeinstallprompt` una vez al cargar y el hook solo escucha cuando se monta Perfil. → Capturar el evento en un listener global (layout o store de módulo) y que el hook lo lea; añadir un test que dispare el evento en la home, navegue a Perfil y espere el botón.
-2. **R6: skipWaiting + borrar la caché vieja rompe pestañas abiertas**: `scripts/sw.template.js:25`. Una PWA abierta durante un deploy pierde sus chunks con hash antiguo (ya no están en caché ni en el servidor): ChunkLoadError hasta recargar. → Conservar la caché anterior hasta que no queden clientes con ella, o recargar los clientes al activar la versión nueva.
+Ninguno. Los dos de la primera revisión (R7 listener tardío, R6 caché vieja) están resueltos, ver *Seguimiento*.
 
 ## Non-blocking
-- **Navegación red-primero sin timeout** (`scripts/sw.template.js:43`): con cobertura mala (escenario 2 de la spec) la app no abre aunque esté en caché. Importante: competir el fetch con un timeout de unos segundos y caer a la caché.
-- **`asset()` cachea y reutiliza cualquier GET del mismo origen con `ignoreSearch`** (`scripts/sw.template.js:58`): una API en el mismo origen devolvería la respuesta de otra consulta. Limitar a `/_next/static/` y a las URLs del precache.
-- **`statusBarStyle: "black-translucent"`** (`src/app/layout.tsx:31`) puede dejar el contenido bajo la barra de estado de iOS sin `viewport-fit=cover` ni safe-area. Verificar en un iPhone; alternativa: `default`.
-- **Todo `TypeError` se muestra como «Sin conexión»** (`src/app/recetas/page.tsx:109`): aislar el `fetch` en su propio try/catch.
-- **`cache.addAll` es todo o nada** (`scripts/sw.template.js:16`): un fichero que falle impide instalar el SW. Precachear de forma tolerante lo opcional.
-- **`install()` sin try/catch** (`src/lib/useInstallPrompt.ts:37`): un rechazo de `prompt()` deja el botón sin efecto.
-- **Precache grande** (`scripts/generate-sw.mjs`): incluye los SVG de plantilla de `public/` y todo `out/`, y la versión cambia en cada deploy.
-- **R3 sin probar** en Android, iPhone y PC ni con Lighthouse: comprobación manual antes de fusionar.
+1. **Una instalación fallida deja una caché parcial que desplaza a la anterior** (`scripts/sw.template.js:35`): si `addAll` falla, `mealplan-<v>` queda creada y el siguiente deploy la cuenta como «anterior» y borra la buena. → Borrar la caché propia si falla `addAll` y relanzar el error.
+2. **`caches.keys()` en cada petición** (`scripts/sw.template.js:40`): `fromCache` lo calcula antes de mirar la caché actual. → Consultar `CACHE` primero y las anteriores solo si falla.
+3. **`statusBarStyle: "black-translucent"`** (`src/app/layout.tsx:31`): puede solapar la barra de estado de iOS sin `viewport-fit=cover`. → Comprobar en un iPhone (parte de R3) o usar `default`.
+4. **`cache.addAll` todo o nada** (`scripts/sw.template.js:33`): un fichero con error impide instalar el SW. → Precachear de forma tolerante lo opcional.
+5. **Tests que faltan**: ni el timeout de 4 s de la navegación ni que la caché anterior sirva chunks (`tests/e2e/pwa.spec.ts`). → e2e que pida un recurso solo presente en la caché anterior y otro con la red retenida más de 4 s.
+6. **Tamaño del precache** (`scripts/generate-sw.mjs`): incluye los SVG de plantilla de `public/` y la versión cambia en cada deploy.
+7. **R3 sin probar** en Android, iPhone y PC ni con Lighthouse: comprobación manual antes de fusionar.
 - Follow-up ya creado: [#93](https://github.com/mancabcar/MealPlan/issues/93) (WASM del escáner sin CDN).
 
 ## Code review findings
-Los 9 hallazgos del pase 1 (`code-review`, nivel high) están recogidos arriba; el décimo, la falta de un test de montaje tardío para R7, va dentro del bloqueante 1. No hay más.
+Los hallazgos de las dos pasadas (`code-review`, nivel high) están recogidos arriba; ninguno más.
 
 ## Seguimiento
-Arreglados el 2026-10-02 en `feature/21-pwa-offline` (commits `d19f44c`, `80c7efc`, `18e9fcc`), pendientes de una nueva revisión:
-- **Bloqueante 1 (R7):** el evento se captura a nivel de módulo desde el layout; test unitario de montaje tardío y e2e que lo dispara en la home y navega a Perfil.
-- **Bloqueante 2 (R6):** se conserva la caché de la versión anterior (opción A, elegida por Manuel); e2e de dos actualizaciones.
-- **No bloqueantes ya arreglados (por decisión de Manuel):** timeout de 4 s en la navegación, caché acotada a lo precacheado y `_next/static`, `TypeError` solo para el `fetch` de recetas, `try/catch` en `install()`.
-- **Siguen abiertos:** `statusBarStyle` en iPhone (a comprobar en el dispositivo, R3), `cache.addAll` todo o nada, tamaño del precache y R3 sin probar en dispositivos.
-
-Verificación: 1046 unitarios y 395 e2e en modo CI, lint y typecheck limpios. El veredicto sigue en `🔁 changes requested` hasta volver a pasar `dev-review`.
+Primera revisión (2026-10-02): `🔁 changes requested` por R7 (el listener de `beforeinstallprompt` solo existía con Perfil montado) y R6 (el SW nuevo borraba la caché de la versión anterior con pestañas abiertas). Arreglados en `feature/21-pwa-offline` (`d19f44c`, `80c7efc`, `18e9fcc`), junto con el timeout de navegación, la caché acotada a lo precacheado y `_next/static`, el `TypeError` de recetas y el `try/catch` de `install()`. Segunda revisión: sin bloqueantes; Manuel confirma las clasificaciones y el veredicto `⚠️ approved with follow-ups`, con la comprobación manual de R3 antes de fusionar.
