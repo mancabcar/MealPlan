@@ -34,3 +34,12 @@ Divergencias del tech design (documentadas en `tech.md`): el CI no se toca porqu
 
 ## Code review findings
 Los 9 hallazgos del pase 1 (`code-review`, nivel high) están recogidos arriba; el décimo, la falta de un test de montaje tardío para R7, va dentro del bloqueante 1. No hay más.
+
+## Seguimiento
+Arreglados el 2026-10-02 en `feature/21-pwa-offline` (commits `d19f44c`, `80c7efc`, `18e9fcc`), pendientes de una nueva revisión:
+- **Bloqueante 1 (R7):** el evento se captura a nivel de módulo desde el layout; test unitario de montaje tardío y e2e que lo dispara en la home y navega a Perfil.
+- **Bloqueante 2 (R6):** se conserva la caché de la versión anterior (opción A, elegida por Manuel); e2e de dos actualizaciones.
+- **No bloqueantes ya arreglados (por decisión de Manuel):** timeout de 4 s en la navegación, caché acotada a lo precacheado y `_next/static`, `TypeError` solo para el `fetch` de recetas, `try/catch` en `install()`.
+- **Siguen abiertos:** `statusBarStyle` en iPhone (a comprobar en el dispositivo, R3), `cache.addAll` todo o nada, tamaño del precache y R3 sin probar en dispositivos.
+
+Verificación: 1046 unitarios y 395 e2e en modo CI, lint y typecheck limpios. El veredicto sigue en `🔁 changes requested` hasta volver a pasar `dev-review`.
