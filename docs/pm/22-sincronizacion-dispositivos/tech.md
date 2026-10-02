@@ -153,4 +153,4 @@ Los tests se escribieron antes que el código (2026-10-02) y ahora pasan todos. 
 - El indicador de estado es una píldora fija arriba a la derecha con `data-testid="sync-status"` y `aria-live="polite"`, **sin `role="status"`** (a diferencia del contrato inicial): los avisos existentes (p. ej. «Deshacer») ya usan ese rol y sus e2e los buscan por él.
 - Un dispositivo que ya sincronizó con la cuenta (existe `mp_<id>_syncmeta`) no vuelve a pedir la confirmación de R7 al reabrir sesión tras caducar: solo se pone al día.
 - `signIn` de `tests/e2e/helpers.ts` ahora siembra una sesión del servidor simulado; `backup-datos` y `shopping-list` se adaptaron igual, y el snapshot de localStorage de `backup-datos` ignora `*_syncmeta`.
-- Se registran y se eliminan las cuentas locales: `mp_users` y los datos de la cuenta local siguen en el navegador hasta que se borren a mano (solo se leen para «Traer los datos de este dispositivo»).
+- Las cuentas locales no se eliminan: `mp_users` y los datos de la cuenta local siguen en el navegador hasta que se borren a mano (solo se leen para «Traer los datos de este dispositivo»).
