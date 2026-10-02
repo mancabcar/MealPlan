@@ -1,7 +1,8 @@
 # Sincronización entre dispositivos: cuentas y datos en servidor
-_Status: in review · Updated: 2026-10-02 · Issue: [#22](https://github.com/mancabcar/MealPlan/issues/22) (relacionado: [#66](https://github.com/mancabcar/MealPlan/issues/66)) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#98](https://github.com/mancabcar/MealPlan/pull/98) · Review: [review.md](review.md) — 🔁 changes requested_
+_Status: in review · Updated: 2026-10-02 · Issue: [#22](https://github.com/mancabcar/MealPlan/issues/22) (relacionado: [#66](https://github.com/mancabcar/MealPlan/issues/66)) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#98](https://github.com/mancabcar/MealPlan/pull/98) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
+- Follow-ups de la review de #98 como issues: [#99](https://github.com/mancabcar/MealPlan/issues/99) (polling y píldora), [#100](https://github.com/mancabcar/MealPlan/issues/100) (adopción pisa datos), [#101](https://github.com/mancabcar/MealPlan/issues/101) (hardening).
 - **Segunda entrega: offline con cola de cambios e indicador de estado** (al día / pendiente / sin conexión / error). Son criterios de éxito de Manuel y de #22, pero quedan fuera de la v1: la v1 exige conexión.
 - **Merge por fila (dirección B)** si la última escritura gana pierde ediciones en la práctica (diario, lista de la compra editados desde dos dispositivos).
 - Tiempo real con websockets (la v1 usa refresco al volver a la pestaña y polling).
