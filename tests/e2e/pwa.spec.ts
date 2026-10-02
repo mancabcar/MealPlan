@@ -137,22 +137,62 @@ async function runUpdateScenario(page: Page, base: string, swOverride: { body?: 
   swOverride.body = original.replace(/const VERSION = "[^"]*"/, 'const VERSION = "test-v2"');
   expect(swOverride.body).not.toBe(original);
 
-  await page.evaluate(async () => {
-    const reg = await navigator.serviceWorker.getRegistration();
-    await reg!.update();
-  });
+  const checkForUpdate = async () => {
+    // update() no hace nada mientras haya una versión instalándose o a medio activar
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          const reg = await navigator.serviceWorker.getRegistration();
+          return reg!.active?.state === "activated" && !reg!.installing && !reg!.waiting;
+        }),
+      )
+      .toBe(true);
+    await page.evaluate(async () => {
+      const reg = await navigator.serviceWorker.getRegistration();
+      await reg!.update();
+    });
+  };
+  const cacheKeys = () => page.evaluate(() => caches.keys());
 
-  await expect
-    .poll(() => page.evaluate(async () => (await caches.keys()).every((k) => k.includes("test-v2"))), {
-      timeout: 15_000,
-    })
-    .toBe(true);
-  expect(await page.evaluate(() => caches.keys())).not.toEqual(before);
+  await checkForUpdate();
+  await expect.poll(async () => (await cacheKeys()).some((k) => k.includes("test-v2")), { timeout: 15_000 }).toBe(true);
+  // Review #92: la caché de la versión anterior se conserva (las pestañas abiertas aún piden sus chunks con hash viejo)
+  expect(await cacheKeys()).toEqual(expect.arrayContaining(before));
+
+  // …y una segunda actualización ya borra la más antigua
+  swOverride.body = original.replace(/const VERSION = "[^"]*"/, 'const VERSION = "test-v3"');
+  await checkForUpdate();
+  await expect.poll(async () => (await cacheKeys()).some((k) => k.includes("test-v3")), { timeout: 15_000 }).toBe(true);
+  await expect.poll(async () => (await cacheKeys()).length, { timeout: 15_000 }).toBe(2);
+  const after = await cacheKeys();
+  expect(after.some((k) => before.includes(k))).toBe(false);
+  expect(after.some((k) => k.includes("test-v2"))).toBe(true);
 
   await page.reload();
   await expect(page.getByRole("heading", { name: "Diario" })).toBeVisible();
   expect(await readStored(page, "profile")).toMatchObject({ name: "Lucía" });
 }
+
+test("R7 (review #92): si el navegador ofrece instalar antes de abrir Perfil, el botón aparece al llegar", async ({
+  page,
+}) => {
+  await signIn(page, { profile: lucia });
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Diario" })).toBeVisible();
+  await page.evaluate(() => {
+    const event = Object.assign(new Event("beforeinstallprompt", { cancelable: true }), {
+      prompt: async () => {},
+      userChoice: Promise.resolve({ outcome: "accepted" }),
+    });
+    window.dispatchEvent(event);
+  });
+
+  await page.getByRole("link", { name: "Perfil" }).click(); // navegación del cliente: el módulo no se recarga
+  const card = page.getByRole("region", { name: "Instalar app" });
+  await expect(card).toBeVisible();
+  await card.getByRole("button", { name: "Instalar app" }).click();
+  await expect(card).toHaveCount(0);
+});
 
 test("R5: sin conexión, «Sugerir con IA» avisa de que no hay conexión y la app sigue usable", async ({ page }) => {
   await signIn(page, { profile: lucia });
