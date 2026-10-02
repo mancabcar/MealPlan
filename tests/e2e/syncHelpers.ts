@@ -48,8 +48,7 @@ export const stored = <T = unknown>(page: Page, userId: string, key: string) =>
 /** Contrato de UI de Login (tech.md › UI): Usuario, Contraseña, Repite la contraseña, Código de invitación. */
 export async function register(page: Page, username: string, password: string, invite = INVITE_CODE) {
   await page.goto("/");
-  const toggle = page.getByRole("button", { name: "¿No tienes cuenta? Regístrate" });
-  if (await toggle.isVisible()) await toggle.click();
+  await page.getByRole("button", { name: "¿No tienes cuenta? Regístrate" }).click();
   await page.getByLabel("Usuario").fill(username);
   await page.getByLabel("Contraseña", { exact: true }).fill(password);
   await page.getByLabel("Repite la contraseña").fill(password);
@@ -59,6 +58,7 @@ export async function register(page: Page, username: string, password: string, i
 
 export async function login(page: Page, username: string, password: string) {
   await page.goto("/");
+  await page.getByRole("button", { name: "Entrar" }).waitFor();
   await page.getByLabel("Usuario").fill(username);
   await page.getByLabel("Contraseña", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Entrar" }).click();

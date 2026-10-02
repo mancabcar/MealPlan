@@ -4,6 +4,8 @@
 // Datos: tests/fixtures/shopping.ts. Hoy = martes 2026-09-22 (signIn fija el reloj); semana 21–27 sept.
 // Con Lucía (Desayuno, Comida, Merienda, Cena) la lista tiene 10 por comprar y 2 "Ya lo tienes".
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { createFakeBackend } from "../fixtures/fakeSyncBackend";
+import { mockBackend } from "./syncHelpers";
 import { lucia, manuel } from "../fixtures/profiles";
 import {
   CREMA_CALABAZA,
@@ -239,20 +241,24 @@ test.describe("R8: lo comprado se guarda por usuario y por semana", () => {
   test("dos usuarios en el mismo dispositivo: cada uno ve solo lo suyo", async ({ page }) => {
     const OTHER = "e2e-user-2";
     await page.clock.setFixedTime(new Date(`${TODAY}T10:00:00`));
+    // #22: cada usuario es una cuenta del servidor (simulado); cambiar de usuario = abrir su sesión
+    const backend = createFakeBackend();
+    const tokens: Record<string, string> = { [USER_ID]: backend.seedAs(USER_ID, "lucia"), [OTHER]: backend.seedAs(OTHER, "manuel") };
+    await mockBackend(page.context(), backend);
     await page.addInitScript(
-      ({ users, seed }) => {
-        if (localStorage.getItem("mp_users")) return;
+      ({ users, seed, tokens }) => {
+        if (localStorage.getItem("mp_session")) return;
         localStorage.setItem(
           "mp_users",
           JSON.stringify(users.map(([id, username]) => ({ id, username, salt: "00", hash: "00", createdAt: "2026-09-01T00:00:00Z" }))),
         );
-        localStorage.setItem("mp_session", JSON.stringify({ id: users[0][0], username: users[0][1] }));
+        localStorage.setItem("mp_session", JSON.stringify({ id: users[0][0], username: users[0][1], token: tokens[users[0][0]] }));
         for (const [id] of users) for (const [k, v] of Object.entries(seed)) localStorage.setItem(`mp_${id}_${k}`, JSON.stringify(v));
       },
-      { users: [[USER_ID, "lucia"], [OTHER, "manuel"]] as [string, string][], seed: SEED },
+      { users: [[USER_ID, "lucia"], [OTHER, "manuel"]] as [string, string][], seed: SEED, tokens },
     );
     const switchTo = async (id: string, username: string) => {
-      await page.evaluate((s) => localStorage.setItem("mp_session", JSON.stringify(s)), { id, username });
+      await page.evaluate((s) => localStorage.setItem("mp_session", JSON.stringify(s)), { id, username, token: tokens[id] });
       await page.goto(LIST);
       await expect(page.getByRole("heading", { name: "Lista de la compra", level: 1 })).toBeVisible();
     };

@@ -26,6 +26,8 @@ import {
 } from "../fixtures/backup";
 import { POLLO_BROCOLI } from "../fixtures/shopping";
 import { lucia, manuel } from "../fixtures/profiles";
+import { createFakeBackend } from "../fixtures/fakeSyncBackend";
+import { mockBackend } from "./syncHelpers";
 
 // docs/pm/9-historial-medidas: las mediciones son el séptimo dato y viajan en la copia.
 const USER_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements"] as const;
@@ -43,16 +45,20 @@ async function seedBrowser(
   others: Account[] = [],
 ) {
   await page.clock.setFixedTime(new Date(`${TODAY}T10:00:00`));
+  // #22: la sesión es del servidor (simulado). Las cuentas locales antiguas (mp_users) siguen sembradas para comprobar
+  // que ni sus credenciales ni sus datos viajan en la copia.
+  const backend = createFakeBackend();
+  const token = backend.seedAs(account.id, account.username);
+  await mockBackend(page.context(), backend);
   await page.addInitScript(
-    ({ account, accounts, data }) => {
-      if (localStorage.getItem("mp_users")) return;
+    ({ account, accounts, data, token }) => {
+      if (localStorage.getItem("mp_session")) return;
       localStorage.setItem("mp_users", JSON.stringify(accounts.map((a) => ({ ...a, createdAt: "2026-09-01T00:00:00Z" }))));
-      localStorage.setItem("mp_session", JSON.stringify({ id: account.id, username: account.username }));
-      localStorage.setItem("mp_remembered", JSON.stringify(accounts.map((a) => a.username)));
+      localStorage.setItem("mp_session", JSON.stringify({ id: account.id, username: account.username, token }));
       for (const [id, values] of Object.entries(data))
         for (const [k, v] of Object.entries(values)) localStorage.setItem(`mp_${id}_${k}`, JSON.stringify(v));
     },
-    { account, accounts: [account, ...others], data },
+    { account, accounts: [account, ...others], data, token },
   );
 }
 
@@ -60,8 +66,16 @@ const readKey = (page: Page, userId: string, key: string) =>
   page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? "null"), `mp_${userId}_${key}`);
 
 /** Todo el localStorage, cadena a cadena, para comprobar "byte a byte igual". */
+// Sin los metadatos de sincronización (#22: mp_<id>_syncmeta, versiones y claves pendientes): no son datos del usuario
+// y cambian solos con el primer ciclo de sync.
 const snapshot = (page: Page) =>
-  page.evaluate(() => Object.fromEntries(Object.keys(localStorage).map((k) => [k, localStorage.getItem(k)])));
+  page.evaluate(() =>
+    Object.fromEntries(
+      Object.keys(localStorage)
+        .filter((k) => !k.endsWith("_syncmeta"))
+        .map((k) => [k, localStorage.getItem(k)]),
+    ),
+  );
 
 const dataSection = (page: Page) => page.getByRole("region", { name: "Tus datos" });
 const nav = (page: Page) => page.getByRole("navigation", { name: "Navegación principal" });

@@ -8,7 +8,7 @@ import { emptyDevice, LOCAL_ID, login, mockBackend, register, seedLocalDevice, s
 
 const PASSWORD = "secreto-123";
 const SERVER_ID = "srv-1"; // el primer usuario del servidor simulado
-const status = (page: import("@playwright/test").Page) => page.getByRole("status").filter({ hasText: /Al día|Sin sincronizar/ });
+const status = (page: import("@playwright/test").Page) => page.getByTestId("sync-status");
 
 let backend: FakeBackend;
 test.beforeEach(() => {
