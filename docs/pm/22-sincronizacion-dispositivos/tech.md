@@ -94,16 +94,16 @@ Reutiliza `Login.tsx` (se quita la lista de usuarios recordados; añade campo de
 - **Manual:** PC↔móvil con ≤ 30 s (criterio de la spec) y coste 0 € en el panel del proveedor.
 
 ## Tasks
-1. [ ] BD: `@neondatabase/serverless`, `server/lib/db.ts` y esquema SQL (covers R3, R9)
-2. [ ] Auth en servidor: scrypt, `register/login/logout`, sesiones, invitación y bloqueo (covers R1, R2, R9)
-3. [ ] CORS: `PUT` y `Authorization`; actualizar `cors.test.ts` (covers R2)
-4. [ ] Sync en servidor: `GET /api/sync` y `PUT /api/sync/[key]` con `baseVersion` y 409 (covers R3, R4, R9)
-5. [ ] Cliente de auth: `auth.tsx` y `Login.tsx` contra el servidor, token, «Recordar sesión», sin `rememberedUsers` (covers R1, R2)
-6. [ ] `src/lib/sync.ts`: cola de pendientes, push con debounce, 409, enganche a `usePersisted` (covers R4, R8)
-7. [ ] Pull con foco y polling de 15 s, aislamiento de pestañas (covers R5)
-8. [ ] Migración: selector de cuenta local, R6 (servidor vacío) y R7 (confirmación y backup opcional) (covers R6, R7)
-9. [ ] Indicador de estado, `importData` sube las 7 claves, logout limpia lo local (covers R10, R11, R12)
-10. [ ] README y variables de entorno (`DATABASE_URL`, `REGISTRATION_CODE`), e2e y prueba manual PC↔móvil (covers R5, R6, R7)
+1. [x] BD: `@neondatabase/serverless`, `server/lib/db.ts` y esquema SQL (covers R3, R9)
+2. [x] Auth en servidor: scrypt, `register/login/logout`, sesiones, invitación y bloqueo (covers R1, R2, R9)
+3. [x] CORS: `PUT` y `Authorization`; actualizar `cors.test.ts` (covers R2)
+4. [x] Sync en servidor: `GET /api/sync` y `PUT /api/sync/[key]` con `baseVersion` y 409 (covers R3, R4, R9)
+5. [x] Cliente de auth: `auth.tsx` y `Login.tsx` contra el servidor, token, «Recordar sesión», sin `rememberedUsers` (covers R1, R2)
+6. [x] `src/lib/sync.ts`: cola de pendientes, push con debounce, 409, enganche a `usePersisted` (covers R4, R8)
+7. [x] Pull con foco y polling de 15 s, aislamiento de pestañas (covers R5)
+8. [x] Migración: selector de cuenta local, R6 (servidor vacío) y R7 (confirmación y backup opcional) (covers R6, R7)
+9. [x] Indicador de estado, `importData` sube las 7 claves, logout limpia lo local (covers R10, R11, R12)
+10. [x] README y variables de entorno (`DATABASE_URL`, `REGISTRATION_CODE`), e2e y prueba manual PC↔móvil (covers R5, R6, R7)
 
 ## Spec feedback
 - La spec dice «gana la última escritura según la marca del servidor». El diseño lo concreta con concurrencia optimista: gana la última escritura entre dispositivos al día; un dispositivo desfasado (p. ej. tras estar sin red) adopta el servidor. Es lo que exige R8 y se acepta como pérdida posible de ediciones sin red hasta la segunda entrega. `spec.md` no cambia.
@@ -112,31 +112,31 @@ Reutiliza `Login.tsx` (se quita la lista de usuarios recordados; añade campo de
 - Preguntas abiertas de proveedor, token y polling: resueltas (Neon, token opaco en `localStorage`, 15 s).
 
 ## Test coverage
-Los tests están escritos antes que el código (2026-10-02). Fallan porque la feature no existe (los módulos aún no están), no por errores de los propios tests. Los servidores simulados son dobles del contrato: `server/tests/helpers/fakeStore.ts` (contrato de `server/lib/store.ts`) y `tests/fixtures/fakeSyncBackend.ts` (contrato HTTP completo).
+Los tests se escribieron antes que el código (2026-10-02) y ahora pasan todos. Los servidores simulados son dobles del contrato: `server/tests/helpers/fakeStore.ts` (contrato de `server/lib/store.ts`) y `tests/fixtures/fakeSyncBackend.ts` (contrato HTTP completo).
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | server/tests/unit/auth-routes.test.ts › "R1: registro", "R1: login" | unit (servidor) | 🔴 failing (not built) |
-| R1 | tests/e2e/sync.spec.ts › "R1: sin el código…", "R1: usuario o contraseña incorrectos…" | e2e | 🔴 failing (not built) |
-| R1, R6 | tests/e2e/sync.spec.ts › "R1/R6: crear la cuenta sube los datos locales…" | e2e | 🔴 failing (not built) |
-| R2 | server/tests/unit/auth-routes.test.ts › "R2: sesión y logout" (logout, otros dispositivos, 90 días) | unit (servidor) | 🔴 failing (not built) |
-| R2 | server/tests/unit/cors.test.ts › "R2 (#22): permite PUT y Authorization" | unit (servidor) | 🔴 failing (CORS sin ampliar) |
-| R2, R12 | tests/e2e/sync.spec.ts › "R2: la sesión sobrevive a una recarga y cerrar sesión…" | e2e | 🔴 failing (not built) |
-| — | server/tests/unit/auth-routes.test.ts › "Bloqueo de fuerza bruta" (5 fallos/15 min → 429) | unit (servidor) | 🔴 failing (not built) |
-| R3 | server/tests/unit/sync-routes.test.ts › "R3: bloques JSON con versión del servidor" (7 claves, versión, clave inválida 400, 413 > 1 MB) | unit (servidor) | 🔴 failing (not built) |
-| R4 | server/tests/unit/sync-routes.test.ts › "R4: última escritura gana…" (409 con valor del servidor) | unit (servidor) | 🔴 failing (not built) |
-| R4 | tests/unit/sync-engine.test.ts › "R4: subir los cambios locales" (debounce 1 s, Bearer, baseVersion, 409 adopta) | unit (cliente) | 🔴 failing (not built) |
-| R5 | server/tests/unit/sync-routes.test.ts › "R5: GET… since" | unit (servidor) | 🔴 failing (not built) |
-| R5 | tests/unit/sync-engine.test.ts › "R5: bajar los cambios de otros dispositivos" (pull, polling 15 s, ≤ 30 s, pestaña oculta, stop) | unit (cliente) | 🔴 failing (not built) |
-| R5 | tests/e2e/sync.spec.ts › "R5: un segundo dispositivo inicia sesión, ve los datos y recibe un cambio…" | e2e | 🔴 failing (not built) |
-| R6 | tests/unit/sync-migration.test.ts › "R6…", "planFirstSync", "hasUserData", "listLocalAccounts" | unit (cliente) | 🔴 failing (not built) |
-| R7 | tests/unit/sync-migration.test.ts › "R7: datos en ambos lados" (aceptar adopta el servidor) | unit (cliente) | 🔴 failing (not built) |
-| R7 | tests/e2e/sync.spec.ts › "R7: aceptar…", "R7: cancelar…" | e2e | 🔴 failing (not built) |
-| R8, R10 | tests/unit/sync-engine.test.ts › "R8 y R10: sin red…" (unsynced, reintento, servidor gana, recarga, 500, 401) | unit (cliente) | 🔴 failing (not built) |
-| R8, R10 | tests/e2e/sync.spec.ts › "R8/R10: sin red la app sigue…" | e2e | 🔴 failing (not built) |
-| R9 | server/tests/unit/sync-routes.test.ts › "R9: los datos son de cada usuario" (401 y aislamiento; la SQL real, a mano) | unit (servidor) | 🔴 failing (not built) |
-| R11 | tests/unit/sync-engine.test.ts › "R11: marcar las 7 claves…" | unit (cliente) | 🔴 failing (not built) |
-| R12 | tests/unit/sync-migration.test.ts › "R12: clearUserData…" | unit (cliente) | 🔴 failing (not built) |
+| R1 | server/tests/unit/auth-routes.test.ts › "R1: registro", "R1: login" | unit (servidor) | 🟢 passing |
+| R1 | tests/e2e/sync.spec.ts › "R1: sin el código…", "R1: usuario o contraseña incorrectos…" | e2e | 🟢 passing |
+| R1, R6 | tests/e2e/sync.spec.ts › "R1/R6: crear la cuenta sube los datos locales…" | e2e | 🟢 passing |
+| R2 | server/tests/unit/auth-routes.test.ts › "R2: sesión y logout" (logout, otros dispositivos, 90 días) | unit (servidor) | 🟢 passing |
+| R2 | server/tests/unit/cors.test.ts › "R2 (#22): permite PUT y Authorization" | unit (servidor) | 🟢 passing |
+| R2, R12 | tests/e2e/sync.spec.ts › "R2: la sesión sobrevive a una recarga y cerrar sesión…" | e2e | 🟢 passing |
+| — | server/tests/unit/auth-routes.test.ts › "Bloqueo de fuerza bruta" (5 fallos/15 min → 429) | unit (servidor) | 🟢 passing |
+| R3 | server/tests/unit/sync-routes.test.ts › "R3: bloques JSON con versión del servidor" (7 claves, versión, clave inválida 400, 413 > 1 MB) | unit (servidor) | 🟢 passing |
+| R4 | server/tests/unit/sync-routes.test.ts › "R4: última escritura gana…" (409 con valor del servidor) | unit (servidor) | 🟢 passing |
+| R4 | tests/unit/sync-engine.test.ts › "R4: subir los cambios locales" (debounce 1 s, Bearer, baseVersion, 409 adopta) | unit (cliente) | 🟢 passing |
+| R5 | server/tests/unit/sync-routes.test.ts › "R5: GET… since" | unit (servidor) | 🟢 passing |
+| R5 | tests/unit/sync-engine.test.ts › "R5: bajar los cambios de otros dispositivos" (pull, polling 15 s, ≤ 30 s, pestaña oculta, stop) | unit (cliente) | 🟢 passing |
+| R5 | tests/e2e/sync.spec.ts › "R5: un segundo dispositivo inicia sesión, ve los datos y recibe un cambio…" | e2e | 🟢 passing |
+| R6 | tests/unit/sync-migration.test.ts › "R6…", "planFirstSync", "hasUserData", "listLocalAccounts" | unit (cliente) | 🟢 passing |
+| R7 | tests/unit/sync-migration.test.ts › "R7: datos en ambos lados" (aceptar adopta el servidor) | unit (cliente) | 🟢 passing |
+| R7 | tests/e2e/sync.spec.ts › "R7: aceptar…", "R7: cancelar…" | e2e | 🟢 passing |
+| R8, R10 | tests/unit/sync-engine.test.ts › "R8 y R10: sin red…" (unsynced, reintento, servidor gana, recarga, 500, 401) | unit (cliente) | 🟢 passing |
+| R8, R10 | tests/e2e/sync.spec.ts › "R8/R10: sin red la app sigue…" | e2e | 🟢 passing |
+| R9 | server/tests/unit/sync-routes.test.ts › "R9: los datos son de cada usuario" (401 y aislamiento; la SQL real, a mano) | unit (servidor) | 🟢 passing |
+| R11 | tests/unit/sync-engine.test.ts › "R11: marcar las 7 claves…" | unit (cliente) | 🟢 passing |
+| R12 | tests/unit/sync-migration.test.ts › "R12: clearUserData…" | unit (cliente) | 🟢 passing |
 
 **Sin test automático (a mano):** ≤ 30 s real entre PC y móvil; coste 0 €/mes; la SQL real de compare-and-set y el aislamiento por `user_id` contra Neon.
 
@@ -148,3 +148,9 @@ Los tests están escritos antes que el código (2026-10-02). Fallan porque la fe
 - UI test contract: Login con «Usuario», «Contraseña», «Repite la contraseña», «Código de invitación», casilla «Recordar sesión», botones «Crear cuenta»/«Entrar»; selector de cuenta local «Traer los datos de este dispositivo» (preseleccionada la de la última sesión local); diálogo «Sustituir los datos de este dispositivo» con «Sustituir», «Cancelar» y «Descargar copia de lo local»; indicador `role="status"` con «Al día» / «Sin sincronizar» visible en todas las pantallas (cabecera); errores del servidor mostrados tal cual.
 - **Los e2e existentes dependen de `signIn` (`tests/e2e/helpers.ts`), que siembra `mp_users`/`mp_session`.** Al sustituir la autenticación (tarea 5) habrá que reescribirlo para que siembre una sesión del servidor simulado (`mockBackend`) o un token válido; sin ello se rompen los demás e2e.
 - Mientras la feature no exista, `npm run typecheck` falla por los imports de estos tests (los módulos aún no existen), y CI quedaría en rojo en esta rama.
+
+## Notas de implementación (dev-code)
+- El indicador de estado es una píldora fija arriba a la derecha con `data-testid="sync-status"` y `aria-live="polite"`, **sin `role="status"`** (a diferencia del contrato inicial): los avisos existentes (p. ej. «Deshacer») ya usan ese rol y sus e2e los buscan por él.
+- Un dispositivo que ya sincronizó con la cuenta (existe `mp_<id>_syncmeta`) no vuelve a pedir la confirmación de R7 al reabrir sesión tras caducar: solo se pone al día.
+- `signIn` de `tests/e2e/helpers.ts` ahora siembra una sesión del servidor simulado; `backup-datos` y `shopping-list` se adaptaron igual, y el snapshot de localStorage de `backup-datos` ignora `*_syncmeta`.
+- Se registran y se eliminan las cuentas locales: `mp_users` y los datos de la cuenta local siguen en el navegador hasta que se borren a mano (solo se leen para «Traer los datos de este dispositivo»).
