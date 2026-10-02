@@ -1,9 +1,9 @@
 # Sincronización entre dispositivos: Spec
-_Status: Draft · Owner: Manuel · Updated: 2026-10-02_
+_Status: Draft · Owner: Manuel · Updated: 2026-10-02 (8 claves: se añadió `favoritos`, de #20, al fusionar con `main`)_
 _Related: [brief](brief.md) · [issue #22](https://github.com/mancabcar/MealPlan/issues/22) · relacionado: #66_
 
 ## TL;DR
-Las cuentas y los datos viven en el `localStorage` de cada navegador, así que el móvil y el PC no comparten nada y borrar el navegador los pierde. Construimos cuentas reales en el servidor (`server/` de Vercel) y sincronizamos las 7 claves de datos como bloques JSON donde gana la última escritura, con refresco casi en vivo y migración automática de lo local. Sabremos que funciona cuando un cambio en un dispositivo aparezca en otro en ≤ 30 s, la migración no pierda nada y el coste sea 0 €/mes.
+Las cuentas y los datos viven en el `localStorage` de cada navegador, así que el móvil y el PC no comparten nada y borrar el navegador los pierde. Construimos cuentas reales en el servidor (`server/` de Vercel) y sincronizamos las 8 claves de datos como bloques JSON donde gana la última escritura, con refresco casi en vivo y migración automática de lo local. Sabremos que funciona cuando un cambio en un dispositivo aparezca en otro en ≤ 30 s, la migración no pierda nada y el coste sea 0 €/mes.
 
 ## Problem
 Manuel (único usuario) necesita usar la app en el súper, la cocina o el móvil con los mismos datos que en el PC. Hoy el usuario creado en un navegador no existe en otro, y borrar los datos del navegador (o que iOS purgue `localStorage`) los pierde. La única salida es exportar/importar el JSON de `backup.ts` a mano, sin que se mantenga sincronizado. Esta spec unifica #22 (sincronización) y #66 (riesgo de pérdida de datos).
@@ -37,7 +37,7 @@ Manuel, único usuario real, con PC y móvil.
 |---|---|---|
 | R1 | El usuario puede registrarse e iniciar sesión con usuario y contraseña contra el servidor; la contraseña se hashea en el servidor. | Must |
 | R2 | La sesión persiste entre visitas y viaja como token en cabecera (IONOS y Vercel son orígenes distintos); el usuario puede cerrar sesión. | Must |
-| R3 | Las 7 claves de datos (perfil, recetas del usuario, diario, despensa, plan, lista de la compra, medidas) se guardan en el servidor como un bloque JSON cada una, con versión asignada por el servidor. | Must |
+| R3 | Las 8 claves de datos (perfil, recetas del usuario, diario, despensa, plan, lista de la compra, medidas, favoritos) se guardan en el servidor como un bloque JSON cada una, con versión asignada por el servidor. | Must |
 | R4 | Cada cambio local se sube al servidor; si hay conflicto en una clave, gana la última escritura según la marca del servidor. | Must |
 | R5 | Los cambios hechos en otro dispositivo se descargan al volver a la pestaña y por polling periódico. | Must |
 | R6 | Primer login con el servidor vacío: los datos locales del usuario se suben automáticamente, sin pérdida. | Must |
@@ -51,12 +51,12 @@ Manuel, único usuario real, con PC y móvil.
 ## User flows
 **Registro con datos locales (R1, R6)**
 1. Pantalla de login → Registrarse con usuario y contraseña.
-2. El servidor crea la cuenta y está vacío; la app sube las 7 claves locales.
+2. El servidor crea la cuenta y está vacío; la app sube las 8 claves locales.
 3. La app entra y muestra los mismos datos.
 
 **Dispositivo nuevo (R1, R5)**
 1. Login con usuario y contraseña → el servidor devuelve token.
-2. La app descarga las 7 claves y las muestra.
+2. La app descarga las 8 claves y las muestra.
 
 **Datos en ambos lados (R7)**
 1. Login → la app detecta datos locales y en servidor.
@@ -75,14 +75,14 @@ Manuel, único usuario real, con PC y móvil.
 - La contraseña nunca se guarda ni se envía en claro tras el registro/login (solo por HTTPS) y el servidor guarda solo su hash.
 
 **R3, R4**
-- Dado un cambio en cualquiera de las 7 claves, entonces el servidor tiene ese valor tras la subida y su versión aumenta.
+- Dado un cambio en cualquiera de las 8 claves, entonces el servidor tiene ese valor tras la subida y su versión aumenta.
 - Dadas dos escrituras a la misma clave desde dos dispositivos, entonces queda la que el servidor recibe última.
 
 **R5**
 - Dado un cambio hecho en el dispositivo A, cuando el B está abierto, entonces B lo muestra en ≤ 30 s o al recuperar el foco, sin recargar manualmente.
 
 **R6**
-- Dado un servidor vacío y datos locales, cuando el usuario se registra/inicia sesión, entonces las 7 claves del servidor son idénticas a las locales y nada se borra localmente.
+- Dado un servidor vacío y datos locales, cuando el usuario se registra/inicia sesión, entonces las 8 claves del servidor son idénticas a las locales y nada se borra localmente.
 
 **R7**
 - Dados datos en ambos lados, cuando inicia sesión, entonces se pide confirmación antes de cambiar nada; si cancela, lo local queda intacto; si acepta, la app muestra los datos del servidor.
@@ -96,7 +96,7 @@ Manuel, único usuario real, con PC y móvil.
 
 **R10, R11**
 - Cuando todo está subido, entonces el indicador muestra «al día»; cuando falla la subida, «sin sincronizar».
-- Dado un backup importado, entonces las 7 claves se suben al servidor.
+- Dado un backup importado, entonces las 8 claves se suben al servidor.
 
 ## Edge cases
 - Cuenta local existente (`mp_users`) y registro con el mismo nombre en el servidor: nombre ya tomado → error claro.
@@ -109,7 +109,7 @@ Manuel, único usuario real, con PC y móvil.
 | Metric | Baseline | Target | How measured |
 |---|---|---|---|
 | Cambio visible en otro dispositivo | n/a (hoy no sincroniza) | ≤ 30 s con la pestaña activa | Prueba manual PC↔móvil |
-| Pérdidas de datos en la migración | n/a | 0 (7 claves idénticas) | Comparar local y servidor tras migrar |
+| Pérdidas de datos en la migración | n/a | 0 (8 claves idénticas) | Comparar local y servidor tras migrar |
 | Coste mensual | 0 € | 0 € | Capa gratuita del proveedor |
 
 ## Risks & dependencies

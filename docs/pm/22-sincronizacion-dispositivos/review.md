@@ -34,7 +34,7 @@ _Resueltos en f933924: aviso al cerrar sesión con cambios sin subir (confirmaci
 - `scryptSync` bloquea el hilo (`server/lib/auth.ts:20`); usar la versión asíncrona.
 - El bloqueo de login es solo por usuario, no por IP como decía el tech design (`server/app/api/auth/login/route.ts:19`).
 - `login_attempts` y sesiones caducadas no se purgan (`server/lib/store.ts:87`).
-- Duplicación de `userKey`, la lista de 7 claves y la descarga del backup (`src/lib/syncMigration.ts:5`).
+- Duplicación de `userKey`, la lista de 8 claves y la descarga del backup (`src/lib/syncMigration.ts:5`).
 - Tests pendientes: «Recordar sesión» desmarcado; SQL real contra Neon.
 - La spec no recoge el código de invitación (`REGISTRATION_CODE`); decidir si se añade como requisito.
 

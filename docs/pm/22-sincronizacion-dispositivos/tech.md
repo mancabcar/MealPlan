@@ -8,7 +8,7 @@ Ampliamos el `server/` de Vercel con Neon Postgres, cuentas propias (scrypt + to
 ## Context
 - `src/lib/auth.tsx`: cuentas locales (`mp_users`), hash PBKDF2 en el navegador, sesión en `mp_session`, `rememberedUsers`. `userKey(userId, key)` → `mp_<userId>_<clave>`.
 - `src/lib/store.tsx`: `usePersisted` (lee y escribe `localStorage`, expone `reload()` por clave) y `AppProvider`, que ya tiene `importData` con `writeUserData` + los siete `reload*`.
-- `src/lib/userData.ts`: las 7 claves (`USER_DATA_KEYS`), `UserData`, `LOAD_OPTIONS` (migraciones idempotentes).
+- `src/lib/userData.ts`: las 8 claves (`USER_DATA_KEYS`), `UserData`, `LOAD_OPTIONS` (migraciones idempotentes).
 - `src/lib/backup.ts`: `parseBackup`/`writeUserData`, export/import JSON.
 - `src/lib/apiBase.ts`: `apiUrl()` hacia el `server/`; `server/lib/cors.ts`: CORS solo a `CORS_ALLOWED_ORIGIN`, con `GET, POST, OPTIONS` y `Content-Type`.
 - `server/app/api/{recipes,foods}`: patrón de ruta (`OPTIONS` → `preflight`, respuesta con `withCors`); tests en `server/tests/unit/*.test.ts` (Vitest). El server importa código compartido de `../src/lib`.
@@ -44,7 +44,7 @@ Decisiones de proveedor y protocolo (elegidas por Manuel, recomendaciones acepta
 Servidor (Postgres):
 - `users(id uuid pk, username text unique (normalizado), password_hash text, salt, created_at)`
 - `sessions(token_hash text pk, user_id fk, created_at, expires_at)` (caduca a los 90 días, renovable)
-- `user_data(user_id, key text, value jsonb, version int, updated_at, pk(user_id,key))`; `key` ∈ las 7 claves; tope 1 MB por clave.
+- `user_data(user_id, key text, value jsonb, version int, updated_at, pk(user_id,key))`; `key` ∈ las 8 claves; tope 1 MB por clave.
 - `login_attempts(username, ip, failed_at)` para el bloqueo temporal.
 
 Cliente: sin cambios en las claves `mp_<userId>_<clave>`; `userId` pasa a ser el uuid del servidor. Nuevas claves locales: `mp_<userId>_syncmeta` con `{version por clave, pendientes}` y el token de sesión (`mp_token` en `localStorage` o `sessionStorage` según «Recordar sesión»). Migración de cuentas locales: no se migra el hash; los datos de la cuenta local elegida (`mp_<idLocal>_*`) se suben al servidor bajo el uuid nuevo.
@@ -68,12 +68,12 @@ Reutiliza `Login.tsx` (se quita la lista de usuarios recordados; añade campo de
 | R3 | `user_data` con un bloque JSON y `version` por clave |
 | R4 | `PUT` con `baseVersion`; el cliente al día gana, 409 se resuelve en el servidor |
 | R5 | `sync.ts`: pull al volver a la pestaña y polling de 15 s solo con la pestaña visible |
-| R6 | Registro con servidor vacío → sube las 7 claves de la cuenta local elegida |
+| R6 | Registro con servidor vacío → sube las 8 claves de la cuenta local elegida |
 | R7 | Ambos con datos → confirmación, backup JSON opcional, adopta lo del servidor |
 | R8 | `localStorage` sigue siendo la fuente; si falla la red, aviso «sin sincronizar»; al volver, 409 → adopta el servidor |
 | R9 | Todas las consultas filtran por `user_id` de la sesión; HTTPS de Vercel |
 | R10 | Indicador de estado desde el estado de `sync.ts` |
-| R11 | `importData` marca las 7 claves como pendientes |
+| R11 | `importData` marca las 8 claves como pendientes |
 | R12 | Logout borra `mp_<userId>_*` y `syncmeta` |
 
 ## Risks & mitigations
@@ -102,7 +102,7 @@ Reutiliza `Login.tsx` (se quita la lista de usuarios recordados; añade campo de
 6. [x] `src/lib/sync.ts`: cola de pendientes, push con debounce, 409, enganche a `usePersisted` (covers R4, R8)
 7. [x] Pull con foco y polling de 15 s, aislamiento de pestañas (covers R5)
 8. [x] Migración: selector de cuenta local, R6 (servidor vacío) y R7 (confirmación y backup opcional) (covers R6, R7)
-9. [x] Indicador de estado, `importData` sube las 7 claves, logout limpia lo local (covers R10, R11, R12)
+9. [x] Indicador de estado, `importData` sube las 8 claves, logout limpia lo local (covers R10, R11, R12)
 10. [x] README y variables de entorno (`DATABASE_URL`, `REGISTRATION_CODE`), e2e y prueba manual PC↔móvil (covers R5, R6, R7)
 
 ## Spec feedback
@@ -123,7 +123,7 @@ Los tests se escribieron antes que el código (2026-10-02) y ahora pasan todos. 
 | R2 | server/tests/unit/cors.test.ts › "R2 (#22): permite PUT y Authorization" | unit (servidor) | 🟢 passing |
 | R2, R12 | tests/e2e/sync.spec.ts › "R2: la sesión sobrevive a una recarga y cerrar sesión…" | e2e | 🟢 passing |
 | — | server/tests/unit/auth-routes.test.ts › "Bloqueo de fuerza bruta" (5 fallos/15 min → 429) | unit (servidor) | 🟢 passing |
-| R3 | server/tests/unit/sync-routes.test.ts › "R3: bloques JSON con versión del servidor" (7 claves, versión, clave inválida 400, 413 > 1 MB) | unit (servidor) | 🟢 passing |
+| R3 | server/tests/unit/sync-routes.test.ts › "R3: bloques JSON con versión del servidor" (8 claves, versión, clave inválida 400, 413 > 1 MB) | unit (servidor) | 🟢 passing |
 | R4 | server/tests/unit/sync-routes.test.ts › "R4: última escritura gana…" (409 con valor del servidor) | unit (servidor) | 🟢 passing |
 | R4 | tests/unit/sync-engine.test.ts › "R4: subir los cambios locales" (debounce 1 s, Bearer, baseVersion, 409 adopta) | unit (cliente) | 🟢 passing |
 | R5 | server/tests/unit/sync-routes.test.ts › "R5: GET… since" | unit (servidor) | 🟢 passing |
@@ -135,7 +135,7 @@ Los tests se escribieron antes que el código (2026-10-02) y ahora pasan todos. 
 | R8, R10 | tests/unit/sync-engine.test.ts › "R8 y R10: sin red…" (unsynced, reintento, servidor gana, recarga, 500, 401) | unit (cliente) | 🟢 passing |
 | R8, R10 | tests/e2e/sync.spec.ts › "R8/R10: sin red la app sigue…" | e2e | 🟢 passing |
 | R9 | server/tests/unit/sync-routes.test.ts › "R9: los datos son de cada usuario" (401 y aislamiento; la SQL real, a mano) | unit (servidor) | 🟢 passing |
-| R11 | tests/unit/sync-engine.test.ts › "R11: marcar las 7 claves…" | unit (cliente) | 🟢 passing |
+| R11 | tests/unit/sync-engine.test.ts › "R11: marcar las 8 claves…" | unit (cliente) | 🟢 passing |
 | R12 | tests/unit/sync-migration.test.ts › "R12: clearUserData…" | unit (cliente) | 🟢 passing |
 
 **Sin test automático (a mano):** ≤ 30 s real entre PC y móvil; coste 0 €/mes; la SQL real de compare-and-set y el aislamiento por `user_id` contra Neon.
