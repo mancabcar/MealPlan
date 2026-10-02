@@ -105,7 +105,9 @@ export default function RecipesPage() {
       }
       addRecipes(data.recipes);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error generando recetas");
+      // fetch solo lanza TypeError sin red (PWA, issue #21 R5): mejor que el "Failed to fetch" del navegador
+      if (e instanceof TypeError) setError("Sin conexión. Prueba de nuevo cuando vuelvas a tener red.");
+      else setError(e instanceof Error ? e.message : "Error generando recetas");
     } finally {
       setGenerating(false);
     }
