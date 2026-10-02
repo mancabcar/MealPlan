@@ -35,7 +35,7 @@ export function createFakeBackend() {
     return reply(200, { token, user: { id: u.id, username: u.username } });
   };
 
-  function handle(method: string, url: URL, headers: Record<string, string>, body: any): FakeResponse {
+  function handle(method: string, url: URL, headers: Record<string, string>, body: Record<string, unknown> | undefined): FakeResponse {
     const path = url.pathname;
     requests.push({ method, path, search: url.search, body });
     const userId = tokens.get((headers.authorization ?? "").replace(/^Bearer /i, ""));
@@ -44,7 +44,7 @@ export function createFakeBackend() {
       if (body?.invite !== INVITE_CODE) return reply(403, { error: "Código de invitación incorrecto" });
       const name = String(body.username).trim().toLowerCase();
       if (users.some((u) => u.username === name)) return reply(409, { error: "Ese usuario ya existe" });
-      const u: FakeUser = { id: `srv-${users.length + 1}`, username: name, password: body.password, data: new Map() };
+      const u: FakeUser = { id: `srv-${users.length + 1}`, username: name, password: String(body.password), data: new Map() };
       users.push(u);
       return startSession(u);
     }
