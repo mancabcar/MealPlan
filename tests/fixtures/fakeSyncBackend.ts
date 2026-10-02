@@ -72,8 +72,8 @@ export function createFakeBackend() {
       const key = put[1];
       if (!(SYNC_KEYS as readonly string[]).includes(key)) return reply(400, { error: "Clave desconocida" });
       const current = user.data.get(key) ?? { value: null, version: 0 };
-      if (current.version !== body.baseVersion) return reply(409, { value: current.value, version: current.version });
-      user.data.set(key, { value: body.value, version: current.version + 1 });
+      if (current.version !== body?.baseVersion) return reply(409, { value: current.value, version: current.version });
+      user.data.set(key, { value: body?.value, version: current.version + 1 });
       return reply(200, { version: current.version + 1 });
     }
     return reply(404, { error: "No existe" });
