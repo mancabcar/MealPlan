@@ -1,5 +1,5 @@
 # Recetas: favoritos, valoración y filtros
-_Status: in review · Updated: 2026-10-01 · Issue: [#20](https://github.com/mancabcar/MealPlan/issues/20) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/D4XE1CEYJQKxZ4zHm2EzEJ) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#89](https://github.com/mancabcar/MealPlan/pull/89)_
+_Status: in review · Updated: 2026-10-02 · Issue: [#20](https://github.com/mancabcar/MealPlan/issues/20) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/D4XE1CEYJQKxZ4zHm2EzEJ) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#89](https://github.com/mancabcar/MealPlan/pull/89) · Review: [review.md](review.md) — 🔁 changes requested_
 
 ## Follow-ups
 - [#84](https://github.com/mancabcar/MealPlan/issues/84) tiene un brief propio sin fusionar en la rama `docs/84-brief-combobox-recetas` (`docs/pm/combobox-recetas/brief.md`): el mismo combobox compartido entre Plan y Diario. #20 lo absorbe (decidido el 2026-10-01); al entregar, enlazarlo y cerrar #84.
