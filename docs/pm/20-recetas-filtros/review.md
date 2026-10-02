@@ -1,8 +1,8 @@
 # Recetas: favoritos y selector por franja: Review
-_PR: [#89](https://github.com/mancabcar/MealPlan/pull/89) · Reviewed: 2026-10-02 · Verdict: 🔁 changes requested_
+_PR: [#89](https://github.com/mancabcar/MealPlan/pull/89) · Reviewed: 2026-10-02 · Verdict: ⚠️ approved with follow-ups_
 
 ## Summary
-Los 5 requisitos (4 Must y 1 Should) están implementados y cubiertos por tests unitarios y e2e, y CI pasa. Se piden cambios porque hay dos bugs de estado en los selectores, ambos de arreglo mínimo: una receta elegida que no se ve al cambiar de franja en el Diario, y un selector del Plan que arrastra buscador y «Ver todas» entre franjas. El veredicto lo confirmó el usuario.
+Los 5 requisitos (4 Must y 1 Should) están implementados y cubiertos por tests unitarios y e2e, y CI pasa. La primera revisión pidió cambios (🔁) por dos bugs de estado en los selectores; se arreglaron en 97f0a80 con un e2e cada uno (388 e2e, 1027 unitarios y lint en verde) y el usuario confirmó ⚠️ approved with follow-ups. Quedan 4 mejoras no bloqueantes como follow-ups.
 
 ## Spec conformance
 | Req | Status | Where | Tested |
@@ -16,8 +16,10 @@ Los 5 requisitos (4 Must y 1 Should) están implementados y cubiertos por tests 
 Edge cases del spec: recetas de IA/importadas/propias (cubierto), franja con menos de 5 (unit), receta con dos tags de franja (unit).
 
 ## Blocking
-1. **Diario: una receta elegida deja de verse al cambiar de franja** · [src/app/page.tsx:373](../../../src/app/page.tsx): `RecipePicker` se remonta con `key={mealType}`, pero `recipeId` sobrevive. La vista previa y «Añadir» siguen usando la receta anterior sin que la lista la resalte → limpiar `recipeId` al cambiar de franja (y un test e2e).
-2. **Plan: el selector arrastra su estado entre franjas** · [src/app/plan/page.tsx:104](../../../src/app/plan/page.tsx): sin `key`, buscador y «Ver todas» persisten si se toca otra franja con el selector abierto → `key` con fecha y franja de `editing` (y un test e2e).
+_Resueltos en 97f0a80 (con un e2e cada uno)._
+
+1. ✅ **Diario: una receta elegida deja de verse al cambiar de franja** · [src/app/page.tsx:373](../../../src/app/page.tsx): `RecipePicker` se remonta con `key={mealType}`, pero `recipeId` sobrevive. La vista previa y «Añadir» siguen usando la receta anterior sin que la lista la resalte → limpiar `recipeId` al cambiar de franja (y un test e2e).
+2. ✅ **Plan: el selector arrastra su estado entre franjas** · [src/app/plan/page.tsx:104](../../../src/app/plan/page.tsx): sin `key`, buscador y «Ver todas» persisten si se toca otra franja con el selector abierto → `key` con fecha y franja de `editing` (y un test e2e).
 
 ## Non-blocking
 - `removeRecipe` limpia `favorites` después de borrar la receta, contra el orden seguro documentado (entradas → plan → receta al final): [src/lib/store.tsx:150](../../../src/lib/store.tsx). Inocuo, los huérfanos se ignoran.

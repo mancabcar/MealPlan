@@ -1,7 +1,8 @@
 # Recetas: favoritos, valoración y filtros
-_Status: in review · Updated: 2026-10-02 · Issue: [#20](https://github.com/mancabcar/MealPlan/issues/20) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/D4XE1CEYJQKxZ4zHm2EzEJ) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#89](https://github.com/mancabcar/MealPlan/pull/89) · Review: [review.md](review.md) — 🔁 changes requested_
+_Status: in review · Updated: 2026-10-02 · Issue: [#20](https://github.com/mancabcar/MealPlan/issues/20) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/D4XE1CEYJQKxZ4zHm2EzEJ) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#89](https://github.com/mancabcar/MealPlan/pull/89) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
+- Review #89 (no bloqueantes): orden de borrado de favoritas en `removeRecipe`; poda de `toggleFavorite` con el último valor escrito; búsqueda de Recetas sin tildes (reutilizar el matcher de `recipeSlots.ts`); test e2e que cuente los toques; e2e del fallback «Otras recetas».
 - [#84](https://github.com/mancabcar/MealPlan/issues/84) tiene un brief propio sin fusionar en la rama `docs/84-brief-combobox-recetas` (`docs/pm/combobox-recetas/brief.md`): el mismo combobox compartido entre Plan y Diario. #20 lo absorbe (decidido el 2026-10-01); al entregar, enlazarlo y cerrar #84.
 - Valoración 1–5 por receta y orden por valoración. (v1 lo deja fuera)
 - Filtros del recetario: tiempo máximo, kcal máx., proteína mín., ocultar alérgenos, solo favoritos; orden por proteína/kcal/tiempo, combinables con la búsqueda. (v1 lo deja fuera)
