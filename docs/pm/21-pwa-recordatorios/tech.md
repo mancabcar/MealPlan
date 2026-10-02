@@ -75,14 +75,14 @@ Sin pantallas nuevas salvo una tarjeta «Instalar app» en Perfil (R7), siguiend
 - **Manual:** instalar y abrir en Android, iPhone y PC (R3); Lighthouse «instalable».
 
 ## Tasks
-1. [ ] Iconos: `icon.svg`, `scripts/generate-icons.mjs` y PNG en `public/icons/` (covers R2)
-2. [ ] `manifest.ts` y metadatos de iPhone y `theme-color` en el layout (covers R1, R3)
-3. [ ] `scripts/generate-sw.mjs`, plantilla `sw.js`, hook en `build` y test unitario (covers R4, R6)
-4. [ ] `ServiceWorkerRegister` en el layout (covers R4, R6)
-5. [ ] Revisar y ajustar los mensajes «sin conexión» de IA, búsqueda y escáner (covers R5)
-6. [ ] `useInstallPrompt` y tarjeta «Instalar app» en Perfil (covers R7)
-7. [ ] E2E offline y de actualización sobre `out/`; proyecto de Playwright y CI (covers R4, R5, R6)
-8. [ ] README: instalar, offline y límite de iOS (covers R3)
+1. [x] Iconos: `icon.svg`, `scripts/generate-icons.mjs` y PNG en `public/icons/` (covers R2)
+2. [x] `manifest.ts` y metadatos de iPhone y `theme-color` en el layout (covers R1, R3)
+3. [x] `scripts/generate-sw.mjs`, plantilla `sw.js`, hook en `build` y test unitario (covers R4, R6)
+4. [x] `ServiceWorkerRegister` en el layout (covers R4, R6)
+5. [x] Revisar y ajustar los mensajes «sin conexión» de IA, búsqueda y escáner (covers R5)
+6. [x] `useInstallPrompt` y tarjeta «Instalar app» en Perfil (covers R7)
+7. [x] E2E offline y de actualización sobre `out/`; proyecto de Playwright y CI (covers R4, R5, R6)
+8. [x] README: instalar, offline y límite de iOS (covers R3)
 
 ## Test coverage
 Los tests están en la rama `feature/21-pwa-offline` (commit `4e6535f`). Los e2e de service worker solo corren contra el build: en CI siempre; en local con `npm run build && npx serve out -l 3000` y `PWA_E2E=1`. R3 es manual (Android, iPhone, PC y Lighthouse).
@@ -91,17 +91,23 @@ Contrato para dev-code: `scripts/generate-sw.mjs` exporta `collectPrecacheUrls`,
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | tests/unit/pwa-manifest.test.ts › "R1: manifest" | unit | 🔴 failing (not built) |
-| R1 | tests/e2e/pwa.spec.ts › "R1: el HTML enlaza el manifest…" | e2e (build) | 🔴 failing (not built) |
-| R2 | tests/unit/pwa-manifest.test.ts › "R2: iconos del manifest" | unit | 🔴 failing (not built) |
-| R2 | tests/e2e/pwa.spec.ts › "R2: los iconos del manifest existen como PNG" | e2e (build) | 🔴 failing (not built) |
+| R1 | tests/unit/pwa-manifest.test.ts › "R1: manifest" | unit | 🟢 passing |
+| R1 | tests/e2e/pwa.spec.ts › "R1: el HTML enlaza el manifest…" | e2e (build) | 🟢 passing |
+| R2 | tests/unit/pwa-manifest.test.ts › "R2: iconos del manifest" | unit | 🟢 passing |
+| R2 | tests/e2e/pwa.spec.ts › "R2: los iconos del manifest existen como PNG" | e2e (build) | 🟢 passing |
 | R3 | Instalar en Android, iPhone y PC; Lighthouse | manual | ⏳ pending |
-| R4 | tests/unit/generate-sw.test.ts › "R4: lista de precache" | unit | 🔴 failing (not built) |
-| R4 | tests/e2e/pwa.spec.ts › "R4: tras una visita con red…" y "navegar dentro de la app sin conexión" | e2e (build) | 🔴 failing (not built) |
-| R5 | tests/e2e/pwa.spec.ts › "R5: sin conexión, «Sugerir con IA»…" | e2e | 🔴 failing (falta el mensaje) |
-| R6 | tests/unit/generate-sw.test.ts › "R6: versión del build" | unit | 🔴 failing (not built) |
-| R6 | tests/e2e/pwa.spec.ts › "R6: una versión nueva del service worker…" | e2e (build) | 🔴 failing (not built) |
-| R7 | tests/unit/useInstallPrompt.test.tsx › "R7: useInstallPrompt" | unit | 🔴 failing (not built) |
+| R4 | tests/unit/generate-sw.test.ts › "R4: lista de precache" | unit | 🟢 passing |
+| R4 | tests/e2e/pwa.spec.ts › "R4: tras una visita con red…" y "navegar dentro de la app sin conexión" | e2e (build) | 🟢 passing |
+| R5 | tests/e2e/pwa.spec.ts › "R5: sin conexión, «Sugerir con IA»…" | e2e | 🟢 passing |
+| R6 | tests/unit/generate-sw.test.ts › "R6: versión del build" | unit | 🟢 passing |
+| R6 | tests/e2e/pwa.spec.ts › "R6: una versión nueva del service worker…" | e2e (build) | 🟢 passing |
+| R7 | tests/unit/useInstallPrompt.test.tsx › "R7: useInstallPrompt" | unit | 🟢 passing |
 
 ## Spec feedback
-Ninguno: la spec no cambia. Sin preguntas abiertas que bloqueen el código. Pendiente de comprobar al implementar: si el escáner necesita red (riesgo 3).
+Ninguno: la spec no cambia. Sin preguntas abiertas que bloqueen el código.
+
+## Desviaciones durante la implementación
+- **Tarea 7 (CI y proyecto de Playwright):** no hizo falta tocar el workflow ni crear un proyecto de Playwright: `ci.yml` ya ejecuta `npm run build` y los e2e contra `out/` (con `CI`), así que los e2e de PWA corren ahí sin cambios; en local se saltan salvo `PWA_E2E=1`.
+- **Test R6:** Playwright no intercepta la descarga del `sw.js` que hace el navegador al buscar versiones nuevas (`page.route` ni `context.route`). El test sirve `out/` en un puerto propio y cambia el `sw.js` entre versiones; las aserciones no cambian.
+- **Riesgo 3 (escáner):** confirmado que `barcode-detector` baja su WASM de `fastly.jsdelivr.net` cuando el navegador no trae `BarcodeDetector` nativo. No se cambia: el escáner ya cae a la vía manual si falla y la consulta del producto ya muestra «Parece que no hay conexión». Queda como follow-up (empaquetar el WASM) si se quiere escanear sin red.
+- **R5:** el único flujo sin mensaje era «Sugerir con IA»; ahora un fallo de red muestra «Sin conexión. Prueba de nuevo cuando vuelvas a tener red.» (texto elegido por Claude; el test solo exige /sin conexión/i).
