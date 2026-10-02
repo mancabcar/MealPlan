@@ -110,3 +110,41 @@ Reutiliza `Login.tsx` (se quita la lista de usuarios recordados; añade campo de
 - Se añade el código de invitación (`REGISTRATION_CODE`) en el registro: no está en la spec; conviene que Manuel confirme si la quiere incluida como requisito.
 - Pregunta abierta de la spec sobre «usuarios recordados»: resuelta, se elimina la lista y se añade «Recordar sesión».
 - Preguntas abiertas de proveedor, token y polling: resueltas (Neon, token opaco en `localStorage`, 15 s).
+
+## Test coverage
+Los tests están escritos antes que el código (2026-10-02). Fallan porque la feature no existe (los módulos aún no están), no por errores de los propios tests. Los servidores simulados son dobles del contrato: `server/tests/helpers/fakeStore.ts` (contrato de `server/lib/store.ts`) y `tests/fixtures/fakeSyncBackend.ts` (contrato HTTP completo).
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | server/tests/unit/auth-routes.test.ts › "R1: registro", "R1: login" | unit (servidor) | 🔴 failing (not built) |
+| R1 | tests/e2e/sync.spec.ts › "R1: sin el código…", "R1: usuario o contraseña incorrectos…" | e2e | 🔴 failing (not built) |
+| R1, R6 | tests/e2e/sync.spec.ts › "R1/R6: crear la cuenta sube los datos locales…" | e2e | 🔴 failing (not built) |
+| R2 | server/tests/unit/auth-routes.test.ts › "R2: sesión y logout" (logout, otros dispositivos, 90 días) | unit (servidor) | 🔴 failing (not built) |
+| R2 | server/tests/unit/cors.test.ts › "R2 (#22): permite PUT y Authorization" | unit (servidor) | 🔴 failing (CORS sin ampliar) |
+| R2, R12 | tests/e2e/sync.spec.ts › "R2: la sesión sobrevive a una recarga y cerrar sesión…" | e2e | 🔴 failing (not built) |
+| — | server/tests/unit/auth-routes.test.ts › "Bloqueo de fuerza bruta" (5 fallos/15 min → 429) | unit (servidor) | 🔴 failing (not built) |
+| R3 | server/tests/unit/sync-routes.test.ts › "R3: bloques JSON con versión del servidor" (7 claves, versión, clave inválida 400, 413 > 1 MB) | unit (servidor) | 🔴 failing (not built) |
+| R4 | server/tests/unit/sync-routes.test.ts › "R4: última escritura gana…" (409 con valor del servidor) | unit (servidor) | 🔴 failing (not built) |
+| R4 | tests/unit/sync-engine.test.ts › "R4: subir los cambios locales" (debounce 1 s, Bearer, baseVersion, 409 adopta) | unit (cliente) | 🔴 failing (not built) |
+| R5 | server/tests/unit/sync-routes.test.ts › "R5: GET… since" | unit (servidor) | 🔴 failing (not built) |
+| R5 | tests/unit/sync-engine.test.ts › "R5: bajar los cambios de otros dispositivos" (pull, polling 15 s, ≤ 30 s, pestaña oculta, stop) | unit (cliente) | 🔴 failing (not built) |
+| R5 | tests/e2e/sync.spec.ts › "R5: un segundo dispositivo inicia sesión, ve los datos y recibe un cambio…" | e2e | 🔴 failing (not built) |
+| R6 | tests/unit/sync-migration.test.ts › "R6…", "planFirstSync", "hasUserData", "listLocalAccounts" | unit (cliente) | 🔴 failing (not built) |
+| R7 | tests/unit/sync-migration.test.ts › "R7: datos en ambos lados" (aceptar adopta el servidor) | unit (cliente) | 🔴 failing (not built) |
+| R7 | tests/e2e/sync.spec.ts › "R7: aceptar…", "R7: cancelar…" | e2e | 🔴 failing (not built) |
+| R8, R10 | tests/unit/sync-engine.test.ts › "R8 y R10: sin red…" (unsynced, reintento, servidor gana, recarga, 500, 401) | unit (cliente) | 🔴 failing (not built) |
+| R8, R10 | tests/e2e/sync.spec.ts › "R8/R10: sin red la app sigue…" | e2e | 🔴 failing (not built) |
+| R9 | server/tests/unit/sync-routes.test.ts › "R9: los datos son de cada usuario" (401 y aislamiento; la SQL real, a mano) | unit (servidor) | 🔴 failing (not built) |
+| R11 | tests/unit/sync-engine.test.ts › "R11: marcar las 7 claves…" | unit (cliente) | 🔴 failing (not built) |
+| R12 | tests/unit/sync-migration.test.ts › "R12: clearUserData…" | unit (cliente) | 🔴 failing (not built) |
+
+**Sin test automático (a mano):** ≤ 30 s real entre PC y móvil; coste 0 €/mes; la SQL real de compare-and-set y el aislamiento por `user_id` contra Neon.
+
+### Contrato de código que fijan los tests (dev-code debe respetarlo o avisar)
+- `server/lib/store.ts` exporta: `createUser({username, passwordHash})` (null si existe; `username` ya normalizado), `findUserByUsername`, `createSession(userId, tokenHash, expiresAt)`, `getSession(tokenHash)` → `{userId, expiresAt}`, `deleteSession`, `getAllData(userId)`, `putData(userId, key, value, baseVersion)` (compare-and-set → `{ok, version}` o `{ok:false, value, version}`), `recordLoginFailure`, `countLoginFailures(username, since)`, `clearLoginFailures`.
+- Rutas: `server/app/api/auth/{register,login,logout}/route.ts`, `server/app/api/sync/route.ts` (GET) y `server/app/api/sync/[key]/route.ts` (PUT y OPTIONS, `params` como Promise). Respuestas: `{token, user:{id,username}}`; 409 de PUT → `{value, version}`; GET → `{key:{value,version}}`; códigos 400/401/403/409/413/429 como en los tests. Sesión 90 días.
+- `src/lib/sync.ts`: `createSyncEngine({userId, storage, fetch, apiBase, token, onRemoteChange, onUnauthorized?, isVisible?})` → `{markDirty(key), flush(), pull(), start(), stop(), status}` con `status` ∈ `synced | syncing | unsynced`; debounce 1 s, polling 15 s con pestaña visible; pendientes persistidos en `mp_<userId>_syncmeta`.
+- `src/lib/syncMigration.ts`: `planFirstSync(localHasData, remoteHasData)` → `upload | confirm | download | nothing`, `hasUserData(storage, userId)` (ignora las recetas semilla), `listLocalAccounts(storage)`, `adoptLocalData(storage, localId, serverId)`, `clearUserData(storage, userId)`.
+- UI test contract: Login con «Usuario», «Contraseña», «Repite la contraseña», «Código de invitación», casilla «Recordar sesión», botones «Crear cuenta»/«Entrar»; selector de cuenta local «Traer los datos de este dispositivo» (preseleccionada la de la última sesión local); diálogo «Sustituir los datos de este dispositivo» con «Sustituir», «Cancelar» y «Descargar copia de lo local»; indicador `role="status"` con «Al día» / «Sin sincronizar» visible en todas las pantallas (cabecera); errores del servidor mostrados tal cual.
+- **Los e2e existentes dependen de `signIn` (`tests/e2e/helpers.ts`), que siembra `mp_users`/`mp_session`.** Al sustituir la autenticación (tarea 5) habrá que reescribirlo para que siembre una sesión del servidor simulado (`mockBackend`) o un token válido; sin ello se rompen los demás e2e.
+- Mientras la feature no exista, `npm run typecheck` falla por los imports de estos tests (los módulos aún no existen), y CI quedaría en rojo en esta rama.
