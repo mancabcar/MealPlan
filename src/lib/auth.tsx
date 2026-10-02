@@ -99,6 +99,16 @@ function downloadBackup(userId: string) {
   setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
+/** ¿Quedan cambios de este usuario sin subir? (los apunta el motor de sync en mp_<id>_syncmeta) */
+function hasPendingSync(userId: string): boolean {
+  try {
+    const meta = JSON.parse(localStorage.getItem(userKey(userId, "syncmeta")) ?? "null") as { pending?: unknown[] } | null;
+    return (meta?.pending?.length ?? 0) > 0;
+  } catch {
+    return false;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -192,8 +202,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     if (!user) return;
-    // Lo pendiente se sube antes de borrar la copia local; sin red se sale igualmente (R12)
+    // Lo pendiente se sube antes de borrar la copia local (R12). Si no se ha podido, se avisa: salir lo perdería (review #98)
     await beforeLogout.current?.().catch(() => undefined);
+    if (hasPendingSync(user.id) && !confirm("Hay cambios que todavía no se han subido al servidor. Si cierras sesión ahora se perderán. ¿Cerrar sesión de todas formas?")) return;
     if (token) await post("/api/auth/logout", {}, token).catch(() => undefined);
     clearUserData(localStorage, user.id);
     endSession();

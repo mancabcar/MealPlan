@@ -70,6 +70,34 @@ test.describe("R2, R12: sesión", () => {
   });
 });
 
+test.describe("R12 (review #98): cerrar sesión con cambios sin subir", () => {
+  test("sin red avisa; cancelar mantiene la sesión y los datos, aceptar cierra", async ({ page, context }) => {
+    await mockBackend(context, backend);
+    await seedLocalDevice(page, ACCOUNT_A_DATA);
+    await register(page, "lucia", PASSWORD);
+    await expect(status(page)).toHaveText("Al día");
+
+    await page.goto("/despensa/");
+    backend.setOnline(false);
+    await page.getByRole("button", { name: "Añadir" }).click();
+    await page.getByPlaceholder("Nombre (p.ej. pechuga de pollo)").fill("Lentejas rojas");
+    await page.getByPlaceholder("Cantidad (p.ej. 200g, 1 bote)").fill("1 kg");
+    await page.getByRole("button", { name: "Guardar" }).click();
+    await page.clock.runFor(2_000);
+    await expect(status(page)).toHaveText("Sin sincronizar");
+
+    await page.goto("/perfil/");
+    page.once("dialog", (d) => d.dismiss());
+    await page.getByRole("button", { name: "Cerrar sesión" }).click();
+    await expect(page.getByRole("button", { name: "Entrar" })).toHaveCount(0);
+    expect(JSON.stringify(await stored(page, SERVER_ID, "pantry"))).toContain("Lentejas rojas");
+
+    page.once("dialog", (d) => d.accept());
+    await page.getByRole("button", { name: "Cerrar sesión" }).click();
+    await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible();
+  });
+});
+
 test.describe("R5: un cambio de otro dispositivo llega en ≤ 30 s", () => {
   test("R5: un segundo dispositivo inicia sesión, ve los datos y recibe un cambio sin recargar", async ({ browser, page, context }) => {
     await mockBackend(context, backend);

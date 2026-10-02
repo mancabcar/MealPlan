@@ -31,6 +31,11 @@ export function verifyPassword(password: string, stored: string | null): boolean
 export const newToken = () => randomBytes(32).toString("hex");
 export const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
+/** IP del cliente tal como la reenvía Vercel (primer valor de x-forwarded-for); "unknown" si no hay. */
+export function clientIp(request: Request): string {
+  return request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+}
+
 export function bearerToken(request: Request): string | null {
   const match = /^Bearer\s+(\S+)$/i.exec(request.headers.get("authorization") ?? "");
   return match ? match[1] : null;

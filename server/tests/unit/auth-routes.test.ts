@@ -60,6 +60,34 @@ describe("R1: registro", () => {
   });
 });
 
+describe("Registro: límite de intentos con el código de invitación (review #98)", () => {
+  const attempt = (ip: string, invite: string) =>
+    register(
+      new Request("http://localhost/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-forwarded-for": ip },
+        body: JSON.stringify({ username: "lucia", password: PASSWORD, invite }),
+      }),
+    );
+
+  it("tras 5 códigos erróneos desde la misma IP el registro da 429, incluso con el código correcto", async () => {
+    for (let i = 0; i < 5; i++) expect((await attempt("1.2.3.4", "mal")).status).toBe(403);
+    expect((await attempt("1.2.3.4", INVITE)).status).toBe(429);
+    expect(dumpStore().users).toHaveLength(0);
+  });
+
+  it("4 fallos no bloquean y otra IP no se ve afectada", async () => {
+    for (let i = 0; i < 5; i++) await attempt("1.2.3.4", "mal");
+    expect((await attempt("5.6.7.8", INVITE)).status).toBe(200);
+  });
+
+  it("pasados 15 minutos se puede volver a intentar", async () => {
+    for (let i = 0; i < 5; i++) await attempt("1.2.3.4", "mal");
+    vi.setSystemTime(new Date(NOW.getTime() + 15 * 60_000 + 1000));
+    expect((await attempt("1.2.3.4", INVITE)).status).toBe(200);
+  });
+});
+
 describe("R1: login", () => {
   beforeEach(async () => {
     await signUp("lucia");
