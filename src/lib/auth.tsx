@@ -146,8 +146,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hash: await hashPassword(password, salt),
       createdAt: new Date().toISOString(),
     };
-    if (accounts.length === 0) adoptLegacyData(account.id);
-    localStorage.setItem(USERS_KEY, JSON.stringify([...accounts, account]));
+    try {
+      localStorage.setItem(USERS_KEY, JSON.stringify([...accounts, account]));
+    } catch (err) {
+      console.error("No se pudo crear la cuenta", err);
+      throw new Error(
+        "No se pudo guardar la cuenta en este navegador (¿almacenamiento lleno o bloqueado, o modo privado?)",
+      );
+    }
+    // Tras guardar la cuenta: si falla, los datos antiguos siguen en su sitio (se copian antes de borrarse)
+    if (accounts.length === 0) {
+      try {
+        adoptLegacyData(account.id);
+      } catch (err) {
+        console.error("No se pudieron adoptar los datos anteriores", err);
+      }
+    }
     startSession(account, remember);
   };
 

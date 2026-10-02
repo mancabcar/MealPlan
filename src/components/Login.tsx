@@ -26,7 +26,9 @@ export default function Login() {
     try {
       await (isRegister ? register : login)(username, password, remember);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Algo ha fallado");
+      console.error(err);
+      const detail = err instanceof Error ? err.message : typeof err === "string" ? err : "";
+      setError(detail || "Algo ha fallado (error desconocido, mira la consola del navegador)");
       setBusy(false);
     }
   };
