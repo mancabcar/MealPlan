@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { NextResponse } from "next/server";
 import { preflight, withCors } from "../../lib/cors";
 
-const ALLOWED = "https://home-5021530898.app-ionos.space";
+const ALLOWED = "https://home-5021533470.app-ionos.space";
 const request = (origin: string | null) =>
   new Request("http://localhost/api/recipes", { headers: origin ? { origin } : {} });
 
@@ -43,6 +43,14 @@ describe("preflight", () => {
     expect(res.status).toBe(204);
     expect(res.headers.get("Access-Control-Allow-Origin")).toBe(ALLOWED);
     expect(res.headers.get("Access-Control-Allow-Methods")).toContain("GET");
+  });
+
+  // docs/pm/22-sincronizacion-dispositivos/tech.md › Tasks 3: el cliente manda Authorization y usa PUT.
+  it("R2 (#22): permite PUT y la cabecera Authorization", () => {
+    const res = preflight(request(ALLOWED));
+    expect(res.headers.get("Access-Control-Allow-Methods")).toContain("PUT");
+    expect(res.headers.get("Access-Control-Allow-Headers")).toContain("Authorization");
+    expect(res.headers.get("Access-Control-Allow-Headers")).toContain("Content-Type");
   });
 
   it("responde 204 sin cabeceras CORS con un origen distinto", () => {

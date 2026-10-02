@@ -26,7 +26,7 @@ import {
   WED,
   allSlots,
 } from "../fixtures/sobras";
-import { readStored, signIn } from "./helpers";
+import { clearRecipe, pickRecipe, readStored, recipePicker, signIn } from "./helpers";
 
 async function openPlan(page: Page, weekplan: WeekPlan = PLAIN_PLAN) {
   await signIn(page, { profile: lucia, recipes: SOBRAS_RECIPES, weekplan, entries: [] });
@@ -115,7 +115,7 @@ test.describe("R1 / R2: cocinar N raciones y elegir dónde se comen las sobras",
   test("sin usar 'Cocinar para varias comidas', asignar una receta funciona como hoy (sin etiquetas ni campos nuevos)", async ({ page }) => {
     await openPlan(page, {});
     await row(page, "Cena").click();
-    await page.getByRole("combobox").selectOption(CREMA_CALABAZA.id);
+    await pickRecipe(page, CREMA_CALABAZA.name);
 
     await expect(row(page, "Cena")).toContainText("Crema de calabaza");
     await expect(page.getByText(/Cocinar ×|Sobras ·/)).toHaveCount(0);
@@ -164,7 +164,7 @@ test.describe("R4: borrar la franja cocinada", () => {
   async function askDelete(page: Page) {
     await openPlan(page, BATCH_PLAN);
     await row(page, "Comida").click();
-    await page.getByRole("combobox").selectOption(""); // "— Sin asignar —"
+    await clearRecipe(page);
     await expect(dialog(page)).toBeVisible();
   }
 
@@ -210,7 +210,7 @@ test.describe("R4: borrar la franja cocinada", () => {
   test("una cocinada sin sobras enlazadas se borra sin preguntar, como hoy", async ({ page }) => {
     await openPlan(page, { [TUE]: [{ mealType: "Comida", recipeId: "t-guiso-lentejas", batchId: "solo", cookedServings: 3 }] });
     await row(page, "Comida").click();
-    await page.getByRole("combobox").selectOption("");
+    await clearRecipe(page);
     await expect(dialog(page)).toHaveCount(0);
     expect(await slotsOf(page)).toHaveLength(0);
   });
@@ -218,7 +218,7 @@ test.describe("R4: borrar la franja cocinada", () => {
   test("una franja normal se borra sin preguntar", async ({ page }) => {
     await openPlan(page);
     await row(page, "Comida").click();
-    await page.getByRole("combobox").selectOption("");
+    await clearRecipe(page);
     await expect(dialog(page)).toHaveCount(0);
     expect((await slotsOf(page)).map((s) => s.recipeId)).toEqual([CREMA_CALABAZA.id]);
   });
@@ -230,7 +230,7 @@ test.describe("R5: quitar una sobra", () => {
     await goToDay(page, "Miércoles");
     await row(page, "Comida").click();
     await expect(dialog(page)).toBeVisible();
-    await expect(page.getByRole("combobox")).toHaveCount(0);
+    await expect(recipePicker(page)).toHaveCount(0);
     await dialog(page).getByRole("button", { name: "Quitar esta sobra", exact: true }).click();
     await expect(dialog(page)).toHaveCount(0);
 
@@ -339,7 +339,7 @@ test.describe("R9: cambiar la receta de una cocinada con sobras", () => {
   test("dispara el mismo aviso; hasta elegir, el plan no cambia", async ({ page }) => {
     await openPlan(page, BATCH_PLAN);
     await row(page, "Comida").click();
-    await page.getByRole("combobox").selectOption(CREMA_CALABAZA.id);
+    await pickRecipe(page, CREMA_CALABAZA.name);
 
     await expect(dialog(page)).toBeVisible();
     await expect(dialog(page).getByRole("button", { name: "Borrar todo", exact: true })).toBeVisible();
@@ -351,7 +351,7 @@ test.describe("R9: cambiar la receta de una cocinada con sobras", () => {
   test('"Dejarlas como comidas normales": la cocinada pasa a la nueva receta sin tanda y las sobras siguen con el guiso', async ({ page }) => {
     await openPlan(page, BATCH_PLAN);
     await row(page, "Comida").click();
-    await page.getByRole("combobox").selectOption(CREMA_CALABAZA.id);
+    await pickRecipe(page, CREMA_CALABAZA.name);
     await dialog(page).getByRole("button", { name: "Dejarlas como comidas normales", exact: true }).click();
     await expect(dialog(page)).toHaveCount(0);
 

@@ -3,13 +3,19 @@
 import { FormEvent, useState } from "react";
 import { useAuth } from "@/lib/auth";
 
+// Login y registro contra el servidor (docs/pm/22-sincronizacion-dispositivos/spec.md › R1, R6, R7).
 export default function Login() {
-  const { login, register, rememberedUsers, forgetUser } = useAuth();
-  const [mode, setMode] = useState<"login" | "register">(rememberedUsers.length > 0 ? "login" : "register");
-  const [username, setUsername] = useState(rememberedUsers[0] ?? "");
+  const { login, register, localAccounts, replaceRequest } = useAuth();
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [invite, setInvite] = useState("");
   const [remember, setRemember] = useState(true);
+  // Datos de este dispositivo a traer: por defecto la cuenta local de la última sesión (R6); "" = ninguna
+  const [localId, setLocalId] = useState(
+    () => localAccounts.find((a) => a.lastSession)?.id ?? (localAccounts.length === 1 ? localAccounts[0].id : ""),
+  );
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -24,11 +30,12 @@ export default function Login() {
     }
     setBusy(true);
     try {
-      await (isRegister ? register : login)(username, password, remember);
+      await (isRegister
+        ? register(username, password, invite, remember, localId || null)
+        : login(username, password, remember, localId || null));
     } catch (err) {
-      console.error(err);
-      const detail = err instanceof Error ? err.message : typeof err === "string" ? err : "";
-      setError(detail || "Algo ha fallado (error desconocido, mira la consola del navegador)");
+      // Mensaje vacío: el usuario ha cancelado la sustitución de datos (R7), no es un error
+      setError(err instanceof Error ? err.message : "Algo ha fallado");
       setBusy(false);
     }
   };
@@ -52,39 +59,6 @@ export default function Login() {
         </p>
       </div>
 
-      {!isRegister && rememberedUsers.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Usuarios recordados</span>
-          <div className="flex flex-wrap gap-2">
-            {rememberedUsers.map((u) => (
-              <span
-                key={u}
-                className={`flex items-center rounded-full text-sm border ${
-                  u === username
-                    ? "bg-emerald-600 text-white border-emerald-600"
-                    : "border-zinc-300 dark:border-zinc-700"
-                }`}
-              >
-                <button type="button" className="pl-3 pr-1 py-1.5" onClick={() => setUsername(u)}>
-                  👤 {u}
-                </button>
-                <button
-                  type="button"
-                  aria-label={`Olvidar ${u}`}
-                  className="pr-3 pl-1 py-1.5 opacity-60 hover:opacity-100"
-                  onClick={() => {
-                    forgetUser(u);
-                    if (u === username) setUsername("");
-                  }}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
       <form onSubmit={submit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm font-medium">
           Usuario
@@ -105,21 +79,39 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete={isRegister ? "new-password" : "current-password"}
-            autoFocus={!!username}
             required
           />
         </label>
         {isRegister && (
+          <>
+            <label className="flex flex-col gap-1 text-sm font-medium">
+              Repite la contraseña
+              <input
+                type="password"
+                className={inputCls}
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                autoComplete="new-password"
+                required
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm font-medium">
+              Código de invitación
+              <input className={inputCls} value={invite} onChange={(e) => setInvite(e.target.value)} autoComplete="off" required />
+            </label>
+          </>
+        )}
+        {localAccounts.length > 0 && (
           <label className="flex flex-col gap-1 text-sm font-medium">
-            Repite la contraseña
-            <input
-              type="password"
-              className={inputCls}
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              autoComplete="new-password"
-              required
-            />
+            Traer los datos de este dispositivo
+            <select className={inputCls} value={localId} onChange={(e) => setLocalId(e.target.value)}>
+              <option value="">Ninguno</option>
+              {localAccounts.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.username}
+                </option>
+              ))}
+            </select>
           </label>
         )}
         <label className="flex items-center gap-2 text-sm">
@@ -129,7 +121,7 @@ export default function Login() {
             onChange={(e) => setRemember(e.target.checked)}
             className="accent-emerald-600 w-4 h-4"
           />
-          Recordarme en este dispositivo
+          Recordar sesión
         </label>
 
         {error && <p className="text-sm text-rose-500">{error}</p>}
@@ -146,6 +138,44 @@ export default function Login() {
       <button type="button" onClick={switchMode} className="text-sm text-emerald-600 dark:text-emerald-400">
         {isRegister ? "¿Ya tienes cuenta? Inicia sesión" : "¿No tienes cuenta? Regístrate"}
       </button>
+
+      {replaceRequest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="replace-title"
+            className="w-full max-w-sm rounded-2xl bg-white dark:bg-zinc-900 p-5 flex flex-col gap-4"
+          >
+            <h2 id="replace-title" className="text-lg font-semibold">
+              Sustituir los datos de este dispositivo
+            </h2>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Este dispositivo ya tiene datos y tu cuenta también. Si sigues, se sustituirán por los de tu cuenta y lo que
+              tengas aquí se perderá.
+            </p>
+            <button type="button" onClick={replaceRequest.downloadLocal} className="text-sm text-emerald-600 dark:text-emerald-400 text-left">
+              Descargar copia de lo local
+            </button>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={replaceRequest.cancel}
+                className="rounded-lg px-4 py-2 border border-zinc-300 dark:border-zinc-700 text-sm font-semibold"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={replaceRequest.accept}
+                className="rounded-lg px-4 py-2 bg-emerald-600 text-white text-sm font-semibold"
+              >
+                Sustituir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

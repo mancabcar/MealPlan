@@ -8,7 +8,7 @@
 // Datos: tests/fixtures/plan-macros.ts (hoy = martes 2026-09-22). Falla hasta que exista el resumen (tareas 2–3).
 import { expect, test, type Page } from "@playwright/test";
 import { CENA_SEPIA, PLAN_SEED, planProfileNoRange } from "../fixtures/plan-macros";
-import { signIn } from "./helpers";
+import { clearRecipe, pickRecipe, signIn } from "./helpers";
 
 const summary = (page: Page) => page.getByRole("list", { name: "Macros del día" });
 const cell = (page: Page, label: "Calorías" | "Proteínas" | "Carbohidratos" | "Grasas") =>
@@ -20,11 +20,12 @@ async function openPlan(page: Page, seed: Record<string, unknown> = PLAN_SEED) {
   await expect(page.getByRole("heading", { name: "Martes", level: 2 })).toBeVisible();
 }
 
-/** Toca la fila de una comida del día y elige receta (value "" = "— Sin asignar —"). */
-async function assign(page: Page, meal: string, recipeId: string) {
+/** Toca la fila de una comida del día y elige receta (null = «Quitar»). */
+async function assign(page: Page, meal: string, recipe: { name: string } | null) {
   // Nombre accesible que empieza por la comida: "Cocinar para varias comidas" (sobras, #17) no debe coincidir
   await page.getByRole("button", { name: new RegExp(`^${meal}( |$)`) }).click();
-  await page.getByRole("combobox").selectOption(recipeId);
+  if (recipe) await pickRecipe(page, recipe.name);
+  else await clearRecipe(page);
 }
 
 test.describe("R1: el resumen suma las recetas de las comidas del perfil", () => {
@@ -97,7 +98,7 @@ test.describe("R6: el resumen se recalcula al momento", () => {
     await openPlan(page);
     await expect(cell(page, "Proteínas").getByText("Por debajo", { exact: true })).toBeVisible();
 
-    await assign(page, "Cena", CENA_SEPIA.id);
+    await assign(page, "Cena", CENA_SEPIA);
 
     await expect(cell(page, "Proteínas").getByText("142 / 130–160", { exact: true })).toBeVisible();
     await expect(cell(page, "Proteínas").getByText("Dentro", { exact: true })).toBeVisible();
@@ -106,7 +107,7 @@ test.describe("R6: el resumen se recalcula al momento", () => {
 
   test('dejar la comida "Sin asignar" actualiza los totales y el aviso', async ({ page }) => {
     await openPlan(page);
-    await assign(page, "Comida", "");
+    await assign(page, "Comida", null);
     await expect(cell(page, "Calorías").getByText("1000 / 2000", { exact: true })).toBeVisible();
     await expect(cell(page, "Proteínas").getByText("70 / 130–160", { exact: true })).toBeVisible();
     await expect(page.getByText("2 de 4 comidas planificadas", { exact: true })).toBeVisible();

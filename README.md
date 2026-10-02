@@ -7,7 +7,7 @@ Antes era una app iOS (SwiftUI/SwiftData) — el código está en el historial d
 ## Stack
 
 - **Next.js 16** (App Router) + **Tailwind CSS** + TypeScript
-- **Persistencia:** localStorage del navegador (sin backend ni base de datos — los datos viven en tu dispositivo)
+- **Persistencia:** localStorage del navegador como copia principal, sincronizada con un servidor (cuentas propias y Neon Postgres en `server/`, issue [#22](https://github.com/mancabcar/MealPlan/issues/22)): el móvil y el PC comparten los datos
 - **Dos proyectos Next en este repo** (issue [#69](https://github.com/mancabcar/MealPlan/issues/69)): la raíz es la app (`output: "export"`, sitio estático) y [server/](server/) son las tres rutas que necesitan servidor — se explica en «Despliegue» más abajo.
 - **IA:** API de Claude vía route handler de servidor ([server/app/api/recipes/route.ts](server/app/api/recipes/route.ts)) — la key nunca llega al navegador
 
@@ -37,6 +37,8 @@ Y a `server/` qué origen puede llamarle, en `server/.env.local`:
 ```
 ANTHROPIC_API_KEY=sk-ant-...
 CORS_ALLOWED_ORIGIN=http://localhost:3000
+DATABASE_URL=postgres://...      # cadena de conexión de Neon (la sincronización y las cuentas)
+REGISTRATION_CODE=...             # código de invitación que pide el registro; sin él nadie puede registrarse
 ```
 
 ## Tests
@@ -52,6 +54,17 @@ npm run typecheck   # tsc --noEmit
 - E2E en `tests/e2e/`; `helpers.ts` siembra una sesión local para saltarse el login.
 - La primera vez: `npx playwright install chromium`.
 - CI (`.github/workflows/ci.yml`) ejecuta lint, typecheck, unitarios, build y e2e en cada PR.
+- Los e2e del service worker (`tests/e2e/pwa.spec.ts`) necesitan el build: en CI corren siempre; en local se saltan con `next dev`. Para ejecutarlos: `npm run build`, `npx serve out -l 3000` en otra terminal y `PWA_E2E=1 npm run test:e2e -- tests/e2e/pwa.spec.ts`.
+
+## Instalar la app y usarla sin conexión
+
+La app es una PWA (issue [#21](https://github.com/mancabcar/MealPlan/issues/21)): manifest en `src/app/manifest.ts`, iconos en `public/icons/` (se regeneran con `node scripts/generate-icons.mjs` desde `icon.svg`) y un service worker que `npm run build` genera en `out/sw.js` (`scripts/generate-sw.mjs`, a partir de `scripts/sw.template.js`). Solo existe en el build: con `npm run dev` no se registra.
+
+- **Android / PC (Chrome o Edge):** menú del navegador → «Instalar app», o el botón «Instalar app» de Perfil.
+- **iPhone (Safari):** Compartir → «Añadir a pantalla de inicio». Safari no ofrece botón propio, así que Perfil no lo muestra.
+- **Sin conexión:** tras una primera visita con red, la app abre en cualquier pantalla con los datos de este dispositivo. Las funciones que necesitan red (recetas con IA, búsqueda de marcas, códigos de barras) avisan de que no hay conexión.
+- **Actualizaciones:** al publicar una versión nueva, el service worker la descarga y la usa en la siguiente apertura con red; no hay que borrar la caché.
+- **Ojo en iPhone:** iOS puede borrar los datos de una web que no se abre durante un tiempo. Haz copias de seguridad desde Perfil › «Tus datos» (la sincronización entre dispositivos está en el issue [#22](https://github.com/mancabcar/MealPlan/issues/22)).
 
 ## Despliegue
 
@@ -60,7 +73,7 @@ Dos sitios, un repo (issue [#69](https://github.com/mancabcar/MealPlan/issues/69
 - **La app, estática, en IONOS.** Ya configurado con [IONOS Deploy Now](https://docs.ionos.space): cada push construye la raíz (`npm run build`, `output: "export"`) y publica `out/`, sin nada que tocar aquí (`.github/workflows/MealPlan-*.yaml`, `deploy-to-ionos.yaml`, generados por IONOS).
 - **Las tres rutas de servidor (`server/`), en Vercel:**
   1. Importa el repo en [vercel.com](https://vercel.com) (login con GitHub) como un proyecto nuevo, con **Root Directory: `server`**.
-  2. En **Settings → Environment Variables** añade `ANTHROPIC_API_KEY` y `CORS_ALLOWED_ORIGIN` (el origen del sitio en IONOS, p. ej. `https://home-5021530898.app-ionos.space`).
+  2. En **Settings → Environment Variables** añade `ANTHROPIC_API_KEY`, `CORS_ALLOWED_ORIGIN` (el origen del sitio en IONOS, p. ej. `https://home-5021533470.app-ionos.space`), `DATABASE_URL` (cadena de conexión de una base [Neon](https://neon.com) gratuita, también desde Vercel → Storage) y `REGISTRATION_CODE` (el código de invitación para crear tu cuenta). Las tablas se crean solas en la primera petición ([server/db/schema.sql](server/db/schema.sql) es la referencia).
   3. Deploy. Anota la URL que te da Vercel.
   4. En el proyecto de **IONOS Deploy Now**, añade la variable de entorno `NEXT_PUBLIC_API_BASE_URL` con esa URL de Vercel, y vuelve a desplegar la raíz para que quede fijada en el HTML/JS estático (es `NEXT_PUBLIC_*`: se fija en build time, cambiarla exige reconstruir).
 
@@ -81,6 +94,12 @@ Tras crear la cuenta, el onboarding pide nombre y objetivo y ofrece dos rutas:
 - **Tengo un plan de mi nutricionista:** escribes las cifras de tu plan. La proteína puede ser un rango, y los carbos y las grasas que dejes vacíos se calculan.
 
 Después eliges qué comidas haces al día y declaras alergias (exclusión estricta), dieta y lo que no te gusta (preferencia). Los perfiles antiguos se migran solos al abrir la app.
+
+## Importar recetas desde una URL
+
+En Recetas, «Importar desde URL» pide la dirección de una receta y abre el formulario de receta prerrellenado para revisarla; nada se guarda hasta pulsar «Guardar». La ruta `POST /api/recipes/import` (en [server/](server/), ver «Despliegue») descarga la página, usa el JSON-LD `schema.org/Recipe` si lo hay (sin IA) y, si no, pide a Claude Haiku 4.5 que extraiga la receta y estime los macros (se marcan como «estimados»).
+
+Límites: solo http/https; rechaza destinos internos (también tras redirecciones); 2 MB, 8 s y 3 redirecciones por descarga; 10 importaciones por IP cada 10 minutos (en memoria, por instancia). Usa las mismas variables que `/api/recipes` (`ANTHROPIC_API_KEY`, `CORS_ALLOWED_ORIGIN`); tras añadirla hay que redesplegar `server/` en Vercel.
 
 ## Datos de alimentos
 

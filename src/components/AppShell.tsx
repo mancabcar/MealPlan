@@ -6,8 +6,10 @@ import { usePathname } from "next/navigation";
 import { NotebookText, CalendarDays, ChefHat, ShoppingBasket, User, type LucideIcon } from "lucide-react";
 import { AppProvider, useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
+import { SyncProvider } from "@/lib/syncContext";
 import Login from "./Login";
 import Onboarding from "./Onboarding";
+import SyncStatus from "./SyncStatus";
 
 const TABS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/", label: "Diario", icon: NotebookText },
@@ -18,16 +20,19 @@ const TABS: { href: string; label: string; icon: LucideIcon }[] = [
 ];
 
 export default function AppShell({ children }: { children: ReactNode }) {
-  const { user, loaded } = useAuth();
+  const { user, token, loaded } = useAuth();
 
   if (!loaded) return null;
-  if (!user) return <Login />;
+  if (!user || !token) return <Login />;
 
   // key: al cambiar de usuario se remonta el store y se leen sus datos
   return (
-    <AppProvider key={user.id} userId={user.id}>
-      <UserShell>{children}</UserShell>
-    </AppProvider>
+    <SyncProvider key={user.id} userId={user.id} token={token}>
+      <SyncStatus />
+      <AppProvider userId={user.id}>
+        <UserShell>{children}</UserShell>
+      </AppProvider>
+    </SyncProvider>
   );
 }
 

@@ -1,8 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import AppShell from "@/components/AppShell";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import InstallPromptCapture from "@/components/InstallPromptCapture";
 
 // Rediseño visual (docs/pm/design-refresh): tipografía autohospedada vía next/font/google, en el mismo
 // sitio y con el mismo mecanismo que Geist usaba antes (cero peticiones al navegador, sin CLS) — no el
@@ -25,6 +27,13 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: "MealPlanner",
   description: "Planificador de comidas con macros y recetas con IA",
+  // PWA (issue #21): iOS no lee el manifest para el icono ni la barra de estado.
+  icons: { apple: "/icons/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "MealPlanner", statusBarStyle: "black-translucent" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({
@@ -35,6 +44,8 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${spaceGrotesk.variable} ${manrope.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+        <ServiceWorkerRegister />
+        <InstallPromptCapture />
         <AuthProvider>
           <AppShell>{children}</AppShell>
         </AuthProvider>

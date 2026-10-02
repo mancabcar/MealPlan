@@ -1,4 +1,6 @@
 import { expect, type Page } from "@playwright/test";
+import { createFakeBackend } from "../fixtures/fakeSyncBackend";
+import { mockBackend } from "./syncHelpers";
 
 export const USER_ID = "e2e-user";
 
@@ -6,23 +8,22 @@ export const USER_ID = "e2e-user";
 export const TODAY = "2026-09-22";
 
 /**
- * Deja al navegador con una sesión local iniciada (sin pasar por el login y su PBKDF2).
- * La sesión solo comprueba que el id exista en mp_users, así que el hash no importa.
+ * Deja al navegador con una sesión iniciada (sin pasar por el login), con el servidor de sincronización simulado
+ * (tests/fixtures/fakeSyncBackend.ts; #22): la app sube y baja contra él sin red real.
  * Solo siembra una vez por contexto: los reload() conservan lo que la app haya guardado.
  */
 export async function signIn(page: Page, data: Record<string, unknown> = {}) {
   await page.clock.setFixedTime(new Date(`${TODAY}T10:00:00`));
+  const backend = createFakeBackend();
+  const token = backend.seedAs(USER_ID, "lucia");
+  await mockBackend(page.context(), backend);
   await page.addInitScript(
-    ({ userId, data }) => {
-      if (localStorage.getItem("mp_users")) return;
-      localStorage.setItem(
-        "mp_users",
-        JSON.stringify([{ id: userId, username: "lucia", salt: "00", hash: "00", createdAt: "2026-09-01T00:00:00Z" }]),
-      );
-      localStorage.setItem("mp_session", JSON.stringify({ id: userId, username: "lucia" }));
+    ({ userId, data, token }) => {
+      if (localStorage.getItem("mp_session")) return;
+      localStorage.setItem("mp_session", JSON.stringify({ id: userId, username: "lucia", token }));
       for (const [k, v] of Object.entries(data)) localStorage.setItem(`mp_${userId}_${k}`, JSON.stringify(v));
     },
-    { userId: USER_ID, data },
+    { userId: USER_ID, data, token },
   );
 }
 
@@ -73,4 +74,40 @@ export async function chooseMeals(page: Page, meals: string[]) {
 
 export async function expectOnDashboard(page: Page) {
   await expect(page.getByRole("heading", { name: "Diario" })).toBeVisible();
+}
+
+// ---------------------------------------------------------------------------
+// Selector de recetas (docs/pm/20-recetas-filtros/tech.md › UI test contract). Sustituye al <select> de recetas del
+// Plan y de «Añadir comida»: contenedor group «Elegir receta», filas = botón cuyo nombre empieza por el de la receta,
+// estrella = botón «Marcar <receta> como favorita» / «Quitar <receta> de favoritas».
+// ---------------------------------------------------------------------------
+
+export const recipePicker = (page: Page) => page.getByRole("group", { name: "Elegir receta" });
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Fila de una receta: su nombre accesible es «<receta> N kcal · …», así que «Crema de calabaza» no coincide con «Crema de
+ * calabaza con picatostes». La estrella empieza por «Marcar»/«Quitar».
+ */
+export const recipeRow = (page: Page, name: string) =>
+  recipePicker(page).getByRole("button", { name: new RegExp(`^${escapeRe(name)} \\d+ kcal`) });
+
+/** Estrella de una receta: marcada («Quitar … de favoritas») o no («Marcar … como favorita»). */
+export const favStar = (page: Page, name: string, marked = false) =>
+  recipePicker(page).getByRole("button", { name: marked ? `Quitar ${name} de favoritas` : `Marcar ${name} como favorita` });
+
+/** «Ver todas las recetas» del selector abierto. */
+export const showAllRecipes = (page: Page) => recipePicker(page).getByRole("button", { name: "Ver todas las recetas" });
+
+/** Elige una receta en el selector abierto (por nombre, no por id); si no es de la franja, abre «Ver todas». */
+export async function pickRecipe(page: Page, name: string) {
+  const row = recipeRow(page, name);
+  if (!(await row.isVisible())) await showAllRecipes(page).click();
+  await row.click();
+}
+
+/** «Quitar» del selector del Plan: deja la franja sin asignar (solo sale si ya tenía receta). */
+export async function clearRecipe(page: Page) {
+  await recipePicker(page).getByRole("button", { name: "Quitar", exact: true }).click();
 }
