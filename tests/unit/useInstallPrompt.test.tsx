@@ -1,11 +1,17 @@
 // @vitest-environment jsdom
 // Spec: docs/pm/21-pwa-recordatorios/spec.md › R7 (botón «Instalar app» en Perfil, Could).
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { useInstallPrompt } from "@/lib/useInstallPrompt";
 
-function fireInstallPrompt(outcome: "accepted" | "dismissed" = "accepted") {
-  const prompt = vi.fn().mockResolvedValue(undefined);
+// El evento se guarda a nivel de módulo (llega antes de abrir Perfil): entre tests se vacía con `appinstalled`.
+afterEach(() => {
+  act(() => {
+    window.dispatchEvent(new Event("appinstalled"));
+  });
+});
+
+function fireInstallPrompt(outcome: "accepted" | "dismissed" = "accepted", prompt = vi.fn().mockResolvedValue(undefined)) {
   const event = Object.assign(new Event("beforeinstallprompt", { cancelable: true }), {
     prompt,
     userChoice: Promise.resolve({ outcome }),
@@ -36,6 +42,21 @@ describe("R7: useInstallPrompt", () => {
       await result.current.install();
     });
     expect(prompt).toHaveBeenCalledTimes(1);
+    expect(result.current.canInstall).toBe(false);
+  });
+
+  it("review #92: si el evento llega antes de montar el hook (Perfil aún cerrado), el botón aparece al abrirlo", () => {
+    fireInstallPrompt();
+    const { result } = renderHook(() => useInstallPrompt());
+    expect(result.current.canInstall).toBe(true);
+  });
+
+  it("review #92: si prompt() rechaza, no hay error sin capturar y el botón desaparece", async () => {
+    const { result } = renderHook(() => useInstallPrompt());
+    fireInstallPrompt("accepted", vi.fn().mockRejectedValue(new DOMException("ya usado", "InvalidStateError")));
+    await act(async () => {
+      await expect(result.current.install()).resolves.toBeUndefined();
+    });
     expect(result.current.canInstall).toBe(false);
   });
 
