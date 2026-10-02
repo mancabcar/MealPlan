@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
@@ -25,6 +25,13 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: "MealPlanner",
   description: "Planificador de comidas con macros y recetas con IA",
+  // PWA (issue #21): iOS no lee el manifest para el icono ni la barra de estado.
+  icons: { apple: "/icons/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "MealPlanner", statusBarStyle: "black-translucent" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({
