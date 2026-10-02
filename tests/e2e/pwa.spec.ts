@@ -2,6 +2,10 @@
 // R3 (instalar en Android, iPhone y PC + Lighthouse) es manual: no se puede automatizar.
 // El service worker solo existe en el build (out/): CI ya sirve out/; en local, `npm run build && npx serve out -l 3000`
 // y PWA_E2E=1. Con `next dev` esos tests se saltan; R5 no depende del SW y corre siempre.
+import fs from "node:fs";
+import http from "node:http";
+import type { AddressInfo } from "node:net";
+import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { lucia } from "../fixtures/profiles";
 import { readStored, signIn } from "./helpers";
@@ -77,20 +81,61 @@ buildOnly("R4: navegar dentro de la app sin conexión (enlaces de la barra) tamb
   await expect(page.getByRole("region", { name: "Datos corporales" })).toBeVisible();
 });
 
-buildOnly("R6: una versión nueva del service worker sustituye la caché vieja y conserva los datos", async ({
-  page,
-}) => {
+const MIME: Record<string, string> = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "application/javascript",
+  ".css": "text/css",
+  ".json": "application/json",
+  ".webmanifest": "application/manifest+json",
+  ".txt": "text/plain; charset=utf-8",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".woff2": "font/woff2",
+};
+
+/**
+ * Sirve out/ en un puerto propio para poder "publicar" otro sw.js a mitad del test: Playwright no intercepta
+ * la descarga del sw.js que hace el navegador al buscar versiones nuevas (ni con page.route ni con context.route).
+ */
+async function serveOut(swOverride: { body?: string }) {
+  const root = path.resolve("out");
+  const server = http.createServer((req, res) => {
+    const pathname = decodeURIComponent(new URL(req.url ?? "/", "http://localhost").pathname);
+    const file = path.join(root, pathname.endsWith("/") ? `${pathname}index.html` : pathname);
+    if (!file.startsWith(root) || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
+      res.writeHead(404).end();
+      return;
+    }
+    const body = pathname === "/sw.js" && swOverride.body ? swOverride.body : fs.readFileSync(file);
+    res.writeHead(200, { "Content-Type": MIME[path.extname(file)] ?? "application/octet-stream" }).end(body);
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const { port } = server.address() as AddressInfo;
+  return { url: `http://localhost:${port}`, close: () => new Promise<void>((resolve) => server.close(() => resolve())) };
+}
+
+buildOnly("R6: una versión nueva del service worker sustituye la caché vieja y conserva los datos", async ({ page }) => {
+  const swOverride: { body?: string } = {};
+  const site = await serveOut(swOverride);
+  try {
+    await runUpdateScenario(page, site.url, swOverride);
+  } finally {
+    await site.close();
+  }
+});
+
+async function runUpdateScenario(page: Page, base: string, swOverride: { body?: string }) {
   await signIn(page, { profile: lucia });
-  await page.goto("/");
+  await page.goto(`${base}/`);
   await waitForServiceWorker(page);
   const before = await page.evaluate(() => caches.keys());
   expect(before.length).toBeGreaterThan(0);
 
   // Se publica un sw.js con otra versión (contrato: `const VERSION = "<hash>"` y cachés con la versión en el nombre).
-  const original = await (await page.request.get("/sw.js")).text();
-  const bumped = original.replace(/const VERSION = "[^"]*"/, 'const VERSION = "test-v2"');
-  expect(bumped).not.toBe(original);
-  await page.route("**/sw.js", (route) => route.fulfill({ contentType: "application/javascript", body: bumped }));
+  const original = await (await page.request.get(`${base}/sw.js`)).text();
+  swOverride.body = original.replace(/const VERSION = "[^"]*"/, 'const VERSION = "test-v2"');
+  expect(swOverride.body).not.toBe(original);
 
   await page.evaluate(async () => {
     const reg = await navigator.serviceWorker.getRegistration();
@@ -107,7 +152,7 @@ buildOnly("R6: una versión nueva del service worker sustituye la caché vieja y
   await page.reload();
   await expect(page.getByRole("heading", { name: "Diario" })).toBeVisible();
   expect(await readStored(page, "profile")).toMatchObject({ name: "Lucía" });
-});
+}
 
 test("R5: sin conexión, «Sugerir con IA» avisa de que no hay conexión y la app sigue usable", async ({ page }) => {
   await signIn(page, { profile: lucia });
