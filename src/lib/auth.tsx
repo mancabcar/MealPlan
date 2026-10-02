@@ -1,170 +1,212 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { apiUrl } from "./apiBase";
+import { buildBackup } from "./backup";
+import { adoptLocalData, clearUserData, hasUserData, listLocalAccounts, planFirstSync, type LocalAccount } from "./syncMigration";
+import { userKey } from "./userKey";
+import { USER_DATA_KEYS } from "./userData";
 
-// Cuentas locales: viven en el localStorage de este navegador (no hay backend).
-// La contraseña se guarda como hash PBKDF2 con sal aleatoria, nunca en claro.
-
-export interface Account {
-  id: string;
-  username: string;
-  salt: string; // hex
-  hash: string; // hex
-  createdAt: string;
-}
+// Cuentas reales en el servidor (docs/pm/22-sincronizacion-dispositivos): usuario y contraseña contra server/, token opaco
+// en cabecera. La sesión (con su token) vive en localStorage ("Recordar sesión") o solo en esta pestaña (sessionStorage).
 
 export interface SessionUser {
   id: string;
   username: string;
 }
 
+/** Datos locales y del servidor a la vez (R7): hasta que el usuario decida, el inicio de sesión espera. */
+export interface ReplaceRequest {
+  /** Sustituye lo de este dispositivo por lo de la cuenta. */
+  accept: () => void;
+  /** Cierra la sesión del servidor y vuelve al login sin tocar nada. */
+  cancel: () => void;
+  /** Descarga un backup JSON de lo que hay en este dispositivo antes de decidir. */
+  downloadLocal: () => void;
+}
+
 interface AuthState {
   user: SessionUser | null;
   loaded: boolean;
-  rememberedUsers: string[];
-  login: (username: string, password: string, remember: boolean) => Promise<void>;
-  register: (username: string, password: string, remember: boolean) => Promise<void>;
-  logout: () => void;
-  forgetUser: (username: string) => void;
+  /** Cuentas locales antiguas de este navegador, entre las que elegir los datos a traer. */
+  localAccounts: LocalAccount[];
+  token: string | null;
+  replaceRequest: ReplaceRequest | null;
+  login: (username: string, password: string, remember: boolean, localAccountId: string | null) => Promise<void>;
+  register: (username: string, password: string, invite: string, remember: boolean, localAccountId: string | null) => Promise<void>;
+  logout: () => Promise<void>;
+  /** La sesión ha caducado (401): vuelve al login sin borrar la copia local. */
+  expireSession: () => void;
+  /** Lo registra la capa de sync para subir lo pendiente antes de que cerrar sesión borre la copia local (R12). */
+  setBeforeLogout: (fn: (() => Promise<void>) | null) => void;
 }
 
-const USERS_KEY = "mp_users";
 const SESSION_KEY = "mp_session";
-const REMEMBERED_KEY = "mp_remembered";
-// Claves anteriores a las cuentas: se adoptan en la primera cuenta creada
-const LEGACY_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan"];
+const NETWORK_ERROR = "No se ha podido conectar con el servidor. Comprueba tu conexión.";
 
 const AuthContext = createContext<AuthState | null>(null);
 
-export function userKey(userId: string, key: string): string {
-  return `mp_${userId}_${key}`;
+export { userKey };
+
+interface StoredSession extends SessionUser {
+  token: string;
 }
 
-function read<T>(storage: Storage, key: string, fallback: T): T {
+function readSession(storage: Storage): StoredSession | null {
   try {
-    const raw = storage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
+    const s = JSON.parse(storage.getItem(SESSION_KEY) ?? "null") as Partial<StoredSession> | null;
+    return s && typeof s.id === "string" && typeof s.username === "string" && typeof s.token === "string" ? (s as StoredSession) : null;
   } catch {
-    return fallback;
+    return null;
   }
 }
 
-const normalize = (u: string) => u.trim().toLowerCase();
-
-function toHex(buf: ArrayBuffer | Uint8Array): string {
-  return Array.from(new Uint8Array(buf))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-function fromHex(hex: string): Uint8Array<ArrayBuffer> {
-  const out = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-  return out;
-}
-
-async function hashPassword(password: string, salt: Uint8Array<ArrayBuffer>): Promise<string> {
-  if (!globalThis.crypto?.subtle) {
-    throw new Error("Tu navegador no permite cifrado aquí. Abre la app por https o localhost.");
+async function post(path: string, body: unknown, token?: string): Promise<{ status: number; body: Record<string, unknown> }> {
+  let res: Response;
+  try {
+    res = await fetch(apiUrl(path), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify(body ?? {}),
+    });
+  } catch {
+    throw new Error(NETWORK_ERROR);
   }
-  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, [
-    "deriveBits",
-  ]);
-  const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt, iterations: 150_000, hash: "SHA-256" },
-    key,
-    256,
-  );
-  return toHex(bits);
+  return { status: res.status, body: (await res.json().catch(() => ({}))) as Record<string, unknown> };
 }
 
-function adoptLegacyData(userId: string) {
-  for (const k of LEGACY_KEYS) {
-    const raw = localStorage.getItem(`mp_${k}`);
-    if (raw !== null) {
-      localStorage.setItem(userKey(userId, k), raw);
-      localStorage.removeItem(`mp_${k}`);
-    }
+async function remoteHasData(token: string): Promise<boolean> {
+  let res: Response;
+  try {
+    res = await fetch(apiUrl("/api/sync"), { headers: { Authorization: `Bearer ${token}` } });
+  } catch {
+    throw new Error(NETWORK_ERROR);
   }
+  if (!res.ok) throw new Error("No se han podido consultar tus datos en el servidor.");
+  return Object.keys((await res.json()) as object).length > 0;
+}
+
+function downloadBackup(userId: string) {
+  const backup = buildBackup(localStorage, userId);
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `mealplan-backup-local-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null);
-  const [rememberedUsers, setRememberedUsers] = useState<string[]>([]);
+  const [token, setToken] = useState<string | null>(null);
+  const [localAccounts, setLocalAccounts] = useState<LocalAccount[]>([]);
+  const [replaceRequest, setReplaceRequest] = useState<ReplaceRequest | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const beforeLogout = useRef<(() => Promise<void>) | null>(null);
 
   useEffect(() => {
-    // Sesión recordada (localStorage) o solo de esta pestaña (sessionStorage)
-    const accounts = read<Account[]>(localStorage, USERS_KEY, []);
-    const session =
-      read<SessionUser | null>(localStorage, SESSION_KEY, null) ??
-      read<SessionUser | null>(sessionStorage, SESSION_KEY, null);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setUser(session && accounts.some((a) => a.id === session.id) ? session : null);
-    setRememberedUsers(read<string[]>(localStorage, REMEMBERED_KEY, []));
+    const session = readSession(localStorage) ?? readSession(sessionStorage);
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (session) {
+      setUser({ id: session.id, username: session.username });
+      setToken(session.token);
+    }
+    setLocalAccounts(listLocalAccounts(localStorage));
     setLoaded(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
-  const startSession = (account: Account, remember: boolean) => {
-    const session: SessionUser = { id: account.id, username: account.username };
+  const startSession = (session: StoredSession, remember: boolean) => {
     const json = JSON.stringify(session);
     if (remember) {
       localStorage.setItem(SESSION_KEY, json);
       sessionStorage.removeItem(SESSION_KEY);
-      const list = [account.username, ...rememberedUsers.filter((u) => normalize(u) !== normalize(account.username))];
-      setRememberedUsers(list);
-      localStorage.setItem(REMEMBERED_KEY, JSON.stringify(list));
     } else {
       sessionStorage.setItem(SESSION_KEY, json);
       localStorage.removeItem(SESSION_KEY);
     }
-    setUser(session);
+    setToken(session.token);
+    setUser({ id: session.id, username: session.username });
   };
 
-  const login = async (username: string, password: string, remember: boolean) => {
-    const accounts = read<Account[]>(localStorage, USERS_KEY, []);
-    const account = accounts.find((a) => normalize(a.username) === normalize(username));
-    // Se calcula el hash aunque no exista el usuario para no delatarlo por el tiempo
-    const hash = await hashPassword(password, account ? fromHex(account.salt) : new Uint8Array(16));
-    if (!account || hash !== account.hash) throw new Error("Usuario o contraseña incorrectos");
-    startSession(account, remember);
-  };
+  /** Pregunta al usuario y espera su respuesta (R7). */
+  const askReplace = (serverId: string) =>
+    new Promise<boolean>((resolve) => {
+      const done = (answer: boolean) => {
+        setReplaceRequest(null);
+        resolve(answer);
+      };
+      setReplaceRequest({ accept: () => done(true), cancel: () => done(false), downloadLocal: () => downloadBackup(serverId) });
+    });
 
-  const register = async (username: string, password: string, remember: boolean) => {
-    const name = username.trim();
-    if (name.length < 3) throw new Error("El usuario debe tener al menos 3 caracteres");
-    if (password.length < 6) throw new Error("La contraseña debe tener al menos 6 caracteres");
-    const accounts = read<Account[]>(localStorage, USERS_KEY, []);
-    if (accounts.some((a) => normalize(a.username) === normalize(name))) {
-      throw new Error("Ese usuario ya existe");
+  /** R6/R7: con la sesión ya abierta en el servidor, decide qué pasa con los datos de este dispositivo. */
+  const finishSignIn = async (serverToken: string, serverUser: SessionUser, remember: boolean, localAccountId: string | null) => {
+    if (localAccountId) adoptLocalData(localStorage, localAccountId, serverUser.id);
+    // Un dispositivo que ya sincronizó antes con esta cuenta (p. ej. tras caducar la sesión) solo se pone al día
+    const knownDevice = localStorage.getItem(userKey(serverUser.id, "syncmeta")) !== null;
+    const plan = knownDevice
+      ? "download"
+      : planFirstSync(hasUserData(localStorage, serverUser.id), await remoteHasData(serverToken));
+
+    if (plan === "confirm") {
+      const replace = await askReplace(serverUser.id);
+      if (!replace) {
+        await post("/api/auth/logout", {}, serverToken).catch(() => undefined);
+        clearUserData(localStorage, serverUser.id); // solo la copia adoptada: la cuenta local original no se toca
+        throw new Error("");
+      }
+      clearUserData(localStorage, serverUser.id); // lo del servidor lo trae el primer pull
+    } else if (plan === "upload") {
+      // Sin versiones conocidas: el primer ciclo sube todas las claves que existan con baseVersion 0 (R6)
+      const pending = USER_DATA_KEYS.filter((k) => localStorage.getItem(userKey(serverUser.id, k)) !== null);
+      localStorage.setItem(userKey(serverUser.id, "syncmeta"), JSON.stringify({ versions: {}, pending }));
     }
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const account: Account = {
-      id: crypto.randomUUID(),
-      username: name,
-      salt: toHex(salt),
-      hash: await hashPassword(password, salt),
-      createdAt: new Date().toISOString(),
-    };
-    if (accounts.length === 0) adoptLegacyData(account.id);
-    localStorage.setItem(USERS_KEY, JSON.stringify([...accounts, account]));
-    startSession(account, remember);
+    startSession({ ...serverUser, token: serverToken }, remember);
   };
 
-  const logout = () => {
+  const enter = async (path: string, body: unknown, remember: boolean, localAccountId: string | null) => {
+    const res = await post(path, body);
+    if (res.status !== 200) throw new Error(typeof res.body.error === "string" ? res.body.error : "Algo ha fallado");
+    await finishSignIn(res.body.token as string, res.body.user as SessionUser, remember, localAccountId);
+  };
+
+  const login = (username: string, password: string, remember: boolean, localAccountId: string | null) =>
+    enter("/api/auth/login", { username, password }, remember, localAccountId);
+
+  const register = (username: string, password: string, invite: string, remember: boolean, localAccountId: string | null) => {
+    if (username.trim().length < 3) return Promise.reject(new Error("El usuario debe tener al menos 3 caracteres"));
+    if (password.length < 6) return Promise.reject(new Error("La contraseña debe tener al menos 6 caracteres"));
+    return enter("/api/auth/register", { username, password, invite }, remember, localAccountId);
+  };
+
+  const endSession = useCallback(() => {
     localStorage.removeItem(SESSION_KEY);
     sessionStorage.removeItem(SESSION_KEY);
+    setToken(null);
     setUser(null);
+    setLocalAccounts(listLocalAccounts(localStorage));
+  }, []);
+
+  const logout = async () => {
+    if (!user) return;
+    // Lo pendiente se sube antes de borrar la copia local; sin red se sale igualmente (R12)
+    await beforeLogout.current?.().catch(() => undefined);
+    if (token) await post("/api/auth/logout", {}, token).catch(() => undefined);
+    clearUserData(localStorage, user.id);
+    endSession();
   };
 
-  const forgetUser = (username: string) => {
-    const list = rememberedUsers.filter((u) => normalize(u) !== normalize(username));
-    setRememberedUsers(list);
-    localStorage.setItem(REMEMBERED_KEY, JSON.stringify(list));
-  };
+  const setBeforeLogout = useCallback((fn: (() => Promise<void>) | null) => {
+    beforeLogout.current = fn;
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loaded, rememberedUsers, login, register, logout, forgetUser }}>
+    <AuthContext.Provider
+      value={{ user, token, loaded, localAccounts, replaceRequest, login, register, logout, expireSession: endSession, setBeforeLogout }}
+    >
       {children}
     </AuthContext.Provider>
   );

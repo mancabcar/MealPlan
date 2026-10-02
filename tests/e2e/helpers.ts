@@ -1,4 +1,6 @@
 import { expect, type Page } from "@playwright/test";
+import { createFakeBackend } from "../fixtures/fakeSyncBackend";
+import { mockBackend } from "./syncHelpers";
 
 export const USER_ID = "e2e-user";
 
@@ -6,23 +8,22 @@ export const USER_ID = "e2e-user";
 export const TODAY = "2026-09-22";
 
 /**
- * Deja al navegador con una sesión local iniciada (sin pasar por el login y su PBKDF2).
- * La sesión solo comprueba que el id exista en mp_users, así que el hash no importa.
+ * Deja al navegador con una sesión iniciada (sin pasar por el login), con el servidor de sincronización simulado
+ * (tests/fixtures/fakeSyncBackend.ts; #22): la app sube y baja contra él sin red real.
  * Solo siembra una vez por contexto: los reload() conservan lo que la app haya guardado.
  */
 export async function signIn(page: Page, data: Record<string, unknown> = {}) {
   await page.clock.setFixedTime(new Date(`${TODAY}T10:00:00`));
+  const backend = createFakeBackend();
+  const token = backend.seedAs(USER_ID, "lucia");
+  await mockBackend(page.context(), backend);
   await page.addInitScript(
-    ({ userId, data }) => {
-      if (localStorage.getItem("mp_users")) return;
-      localStorage.setItem(
-        "mp_users",
-        JSON.stringify([{ id: userId, username: "lucia", salt: "00", hash: "00", createdAt: "2026-09-01T00:00:00Z" }]),
-      );
-      localStorage.setItem("mp_session", JSON.stringify({ id: userId, username: "lucia" }));
+    ({ userId, data, token }) => {
+      if (localStorage.getItem("mp_session")) return;
+      localStorage.setItem("mp_session", JSON.stringify({ id: userId, username: "lucia", token }));
       for (const [k, v] of Object.entries(data)) localStorage.setItem(`mp_${userId}_${k}`, JSON.stringify(v));
     },
-    { userId: USER_ID, data },
+    { userId: USER_ID, data, token },
   );
 }
 

@@ -105,6 +105,13 @@ export function createFakeBackend() {
       users.push(u);
       return u.id;
     },
+    /** Un usuario con id fijo y una sesión ya abierta (para e2e que se saltan el login): devuelve el token. */
+    seedAs(id: string, username: string): string {
+      users.push({ id, username, password: "", data: new Map() });
+      const token = `token-seed-${++n}-${"x".repeat(32)}`;
+      tokens.set(token, id);
+      return token;
+    },
     /** Escritura de "otro dispositivo": sube la versión de una clave. */
     remoteWrite(username: string, key: string, value: unknown) {
       const u = users.find((x) => x.username === username)!;
