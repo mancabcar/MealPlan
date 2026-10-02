@@ -11,7 +11,7 @@ import { expect, test, type Page } from "@playwright/test";
 import type { MealEntry } from "@/lib/types";
 import { lucia } from "../fixtures/profiles";
 import { CALDO, GUISO, LENTEJAS, RACIONES_RECIPES, slot } from "../fixtures/diario";
-import { readStored, signIn, TODAY } from "./helpers";
+import { pickRecipe, readStored, signIn, TODAY } from "./helpers";
 
 const SERVINGS_ERROR = "Entre 0,25 y 4, en pasos de 0,25";
 
@@ -31,9 +31,8 @@ const minus = (page: Page) => page.getByRole("button", { name: "Quitar 0,25 raci
 const plus = (page: Page) => page.getByRole("button", { name: "Añadir 0,25 raciones" });
 const addButton = (page: Page) => page.getByRole("button", { name: "Añadir", exact: true });
 const servingsError = (page: Page) => page.getByRole("alert").filter({ hasText: SERVINGS_ERROR });
-/** El desplegable de recetas no tiene nombre accesible: es el que ofrece "Elige una receta...". */
-const recipeSelect = (page: Page) =>
-  page.getByRole("combobox").filter({ has: page.locator("option", { hasText: "Elige una receta..." }) });
+/** El selector de recetas (docs/pm/20-recetas-filtros) se maneja por nombre; aquí los casos hablan de ids. */
+const recipeName = (id: string) => [...RACIONES_RECIPES, LENTEJAS].find((r) => r.id === id)!.name;
 
 async function openAddForm(page: Page) {
   await page.getByRole("button", { name: "Añadir comida" }).click();
@@ -43,7 +42,7 @@ async function openAddForm(page: Page) {
 /** Abre el formulario, elige la receta y, si se da, escribe las raciones. No pulsa "Añadir". */
 async function fillRecipe(page: Page, recipeId: string, servings?: string) {
   await openAddForm(page);
-  await recipeSelect(page).selectOption(recipeId);
+  await pickRecipe(page, recipeName(recipeId));
   if (servings !== undefined) await servingsInput(page).fill(servings);
 }
 
@@ -351,7 +350,7 @@ test.describe("Flujo y casos límite", () => {
   test("cambiar de receta en el desplegable mantiene las raciones elegidas", async ({ page }) => {
     await openDiario(page);
     await fillRecipe(page, GUISO.id, "0,5");
-    await recipeSelect(page).selectOption(LENTEJAS.id);
+    await pickRecipe(page, LENTEJAS.name);
     await expect(servingsInput(page)).toHaveValue("0,5");
     await addButton(page).click();
     await expect(meal(page, "Comida").getByText("Lentejas × 0,5", { exact: true })).toBeVisible();

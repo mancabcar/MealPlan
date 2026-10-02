@@ -1,7 +1,7 @@
 // Servidor simulado con el contrato de docs/pm/22-sincronizacion-dispositivos/tech.md › APIs / interfaces.
 // Lo usan los tests unitarios del cliente (fetch inyectado) y los e2e (page.route): ninguno toca una red ni una BD reales.
 // Es un doble del contrato, no de la implementación: la SQL real y las rutas se prueban en server/tests/unit.
-export const SYNC_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements"] as const;
+export const SYNC_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites"] as const;
 
 interface Row {
   value: unknown;

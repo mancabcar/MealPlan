@@ -294,15 +294,15 @@ describe("R8 y R10: sin red la app sigue y avisa; al volver se pone al día sin 
 });
 
 describe("R11: lo importado se sincroniza", () => {
-  it("R11: marcar las 7 claves como pendientes sube las 7", async () => {
+  it("R11: marcar las 8 claves como pendientes sube las 8", async () => {
     const engine = makeEngine();
-    const all: Record<string, unknown> = { ...ACCOUNT_A_DATA, shopping: { current: { week: "2026-09-21", bought: {}, overrides: [], moved: {} }, usage: {} } };
+    const all: Record<string, unknown> = { ...ACCOUNT_A_DATA, favorites: ["pollo-al-horno"], shopping: { current: { week: "2026-09-21", bought: {}, overrides: [], moved: {} }, usage: {} } };
     for (const key of SYNC_KEYS) {
       local(key, all[key]);
       engine.markDirty(key);
     }
     await engine.flush();
-    expect(puts()).toHaveLength(7);
+    expect(puts()).toHaveLength(8);
     for (const key of SYNC_KEYS) expect(backend.dataOf("lucia")[key].value).toEqual(all[key]);
   });
 });

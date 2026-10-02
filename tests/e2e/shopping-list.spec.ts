@@ -16,7 +16,7 @@ import {
   SHOPPING_PLAN,
   SHOPPING_RECIPES,
 } from "../fixtures/shopping";
-import { readStored, signIn, TODAY, USER_ID } from "./helpers";
+import { clearRecipe, pickRecipe, readStored, signIn, TODAY, USER_ID } from "./helpers";
 
 const LIST = "/plan/compra";
 const N = LUCIA_EXPECTED.pending; // 10
@@ -301,7 +301,7 @@ test.describe("R9: la lista sigue al plan", () => {
     await page.goto("/plan");
     await page.getByRole("tab", { name: /^Lunes/ }).click();
     await page.getByRole("button").filter({ hasText: "Pollo al horno con brócoli" }).click();
-    await page.getByRole("combobox").selectOption("");
+    await clearRecipe(page);
 
     await page.goto(LIST);
     const fruta = aisle(page, "Frutas y verduras");
@@ -316,7 +316,7 @@ test.describe("R9: la lista sigue al plan", () => {
     await page.goto("/plan");
     await page.getByRole("tab", { name: /^Jueves/ }).click();
     await page.getByRole("button").filter({ hasText: "Comida" }).click();
-    await page.getByRole("combobox").selectOption(CREMA_CALABAZA.id);
+    await pickRecipe(page, CREMA_CALABAZA.name);
 
     await page.goto(LIST);
     await expect(itemButton(page, "Calabaza", "300 g")).toBeVisible(); // el cambio sí llegó a la lista

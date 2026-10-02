@@ -10,6 +10,12 @@ export interface Recipe {
   fat: number;
   tags: string[];
   isAIGenerated?: boolean;
+  /** Receta creada o duplicada por el usuario (#18). Id `custom_<uuid>`. */
+  isCustom?: true;
+  /** Los macros los estimó la IA al importar la receta desde una URL (#19); se quita si el usuario edita alguno. */
+  macrosEstimated?: true;
+  /** URL de la web de la que se importó la receta (#19). */
+  sourceUrl?: string;
 }
 
 export interface MealEntry {

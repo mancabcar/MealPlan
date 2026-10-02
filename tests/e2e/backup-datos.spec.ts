@@ -30,7 +30,7 @@ import { createFakeBackend } from "../fixtures/fakeSyncBackend";
 import { mockBackend } from "./syncHelpers";
 
 // docs/pm/9-historial-medidas: las mediciones son el séptimo dato y viajan en la copia.
-const USER_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements"] as const;
+const USER_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites"] as const;
 
 type Account = { id: string; username: string; salt: string; hash: string };
 
@@ -182,7 +182,7 @@ test.describe("R1–R4: exportar mis datos", () => {
     expect(name).toBe(`mealplan-backup-${TODAY}.json`);
   });
 
-  test("R2: contiene los siete datos del usuario tal como están guardados", async ({ page }) => {
+  test("R2: contiene los ocho datos del usuario tal como están guardados", async ({ page }) => {
     const { json } = await exportBackup(page);
     for (const k of USER_KEYS) {
       const stored = await readKey(page, ACCOUNT_A.id, k);

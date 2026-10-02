@@ -30,7 +30,7 @@ const isEmpty = (v: unknown) =>
  * (un dispositivo recién abierto ya las tiene), ni la lista de la compra vacía que se crea sola.
  */
 export function hasUserData(storage: Storage, userId: string): boolean {
-  for (const key of ["profile", "entries", "pantry", "weekplan", "measurements"] as const) {
+  for (const key of ["profile", "entries", "pantry", "weekplan", "measurements", "favorites"] as const) {
     if (!isEmpty(read(storage, userId, key))) return true;
   }
   const recipes = read(storage, userId, "recipes");
