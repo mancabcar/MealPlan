@@ -1,5 +1,5 @@
 # PWA instalable con recordatorios
-_Status: spec · Updated: 2026-10-02 · Issue: [#21](https://github.com/mancabcar/MealPlan/issues/21) (@mancabcar) · Spec: [spec.md](spec.md)_
+_Status: tech design · Updated: 2026-10-02 · Issue: [#21](https://github.com/mancabcar/MealPlan/issues/21) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Follow-ups
 - **Entrega 2: Web Push real con servidor (dirección C).** Suscripciones guardadas en Vercel, planificador externo gratuito, horas configurables en Perfil y aviso de caducidad (el cliente sube un resumen de fechas). Puede depender de #22 (cuentas y datos en servidor).
