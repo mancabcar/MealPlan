@@ -17,6 +17,8 @@ interface AppState {
   shopping: ShoppingState;
   /** Historial de peso y medidas (docs/pm/9-historial-medidas), en el orden en que se añadieron. */
   measurements: Measurement[];
+  /** Ids de las recetas favoritas (docs/pm/20-recetas-filtros). */
+  favorites: string[];
   loaded: boolean;
   /** Id del ítem de la Despensa por el que Recetas filtra ("Recetas con esto"). Efímero: no se persiste ni entra en el backup. */
   recipeFocus: string | null;
@@ -39,7 +41,9 @@ interface AppState {
   /** Alta, o edición si ya hay una con ese id. */
   saveMeasurement: (m: Measurement) => void;
   removeMeasurement: (id: string) => void;
-  /** Sustituye los siete datos del usuario (ya validados con parseBackup). Lanza si falla la escritura (nada cambia). */
+  /** Marca o desmarca una receta como favorita; al guardar descarta los ids de recetas que ya no existen. */
+  toggleFavorite: (id: string) => void;
+  /** Sustituye los ocho datos del usuario (ya validados con parseBackup). Lanza si falla la escritura (nada cambia). */
   importData: (data: UserData) => void;
 }
 
@@ -102,9 +106,11 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
   const [shopping, setShopping, reloadShopping] = usePersisted(k("shopping"), LOAD_OPTIONS.shopping);
   const [measurements, setMeasurements, reloadMeasurements] = usePersisted(k("measurements"), LOAD_OPTIONS.measurements);
 
+  const [favorites, setFavorites, reloadFavorites] = usePersisted(k("favorites"), LOAD_OPTIONS.favorites);
+
   const [recipeFocus, setRecipeFocus] = useState<string | null>(null);
 
-  // backup-datos R6/R8: escribe todo o nada y, si ha ido bien, relee las siete claves en el estado. Como `data` ya
+  // backup-datos R6/R8: escribe todo o nada y, si ha ido bien, relee las ocho claves en el estado. Como `data` ya
   // viene migrado (parseBackup), la relectura no reescribe nada ni crea copias *_v1_backup.
   const importData = (data: UserData) => {
     writeUserData(localStorage, userId, data);
@@ -115,6 +121,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     reloadWeekPlan();
     reloadShopping();
     reloadMeasurements();
+    reloadFavorites();
   };
 
   const value: AppState = {
@@ -125,6 +132,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     weekPlan,
     shopping,
     measurements,
+    favorites,
     loaded: true,
     recipeFocus,
     setRecipeFocus,
@@ -139,6 +147,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
       setEntries((prev) => withoutRecipe({ entries: prev, plan: {}, recipe }).entries);
       setWeekPlan((prev) => withoutRecipe({ entries: [], plan: prev, recipe }).plan);
       setRecipes((prev) => prev.filter((r) => r.id !== id));
+      setFavorites((prev) => prev.filter((f) => f !== id));
     },
     addEntry: (e) => setEntries((prev) => [...prev, e]),
     removeEntry: (id) => setEntries((prev) => prev.filter((e) => e.id !== id)),
@@ -151,6 +160,12 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     saveMeasurement: (m) =>
       setMeasurements((prev) => (prev.some((x) => x.id === m.id) ? prev.map((x) => (x.id === m.id ? m : x)) : [...prev, m])),
     removeMeasurement: (id) => setMeasurements((prev) => prev.filter((m) => m.id !== id)),
+    toggleFavorite: (id) =>
+      setFavorites((prev) => {
+        const known = new Set(recipes.map((r) => r.id));
+        const kept = prev.filter((f) => known.has(f));
+        return kept.includes(id) ? kept.filter((f) => f !== id) : [...kept, id];
+      }),
     importData,
   };
 

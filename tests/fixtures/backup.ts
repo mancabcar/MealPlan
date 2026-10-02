@@ -85,6 +85,8 @@ export const ACCOUNT_A_DATA = {
   pantry: BACKUP_PANTRY,
   weekplan: BACKUP_PLAN,
   measurements: BACKUP_MEASUREMENTS,
+  /** docs/pm/20-recetas-filtros: ids de recetas favoritas, el octavo dato del usuario. */
+  favorites: [AI_RECIPE.id, POLLO_BROCOLI.id],
 };
 
 /** Datos previos de la cuenta B: todo distinto de A, para ver que la importación los sustituye. */

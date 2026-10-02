@@ -2,7 +2,7 @@
 // y en los selectores de recetas del plan semanal y del diario.
 import { expect, test } from "@playwright/test";
 import { lucia } from "../fixtures/profiles";
-import { signIn } from "./helpers";
+import { recipePicker, showAllRecipes, signIn } from "./helpers";
 
 // recipe_003 "Yogur griego con avena, plátano y nueces" lleva nueces
 const allergic = { ...lucia, allergies: { preset: ["frutos_secos"], custom: [] } };
@@ -23,16 +23,20 @@ test("Diario: el selector de recetas avisa del alérgeno sin bloquear la elecci�
   await page.goto("/");
   // Rediseño visual (docs/pm/design-refresh): el "+" pasa a ser un icono Lucide, el texto ya no lo incluye.
   await page.getByRole("button", { name: "Añadir comida" }).click();
-  const option = page.locator("option").filter({ hasText: "Yogur griego con avena" });
-  await expect(option).toContainText("⚠ contiene Frutos secos");
+  // El selector se abre filtrado por franja (docs/pm/20-recetas-filtros): «Ver todas» asegura que la fila esté
+  await showAllRecipes(page).click();
+  const row = recipePicker(page).getByRole("button").filter({ hasText: "Yogur griego con avena" });
+  await expect(row).toContainText("⚠ contiene Frutos secos");
 });
 
 test("Plan: el selector de recetas avisa del alérgeno", async ({ page }) => {
   await signIn(page, { profile: allergic });
   await page.goto("/plan");
   await page.getByRole("button", { name: /Desayuno/ }).first().click();
-  const option = page.locator("option").filter({ hasText: "Yogur griego con avena" });
-  await expect(option).toContainText("⚠ contiene Frutos secos");
+  // El selector se abre filtrado por franja (docs/pm/20-recetas-filtros): «Ver todas» asegura que la fila esté
+  await showAllRecipes(page).click();
+  const row = recipePicker(page).getByRole("button").filter({ hasText: "Yogur griego con avena" });
+  await expect(row).toContainText("⚠ contiene Frutos secos");
 });
 
 test("Sin alergias declaradas no hay avisos", async ({ page }) => {

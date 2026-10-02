@@ -84,6 +84,7 @@ const IMPORTED: UserData = {
   weekplan: BACKUP_PLAN,
   shopping: { current: { week: MONDAY, bought: { "brócoli|g": "150g" }, overrides: [], moved: {} }, usage: {} },
   measurements: [NUTRI_JULY],
+  favorites: [AI_RECIPE.id],
 };
 
 const PREVIOUS = {
@@ -119,7 +120,7 @@ describe("R6: importData sustituye los datos sin recargar", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.restoreAllMocks());
 
-  it("el contexto muestra los siete datos importados", () => {
+  it("el contexto muestra los ocho datos importados", () => {
     seedPrevious();
     const ref = mountCounting();
     expect(ref.app!.profile?.name).toBe("Antes");
@@ -133,6 +134,7 @@ describe("R6: importData sustituye los datos sin recargar", () => {
     expect(ref.app!.weekPlan).toEqual(IMPORTED.weekplan);
     expect(ref.app!.shopping).toEqual(IMPORTED.shopping);
     expect(ref.app!.measurements).toEqual(IMPORTED.measurements);
+    expect(ref.app!.favorites).toEqual(IMPORTED.favorites);
   });
 
   it("y los guarda en localStorage (recargar los sigue mostrando)", () => {
