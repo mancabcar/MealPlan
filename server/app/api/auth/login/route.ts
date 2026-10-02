@@ -1,4 +1,4 @@
-import { hashToken, LOCKOUT_MS, MAX_LOGIN_FAILURES, newToken, normalizeUsername, reply, SESSION_DAYS, verifyPassword } from "../../../../lib/auth";
+import { guarded, hashToken, LOCKOUT_MS, MAX_LOGIN_FAILURES, newToken, normalizeUsername, reply, SESSION_DAYS, verifyPassword } from "../../../../lib/auth";
 import { preflight } from "../../../../lib/cors";
 import { clearLoginFailures, countLoginFailures, createSession, findUserByUsername, recordLoginFailure } from "../../../../lib/store";
 
@@ -8,7 +8,9 @@ export async function OPTIONS(request: Request) {
 
 const WRONG = "Usuario o contraseña incorrectos";
 
-export async function POST(request: Request) {
+export const POST = (request: Request) => guarded(request, () => handle(request));
+
+async function handle(request: Request) {
   const body = (await request.json().catch(() => null)) as { username?: unknown; password?: unknown } | null;
   const username = typeof body?.username === "string" ? normalizeUsername(body.username) : "";
   const password = typeof body?.password === "string" ? body.password : "";

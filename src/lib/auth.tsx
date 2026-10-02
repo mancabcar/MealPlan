@@ -179,7 +179,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const enter = async (path: string, body: unknown, remember: boolean, localAccountId: string | null) => {
     const res = await post(path, body);
-    if (res.status !== 200) throw new Error(typeof res.body.error === "string" ? res.body.error : "Algo ha fallado");
+    if (res.status !== 200) throw new Error(
+      typeof res.body.error === "string"
+        ? res.body.error
+        : `El servidor ha respondido con un error (${res.status}). Inténtalo de nuevo y, si sigue igual, avisa a quien administra la app.`,
+    );
     await finishSignIn(res.body.token as string, res.body.user as SessionUser, remember, localAccountId);
   };
 

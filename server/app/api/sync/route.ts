@@ -1,4 +1,4 @@
-import { authenticate, reply, unauthorized } from "../../../lib/auth";
+import { authenticate, guarded, reply, unauthorized } from "../../../lib/auth";
 import { preflight } from "../../../lib/cors";
 import { getAllData } from "../../../lib/store";
 
@@ -7,7 +7,9 @@ export async function OPTIONS(request: Request) {
 }
 
 /** Datos del usuario; con `?since={"clave":versión}` solo las claves más nuevas que esas versiones (o desconocidas). */
-export async function GET(request: Request) {
+export const GET = (request: Request) => guarded(request, () => handle(request));
+
+async function handle(request: Request) {
   const session = await authenticate(request);
   if (!session) return unauthorized(request);
 
