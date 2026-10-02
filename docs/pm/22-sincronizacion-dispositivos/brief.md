@@ -1,5 +1,5 @@
 # Sincronización entre dispositivos: cuentas y datos en servidor
-_Status: in review · Updated: 2026-10-02 · Issue: [#22](https://github.com/mancabcar/MealPlan/issues/22) (relacionado: [#66](https://github.com/mancabcar/MealPlan/issues/66)) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#98](https://github.com/mancabcar/MealPlan/pull/98)_
+_Status: in review · Updated: 2026-10-02 · Issue: [#22](https://github.com/mancabcar/MealPlan/issues/22) (relacionado: [#66](https://github.com/mancabcar/MealPlan/issues/66)) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#98](https://github.com/mancabcar/MealPlan/pull/98) · Review: [review.md](review.md) — 🔁 changes requested_
 
 ## Follow-ups
 - **Segunda entrega: offline con cola de cambios e indicador de estado** (al día / pendiente / sin conexión / error). Son criterios de éxito de Manuel y de #22, pero quedan fuera de la v1: la v1 exige conexión.
