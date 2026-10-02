@@ -84,5 +84,24 @@ Sin pantallas nuevas salvo una tarjeta «Instalar app» en Perfil (R7), siguiend
 7. [ ] E2E offline y de actualización sobre `out/`; proyecto de Playwright y CI (covers R4, R5, R6)
 8. [ ] README: instalar, offline y límite de iOS (covers R3)
 
+## Test coverage
+Los tests están en la rama `feature/21-pwa-offline` (commit `4e6535f`). Los e2e de service worker solo corren contra el build: en CI siempre; en local con `npm run build && npx serve out -l 3000` y `PWA_E2E=1`. R3 es manual (Android, iPhone, PC y Lighthouse).
+
+Contrato para dev-code: `scripts/generate-sw.mjs` exporta `collectPrecacheUrls`, `buildVersion` y `renderSw` (tipos en `scripts/generate-sw.d.mts`); la plantilla usa `__SW_VERSION__` y `__SW_PRECACHE__`, declara `const VERSION = "..."` y los nombres de caché llevan la versión; `src/lib/useInstallPrompt.ts` devuelve `{ canInstall, install }`.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | tests/unit/pwa-manifest.test.ts › "R1: manifest" | unit | 🔴 failing (not built) |
+| R1 | tests/e2e/pwa.spec.ts › "R1: el HTML enlaza el manifest…" | e2e (build) | 🔴 failing (not built) |
+| R2 | tests/unit/pwa-manifest.test.ts › "R2: iconos del manifest" | unit | 🔴 failing (not built) |
+| R2 | tests/e2e/pwa.spec.ts › "R2: los iconos del manifest existen como PNG" | e2e (build) | 🔴 failing (not built) |
+| R3 | Instalar en Android, iPhone y PC; Lighthouse | manual | ⏳ pending |
+| R4 | tests/unit/generate-sw.test.ts › "R4: lista de precache" | unit | 🔴 failing (not built) |
+| R4 | tests/e2e/pwa.spec.ts › "R4: tras una visita con red…" y "navegar dentro de la app sin conexión" | e2e (build) | 🔴 failing (not built) |
+| R5 | tests/e2e/pwa.spec.ts › "R5: sin conexión, «Sugerir con IA»…" | e2e | 🔴 failing (falta el mensaje) |
+| R6 | tests/unit/generate-sw.test.ts › "R6: versión del build" | unit | 🔴 failing (not built) |
+| R6 | tests/e2e/pwa.spec.ts › "R6: una versión nueva del service worker…" | e2e (build) | 🔴 failing (not built) |
+| R7 | tests/unit/useInstallPrompt.test.tsx › "R7: useInstallPrompt" | unit | 🔴 failing (not built) |
+
 ## Spec feedback
 Ninguno: la spec no cambia. Sin preguntas abiertas que bloqueen el código. Pendiente de comprobar al implementar: si el escáner necesita red (riesgo 3).
