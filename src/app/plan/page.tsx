@@ -102,6 +102,7 @@ export default function PlanPage() {
             {editing.mealType} — {DAY_NAMES[dates.indexOf(editing.date)]}
           </h3>
           <RecipePicker
+            key={`${editing.date}-${editing.mealType}`}
             mealType={editing.mealType}
             value={weekPlan[editing.date]?.find((s) => s.mealType === editing.mealType)?.recipeId ?? ""}
             onPick={assign}

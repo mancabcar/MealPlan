@@ -311,7 +311,11 @@ export default function DiaryPage() {
           <select
             aria-label="Comida del día"
             value={mealType}
-            onChange={(e) => setMealType(e.target.value as MealType)}
+            onChange={(e) => {
+              setMealType(e.target.value as MealType);
+              // La receta elegida era de otra franja: el selector nuevo no la resalta, así que no se arrastra a «Añadir»
+              setRecipeId("");
+            }}
             className={inputCls}
           >
             {profile.meals.map((mt) => (

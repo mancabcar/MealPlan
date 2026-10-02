@@ -137,6 +137,33 @@ test.describe("R1: el selector del Plan se filtra por la franja elegida", () => 
   });
 });
 
+test.describe("R1: el estado del selector no se arrastra entre franjas (review #89)", () => {
+  test("Diario: al cambiar de franja la receta elegida se descarta y «Añadir» no la registra", async ({ page }) => {
+    await seed(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Añadir comida" }).click();
+    await pickRecipe(page, COMIDA_LENTEJAS.name);
+    await expect(recipeRow(page, COMIDA_LENTEJAS.name)).toHaveAttribute("aria-current", "true");
+
+    await page.getByRole("combobox", { name: "Comida del día" }).selectOption("Merienda");
+    await expect(recipePicker(page).locator('[aria-current="true"]')).toHaveCount(0);
+    await page.getByRole("button", { name: "Añadir", exact: true }).click();
+    expect((await readStored<unknown[]>(page, "entries")) ?? []).toEqual([]);
+  });
+
+  test("Plan: al tocar otra franja con el selector abierto se reinician el buscador y «Ver todas»", async ({ page }) => {
+    await seed(page);
+    await openPlanSlot(page, "Cena");
+    await search(page).fill("lentejas");
+    await verTodas(page).click();
+    await expect(recipeRow(page, COMIDA_LENTEJAS.name)).toBeVisible();
+
+    await page.getByRole("button", { name: /^Desayuno( |$)/ }).click();
+    await expect(search(page)).toHaveValue("");
+    await expect(verTodas(page)).toBeVisible();
+  });
+});
+
 test.describe("R2: ★ Favoritas y la estrella de cada fila", () => {
   test("las favoritas de la franja salen arriba, A–Z, y no se repiten en la lista de la franja", async ({ page }) => {
     await seed(page, { favorites: [CENA_ZARZUELA.id, CENA_ALCACHOFAS.id] });
