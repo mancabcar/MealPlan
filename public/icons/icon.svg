@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fuente de los iconos de la PWA (scripts/generate-icons.mjs). Un plato visto desde arriba: acento lima
+       sobre el fondo oscuro del rediseño. Todo cabe en el 80 % central, zona segura de los iconos maskable. -->
+  <rect width="512" height="512" fill="#0a0a0a"/>
+  <circle cx="256" cy="256" r="124" fill="none" stroke="#c8ff5c" stroke-width="28"/>
+  <circle cx="256" cy="256" r="48" fill="#c8ff5c"/>
+</svg>
