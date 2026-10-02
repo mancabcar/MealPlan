@@ -3,6 +3,7 @@ import { Manrope, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import AppShell from "@/components/AppShell";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 // Rediseño visual (docs/pm/design-refresh): tipografía autohospedada vía next/font/google, en el mismo
 // sitio y con el mismo mecanismo que Geist usaba antes (cero peticiones al navegador, sin CLS) — no el
@@ -42,6 +43,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${spaceGrotesk.variable} ${manrope.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+        <ServiceWorkerRegister />
         <AuthProvider>
           <AppShell>{children}</AppShell>
         </AuthProvider>
