@@ -9,6 +9,7 @@
 // semana siguiente 28 sept–4 oct con «Dátiles rellenos» el lunes a la Comida; semana pasada 14–20 sept, igual.
 // Pendiente (preguntas abiertas de la spec): texto del indicador de semana (R6) y deslizar (R7): sin test.
 import { expect, test, type Page } from "@playwright/test";
+import { addDays } from "../../src/lib/week";
 import { lucia } from "../fixtures/profiles";
 import { CREMA_CALABAZA, DATILES, SHOPPING_PANTRY, SHOPPING_PLAN, SHOPPING_RECIPES } from "../fixtures/shopping";
 import { pickRecipe, readStored, signIn, TODAY } from "./helpers";
@@ -70,10 +71,22 @@ test.describe("R1: navegar entre semanas en el Plan", () => {
 
   test("R1: se puede avanzar y retroceder sin límite", async ({ page }) => {
     await open(page, "/plan");
-    for (let i = 0; i < 30; i++) await next(page).click();
-    await expect(page).toHaveURL(/semana=2027-04-19/);
-    for (let i = 0; i < 60; i++) await prev(page).click();
-    await expect(page).toHaveURL(/semana=2026-01-26/);
+    // Un toque por semana, esperando a que la URL se actualice (como un usuario; el router es asíncrono)
+    let monday = "2026-09-21";
+    for (let i = 0; i < 30; i++) {
+      monday = addDays(monday, 7);
+      await next(page).click();
+      await expect(page).toHaveURL(new RegExp(`semana=${monday}`));
+    }
+    expect(monday).toBe("2027-04-19");
+    for (let i = 0; i < 60; i++) {
+      monday = addDays(monday, -7);
+      await prev(page).click();
+      // La semana actual no lleva parámetro (R2)
+      if (monday === "2026-09-21") await expect(page).not.toHaveURL(/semana=/);
+      else await expect(page).toHaveURL(new RegExp(`semana=${monday}`));
+    }
+    expect(monday).toBe("2026-02-23");
   });
 
   test("R1/R2: la semana vista sobrevive a una recarga", async ({ page }) => {
@@ -108,7 +121,7 @@ test.describe("R2: la lista de la compra sigue la semana vista", () => {
     // Solo hay Dátiles rellenos (4 dátiles, 15 g de nueces) esa semana
     await expect(tick(page, "Dátiles")).toBeVisible();
     await expect(tick(page, "Brócoli")).toHaveCount(0);
-    await page.getByRole("link", { name: "Plan", exact: true }).click();
+    await page.getByRole("main").getByRole("link", { name: "Plan", exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`/plan/?\\?semana=${NEXT}`));
     await expect(page.getByRole("tab", { name: "Lunes 28" })).toBeVisible();
   });
@@ -187,7 +200,7 @@ test.describe("R4: editar el plan en cualquier semana", () => {
     await pickRecipe(page, CREMA_CALABAZA.name);
     const plan = await readStored<Record<string, { mealType: string; recipeId: string }[]>>(page, "weekplan");
     expect(plan["2026-09-29"]).toEqual([{ mealType: "Cena", recipeId: CREMA_CALABAZA.id }]);
-    expect(plan[TODAY]).toBeUndefined();
+    expect(plan[TODAY]).toEqual(SHOPPING_PLAN[TODAY]); // la semana actual no se toca
 
     await prev(page).click();
     await prev(page).click();

@@ -233,9 +233,9 @@ test.describe("R8: lo comprado se guarda por usuario y por semana", () => {
     const bought = await openGroup(page, "Comprados");
     for (const name of FIVE) await expect(tick(bought, name)).toBeChecked();
 
-    const stored = await readStored<{ current: { week: string; bought: Record<string, string> } }>(page, "shopping");
-    expect(stored.current.week).toBe(MONDAY);
-    expect(Object.keys(stored.current.bought)).toHaveLength(5);
+    const stored = await readStored<{ weeks: Record<string, { week: string; bought: Record<string, string> }> }>(page, "shopping");
+    expect(stored.weeks[MONDAY].week).toBe(MONDAY);
+    expect(Object.keys(stored.weeks[MONDAY].bought)).toHaveLength(5);
   });
 
   test("dos usuarios en el mismo dispositivo: cada uno ve solo lo suyo", async ({ page }) => {

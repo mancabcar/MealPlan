@@ -80,7 +80,7 @@ Cabecera del Plan con `WeekNav` encima del `DaySelector`; misma barra en la comp
 4. [ ] `WeekNav` y Plan con `<Suspense>`, enlace a compra con semana (covers R1, R2, R4, R6)
 5. [ ] Compra con semana en URL y `DetailSheet` (covers R2, R5)
 6. [ ] Tests e2e y comprobación de `next build` (covers R1–R6)
-7. [ ] Deslizar para cambiar de semana, descartable (covers R7)
+7. [ ] Deslizar para cambiar de semana, descartable (covers R7) (fuera de esta entrega: el usuario lo deja como issue aparte)
 
 ## Spec feedback
 - Resuelta la pregunta abierta de la spec sobre retención: se podan las semanas con más de 26 semanas de antigüedad; las futuras se conservan.
