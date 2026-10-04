@@ -1,23 +1,24 @@
 # Plan: navegar por semanas: Review
-_PR: [#108](https://github.com/mancabcar/MealPlan/pull/108) · Reviewed: 2026-10-04 · Verdict: 🔁 changes requested_
+_PR: [#108](https://github.com/mancabcar/MealPlan/pull/108) · Reviewed: 2026-10-04 · Verdict: ⚠️ approved with follow-ups_
 
 ## Summary
-R1–R6 están implementados y el CI del PR pasa (build, server, test, Vercel). Dos hallazgos bloqueantes: «Hoy» no restablece el día de hoy en un caso real (criterio de R1) y una hoja de edición abierta sobrevive al cambio de semana y puede escribir en una fecha que ya no se ve. Veredicto confirmado por el usuario; se prevé `⚠️ approved with follow-ups` tras arreglarlos.
+R1–R6 están implementados y el CI del PR pasa. La primera revisión (🔁 changes requested) encontró dos bloqueantes —«Hoy» no restablecía el día de hoy y una hoja de edición abierta sobrevivía al cambio de semana—; ambos están arreglados en `46d95ea`, con un e2e cada uno que falla sin el arreglo (1111 unitarios y 425 e2e en verde). Quedan seis no bloqueantes como follow-ups. Veredicto tras la repetición de la revisión, siguiendo lo acordado con el usuario.
 
 ## Spec conformance
 | Req | Status | Where | Tested |
 |---|---|---|---|
-| R1 | ⚠️ Partial («Hoy» conserva el día elegido) | src/app/plan/page.tsx:52, src/components/plan/WeekNav.tsx | ✅ (no cubre el caso del día elegido) |
+| R1 | ✅ Done (arreglado en 46d95ea) | src/app/plan/page.tsx:52, src/components/plan/WeekNav.tsx | ✅ |
 | R2 | ✅ Done | src/lib/useWeekParam.ts, src/app/plan/compra/page.tsx | ✅ |
 | R3 | ✅ Done | src/lib/shopping/state.ts, src/lib/shopping/useShoppingList.ts, src/lib/syncMigration.ts | ✅ |
-| R4 | ⚠️ Done con el bug de la hoja abierta | src/app/plan/page.tsx:111 | ✅ |
+| R4 | ✅ Done (arreglado en 46d95ea) | src/app/plan/page.tsx:111 | ✅ |
 | R5 | ✅ Done | src/app/plan/compra/page.tsx (DetailSheet) | ✅ |
 | R6 | ✅ Done (texto acordado: rango + etiqueta) | src/components/plan/WeekNav.tsx | ⚠️ solo el rango |
 | R7 | — Fuera de alcance acordado (#107) | — | — |
 
 ## Blocking
-1. «Hoy» no deja seleccionado el día de hoy si antes había otro día elegido: src/app/plan/page.tsx:52. `selectedDate` se conserva entre semanas; incumple el criterio de R1 → reiniciar `selectedDate` al pulsar «Hoy» (y al cambiar de semana) y añadir un e2e que elija otro día antes.
-2. La hoja de edición (`editing`) y los `modal` siguen abiertos al cambiar de semana: src/app/plan/page.tsx:111. El título pasa a «undefined» y elegir receta escribe en una fecha de la semana que ya no se ve → limpiar `editing` y `modal` cuando cambia `monday`, con un e2e.
+Ninguno. Los dos bloqueantes de la primera revisión están arreglados en `46d95ea`:
+1. «Hoy» no dejaba seleccionado el día de hoy (src/app/plan/page.tsx) → se reinicia `selectedDate` al cambiar de semana; e2e «R1: «Hoy» deja seleccionado el día de hoy…».
+2. La hoja de edición y los `modal` seguían abiertos al cambiar de semana → se cierran al cambiar `monday`; e2e «R4: la hoja de edición abierta se cierra…».
 
 ## Non-blocking
 - Toques rápidos en › / ‹: el efecto de `WeekNav` pisa `target.current` con la URL y se pierde o retrocede un salto (src/components/plan/WeekNav.tsx:33).
