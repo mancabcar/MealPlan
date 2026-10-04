@@ -1,5 +1,5 @@
 # Selector de recetas con búsqueda y orden A–Z
-_Status: tech design · Updated: 2026-10-04 · Issue: [#84](https://github.com/mancabcar/MealPlan/issues/84) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: tests · Updated: 2026-10-04 · Issue: [#84](https://github.com/mancabcar/MealPlan/issues/84) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Follow-ups
 - Ordenar por relevancia (últimas usadas, adecuadas al tipo de comida) cuando el campo está vacío (dirección E). Hoy choca con «Lista A–Z siempre»; revisar cuando haya uso real.

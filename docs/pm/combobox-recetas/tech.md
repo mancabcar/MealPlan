@@ -28,7 +28,7 @@ Descartada: dependencia nueva para un caso trivial.
 | Lib | `src/lib/recipeSearch.ts` (nuevo) | `searchRecipes(list, query)`: filtra por nombre o etiqueta con `normalize`; `sortByName` A–Z `localeCompare("es")` |
 | UI | `src/components/ui/Highlight.tsx` (nuevo) | Pinta el texto con `<mark>` en los rangos |
 | UI | `src/components/recetas/RecipePicker.tsx` | `r.name` → `<Highlight text={r.name} query={query} />` |
-| Pantalla | `src/app/recetas/page.tsx` | `results` usa `searchRecipes`; A–Z si `!usePantry`; nombre con `<Highlight>` |
+| Pantalla | `src/app/recetas/page.tsx` | `results` usa `searchRecipes`; A–Z si `!usePantry`; nombre con `<Highlight>`; «Sin resultados» también con `search.trim()` (línea 361) |
 ### Data model
 Ninguno.
 ### APIs / interfaces
@@ -44,6 +44,7 @@ Sin prototipo. `<mark>` con estilo de los tokens de color existentes (fondo suav
 | R1 | `<Highlight>` en selector y Recetas; sin coincidencia por nombre, sin `<mark>` |
 | R2 | `sortByName` en el `useMemo` de Recetas cuando `!usePantry`; con ítem enfocado también A–Z |
 | R3 | `searchRecipes` con `normalize` por nombre y etiqueta |
+| R5 | La condición del mensaje «Sin resultados» incluye `search.trim()` |
 | R4 | `groupRecipes` y el resto del selector no se tocan; solo cambia el contenido del nombre |
 
 ## Risks & mitigations
@@ -61,8 +62,8 @@ Sin prototipo. `<mark>` con estilo de los tokens de color existentes (fondo suav
 2. [ ] `searchRecipes` y `sortByName` en `src/lib/recipeSearch.ts` + unit tests (covers R2, R3)
 3. [ ] Componente `<Highlight>` (covers R1)
 4. [ ] Usar `<Highlight>` en `RecipePicker` (covers R1, R4)
-5. [ ] Recetas: filtro con `searchRecipes`, A–Z si `!usePantry`, resaltado (covers R1–R3)
+5. [ ] Recetas: filtro con `searchRecipes`, A–Z si `!usePantry`, resaltado y «Sin resultados» con texto (covers R1–R3, R5)
 6. [ ] e2e en `recipes.spec.ts` y pasada de los e2e existentes (covers R1–R4)
 
 ## Spec feedback
-Ninguno. El spec se construye tal cual. Sin flag: los pasos dejan la app funcionando.
+R5 añadido el 2026-10-04 (Must): el spec afirmaba que Recetas ya mostraba «Sin resultados» con búsqueda de texto y no era así. El resto se construye tal cual. Sin flag: los pasos dejan la app funcionando.
