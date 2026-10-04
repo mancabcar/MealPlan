@@ -1,5 +1,5 @@
 # Selector de recetas con búsqueda y orden A–Z
-_Status: in review · Updated: 2026-10-04 · Issue: [#84](https://github.com/mancabcar/MealPlan/issues/84) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#104](https://github.com/mancabcar/MealPlan/pull/104)_
+_Status: in review · Updated: 2026-10-04 · Issue: [#84](https://github.com/mancabcar/MealPlan/issues/84) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#104](https://github.com/mancabcar/MealPlan/pull/104) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
 - Ordenar por relevancia (últimas usadas, adecuadas al tipo de comida) cuando el campo está vacío (dirección E). Hoy choca con «Lista A–Z siempre»; revisar cuando haya uso real.
@@ -62,3 +62,9 @@ Pregunta que debe responder: **¿se siente bien en móvil?** Teclado en pantalla
 ## Spec decisions (2026-10-04)
 - Prototipo omitido por decisión del usuario.
 - #89 (#20 v1) ya entregó el selector con búsqueda, A–Z, tildes y «Sin resultados». #84 queda reducido a: resaltado (selector y Recetas), Recetas A–Z, búsqueda de Recetas sin tildes. Se mantiene la agrupación por franja.
+
+## Follow-ups (review 2026-10-04)
+- Reutilizar `searchRecipes`/`sortByName` en `groupRecipes` (duplicación en `recipeSlots.ts`).
+- Alinear los espacios del resaltado con `normalize` (nombres con doble espacio o U+00A0).
+- Simplificar el `Set` de `recetas/page.tsx` con un `matchesQuery`, y no recalcular el A–Z en cada tecla.
+- Tests: `<Highlight>` con varios tramos y R2 con ítem enfocado.
