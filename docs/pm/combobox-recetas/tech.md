@@ -60,9 +60,9 @@ Sin prototipo. `<mark>` con estilo de los tokens de color existentes (fondo suav
 ## Tasks
 1. [x] `highlightRanges` en `src/lib/text.ts` + unit tests (covers R1)
 2. [x] `searchRecipes` y `sortByName` en `src/lib/recipeSearch.ts` + unit tests (covers R2, R3)
-3. [ ] Componente `<Highlight>` (covers R1)
-4. [ ] Usar `<Highlight>` en `RecipePicker` (covers R1, R4)
-5. [ ] Recetas: filtro con `searchRecipes`, A–Z si `!usePantry`, resaltado y «Sin resultados» con texto (covers R1–R3, R5)
+3. [x] Componente `<Highlight>` (covers R1)
+4. [x] Usar `<Highlight>` en `RecipePicker` (covers R1, R4)
+5. [x] Recetas: filtro con `searchRecipes`, A–Z si `!usePantry`, resaltado y «Sin resultados» con texto (covers R1–R3, R5)
 6. [ ] e2e en `recipes.spec.ts` y pasada de los e2e existentes (covers R1–R4)
 
 ## Spec feedback

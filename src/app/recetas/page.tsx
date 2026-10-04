@@ -17,6 +17,8 @@ import { RecipeForm, type ImportedDraft } from "@/components/recetas/RecipeForm"
 import { ImportRecipeSheet } from "@/components/recetas/ImportRecipeSheet";
 import { dayName } from "@/lib/week";
 import { duplicateRecipe, slotsUsingRecipe, suggestedTags } from "@/lib/recipeEdit";
+import { searchRecipes, sortByName } from "@/lib/recipeSearch";
+import { Highlight } from "@/components/ui/Highlight";
 
 /** Placeholder de imagen (R9/non-goal: sin fotos reales todavía, ver spec § Non-goals). */
 function RecipeImagePlaceholder({ className = "" }: { className?: string }) {
@@ -65,13 +67,9 @@ export default function RecipesPage() {
     let list: { recipe: Recipe; usage?: RecipeUsage }[];
     const base = focusItem ? recipesUsingItem(recipes, focusItem, today) : recipes;
     if (usePantry) list = rankByPantry(base, pantry, today);
-    else list = base.map((recipe) => ({ recipe }));
-    const q = search.toLowerCase();
-    return list.filter(
-      ({ recipe: r }) =>
-        (!onlyFavorites || favorites.includes(r.id)) &&
-        (r.name.toLowerCase().includes(q) || r.tags.some((t) => t.toLowerCase().includes(q))),
-    );
+    else list = sortByName(base).map((recipe) => ({ recipe })); // A–Z; con «Usa lo que tengo» manda el ranking
+    const found = new Set(searchRecipes(list.map((x) => x.recipe), search));
+    return list.filter(({ recipe: r }) => (!onlyFavorites || favorites.includes(r.id)) && found.has(r));
   }, [recipes, favorites, onlyFavorites, pantry, focusItem, usePantry, search, today]);
 
   const selectRecipe = (r: Recipe) => {
@@ -358,7 +356,7 @@ export default function RecipesPage() {
           </span>
         )}
       </div>
-      {results.length === 0 && (focusItem || usePantry || onlyFavorites) && (
+      {results.length === 0 && (focusItem || usePantry || onlyFavorites || search.trim()) && (
         <div className="flex flex-col items-center gap-3 py-6 text-center text-sm text-[var(--color-text-muted)]">
           <p>
             {search.trim()
@@ -383,7 +381,9 @@ export default function RecipesPage() {
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm flex items-center gap-1.5 pr-10">
                     {r.isAIGenerated && <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" aria-hidden />}
-                    <span className="truncate">{r.name}</span>
+                    <span className="truncate">
+                      <Highlight text={r.name} query={search} />
+                    </span>
                     {r.isCustom && <Chip tone="accent">Propia</Chip>}
                   </div>
                   <AllergenBadge recipe={r} allergies={profile?.allergies} className="mt-1" />
