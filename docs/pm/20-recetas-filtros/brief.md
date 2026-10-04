@@ -1,13 +1,13 @@
 # Recetas: favoritos, valoración y filtros
-_Status: merged (2026-10-02) · Updated: 2026-10-02 · Issue: [#20](https://github.com/mancabcar/MealPlan/issues/20) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/D4XE1CEYJQKxZ4zHm2EzEJ) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#89](https://github.com/mancabcar/MealPlan/pull/89) (mergeado 2026-10-02) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+_Status: merged (2026-10-02) · Updated: 2026-10-04 · Issue: [#20](https://github.com/mancabcar/MealPlan/issues/20) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/D4XE1CEYJQKxZ4zHm2EzEJ) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#89](https://github.com/mancabcar/MealPlan/pull/89) (mergeado 2026-10-02) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
 - Review #89 (no bloqueantes): orden de borrado de favoritas en `removeRecipe`; poda de `toggleFavorite` con el último valor escrito; búsqueda de Recetas sin tildes (reutilizar el matcher de `recipeSlots.ts`); test e2e que cuente los toques; e2e del fallback «Otras recetas».
 - [#84](https://github.com/mancabcar/MealPlan/issues/84) tiene un brief propio sin fusionar en la rama `docs/84-brief-combobox-recetas` (`docs/pm/combobox-recetas/brief.md`): el mismo combobox compartido entre Plan y Diario. #20 lo absorbe (decidido el 2026-10-01); al entregar, enlazarlo y cerrar #84.
-- Valoración 1–5 por receta y orden por valoración. (v1 lo deja fuera)
-- Filtros del recetario: tiempo máximo, kcal máx., proteína mín., ocultar alérgenos, solo favoritos; orden por proteína/kcal/tiempo, combinables con la búsqueda. (v1 lo deja fuera)
-- Segunda entrega (dirección C): selector único con buscador y autocompletado sobre recetas y guardados en Plan y «Añadir comida». Absorbe [#84](https://github.com/mancabcar/MealPlan/issues/84) y [#58](https://github.com/mancabcar/MealPlan/issues/58).
-- Estrella también para las comidas personalizadas guardadas de [#12](https://github.com/mancabcar/MealPlan/issues/12) (comentario del issue).
+- Valoración 1–5 por receta y orden por valoración. (v1 lo deja fuera) → [#111](https://github.com/mancabcar/MealPlan/issues/111)
+- Filtros del recetario: tiempo máximo, kcal máx., proteína mín., ocultar alérgenos, solo favoritos; orden por proteína/kcal/tiempo, combinables con la búsqueda. (v1 lo deja fuera) → [#111](https://github.com/mancabcar/MealPlan/issues/111)
+- Segunda entrega (dirección C): selector único con buscador y autocompletado sobre recetas y guardados en Plan y «Añadir comida». Absorbe [#84](https://github.com/mancabcar/MealPlan/issues/84) y [#58](https://github.com/mancabcar/MealPlan/issues/58). → [#113](https://github.com/mancabcar/MealPlan/issues/113)
+- Estrella también para las comidas personalizadas guardadas de [#12](https://github.com/mancabcar/MealPlan/issues/12) (comentario del issue). → [#58](https://github.com/mancabcar/MealPlan/issues/58)
 - Cerrar #58 y #84 como duplicados cuando se entregue lo que absorbe cada uno.
 - Dirección E (sugerencia automática por franja): solapa con [#15](https://github.com/mancabcar/MealPlan/issues/15).
 
