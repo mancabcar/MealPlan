@@ -1,5 +1,5 @@
 # Sobras y batch cooking: cocinar una vez, varias comidas
-_Status: in review · Updated: 2026-09-29 · Issue: [#17](https://github.com/mancabcar/MealPlan/issues/17) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#80](https://github.com/mancabcar/MealPlan/pull/80) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+_Status: merged · Updated: 2026-10-04 · Issue: [#17](https://github.com/mancabcar/MealPlan/issues/17) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#80](https://github.com/mancabcar/MealPlan/pull/80) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Problema
 Cocinar un guiso el domingo para tres comidas obliga a asignarlo tres veces en el Plan, y la lista de la compra cuenta los ingredientes triple.
