@@ -68,3 +68,4 @@ Pregunta que debe responder: **¿se siente bien en móvil?** Teclado en pantalla
 - Alinear los espacios del resaltado con `normalize` (nombres con doble espacio o U+00A0).
 - Simplificar el `Set` de `recetas/page.tsx` con un `matchesQuery`, y no recalcular el A–Z en cada tecla.
 - Tests: `<Highlight>` con varios tramos y R2 con ítem enfocado.
+- Issue de seguimiento: [#105](https://github.com/mancabcar/MealPlan/issues/105)
