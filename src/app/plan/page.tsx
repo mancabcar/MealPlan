@@ -44,6 +44,15 @@ function PlanContent() {
   const [modal, setModal] = useState<Modal | null>(null);
   // Selector de días (R8): qué día de la semana se muestra debajo
   const [selectedDate, setSelectedDate] = useState(todayStr());
+  // Al cambiar de semana se cierra lo que estuviera abierto (apuntaría a una fecha que ya no se ve) y el día vuelve
+  // a hoy (semana actual) o al lunes (otra); ajuste de estado durante el render, como recomienda React
+  const [shownWeek, setShownWeek] = useState(monday);
+  if (shownWeek !== monday) {
+    setShownWeek(monday);
+    setEditing(null);
+    setModal(null);
+    setSelectedDate(today);
+  }
   // Solo las comidas que el usuario hace, en el orden canónico (R8)
   const meals = profile?.meals ?? MEAL_TYPES;
 

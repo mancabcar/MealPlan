@@ -97,6 +97,27 @@ test.describe("R1: navegar entre semanas en el Plan", () => {
   });
 });
 
+test.describe("Revisión #108: cambiar de semana restablece la vista", () => {
+  test("R1: «Hoy» deja seleccionado el día de hoy aunque antes hubiera otro día elegido", async ({ page }) => {
+    await open(page, "/plan");
+    await page.getByRole("tab", { name: "Miércoles 23" }).click();
+    await next(page).click();
+    await today(page).click();
+    await expect(page.getByRole("tab", { name: "Martes 22" })).toHaveAttribute("aria-selected", "true");
+  });
+
+  test("R4: la hoja de edición abierta se cierra al cambiar de semana y no escribe en la anterior", async ({ page }) => {
+    await open(page, "/plan");
+    await page.getByRole("button", { name: /^Desayuno( |$)/ }).click();
+    await expect(page.getByRole("heading", { name: "Desayuno — Martes" })).toBeVisible();
+    await next(page).click();
+    await expect(page.getByRole("heading", { name: /Desayuno —/ })).toHaveCount(0);
+    await expect(page.getByText("undefined")).toHaveCount(0);
+    const plan = await readStored<Record<string, unknown>>(page, "weekplan");
+    expect(plan[TODAY]).toEqual(SHOPPING_PLAN[TODAY]);
+  });
+});
+
 test.describe("R2: URL de semana", () => {
   for (const raw of ["hola", "2026-13-40", "2026-02-30"]) {
     test(`R2: semana=${raw} (no válida) → semana actual`, async ({ page }) => {
