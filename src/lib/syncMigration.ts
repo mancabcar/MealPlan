@@ -1,5 +1,6 @@
 // Primer inicio de sesión en un dispositivo y limpieza al salir (docs/pm/22-sincronizacion-dispositivos/spec.md › R6, R7, R12).
 // Funciones puras con el Storage inyectado, como backup.ts.
+import { loadShoppingState } from "./shopping/state";
 import { withSeedRecipes, USER_DATA_KEYS } from "./userData";
 
 const userKey = (userId: string, key: string) => `mp_${userId}_${key}`;
@@ -38,8 +39,9 @@ export function hasUserData(storage: Storage, userId: string): boolean {
     const seed = new Set(withSeedRecipes([]).map((r) => r.id));
     if (recipes.some((r) => !seed.has((r as { id?: string }).id ?? ""))) return true;
   }
-  const shopping = read(storage, userId, "shopping") as { usage?: object; current?: { bought?: object; overrides?: unknown[] } } | null;
-  return !!shopping && (!isEmpty(shopping.usage) || !isEmpty(shopping.current?.bought) || !isEmpty(shopping.current?.overrides));
+  // loadShoppingState entiende también el formato anterior { current, usage }
+  const shopping = loadShoppingState(read(storage, userId, "shopping"));
+  return Object.values(shopping.weeks).some((w) => !isEmpty(w.bought) || !isEmpty(w.overrides) || !isEmpty(w.moved));
 }
 
 export interface LocalAccount {

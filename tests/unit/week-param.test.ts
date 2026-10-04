@@ -57,8 +57,8 @@ describe("R1: shiftWeek", () => {
   });
 
   it("no tiene límite (spec › Non-goals)", () => {
-    expect(shiftWeek(THIS_MONDAY, 520)).toBe("2036-09-15");
-    expect(shiftWeek(THIS_MONDAY, -520)).toBe("2016-09-26");
+    expect(shiftWeek(THIS_MONDAY, 520)).toBe("2036-09-08");
+    expect(shiftWeek(THIS_MONDAY, -520)).toBe("2016-10-03");
   });
 });
 

@@ -4,24 +4,23 @@
 import { useMemo } from "react";
 import { useApp } from "@/lib/store";
 import { MEAL_TYPES, todayStr, type PantryCategory, type PantryItem } from "@/lib/types";
-import { mondayOf, weekDates } from "@/lib/week";
+import { weekDates } from "@/lib/week";
 import { aggregate, amountSignature, collectSources, formatAmount, leftoverSlotKeys, type ShoppingItem } from "./aggregate";
-import { forWeek, pruneBought, recordMove, setOverride, toggleBought, undoLastMove, type ShoppingWeekState } from "./state";
+import { moveToPantry, pruneBought, pruneWeeks, setOverride, toggleBought, undoLastMove, updateWeek, weekOf, type ShoppingWeekState } from "./state";
 import { buildShoppingView } from "./view";
 
-export function useShoppingList() {
+/** Lista de la semana `monday` (docs/pm/78-plan-navegar-semanas): cada semana tiene su propio estado. */
+export function useShoppingList(monday: string) {
   const { profile, weekPlan, recipes, pantry, shopping, setShopping, addPantryItems, removePantryItems } = useApp();
   const today = todayStr();
-  const monday = mondayOf(today);
   const meals = profile?.meals ?? MEAL_TYPES;
 
-  // Una semana nueva se lee como vacía; se guarda (y la anterior pasa a `usage`) en la próxima escritura
-  const state = useMemo(() => forWeek(shopping, monday), [shopping, monday]);
-  const week = state.current;
+  // Una semana sin estado se lee como vacía; se guarda en la próxima escritura
+  const week = useMemo(() => weekOf(shopping, monday), [shopping, monday]);
   const { items, leftoverKeys } = useMemo(() => {
-    const input = { weekPlan, recipes, dates: weekDates(today), meals };
+    const input = { weekPlan, recipes, dates: weekDates(monday), meals };
     return { items: aggregate(collectSources(input)), leftoverKeys: leftoverSlotKeys(input) };
-  }, [weekPlan, recipes, today, meals]);
+  }, [weekPlan, recipes, monday, meals]);
   const view = useMemo(
     () => buildShoppingView({ items, pantry, state: week, today }),
     [items, pantry, week, today],
@@ -30,10 +29,7 @@ export function useShoppingList() {
   // Cada escritura limpia las marcas caducadas, para que el contador semanal sea fiel (review N6)
   const update = (fn: (week: ShoppingWeekState) => ShoppingWeekState) => {
     const signatures = Object.fromEntries(items.map((i) => [i.key, amountSignature(i)]));
-    setShopping((prev) => {
-      const s = forWeek(prev, monday);
-      return { ...s, current: pruneBought(fn(s.current), signatures) };
-    });
+    setShopping((prev) => pruneWeeks(updateWeek(prev, monday, (w) => pruneBought(fn(w), signatures)), today));
   };
 
   return {
@@ -43,8 +39,8 @@ export function useShoppingList() {
     plannedMeals: new Set([...items.flatMap((i) => i.sources.map((s) => `${s.date}|${s.mealType}`)), ...leftoverKeys]).size,
     /** Semana sin recetas en comidas activas (R10) */
     empty: items.length === 0,
-    // Sin pasar por forWeek: un movimiento de justo antes del lunes sigue pudiéndose deshacer (review N4)
-    lastMove: shopping.current.lastMove,
+    // Global: se puede deshacer aunque se esté viendo otra semana (review N4)
+    lastMove: shopping.lastMove,
     toggleBought: (item: ShoppingItem) => update((w) => toggleBought(w, item.key, amountSignature(item))),
     setOverride: (item: ShoppingItem, on: boolean) => update((w) => setOverride(w, item.key, on)),
     /** Una escritura a la Despensa y una al estado, sea cual sea el número de artículos (R13). */
@@ -57,8 +53,8 @@ export function useShoppingList() {
         addedFromListAt: today,
       }));
       addPantryItems(added);
-      update((w) =>
-        recordMove(w, {
+      setShopping((prev) =>
+        moveToPantry(prev, monday, {
           // Marca de tiempo completa: la Despensa muestra "Deshacer" solo justo después de mover (R13)
           at: new Date().toISOString(),
           pantryIds: added.map((p) => p.id),
@@ -68,9 +64,9 @@ export function useShoppingList() {
       return added.length;
     },
     undoLastMove: () => {
-      if (!shopping.current.lastMove) return;
-      removePantryItems(shopping.current.lastMove.pantryIds);
-      setShopping((prev) => undoLastMove(prev, monday));
+      if (!shopping.lastMove) return;
+      removePantryItems(shopping.lastMove.pantryIds);
+      setShopping(undoLastMove);
     },
   };
 }
