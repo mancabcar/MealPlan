@@ -7,6 +7,7 @@ import { groupRecipes, slotLabel } from "@/lib/recipeSlots";
 import { useApp } from "@/lib/store";
 import type { MealType, Recipe } from "@/lib/types";
 import { inputCls } from "@/components/ui/input";
+import { Highlight } from "@/components/ui/Highlight";
 import { FavoriteStar } from "./FavoriteStar";
 
 const SECTION_TITLE = "px-1 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-muted)]";
@@ -45,7 +46,9 @@ export function RecipePicker({
           }`}
         >
           <span className="flex-1 flex flex-col gap-0.5">
-            <span className="text-sm font-semibold">{r.name}</span>
+            <span className="text-sm font-semibold">
+              <Highlight text={r.name} query={query} />
+            </span>
             <span className="text-xs text-[var(--color-text-muted)]">
               {r.calories} kcal · {r.protein} g proteína · {r.prepTimeMinutes} min
               {warning && <span className="text-[var(--color-expired)]"> · {warning}</span>}
