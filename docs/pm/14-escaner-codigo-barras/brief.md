@@ -1,6 +1,6 @@
 # Escanear código de barras para registrar productos envasados
 
-_Status: in review · Updated: 2026-09-29 · Issue: [#14](https://github.com/mancabcar/MealPlan/issues/14) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#68](https://github.com/mancabcar/MealPlan/pull/68) · Review: [review.md](review.md) — ✅ approved with follow-ups_
+_Status: merged · Updated: 2026-10-04 · Issue: [#14](https://github.com/mancabcar/MealPlan/issues/14) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#68](https://github.com/mancabcar/MealPlan/pull/68) · Review: [review.md](review.md) — ✅ approved with follow-ups_
 
 ## Follow-ups
 - «Reintentar» del escáner reenvía el código obsoleto si el usuario edita el campo sin volver a pulsar «Buscar código» (review). (`useBarcodeLookup.ts:114`)
