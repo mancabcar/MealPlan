@@ -1,4 +1,4 @@
-import { clientIp, hashPassword, hashToken, LOCKOUT_MS, MAX_LOGIN_FAILURES, MIN_PASSWORD, MIN_USERNAME, newToken, normalizeUsername, reply, SESSION_DAYS } from "../../../../lib/auth";
+import { clientIp, guarded, hashPassword, hashToken, LOCKOUT_MS, MAX_LOGIN_FAILURES, MIN_PASSWORD, MIN_USERNAME, newToken, normalizeUsername, reply, SESSION_DAYS } from "../../../../lib/auth";
 import { preflight } from "../../../../lib/cors";
 import { clearLoginFailures, countLoginFailures, createSession, createUser, recordLoginFailure } from "../../../../lib/store";
 
@@ -7,7 +7,9 @@ export async function OPTIONS(request: Request) {
 }
 
 // Registro cerrado: solo con el código de invitación de REGISTRATION_CODE (tech.md › Risks). Sin la variable, nadie se registra.
-export async function POST(request: Request) {
+export const POST = (request: Request) => guarded(request, () => handle(request));
+
+async function handle(request: Request) {
   // Intentos de adivinar el código: mismo límite que el login (5 fallos en 15 min), contado por IP en login_attempts
   const bucket = `register:${clientIp(request)}`;
   if ((await countLoginFailures(bucket, Date.now() - LOCKOUT_MS)) >= MAX_LOGIN_FAILURES) {

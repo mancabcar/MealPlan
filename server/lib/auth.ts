@@ -56,4 +56,14 @@ export function reply(request: Request, body: unknown, status = 200): NextRespon
   return withCors(request, NextResponse.json(body, { status }));
 }
 
+/** Ejecuta la ruta; si algo lanza (BD caída o sin tablas…), lo registra y responde un 500 JSON legible con CORS en vez de un 500 vacío. */
+export async function guarded(request: Request, run: () => Promise<Response>): Promise<Response> {
+  try {
+    return await run();
+  } catch (err) {
+    console.error(`${request.method} ${new URL(request.url).pathname} falló:`, err);
+    return reply(request, { error: "Error del servidor. Inténtalo de nuevo en unos minutos." }, 500);
+  }
+}
+
 export const unauthorized = (request: Request) => reply(request, { error: "Sesión no válida" }, 401);

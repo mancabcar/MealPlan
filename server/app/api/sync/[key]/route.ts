@@ -1,4 +1,4 @@
-import { authenticate, reply, unauthorized } from "../../../../lib/auth";
+import { authenticate, guarded, reply, unauthorized } from "../../../../lib/auth";
 import { preflight } from "../../../../lib/cors";
 import { putData } from "../../../../lib/store";
 import { isSyncKey, MAX_BLOCK_BYTES } from "../../../../lib/sync";
@@ -11,7 +11,11 @@ export async function OPTIONS(request: Request) {
  * Escritura de una clave con concurrencia optimista: si `baseVersion` es la versión actual del servidor, se guarda y la
  * versión sube; si no, 409 con el valor y la versión del servidor, que el cliente adopta (gana el servidor).
  */
-export async function PUT(request: Request, { params }: { params: Promise<{ key: string }> }) {
+type Ctx = { params: Promise<{ key: string }> };
+
+export const PUT = (request: Request, ctx: Ctx) => guarded(request, () => handle(request, ctx));
+
+async function handle(request: Request, { params }: Ctx) {
   const session = await authenticate(request);
   if (!session) return unauthorized(request);
 
