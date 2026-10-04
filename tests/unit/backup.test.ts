@@ -78,7 +78,11 @@ class MemoryStorage implements Storage {
   }
 }
 
+// Formato por semanas (#78 R3); el formato { current, usage } se prueba como copia antigua más abajo
 const SHOPPING_A = {
+  weeks: { [MONDAY]: { week: MONDAY, bought: { "brócoli|g": "150g" }, overrides: [], moved: {} } },
+};
+const SHOPPING_A_LEGACY = {
   current: { week: MONDAY, bought: { "brócoli|g": "150g" }, overrides: [], moved: {} },
   usage: { "2026-09-14": { bought: 3, overrides: 1 } },
 };
@@ -367,7 +371,14 @@ describe("R7: la importación pasa por las mismas migraciones que la carga", () 
 
   it("el estado de la compra se normaliza con loadShoppingState", () => {
     expect(legacy().shopping).toEqual(loadShoppingState({ current: { week: MONDAY } }));
-    expect(legacy().shopping.current).toEqual({ week: MONDAY, bought: {}, overrides: [], moved: {} });
+    expect(legacy().shopping.weeks[MONDAY]).toEqual({ week: MONDAY, bought: {}, overrides: [], moved: {} });
+  });
+
+  it("R3 (#78): una copia con el estado { current, usage } de antes de las semanas se importa sin perder marcas", () => {
+    const result = parseBackup(backupText({ ...ACCOUNT_A_DATA, shopping: SHOPPING_A_LEGACY }));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.shopping).toEqual(SHOPPING_A);
   });
 
   it("cada sección es exactamente LOAD_OPTIONS[k].upgrade de lo que trae el fichero", () => {

@@ -1,5 +1,5 @@
 # Sincronización entre dispositivos: cuentas y datos en servidor
-_Status: in review · Updated: 2026-10-02 · Issue: [#22](https://github.com/mancabcar/MealPlan/issues/22) (relacionado: [#66](https://github.com/mancabcar/MealPlan/issues/66)) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#98](https://github.com/mancabcar/MealPlan/pull/98) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+_Status: merged · Updated: 2026-10-04 · Issue: [#22](https://github.com/mancabcar/MealPlan/issues/22) (relacionado: [#66](https://github.com/mancabcar/MealPlan/issues/66)) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#98](https://github.com/mancabcar/MealPlan/pull/98) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
 - Follow-ups de la review de #98 como issues: [#99](https://github.com/mancabcar/MealPlan/issues/99) (polling y píldora), [#100](https://github.com/mancabcar/MealPlan/issues/100) (adopción pisa datos), [#101](https://github.com/mancabcar/MealPlan/issues/101) (hardening).

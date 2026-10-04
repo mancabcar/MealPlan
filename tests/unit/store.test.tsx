@@ -65,10 +65,10 @@ describe("usePersisted: varias escrituras en un mismo evento", () => {
   it("setShopping acepta una función del valor más reciente", () => {
     const ref = mount();
     act(() => {
-      ref.app!.setShopping((s) => ({ ...s, current: { ...s.current, week: "2026-09-21" } }));
-      ref.app!.setShopping((s) => ({ ...s, current: { ...s.current, overrides: ["x"] } }));
+      ref.app!.setShopping((s) => ({ ...s, weeks: { ...s.weeks, "2026-09-21": { week: "2026-09-21", bought: {}, overrides: [], moved: {} } } }));
+      ref.app!.setShopping((s) => ({ ...s, weeks: { ...s.weeks, "2026-09-21": { ...s.weeks["2026-09-21"], overrides: ["x"] } } }));
     });
-    expect(ref.app!.shopping.current).toMatchObject({ week: "2026-09-21", overrides: ["x"] });
+    expect(ref.app!.shopping.weeks["2026-09-21"]).toMatchObject({ week: "2026-09-21", overrides: ["x"] });
   });
 });
 
@@ -82,7 +82,7 @@ const IMPORTED: UserData = {
   entries: BACKUP_ENTRIES,
   pantry: BACKUP_PANTRY,
   weekplan: BACKUP_PLAN,
-  shopping: { current: { week: MONDAY, bought: { "brócoli|g": "150g" }, overrides: [], moved: {} }, usage: {} },
+  shopping: { weeks: { [MONDAY]: { week: MONDAY, bought: { "brócoli|g": "150g" }, overrides: [], moved: {} } } },
   measurements: [NUTRI_JULY],
   favorites: [AI_RECIPE.id],
 };

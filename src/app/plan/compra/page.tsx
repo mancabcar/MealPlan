@@ -2,15 +2,17 @@
 
 // Lista de la compra (docs/pm/lista-compra). Toda la lógica está en lib/shopping; aquí solo se pinta.
 // Detalle y hoja de "Pasar a la Despensa" van en estado local, no en la URL (sin useSearchParams).
-import { useState, type ReactNode } from "react";
+import { Suspense, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, ChevronDown, Circle, PackageCheck, ShoppingCart } from "lucide-react";
 import { useShoppingList } from "@/lib/shopping/useShoppingList";
+import { useWeekParam, weekHref } from "@/lib/useWeekParam";
+import { WeekNav } from "@/components/plan/WeekNav";
 import { AISLES, type Aisle } from "@/lib/shopping/classify";
 import type { Row } from "@/lib/shopping/view";
-import { PANTRY_CATEGORIES, todayStr, type MealType, type PantryCategory } from "@/lib/types";
-import { DAY_NAMES, weekDates } from "@/lib/week";
+import { PANTRY_CATEGORIES, type MealType, type PantryCategory } from "@/lib/types";
+import { DAY_NAMES } from "@/lib/week";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { Sheet } from "@/components/ui/Sheet";
@@ -29,8 +31,19 @@ function joinMeals(meals: MealType[]): string {
   return meals.length <= 1 ? meals.join("") : `${meals.slice(0, -1).join(", ")} y ${meals[meals.length - 1]}`;
 }
 
+// useSearchParams (semana en la URL) exige un Suspense con el export estático
 export default function ShoppingListPage() {
-  const list = useShoppingList();
+  return (
+    <Suspense fallback={null}>
+      <ShoppingListContent />
+    </Suspense>
+  );
+}
+
+function ShoppingListContent() {
+  // Semana vista (docs/pm/78-plan-navegar-semanas): la misma que se miraba en el Plan
+  const { monday, dates, today } = useWeekParam();
+  const list = useShoppingList(monday);
   const { view } = list;
   const [detailKey, setDetailKey] = useState<string | null>(null);
   const [moving, setMoving] = useState(false);
@@ -44,10 +57,11 @@ export default function ShoppingListPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <Link href="/plan" className="text-sm text-[var(--color-text-muted)] flex items-center gap-1 self-start">
+        <Link href={weekHref("/plan", monday, today)} className="text-sm text-[var(--color-text-muted)] flex items-center gap-1 self-start">
           <ArrowLeft className="w-4 h-4" aria-hidden /> Plan
         </Link>
         <h1 className="font-display text-2xl font-bold">Lista de la compra</h1>
+        <WeekNav monday={monday} today={today} path="/plan/compra" />
         {!list.empty && (
           <p className="text-sm text-[var(--color-text-muted)]">
             {plannedMeals} {plannedMeals === 1 ? "comida planificada" : "comidas planificadas"} · {joinMeals(list.meals)}
@@ -116,6 +130,7 @@ export default function ShoppingListPage() {
       {detail && (
         <DetailSheet
           row={detail}
+          dates={dates}
           onClose={() => setDetailKey(null)}
           onOverride={(on) => {
             list.setOverride(detail.item, on);
@@ -200,8 +215,7 @@ function ItemList({ rows, onTick, onOpen }: { rows: Row[]; onTick?: (item: Row["
   );
 }
 
-function DetailSheet({ row, onClose, onOverride }: { row: Row; onClose: () => void; onOverride: (on: boolean) => void }) {
-  const dates = weekDates(todayStr());
+function DetailSheet({ row, dates, onClose, onOverride }: { row: Row; dates: string[]; onClose: () => void; onOverride: (on: boolean) => void }) {
   const { item, match, expiredMatch, overridden } = row;
   return (
     <Sheet title={item.name} onClose={onClose}>

@@ -13,6 +13,7 @@ import {
 } from "@/lib/types";
 import { PANTRY_CATEGORY_ICONS } from "@/lib/categoryIcons";
 import { useShoppingList } from "@/lib/shopping/useShoppingList";
+import { mondayOf } from "@/lib/week";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { inputCls } from "@/components/ui/input";
@@ -30,7 +31,8 @@ export default function PantryPage() {
   const [expiryDate, setExpiryDate] = useState("");
   const [category, setCategory] = useState<PantryCategory>("Nevera");
   // Recién llegados desde "Pasar a la Despensa": aviso con Deshacer (lista-compra R13)
-  const { lastMove, undoLastMove } = useShoppingList();
+  // Solo se lee el último movimiento (global, de cualquier semana); la semana pasada no importa
+  const { lastMove, undoLastMove } = useShoppingList(mondayOf(todayStr()));
   const [showUndo, setShowUndo] = useState(() => !!lastMove && Date.now() - Date.parse(lastMove.at) < UNDO_MS);
   const hideUndo = useCallback(() => setShowUndo(false), []);
   const today = todayStr();

@@ -1,6 +1,8 @@
 // Estado persistido de la lista (docs/pm/lista-compra › R6–R9, R13, R14). Solo se guarda la intención
 // del usuario; la lista en sí se deriva del plan en cada render. Transiciones puras.
 
+import { addDays, mondayOf } from "../week";
+
 export interface ShoppingMove {
   at: string;
   pantryIds: string[];
@@ -17,36 +19,41 @@ export interface ShoppingWeekState {
   overrides: string[];
   /** itemKey → firma al pasarlo a la Despensa (R14) */
   moved: Record<string, string>;
-  /** Para deshacer (R13) */
-  lastMove?: ShoppingMove;
 }
 
+/**
+ * Estado por semana (docs/pm/78-plan-navegar-semanas › R3): cada lunes guarda sus propias marcas.
+ * `lastMove` es único y global (con la semana en que se hizo) para que la Despensa pueda deshacerlo
+ * sin depender de la semana que se esté viendo.
+ */
 export interface ShoppingState {
-  current: ShoppingWeekState;
-  /** Contadores por semana pasada, como mucho 12 (Success metrics) */
-  usage: Record<string, { bought: number; overrides: number }>;
+  weeks: Record<string, ShoppingWeekState>;
+  lastMove?: ShoppingMove & { week: string };
 }
 
-export const EMPTY: ShoppingState = { current: { week: "", bought: {}, overrides: [], moved: {} }, usage: {} };
+export const EMPTY: ShoppingState = { weeks: {} };
 
-const USAGE_WEEKS = 12;
+/** Semanas pasadas que se conservan; las futuras no se podan nunca. */
+const KEEP_PAST_WEEKS = 26;
 
-/** Estado de la semana `monday`. Al cambiar de semana, la anterior se resume en `usage` y se descarta. */
-export function forWeek(state: ShoppingState, monday: string): ShoppingState {
-  const old = state.current;
-  if (old.week === monday) return state;
-  const usage = { ...state.usage };
-  if (old.week) {
-    usage[old.week] = {
-      bought: Object.keys(old.bought).length + Object.keys(old.moved).length,
-      overrides: old.overrides.length,
-    };
-  }
-  const kept = Object.keys(usage).sort().slice(-USAGE_WEEKS);
-  return {
-    current: { week: monday, bought: {}, overrides: [], moved: {} },
-    usage: Object.fromEntries(kept.map((w) => [w, usage[w]])),
-  };
+const emptyWeek = (monday: string): ShoppingWeekState => ({ week: monday, bought: {}, overrides: [], moved: {} });
+
+/** Estado de la semana `monday`; una semana sin estado se lee como vacía y se guarda en la próxima escritura. */
+export function weekOf(state: ShoppingState, monday: string): ShoppingWeekState {
+  return state.weeks[monday] ?? emptyWeek(monday);
+}
+
+/** Aplica `fn` a la semana `monday` sin tocar las demás. */
+export function updateWeek(state: ShoppingState, monday: string, fn: (week: ShoppingWeekState) => ShoppingWeekState): ShoppingState {
+  return { ...state, weeks: { ...state.weeks, [monday]: fn(weekOf(state, monday)) } };
+}
+
+/** Descarta las semanas de hace más de 26 semanas; sin nada que descartar devuelve el mismo objeto. */
+export function pruneWeeks(state: ShoppingState, today: string): ShoppingState {
+  const cutoff = addDays(mondayOf(today), -7 * KEEP_PAST_WEEKS);
+  const kept = Object.entries(state.weeks).filter(([monday]) => monday >= cutoff);
+  if (kept.length === Object.keys(state.weeks).length) return state;
+  return { ...state, weeks: Object.fromEntries(kept) };
 }
 
 /** Marca con la firma actual, o desmarca si ya estaba marcado con esa misma firma. */
@@ -62,64 +69,67 @@ export function setOverride(week: ShoppingWeekState, key: string, on: boolean): 
   return { ...week, overrides: on ? [...rest, key] : rest };
 }
 
+/** Lo movido sale de comprados y queda en `moved` (R13, R14). El Deshacer global lo guarda `moveToPantry`. */
 export function recordMove(week: ShoppingWeekState, move: ShoppingMove): ShoppingWeekState {
   const bought = { ...week.bought };
   for (const k of Object.keys(move.entries)) delete bought[k];
-  return { ...week, bought, moved: { ...week.moved, ...move.entries }, lastMove: move };
+  return { ...week, bought, moved: { ...week.moved, ...move.entries } };
 }
 
-export function undoMove(week: ShoppingWeekState): ShoppingWeekState {
-  if (!week.lastMove) return week;
-  const { entries } = week.lastMove;
+export function undoMove(week: ShoppingWeekState, move: ShoppingMove): ShoppingWeekState {
   const moved = { ...week.moved };
-  for (const k of Object.keys(entries)) delete moved[k];
-  return { week: week.week, overrides: week.overrides, bought: { ...week.bought, ...entries }, moved };
+  for (const k of Object.keys(move.entries)) delete moved[k];
+  return { ...week, bought: { ...week.bought, ...move.entries }, moved };
 }
 
-/**
- * Deshace el último movimiento aunque la semana haya cambiado entre medias (review N4): se deshace
- * en la semana en que se hizo y después se pasa a `monday`, que la resume en `usage` si ya acabó.
- */
-export function undoLastMove(state: ShoppingState, monday: string): ShoppingState {
-  return forWeek({ ...state, current: undoMove(state.current) }, monday);
+/** Registra el movimiento en la semana `monday` y lo deja como último para poder deshacerlo (R13). */
+export function moveToPantry(state: ShoppingState, monday: string, move: ShoppingMove): ShoppingState {
+  return { ...updateWeek(state, monday, (w) => recordMove(w, move)), lastMove: { ...move, week: monday } };
+}
+
+/** Deshace el último movimiento en la semana en que se hizo, aunque se esté viendo otra (review N4). */
+export function undoLastMove(state: ShoppingState): ShoppingState {
+  if (!state.lastMove) return state;
+  const { week, ...move } = state.lastMove;
+  return { weeks: updateWeek(state, week, (w) => undoMove(w, move)).weeks };
 }
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 const stringRecord = (v: unknown): Record<string, string> =>
   isRecord(v) ? Object.fromEntries(Object.entries(v).filter(([, s]) => typeof s === "string")) as Record<string, string> : {};
 
+function loadWeek(monday: string, raw: unknown): ShoppingWeekState {
+  const w = isRecord(raw) ? raw : {};
+  return {
+    week: monday,
+    bought: stringRecord(w.bought),
+    overrides: Array.isArray(w.overrides) ? w.overrides.filter((k): k is string => typeof k === "string") : [],
+    moved: stringRecord(w.moved),
+  };
+}
+
+function loadMove(raw: unknown): ShoppingMove | undefined {
+  if (!isRecord(raw) || typeof raw.at !== "string" || !Array.isArray(raw.pantryIds)) return undefined;
+  return { at: raw.at, pantryIds: raw.pantryIds.filter((id): id is string => typeof id === "string"), entries: stringRecord(raw.entries) };
+}
+
 /**
- * Lo guardado en localStorage puede venir incompleto o corrupto (review N5): se completa con valores
- * por defecto en vez de dejar que /plan y /plan/compra fallen al leer un campo que falta.
+ * Lo guardado en localStorage puede venir incompleto, corrupto (review N5) o con el formato anterior
+ * `{ current, usage }` (#78): `current` pasa a `weeks[current.week]`, su `lastMove` sube a la raíz y `usage`
+ * se descarta (ninguna pantalla lo leía). Idempotente: se reaplica en cada lectura.
  */
 export function loadShoppingState(raw: unknown): ShoppingState {
   if (!isRecord(raw)) return EMPTY;
-  const c = isRecord(raw.current) ? raw.current : {};
-  const lm = c.lastMove;
-  const lastMove =
-    isRecord(lm) && typeof lm.at === "string" && Array.isArray(lm.pantryIds)
-      ? { at: lm.at, pantryIds: lm.pantryIds.filter((id): id is string => typeof id === "string"), entries: stringRecord(lm.entries) }
-      : undefined;
-  const usage = isRecord(raw.usage)
-    ? Object.fromEntries(
-        Object.entries(raw.usage)
-          .filter(([, u]) => isRecord(u))
-          .map(([w, u]) => {
-            const r = u as Record<string, unknown>;
-            return [w, { bought: Number(r.bought) || 0, overrides: Number(r.overrides) || 0 }];
-          }),
-      )
-    : {};
-  return {
-    current: {
-      week: typeof c.week === "string" ? c.week : "",
-      bought: stringRecord(c.bought),
-      overrides: Array.isArray(c.overrides) ? c.overrides.filter((k): k is string => typeof k === "string") : [],
-      moved: stringRecord(c.moved),
-      ...(lastMove ? { lastMove } : {}),
-    },
-    usage,
-  };
+  if (isRecord(raw.weeks)) {
+    const weeks = Object.fromEntries(Object.entries(raw.weeks).filter(([, w]) => isRecord(w)).map(([monday, w]) => [monday, loadWeek(monday, w)]));
+    const move = loadMove(raw.lastMove);
+    const week = isRecord(raw.lastMove) ? raw.lastMove.week : undefined;
+    return { weeks, ...(move && typeof week === "string" ? { lastMove: { ...move, week } } : {}) };
+  }
+  const c = raw.current;
+  if (!isRecord(c) || typeof c.week !== "string" || c.week === "") return EMPTY;
+  const move = loadMove(c.lastMove);
+  return { weeks: { [c.week]: loadWeek(c.week, c) }, ...(move ? { lastMove: { ...move, week: c.week } } : {}) };
 }
 
 /**
