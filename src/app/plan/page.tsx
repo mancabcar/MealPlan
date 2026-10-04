@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, ShoppingCart } from "lucide-react";
 import { useApp } from "@/lib/store";
@@ -14,8 +14,10 @@ import { batchOf, deleteOrigin, type SlotRef } from "@/lib/plan/batch";
 import { BatchSheet, BatchWarningSheet, LeftoverSheet } from "@/components/plan/BatchSheet";
 import { dayName } from "@/lib/week";
 import { RecipePicker } from "@/components/recetas/RecipePicker";
-import { DAY_NAMES, weekDates } from "@/lib/week";
+import { DAY_NAMES } from "@/lib/week";
 import { useShoppingList } from "@/lib/shopping/useShoppingList";
+import { useWeekParam, weekHref } from "@/lib/useWeekParam";
+import { WeekNav } from "@/components/plan/WeekNav";
 
 /** Hoja abierta sobre una tanda (docs/pm/17-sobras-batch-cooking): crear/editar, ver una sobra o decidir qué hacer con ellas. */
 type Modal =
@@ -23,10 +25,21 @@ type Modal =
   | { kind: "leftover"; at: SlotRef }
   | { kind: "warning"; at: SlotRef; batchId: string; recipeId: string }; // recipeId "" = borrar la franja
 
+// useSearchParams (semana en la URL) exige un Suspense con el export estático
 export default function PlanPage() {
+  return (
+    <Suspense fallback={null}>
+      <PlanContent />
+    </Suspense>
+  );
+}
+
+function PlanContent() {
   const { profile, weekPlan, setWeekPlan, recipes } = useApp();
+  // Semana vista (docs/pm/78-plan-navegar-semanas): `?semana=<lunes>`, la actual si falta
+  const { monday, dates, today } = useWeekParam();
   // Mismos recuentos que la lista (R1): ambos salen de buildShoppingView
-  const shopping = useShoppingList();
+  const shopping = useShoppingList(monday);
   const [editing, setEditing] = useState<{ date: string; mealType: MealType } | null>(null);
   const [modal, setModal] = useState<Modal | null>(null);
   // Selector de días (R8): qué día de la semana se muestra debajo
@@ -34,12 +47,10 @@ export default function PlanPage() {
   // Solo las comidas que el usuario hace, en el orden canónico (R8)
   const meals = profile?.meals ?? MEAL_TYPES;
 
-  const dates = weekDates(todayStr());
-  // Si el tab se queda montado al cruzar la medianoche, `dates` se recalcula (nueva semana) pero
-  // `selectedDate` no: cae de vuelta a hoy en lugar de quedar en un índice inexistente (-1).
-  const rawDayIndex = dates.indexOf(selectedDate);
-  const dayIndex = rawDayIndex === -1 ? dates.indexOf(todayStr()) : rawDayIndex;
-  const effectiveSelectedDate = dates[dayIndex] ?? dates[0];
+  // Si `selectedDate` no cae en la semana vista (otra semana, o el tab cruzó la medianoche) se muestra hoy
+  // si es esa semana y, si no, el lunes.
+  const effectiveSelectedDate = dates.includes(selectedDate) ? selectedDate : dates.includes(today) ? today : dates[0];
+  const dayIndex = dates.indexOf(effectiveSelectedDate);
   const EditingIcon = editing ? MEAL_TYPE_ICON_COMPONENTS[editing.mealType] : null;
 
   const commitAssign = (plan: WeekPlan, at: SlotRef, recipeId: string) => {
@@ -76,11 +87,13 @@ export default function PlanPage() {
     <div className="flex flex-col gap-4">
       <h1 className="font-display text-2xl font-bold">Plan semanal</h1>
 
-      <DaySelector dates={dates} selected={effectiveSelectedDate} onSelect={setSelectedDate} todayDate={todayStr()} />
+      <WeekNav monday={monday} today={today} path="/plan" />
+
+      <DaySelector dates={dates} selected={effectiveSelectedDate} onSelect={setSelectedDate} todayDate={today} />
 
       {/* Tarjeta de semana (no sigue al día seleccionado): mismo aspecto que Card, pero es un enlace */}
       <Link
-        href="/plan/compra"
+        href={weekHref("/plan/compra", monday, today)}
         className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-3 flex items-center gap-3"
       >
         <ShoppingCart className="w-5 h-5 text-[var(--color-accent)] shrink-0" aria-hidden />
