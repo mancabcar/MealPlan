@@ -85,3 +85,22 @@ Cabecera del Plan con `WeekNav` encima del `DaySelector`; misma barra en la comp
 ## Spec feedback
 - Resuelta la pregunta abierta de la spec sobre retención: se podan las semanas con más de 26 semanas de antigüedad; las futuras se conservan.
 - Abierta: texto exacto del indicador de semana (R6) y comportamiento del deslizado (R7); se deciden al implementar, con el usuario.
+
+## Test coverage
+Los tests definen «hecho» para dev-code; fallan porque la funcionalidad no existe (no por errores de sintaxis). API fijada por los tests: `src/lib/useWeekParam.ts` (`parseWeekParam`, `shiftWeek`, `weekHref`) y `src/lib/shopping/state.ts` (`EMPTY = { weeks: {} }`, `weekOf`, `updateWeek`, `recordMove(week, move)`, `undoMove(week, move)`, `moveToPantry(state, monday, move)`, `undoLastMove(state)`, `pruneWeeks(state, today)`, `loadShoppingState`). Contrato de UI en la cabecera de `tests/e2e/plan-semanas.spec.ts`.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | tests/unit/week-param.test.ts › "R1: shiftWeek" | unit | 🔴 failing (not built) |
+| R1 | tests/e2e/plan-semanas.spec.ts › "R1: …" (›, ‹, «Hoy», lunes seleccionado, sin límite) | e2e | 🔴 failing (not built) |
+| R2 | tests/unit/week-param.test.ts › "R2: parseWeekParam", "R2: weekHref" | unit | 🔴 failing (not built) |
+| R2 | tests/e2e/plan-semanas.spec.ts › "R2: …" (URL, recarga, lista sigue la semana, semana vacía) | e2e | 🔴 failing (not built) |
+| R3 | tests/unit/shopping-state.test.ts › "R3: …" (weeks, poda 26 semanas, lastMove global) y "Revisión N5 + R3" (migración) | unit | 🔴 failing (not built) |
+| R3 | tests/unit/backup.test.ts › "R3 (#78): una copia con el estado { current, usage }…" | unit | 🔴 failing (not built) |
+| R3 | tests/unit/store.test.tsx, tests/e2e/backup-datos.spec.ts (adaptados al formato `weeks`) | unit/e2e | 🔴 failing (not built) |
+| R3 | tests/e2e/plan-semanas.spec.ts › "R3: …" (estado por semana, persistencia, formato anterior, Deshacer) | e2e | 🔴 failing (not built) |
+| R4 | tests/e2e/plan-semanas.spec.ts › "R4: …" | e2e | 🔴 failing (not built) |
+| R5 | tests/e2e/plan-semanas.spec.ts › "R5: …" | e2e | 🔴 failing (not built) |
+| R6 | tests/e2e/plan-semanas.spec.ts › "R6: …" (rango y «Hoy»); el texto del indicador «no es la actual» queda pendiente | e2e | 🔴 failing (not built) / ⏳ texto pendiente |
+| R7 | — | — | ⏳ sin test (Could; decidido con el usuario) |
+| Sync | detección de datos no vacíos en `syncMigration.ts` lee `weeks` | — | ⏳ sin test aún (revisar en dev-code) |

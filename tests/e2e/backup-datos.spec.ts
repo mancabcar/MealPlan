@@ -205,7 +205,7 @@ test.describe("R1–R4: exportar mis datos", () => {
     await goTo(page, "Perfil");
     const { json } = await exportBackup(page);
     expect(json.data.shopping).toEqual(await readKey(page, ACCOUNT_A.id, "shopping"));
-    expect(Object.keys(json.data.shopping.current.bought)).toHaveLength(1);
+    expect(Object.keys(Object.values<{ bought: object }>(json.data.shopping.weeks)[0].bought)).toHaveLength(1);
   });
 
   test("R3: identificador de la app, schemaVersion 1 y fecha de exportación", async ({ page }) => {

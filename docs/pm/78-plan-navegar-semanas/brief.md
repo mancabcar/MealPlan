@@ -1,6 +1,6 @@
 # Plan: navegar por semanas (anterior y siguiente)
 
-_Status: tech design · Updated: 2026-10-04 · Issue: [#78](https://github.com/mancabcar/MealPlan/issues/78) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: tests · Updated: 2026-10-04 · Issue: [#78](https://github.com/mancabcar/MealPlan/issues/78) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Problema
 El Plan solo muestra la semana lunes–domingo actual (`weekDates(todayStr())` en `src/app/plan/page.tsx`) y la lista de la compra también. No se puede mirar atrás ni planificar con antelación, ni dejar que las sobras ([#17](../17-sobras-batch-cooking/spec.md)) caigan en otra semana.
