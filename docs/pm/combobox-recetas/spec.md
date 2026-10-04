@@ -82,14 +82,14 @@ Sin métrica de producto (ajuste interno, sin analítica en la app). Comprobaci�
 ## Test coverage
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | tests/unit/text-highlight.test.ts › "R1: highlightRanges" (9 casos) | unit | 🔴 failing (not built) |
-| R1 | tests/e2e/recipes-busqueda.spec.ts › "R1: …" (Recetas con tilde; selector del Plan) | e2e | 🔴 failing (not built) |
+| R1 | tests/unit/text-highlight.test.ts › "R1: highlightRanges" (9 casos) | unit | 🟢 passing |
+| R1 | tests/e2e/recipes-busqueda.spec.ts › "R1: …" (Recetas con tilde; selector del Plan) | e2e | 🟢 passing |
 | R1 | tests/e2e/recipes-busqueda.spec.ts › "R1: … solo coincide la etiqueta, sin resaltado" | e2e | 🟢 passing (protege el criterio) |
-| R2 | tests/unit/recipeSearch.test.ts › "R2: sortByName" | unit | 🔴 failing (not built) |
-| R2 | tests/e2e/recipes-busqueda.spec.ts › "R2: … A–Z" | e2e | 🔴 failing (not built) |
+| R2 | tests/unit/recipeSearch.test.ts › "R2: sortByName" | unit | 🟢 passing |
+| R2 | tests/e2e/recipes-busqueda.spec.ts › "R2: … A–Z" | e2e | 🟢 passing |
 | R2 | tests/e2e/recipes-busqueda.spec.ts › "R2: … «Usa lo que tengo» manda el ranking" | e2e | 🟢 passing (protege el criterio) |
-| R3 | tests/unit/recipeSearch.test.ts › "R3: searchRecipes" | unit | 🔴 failing (not built) |
-| R3 | tests/e2e/recipes-busqueda.spec.ts › "R3: «pure» encuentra «Puré…»" | e2e | 🔴 failing (not built) |
+| R3 | tests/unit/recipeSearch.test.ts › "R3: searchRecipes" | unit | 🟢 passing |
+| R3 | tests/e2e/recipes-busqueda.spec.ts › "R3: «pure» encuentra «Puré…»" | e2e | 🟢 passing |
 | R3 | tests/e2e/recipes-busqueda.spec.ts › "R3: «VEGETARIANO» por etiqueta" | e2e | 🟢 passing (protege el criterio) |
-| R4 | tests/e2e/favoritos-franja.spec.ts y despensa-recetas.spec.ts (existentes, sin tocar) | e2e | 🟢 passing (a re-ejecutar en dev-code) |
-| R5 | tests/e2e/recipes-busqueda.spec.ts › "R5: … «Sin resultados» con texto" | e2e | 🔴 failing (not built) |
+| R4 | tests/e2e/favoritos-franja.spec.ts y despensa-recetas.spec.ts (existentes, sin tocar) | e2e | 🟢 passing (407 e2e verdes en dev-code) |
+| R5 | tests/e2e/recipes-busqueda.spec.ts › "R5: … «Sin resultados» con texto" | e2e | 🟢 passing |

@@ -63,7 +63,7 @@ Sin prototipo. `<mark>` con estilo de los tokens de color existentes (fondo suav
 3. [x] Componente `<Highlight>` (covers R1)
 4. [x] Usar `<Highlight>` en `RecipePicker` (covers R1, R4)
 5. [x] Recetas: filtro con `searchRecipes`, A–Z si `!usePantry`, resaltado y «Sin resultados» con texto (covers R1–R3, R5)
-6. [ ] e2e en `recipes.spec.ts` y pasada de los e2e existentes (covers R1–R4)
+6. [x] e2e en `recipes.spec.ts` y pasada de los e2e existentes (covers R1–R4)
 
 ## Spec feedback
 R5 añadido el 2026-10-04 (Must): el spec afirmaba que Recetas ya mostraba «Sin resultados» con búsqueda de texto y no era así. El resto se construye tal cual. Sin flag: los pasos dejan la app funcionando.
