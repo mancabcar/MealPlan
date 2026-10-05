@@ -1,5 +1,5 @@
 # Frutas y verduras de temporada y recetas que las aprovechan
-_Status: parked · Updated: 2026-09-26 · Issue: [#34](https://github.com/mancabcar/MealPlan/issues/34) · Prototype: [canvas](https://claude.ai/artifact/Ej1uFXxDYUsXWHFfoQY7Ts)_
+_Status: tests · Updated: 2026-10-05 · Issue: [#34](https://github.com/mancabcar/MealPlan/issues/34) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/Ej1uFXxDYUsXWHFfoQY7Ts) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Follow-ups
 - Lista de la compra: marcar los productos de temporada (o sugerir cambiar uno de fuera de temporada) cuando la lista se genera desde el plan ([lista-compra](../lista-compra/brief.md)).
@@ -87,7 +87,7 @@ _Design: https://claude.ai/artifact/Ej1uFXxDYUsXWHFfoQY7Ts · 2026-09-26_
 - What to learn from testing it: si la franja se entiende como «lo que está bueno ahora» y no como un anuncio; si las destacadas dan ganas de planificarlas; si la página de producto y el calendario completo aportan o sobran (candidatos a recortar en la spec); si el estado vacío invita a generar en vez de parecer un fallo.
 
 ## Open questions
-- Aparcado por Manuel el 2026-09-26, después del prototipo y antes de la spec. Para retomarlo: revisar el prototipo y seguir con pm-spec.
+- Aparcado el 2026-09-26 tras el prototipo; retomado el 2026-10-05 desde el issue #34, entrando en la spec.
 - ¿Frutas y verduras juntas o separadas? La fruta se come sola (media mañana del plan) más que en recetas; quizá la fruta solo se muestra y la verdura es la que empuja recetas.
 - ¿Qué productos cuentan como «básicos de todo el año» y se excluyen? Hace falta una lista explícita (cebolla, ajo, patata, limón, zanahoria…).
 - Mes de transición: ¿se muestra «empieza» o «último mes» (p. ej. «últimas brevas», «primeras mandarinas»)? Los calendarios públicos distinguen temporada plena y parcial.
