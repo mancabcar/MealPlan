@@ -1,6 +1,6 @@
 # Marcar en la gráfica semanal los días que cumplen el objetivo
 
-_Status: coding · Updated: 2026-10-05 · Issue: [#50](https://github.com/mancabcar/MealPlan/issues/50) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: in review · Updated: 2026-10-05 · Issue: [#50](https://github.com/mancabcar/MealPlan/issues/50) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#146](https://github.com/mancabcar/MealPlan/pull/146)_
 
 ## Problema
 La gráfica «Calorías esta semana» del Diario (`WeekBarChart`) no enseña qué días cumplieron el objetivo. Esa información solo aparece como un número en la tarjeta «Medias y adherencia» ([#11](../11-medias-adherencia/brief.md)), así que no se puede relacionar con las barras.
