@@ -1,7 +1,10 @@
 # Dónde viven las recetas: JSON, localStorage o base de datos
-_Status: brainstorm · Updated: 2026-09-27 · Issue: [#42](https://github.com/mancabcar/MealPlan/issues/42)_
+_Status: in review · Updated: 2026-10-05 · Issue: [#42](https://github.com/mancabcar/MealPlan/issues/42) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#133](https://github.com/mancabcar/MealPlan/pull/133) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
+- `hasUserData` cuenta las recetas con id retirado como datos del usuario: [#134](https://github.com/mancabcar/MealPlan/issues/134).
+- Comentarios obsoletos sobre la siembra (`migrate.ts`, `userData.ts`), «ocho claves» en `store.tsx` y `MemoryStorage` duplicado en tests: solo en `review.md`.
+- `saveRecipe` con un id del catálogo guardaría una receta que la carga siguiente descarta (la migración quita por id). Hoy la interfaz no lo permite (las del catálogo se duplican con id nuevo); si #18 llega a editar in situ, decidir la precedencia por id.
 - Si algún día se hace la sincronización entre dispositivos ([#22](https://github.com/mancabcar/MealPlan/issues/22)), las recetas del usuario van a la base de datos con el resto de sus datos. El catálogo puede seguir en el bundle.
 - Crear y editar recetas propias ([#18](https://github.com/mancabcar/MealPlan/issues/18)): editar una receta del catálogo tiene que hacer una copia del usuario (copy-on-edit), no modificar el catálogo.
 - «Promocionar» al catálogo una receta generada con IA que guste (de la copia de seguridad a `src/data/recipes.json` con un script). Solo si el catálogo empieza a crecer a mano.

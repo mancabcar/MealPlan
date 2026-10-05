@@ -1,7 +1,8 @@
 // Primer inicio de sesión en un dispositivo y limpieza al salir (docs/pm/22-sincronizacion-dispositivos/spec.md › R6, R7, R12).
 // Funciones puras con el Storage inyectado, como backup.ts.
 import { loadShoppingState } from "./shopping/state";
-import { withSeedRecipes, USER_DATA_KEYS } from "./userData";
+import { CATALOG_IDS } from "./catalog";
+import { USER_DATA_KEYS } from "./userData";
 
 const userKey = (userId: string, key: string) => `mp_${userId}_${key}`;
 
@@ -27,8 +28,8 @@ const isEmpty = (v: unknown) =>
   v === null || v === undefined || (Array.isArray(v) && v.length === 0) || (typeof v === "object" && !Array.isArray(v) && Object.keys(v as object).length === 0);
 
 /**
- * ¿Tiene este usuario datos propios en el dispositivo? Las recetas de ejemplo que la app siembra sola no cuentan
- * (un dispositivo recién abierto ya las tiene), ni la lista de la compra vacía que se crea sola.
+ * ¿Tiene este usuario datos propios en el dispositivo? Las recetas del catálogo que una versión anterior guardó en el dispositivo no cuentan
+ * (no son del usuario), ni la lista de la compra vacía que se crea sola.
  */
 export function hasUserData(storage: Storage, userId: string): boolean {
   for (const key of ["profile", "entries", "pantry", "weekplan", "measurements", "favorites", "water"] as const) {
@@ -36,8 +37,7 @@ export function hasUserData(storage: Storage, userId: string): boolean {
   }
   const recipes = read(storage, userId, "recipes");
   if (Array.isArray(recipes)) {
-    const seed = new Set(withSeedRecipes([]).map((r) => r.id));
-    if (recipes.some((r) => !seed.has((r as { id?: string }).id ?? ""))) return true;
+    if (recipes.some((r) => !CATALOG_IDS.has((r as { id?: string }).id ?? ""))) return true;
   }
   // loadShoppingState entiende también el formato anterior { current, usage }
   const shopping = loadShoppingState(read(storage, userId, "shopping"));

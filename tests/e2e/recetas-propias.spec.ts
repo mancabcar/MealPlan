@@ -220,8 +220,9 @@ test.describe("R4: Duplicar y editar una semilla", () => {
     await save(page).click();
 
     const after = await storedRecipes(page);
+    // El catálogo no se guarda (docs/pm/recetas-almacenamiento R2): solo se añade la copia propia, y la semilla sigue igual
     expect(after).toHaveLength(before.length + 1);
-    expect(after.find((r) => r.id === "recipe_001")).toEqual(SEMILLA_TORTILLA);
+    expect(after.some((r) => r.id === "recipe_001")).toBe(false);
     const copy = after.find((r) => r.name === "Tortilla de claras con verduras (copia)");
     expect(copy).toMatchObject({ isCustom: true, calories: 150 });
     expect(copy?.id).toMatch(/^custom_/);

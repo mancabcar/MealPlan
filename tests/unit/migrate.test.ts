@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import seed from "@/data/recipes.json";
 import { migrateEntries, migrateProfile, migrateWeekPlan, RETIRED_RECIPE_IDS } from "@/lib/migrate";
-import { withSeedRecipes } from "@/lib/userData";
+import { LOAD_OPTIONS } from "@/lib/userData";
 import type { Recipe } from "@/lib/types";
 import { MEAL_TYPES } from "@/lib/types";
 import { legacyProfile, lucia } from "../fixtures/profiles";
@@ -132,11 +132,11 @@ describe("Recetas semilla duplicadas retiradas (recipe_009, recipe_010, recipe_0
     expect(names.filter((n, i) => names.indexOf(n) !== i)).toEqual([]);
   });
 
-  it("al cargar las recetas guardadas se quitan las retiradas y se conserva el resto", () => {
+  it("al cargar las recetas guardadas se quitan las retiradas y el catálogo, y se conservan las del usuario", () => {
     const ai = { ...SEED[0], id: "ai_x_0", name: "Receta IA", isAIGenerated: true };
-    const loaded = withSeedRecipes([ai, retired("recipe_009"), retired("recipe_010"), retired("recipe_012"), ...SEED]);
-    expect(loaded.map((r) => r.id)).toEqual([ai.id, ...SEED.map((r) => r.id)]);
-    expect(withSeedRecipes(loaded)).toEqual(loaded);
+    const loaded = LOAD_OPTIONS.recipes.upgrade([ai, retired("recipe_009"), retired("recipe_010"), retired("recipe_012"), ...SEED]);
+    expect(loaded.map((r) => r.id)).toEqual([ai.id]);
+    expect(LOAD_OPTIONS.recipes.upgrade(loaded)).toEqual(loaded);
   });
 
   it("diario: una comida con una receta retirada pasa a la que se queda, sin tocar sus macros", () => {
