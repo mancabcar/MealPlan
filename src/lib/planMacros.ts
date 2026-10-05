@@ -18,9 +18,6 @@ export interface MacrosWithFiber extends Macros {
 export type MacroTarget = number | { min: number; max: number };
 export type MacroStatus = "below" | "within" | "above";
 
-/** ±10 % para los objetivos sin rango (R4). Porcentaje entero: macroStatus lo compara en aritmética entera. */
-export const PLAN_TOLERANCE_PCT = 10;
-
 /** R9: macros de una franja = receta × raciones, sin redondear. Único punto de escalado (`dayPlanSummary` pasa slotServings). */
 export function slotMacros(recipe: Recipe, servings = 1): MacrosWithFiber {
   return {
@@ -98,12 +95,13 @@ export function dayPlanSummary({
 }
 
 /**
- * R3/R4: se juzga el valor redondeado (lo que se ve). Rango: min ≤ v ≤ max. Número g: banda ±10 %,
- * comparada en centésimas enteras (100·v frente a 90·g y 110·g) porque 230 × 0,9 no es exacto en coma flotante.
+ * R3/R4: se juzga el valor redondeado (lo que se ve). Rango: min ≤ v ≤ max, sin tolerancia. Número g: banda
+ * ±tolerancePct (#49: la del perfil, entero 5–20; lib/tolerance.ts › tolerancePct), comparada en centésimas enteras
+ * (100·v frente a (100 ∓ pct)·g) porque 230 × 0,9 no es exacto en coma flotante.
  * Los límites se redondean a la centésima para que un objetivo con decimales (Perfil admite «69,5») no
  * reintroduzca el error: 69,3 × 90 = 6236,999… → 6237.
  */
-export function macroStatus(value: number, target: MacroTarget): MacroStatus {
+export function macroStatus(value: number, target: MacroTarget, tolerancePct: number): MacroStatus {
   // Con NaN todas las comparaciones son falsas y caería en "within": un valor que no es número nunca cumple
   if (!Number.isFinite(value)) return "below";
   const v = Math.round(value);
@@ -112,7 +110,7 @@ export function macroStatus(value: number, target: MacroTarget): MacroStatus {
     if (v > target.max) return "above";
     return "within";
   }
-  if (100 * v < Math.round((100 - PLAN_TOLERANCE_PCT) * target)) return "below";
-  if (100 * v > Math.round((100 + PLAN_TOLERANCE_PCT) * target)) return "above";
+  if (100 * v < Math.round((100 - tolerancePct) * target)) return "below";
+  if (100 * v > Math.round((100 + tolerancePct) * target)) return "above";
   return "within";
 }

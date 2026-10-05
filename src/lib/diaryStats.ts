@@ -2,6 +2,7 @@
 // Un día se juzga con macroStatus/macroTarget de planMacros, así que el Plan y el Diario no pueden divergir.
 import { finiteOr0, macroStatus, macroTarget, type Macros } from "./planMacros";
 import { formatShortDate } from "./measurements";
+import { tolerancePct } from "./tolerance";
 import type { MealEntry, UserProfile } from "./types";
 import { addDays } from "./week";
 
@@ -41,9 +42,10 @@ export function dailyTotals(entries: MealEntry[], dates: string[]): Map<string, 
 
 /** R4: kcal dentro de calorieGoal Y proteína dentro de su rango u objetivo. Mismo macroStatus que el Plan. */
 export function isCompliantDay(totals: Macros, profile: UserProfile): boolean {
+  const pct = tolerancePct(profile);
   return (
-    macroStatus(totals.calories, macroTarget("calories", profile)) === "within" &&
-    macroStatus(totals.protein, macroTarget("protein", profile)) === "within"
+    macroStatus(totals.calories, macroTarget("calories", profile), pct) === "within" &&
+    macroStatus(totals.protein, macroTarget("protein", profile), pct) === "within"
   );
 }
 
