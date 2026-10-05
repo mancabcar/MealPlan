@@ -22,7 +22,8 @@ import { useShoppingList } from "@/lib/shopping/useShoppingList";
 import { useWeekParam, weekHref } from "@/lib/useWeekParam";
 import { WeekNav } from "@/components/plan/WeekNav";
 import { Toast } from "@/components/ui/Toast";
-import { applyCopy, isSourceEmpty, type CopyMode } from "@/lib/plan/copyWeek";
+import { applyCopy, isSourceEmpty, planCopy, type CopyMode } from "@/lib/plan/copyWeek";
+import { CopyWeekSheet } from "@/components/plan/CopyWeekSheet";
 
 /**
  * Hoja abierta sobre una tanda (docs/pm/17-sobras-batch-cooking): crear/editar, ver una sobra o decidir qué hacer con
@@ -32,6 +33,7 @@ type Modal =
   | { kind: "batch"; origin: SlotRef }
   | { kind: "leftover"; at: SlotRef }
   | { kind: "servings"; at: SlotRef }
+  | { kind: "copy"; conflicts: number } // conflictos de «Copiar semana anterior» (docs/pm/53-copiar-semana-anterior R2)
   | { kind: "warning"; at: SlotRef; batchId: string; recipeId: string; servings: number }; // recipeId "" = borrar la franja
 
 // useSearchParams (semana en la URL) exige un Suspense con el export estático
@@ -120,9 +122,15 @@ function PlanContent() {
     commitAssign(batch ? deleteOrigin(weekPlan, current!.batchId!, "all") : weekPlan, editing, recipeId, servings);
   };
 
-  // R1: copia la semana anterior a la vista; sin Deshacer ni aviso de conflictos todavía (tareas 3 y 4)
-  const copyWeek = (mode: CopyMode) => {
+  // R1, R2: con franjas ocupadas que la copia pisaría se pregunta antes de tocar nada
+  const startCopy = () => {
     setEditing(null);
+    setCopyNotice(null);
+    const { conflicts } = planCopy(weekPlan, monday, recipeIds);
+    if (conflicts > 0) setModal({ kind: "copy", conflicts });
+    else copyWeek("keep");
+  };
+  const copyWeek = (mode: CopyMode) => {
     const { plan, copied } = applyCopy(weekPlan, monday, recipeIds, mode);
     if (copied === 0) {
       setCopyNotice("No hay nada nuevo que copiar");
@@ -151,7 +159,7 @@ function PlanContent() {
       <div className="flex flex-col gap-1">
         <button
           type="button"
-          onClick={() => copyWeek("keep")}
+          onClick={startCopy}
           disabled={sourceEmpty}
           aria-describedby={sourceEmpty ? copyHelpId : undefined}
           className="min-h-11 rounded-xl border border-[var(--color-border)] text-sm font-medium disabled:opacity-50"
@@ -248,6 +256,15 @@ function PlanContent() {
             setModal(null);
           }}
           onClose={() => setModal(null)}
+        />
+      )}
+      {modal?.kind === "copy" && (
+        <CopyWeekSheet
+          conflicts={modal.conflicts}
+          onChoose={(mode) => {
+            setModal(null);
+            if (mode) copyWeek(mode);
+          }}
         />
       )}
       {modal?.kind === "warning" && (

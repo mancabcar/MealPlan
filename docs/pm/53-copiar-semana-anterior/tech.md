@@ -89,7 +89,7 @@ applyCopy(plan, monday, recipeIds, mode: "keep" | "replace"): { plan: WeekPlan; 
 ## Tasks
 1. [x] `copyWeek.ts` puro + tests unitarios (R1–R4)
 2. [x] Botón bajo `WeekNav` y copia sin conflictos con `Toast` (R1, R4)
-3. [ ] `CopyWeekSheet` y flujo de conflictos (R2)
+3. [x] `CopyWeekSheet` y flujo de conflictos (R2)
 4. [ ] Deshacer en el `Toast` y reset al cambiar de semana (R5)
 5. [ ] Tests e2e y brief
 
