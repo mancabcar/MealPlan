@@ -113,7 +113,7 @@ PR 1 (fibra)
 
 PR 2 (agua)
 9. [x] `src/lib/water.ts` con tests (R10, R11).
-10. [ ] Clave `water`: `userData`, `store`, `backup`, `syncMigration`, `sync` y `server/lib/sync.ts` con sus tests (R13).
+10. [x] Clave `water`: `userData`, `store`, `backup`, `syncMigration`, `sync` y `server/lib/sync.ts` con sus tests (R13).
 11. [ ] `waterGoalMl`/`glassMl` y filas de Perfil (R11).
 12. [ ] `WaterCard` en el Diario (R10, R12).
 13. [ ] e2e de agua y abrir el PR.

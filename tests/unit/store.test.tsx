@@ -85,6 +85,7 @@ const IMPORTED: UserData = {
   shopping: { weeks: { [MONDAY]: { week: MONDAY, bought: { "brócoli|g": "150g" }, overrides: [], moved: {} } } },
   measurements: [NUTRI_JULY],
   favorites: [AI_RECIPE.id],
+  water: { "2026-09-22": 1250 },
 };
 
 const PREVIOUS = {
