@@ -14,6 +14,7 @@ import {
   monthMark,
   recipesWithProduct,
   seasonalIn,
+  seasonalInLine,
   seasonalProducts,
   type SeasonalProduct,
 } from "@/lib/seasonal";
@@ -210,5 +211,19 @@ describe("R4: recipesWithProduct", () => {
 
   it("un producto sin recetas devuelve una lista vacía", () => {
     expect(recipesWithProduct([A, B, C], CAQUI)).toEqual([]);
+  });
+});
+
+describe("R3: seasonalInLine marca los ingredientes de temporada de una receta", () => {
+  it("una línea con un producto del mes lo devuelve; una sin él, no", () => {
+    expect(names(seasonalIn(recipe("r", "x", ["300g calabaza"]), OCT, PRODUCTS))).toEqual(names(seasonalInLine("300g calabaza", OCT, PRODUCTS)));
+    expect(seasonalInLine("1 cucharada de aceite", OCT, PRODUCTS)).toEqual([]);
+    expect(seasonalInLine("100g fresas", OCT, PRODUCTS)).toEqual([]);
+    expect(names(seasonalInLine("100g fresas", 5, PRODUCTS))).toEqual(["fresa"]);
+  });
+
+  it("los básicos y los opcionales no se marcan", () => {
+    expect(seasonalInLine("1 cebolla", OCT, PRODUCTS)).toEqual([]);
+    expect(seasonalInLine("1 caqui (opcional)", OCT, PRODUCTS)).toEqual([]);
   });
 });

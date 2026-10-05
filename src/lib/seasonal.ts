@@ -101,3 +101,15 @@ export function featuredRecipes(
 export function recipesWithProduct(recipes: Recipe[], product: SeasonalProduct): Recipe[] {
   return recipes.filter((r) => mentions(ingredientKeys(r), product));
 }
+
+/** Productos de temporada del mes que lleva una línea de ingrediente (para marcarla en el detalle de la receta). */
+export function seasonalInLine(line: string, month: number, products: SeasonalProduct[] = SEASONAL_PRODUCTS): SeasonalProduct[] {
+  const keys = parseIngredientLine(line).filter((ing) => !ing.optional).map((ing) => ing.key);
+  return products.filter((p) => !p.basic && p.months.includes(month) && mentions(keys, p));
+}
+
+export const MONTH_NAMES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
+/** Tres letras: cabeceras del calendario y de la barra de 12 meses. */
+export const MONTH_SHORT = MONTH_NAMES.map((m) => m.slice(0, 3));
