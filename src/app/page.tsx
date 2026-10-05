@@ -273,7 +273,7 @@ export default function DiaryPage() {
       {/* R8: con ≥ 2 pendientes, encima de las tarjetas */}
       {pending.length >= 2 && (
         <button
-          onClick={singleClick(() => pending.forEach((p) => addEntry(recipeEntry(p.recipe, date, p.mealType))))}
+          onClick={singleClick(() => pending.forEach((p) => addEntry(recipeEntry(p.recipe, date, p.mealType, { servings: p.servings }))))}
           className="flex items-center justify-center gap-1.5 rounded-xl py-2.5 border border-[var(--color-accent)] text-[var(--color-accent)] font-semibold text-sm"
         >
           <CheckCheck className="w-4 h-4" aria-hidden />
@@ -300,7 +300,7 @@ export default function DiaryPage() {
                 // toque cae sobre su nombre, no sobre la ✕ (a la derecha). Además, singleClick.
                 <div className="flex items-start gap-2 text-sm">
                   <button
-                    onClick={singleClick(() => addEntry(recipeEntry(slot.recipe, date, mt)))}
+                    onClick={singleClick(() => addEntry(recipeEntry(slot.recipe, date, mt, { servings: slot.servings })))}
                     aria-describedby={recipeNameId}
                     className="shrink-0 flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold border border-[var(--color-accent)] text-[var(--color-accent)]"
                   >
@@ -308,11 +308,15 @@ export default function DiaryPage() {
                     Hecho
                   </button>
                   <div className="flex-1 flex flex-wrap items-center gap-x-2 gap-y-1 py-0.5 text-[var(--color-text-muted)]">
-                    <span id={recipeNameId}>{slot.recipe.name}</span>
+                    <span id={recipeNameId}>
+                      {slot.recipe.name}
+                      {/* Raciones planificadas (docs/pm/29-raciones-plan R6): nada con 1 */}
+                      {servingsLabel({ servings: slot.servings }) && <span> {servingsLabel({ servings: slot.servings })}</span>}
+                    </span>
                     <Chip tone="neutral">Pendiente</Chip>
                     <AllergenBadge recipe={slot.recipe} allergies={profile.allergies} />
                   </div>
-                  <span className="shrink-0 py-0.5 text-[var(--color-text-muted)]">{Math.round(slot.recipe.calories)} kcal</span>
+                  <span className="shrink-0 py-0.5 text-[var(--color-text-muted)]">{Math.round(slot.recipe.calories * slot.servings)} kcal</span>
                 </div>
               )}
               {items.map((e) => {
