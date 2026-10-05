@@ -6,7 +6,7 @@ _Related: [spec](spec.md) · [brief](brief.md)_
 El catálogo se importa del JSON del bundle como constante (`src/lib/catalog.ts`) y deja de copiarse a `localStorage`. `usePersisted("recipes")` guarda solo las recetas del usuario: la carga migra quitando las de id del catálogo y las retiradas. `AppProvider` expone `recipes = [...CATALOG, ...userRecipes]`, así que las páginas no cambian. Esfuerzo: S–M (unas 5 tareas pequeñas; el grueso es reescribir tests que asumían el catálogo guardado).
 
 ## Context
-- `src/lib/userData.ts`: `withSeedRecipes` es el `upgrade` de `LOAD_OPTIONS.recipes`. Quita `RETIRED_RECIPE_IDS` y añade las recetas del JSON cuyo id falta. La carga (`load` en `store.tsx`) reescribe `localStorage` si el resultado difiere de lo guardado.
+- `src/lib/userData.ts`: `withSeedRecipes` es el `upgrade` de `LOAD_OPTIONS.recipes`. Quita `RETIRED_RECIPE_IDS`, rellena la fibra de las semilla guardadas sin ella (#23, R4: un parche más contra la copia congelada, que desaparece con esta separación) y añade las recetas del JSON cuyo id falta. La carga (`load` en `store.tsx`) reescribe `localStorage` si el resultado difiere de lo guardado.
 - `src/lib/store.tsx`: `usePersisted(k("recipes"), LOAD_OPTIONS.recipes, dirty("recipes"))` y las acciones `addRecipes`, `saveRecipe` y `removeRecipe` (esta última lee `recipes` para buscar la receta y limpia entradas, plan y favoritos).
 - `src/lib/backup.ts`: `buildBackup` lee las claves tal cual de `localStorage`; `parseBackup` aplica `LOAD_OPTIONS[k].upgrade` (R7 de backup-datos), así que una copia pasa por la misma migración que la carga.
 - `src/lib/syncMigration.ts`: `hasUserData` usa `withSeedRecipes([])` para saber qué ids son de ejemplo.
@@ -80,7 +80,7 @@ Ninguna pantalla cambia. El hueco huérfano del Plan sigue mostrando "Añadir".
 
 ## Tasks
 1. [ ] `catalog.ts`, `userRecipes` como migración del almacén y `AppProvider` que deriva `recipes`; tests unitarios de `userRecipes` y del store (covers R1, R2, R3, R6).
-2. [ ] `hasUserData` con `CATALOG_IDS`; reescribir tests y fixtures de backup y sync que asumían el catálogo guardado (covers R4, R5).
+2. [ ] `hasUserData` con `CATALOG_IDS`; reescribir los tests y fixtures que asumían el catálogo guardado o la siembra: `backup.test.ts`, `sync-migration.test.ts`, `migrate.test.ts` (la prueba de carga con `withSeedRecipes`), `seed-recipes-fiber.test.ts` (el relleno de fibra de #23 desaparece: sustituirlo por «la fibra del catálogo se ve sin migrar»), `store.test.tsx`, `store-recipes.test.tsx` y los fixtures que citan la siembra (covers R4, R5).
 3. [ ] `tests/unit/catalog-ids.test.ts` con la lista congelada de ids.
 4. [ ] E2E de migración de una cuenta real y del hueco huérfano (covers R3, R6, R7).
 5. [ ] Actualizar `spec.md` (R7 relajado, ids de IA resueltos) y el brief.
@@ -92,3 +92,18 @@ Sin flag: el cambio es interno y la migración es idempotente.
 - **Ids de IA repetidos**: resuelto, no es un riesgo: el servidor genera `ai_<sufijo>_<i>`. Pendiente de quitar de las preguntas abiertas de `spec.md` y de corregir el edge case.
 - **`schemaVersion`**: se queda en 1 (decisión del usuario).
 - **Dispositivo antiguo en sincronización**: basta la idempotencia, sin `markDirty` (decisión del usuario).
+
+## Test coverage
+Escritos antes del código. Comandos: `npx vitest run tests/unit/recipe-catalog.test.ts tests/unit/store-catalog.test.tsx tests/unit/store-catalog-change.test.tsx tests/unit/catalog-ids.test.ts` y `npx playwright test tests/e2e/recetas-catalogo.spec.ts`. R1 no tiene e2e: el bundle no cambia en tiempo de ejecución, así que se simula con un mock de `@/data/recipes.json`.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | tests/unit/store-catalog-change.test.tsx › "R1: un cambio del catálogo llega a una cuenta existente…" (2) | unit | 🔴 failing (not built) |
+| R2 | tests/unit/store-catalog.test.tsx › "R2: en localStorage solo se guardan recetas del usuario" (4) · tests/unit/recipe-catalog.test.ts › "R2: un almacén nuevo…" (2) | unit | 🔴 failing (not built) |
+| R3 | tests/unit/recipe-catalog.test.ts › "R3: la migración del almacén…" (6; la idempotencia pasa hoy a propósito) · tests/unit/store-catalog.test.tsx › "R3: al cargar…" (3) · tests/e2e/recetas-catalogo.spec.ts › "R3, R6: una cuenta con el catálogo guardado migra…" | unit + e2e | 🔴 failing (not built) |
+| R4 | tests/unit/store-catalog.test.tsx › "R4: la copia de seguridad exporta solo…" | unit | 🔴 failing (not built) |
+| R5 | tests/unit/recipe-catalog.test.ts › "R5: importar una copia de seguridad…" (4; el de «todo o nada» pasa hoy a propósito) | unit | 🔴 failing (not built) |
+| R6 | tests/unit/store-catalog.test.tsx › "R6: el plan, el diario y los favoritos…" (2) · el e2e de R3 | unit + e2e | 🟢 pasa hoy (red de seguridad de la migración); el e2e falla por R3 |
+| R7 (relajado) | tests/unit/store-catalog.test.tsx › "R7 (relajado)…" · tests/e2e/recetas-catalogo.spec.ts › "R7: un hueco del plan…" | unit + e2e | 🟢 pasa hoy (fija el comportamiento actual) |
+| Regla de ids | tests/unit/catalog-ids.test.ts (2) | unit | 🟢 pasa hoy (barrera: falla si se quita un id sin alias) |
+| `hasUserData` (sync) | tests/unit/recipe-catalog.test.ts › "sync (#22): hasUserData…" (3) | unit | 🟢 pasa hoy (red de seguridad al cambiar a `CATALOG_IDS`) |
