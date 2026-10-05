@@ -70,7 +70,7 @@ export function salHit(
   code: string,
   name: string,
   brand: string | null,
-  n: { kcal?: number; protein?: number; carbs?: number; fat?: number },
+  n: { kcal?: number; protein?: number; carbs?: number; fat?: number; fiber?: number },
   extra: Partial<SalHit> = {},
 ): SalHit {
   const nutriments: Record<string, number> = {};
@@ -78,6 +78,7 @@ export function salHit(
   if (n.protein !== undefined) nutriments.proteins_100g = n.protein;
   if (n.carbs !== undefined) nutriments.carbohydrates_100g = n.carbs;
   if (n.fat !== undefined) nutriments.fat_100g = n.fat;
+  if (n.fiber !== undefined) nutriments.fiber_100g = n.fiber;
   return { code, product_name: name, ...(brand && { brands: [brand] }), nutriments, ...extra };
 }
 
@@ -173,7 +174,7 @@ export function v2Product(
   code: string,
   name: string,
   brands: string | null,
-  n: { kcal?: number; protein?: number; carbs?: number; fat?: number },
+  n: { kcal?: number; protein?: number; carbs?: number; fat?: number; fiber?: number },
   extra: Partial<V2Product> = {},
 ): V2Response {
   const nutriments: Record<string, number> = {};
@@ -181,6 +182,7 @@ export function v2Product(
   if (n.protein !== undefined) nutriments.proteins_100g = n.protein;
   if (n.carbs !== undefined) nutriments.carbohydrates_100g = n.carbs;
   if (n.fat !== undefined) nutriments.fat_100g = n.fat;
+  if (n.fiber !== undefined) nutriments.fiber_100g = n.fiber;
   return {
     code,
     status: 1,

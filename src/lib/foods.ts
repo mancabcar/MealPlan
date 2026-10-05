@@ -3,7 +3,7 @@
 // GET /api/foods/search (Open Food Facts).
 import foodsJson from "@/data/foods.json";
 import { parseDecimal } from "./nutrition";
-import type { Macros } from "./planMacros";
+import type { MacrosWithFiber } from "./planMacros";
 import { normalize } from "./text";
 
 /** Valores por 100 g, con los mismos nombres en la tabla local y en OFF. */
@@ -12,6 +12,8 @@ export interface Per100 {
   protein: number;
   carbs: number;
   fat: number;
+  /** Fibra en g por 100 g (#23). Ausente = sin dato. */
+  fiber?: number;
 }
 
 /** Alimento de la tabla local (R3). */
@@ -74,9 +76,15 @@ export function searchLocalFoods(query: string, foods: LocalFood[] = FOODS, limi
 }
 
 /** R6: macros de `grams` gramos, sin redondear (se guardan así y se redondean al mostrar). */
-export function scaleMacros(per100: Per100, grams: number): Macros {
+export function scaleMacros(per100: Per100, grams: number): MacrosWithFiber {
   const f = grams / 100;
-  return { calories: per100.kcal * f, protein: per100.protein * f, carbs: per100.carbs * f, fat: per100.fat * f };
+  return {
+    calories: per100.kcal * f,
+    protein: per100.protein * f,
+    carbs: per100.carbs * f,
+    fat: per100.fat * f,
+    ...(per100.fiber !== undefined && { fiber: per100.fiber * f }),
+  };
 }
 
 // Antes de redondear se quita el ruido de coma flotante: 0,3 × 1,5 = 0,4499… y debe mostrarse «0,5».

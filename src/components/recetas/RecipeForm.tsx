@@ -41,11 +41,12 @@ function draftFrom(recipe?: Recipe, imported?: ImportedDraft): RecipeDraft {
       protein: opt(r.protein),
       carbs: opt(r.carbs),
       fat: opt(r.fat),
+      fiber: "",
       tags: [],
     };
   }
   if (!recipe) {
-    return { name: "", ingredients: "", instructions: "", prepTimeMinutes: "", calories: "", protein: "", carbs: "", fat: "", tags: [] };
+    return { name: "", ingredients: "", instructions: "", prepTimeMinutes: "", calories: "", protein: "", carbs: "", fat: "", fiber: "", tags: [] };
   }
   return {
     name: recipe.name,
@@ -56,6 +57,7 @@ function draftFrom(recipe?: Recipe, imported?: ImportedDraft): RecipeDraft {
     protein: String(recipe.protein),
     carbs: String(recipe.carbs),
     fat: String(recipe.fat),
+    fiber: opt(recipe.fiber),
     tags: [...recipe.tags],
   };
 }
@@ -144,6 +146,8 @@ export function RecipeForm({
     if (recipe) {
       const rest: Recipe = { ...recipe };
       delete rest.macrosEstimated;
+      // Con la fibra vaciada no debe sobrevivir la anterior (el spread de result.recipe no la quita)
+      delete rest.fiber;
       onSave({ ...rest, ...result.recipe, ...(keepEstimated && { macrosEstimated: true as const }) });
       return;
     }
@@ -175,7 +179,7 @@ export function RecipeForm({
       <Field label="Tiempo (min)" error={errors.prepTimeMinutes}>
         {(p) => <input {...p} inputMode="decimal" className={inputCls} value={draft.prepTimeMinutes} onChange={(e) => set("prepTimeMinutes", e.target.value)} />}
       </Field>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <Field label="Proteínas (g)" error={errors.protein}>
           {(p) => <input {...p} inputMode="decimal" className={inputCls} value={draft.protein} onChange={(e) => set("protein", e.target.value)} />}
         </Field>
@@ -184,6 +188,9 @@ export function RecipeForm({
         </Field>
         <Field label="Grasas (g)" error={errors.fat}>
           {(p) => <input {...p} inputMode="decimal" className={inputCls} value={draft.fat} onChange={(e) => set("fat", e.target.value)} />}
+        </Field>
+        <Field label="Fibra (g)" error={errors.fiber} hint="Opcional">
+          {(p) => <input {...p} inputMode="decimal" className={inputCls} value={draft.fiber ?? ""} onChange={(e) => set("fiber", e.target.value)} />}
         </Field>
       </div>
       <Field label="Calorías (kcal)" error={errors.calories} hint="Por ración">

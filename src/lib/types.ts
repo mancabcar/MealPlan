@@ -30,6 +30,8 @@ export interface MealEntry {
   protein: number;
   carbs: number;
   fat: number;
+  /** Fibra en gramos (#23), sin redondear como los macros. Ausente = sin dato (no 0); las entradas de receta anteriores la recuperan de la receta (lib/fiber.ts). */
+  fiber?: number;
   /** Raciones registradas (0,25–4). Solo existe en entradas de receta con raciones ≠ 1; ausente = 1 ración. Los macros ya vienen multiplicados. */
   servings?: number;
   /** Alimento de origen (#13): "local:<id>" de foods.json u "off:<código de barras>". El nombre va en customName. */
@@ -142,6 +144,8 @@ export interface UserProfile {
   proteinRange?: { min: number; max: number };
   carbsGoal: number;
   fatGoal: number;
+  /** Objetivo diario de fibra en g (#23, entero 10–100). Ausente = 38 (lib/fiber.ts › fiberGoal). */
+  fiberGoal?: number;
   /** >= 1, siempre en el orden de MEAL_TYPES. */
   meals: MealType[];
   allergies: Allergies;

@@ -5,12 +5,13 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-export type ChipTone = "protein" | "carbs" | "fat" | "expired" | "expiring" | "accent" | "neutral";
+export type ChipTone = "protein" | "carbs" | "fat" | "fiber" | "expired" | "expiring" | "accent" | "neutral";
 
 const TONE_VAR: Record<ChipTone, string> = {
   protein: "--color-protein",
   carbs: "--color-carbs",
   fat: "--color-fat",
+  fiber: "--color-fiber",
   expired: "--color-expired",
   expiring: "--color-expiring",
   accent: "--color-accent",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useState, type MouseEvent } from "react";
+import { useCallback, useId, useState, type MouseEvent, type ReactNode } from "react";
 import { Check, CheckCheck, Minus, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
@@ -21,6 +21,7 @@ import {
   stepServings,
 } from "@/lib/diary";
 import { macroStatus } from "@/lib/planMacros";
+import { FIBER_ERROR, dayFiber, entryFiber, fiberGoal, formatFiber, parseFiber } from "@/lib/fiber";
 import {
   MEAL_TYPES,
   MealType,
@@ -49,11 +50,20 @@ function MacroBar({
   goal,
   tone,
   range,
+  valueText,
+  flag,
+  note,
 }: {
   label: string;
   value: number;
   goal: number;
   tone: ChipTone;
+  /** Texto del chip si no es «valor / objetivo» redondeado (la fibra lleva decimales). */
+  valueText?: string;
+  /** Marca junto al chip (el «parcial» de la fibra, #23). */
+  flag?: ReactNode;
+  /** Línea bajo la barra. */
+  note?: string;
   /** Rango prescrito (R17): se dibuja como banda y cualquier valor dentro cuenta como cumplido. */
   range?: { min: number; max: number };
 }) {
@@ -67,8 +77,9 @@ function MacroBar({
         <span className="font-medium text-[var(--color-text)]">{label}</span>
         <span className="flex items-center gap-1.5">
           {inBand && <Check className="w-3.5 h-3.5 text-[var(--color-accent)]" role="img" aria-label="Cumplido" />}
+          {flag}
           <Chip tone={tone}>
-            {range ? `${Math.round(value)} / ${range.min}–${range.max}` : `${Math.round(value)} / ${goal}`}
+            {valueText ?? (range ? `${Math.round(value)} / ${range.min}–${range.max}` : `${Math.round(value)} / ${goal}`)}
           </Chip>
         </span>
       </div>
@@ -85,6 +96,7 @@ function MacroBar({
         )}
         <div className="relative h-2 rounded-full" style={{ width: `${pct}%`, backgroundColor: `var(--color-${tone})` }} />
       </div>
+      {note && <p className="text-xs text-[var(--color-text-muted)]">{note}</p>}
     </div>
   );
 }
@@ -124,6 +136,9 @@ export default function DiaryPage() {
   const [recipeId, setRecipeId] = useState("");
   const [customName, setCustomName] = useState("");
   const [customMacros, setCustomMacros] = useState({ calories: 0, protein: 0, carbs: 0, fat: 0 });
+  // Fibra opcional de «Personalizada» (#23, R8): texto tal cual se teclea; vacío = sin dato
+  const [customFiber, setCustomFiber] = useState("");
+  const [customFiberError, setCustomFiberError] = useState(false);
   // Raciones (docs/pm/raciones): texto tal cual se teclea ("0,5"); el error solo sale al pulsar "Añadir"
   const [servingsText, setServingsText] = useState("1");
   const [servingsError, setServingsError] = useState(false);
@@ -166,6 +181,10 @@ export default function DiaryPage() {
     { calories: 0, protein: 0, carbs: 0, fat: 0 },
   );
 
+  // Fibra del día (#23, R2): las entradas sin dato no suman y marcan el total como parcial
+  const fiberDay = dayFiber(dayEntries, recipes);
+  const fiberTarget = fiberGoal(profile);
+
   // Gráfica semanal: últimos 7 días terminando en la fecha seleccionada
   const week = Array.from({ length: 7 }, (_, i) => {
     const key = addDays(date, i - 6);
@@ -187,12 +206,19 @@ export default function DiaryPage() {
       addEntry(recipeEntry(selectedRecipe, date, mealType, { servings: parsedServings }));
     } else {
       if (!customName.trim()) return;
-      addEntry({ id: crypto.randomUUID(), date, mealType, customName, ...customMacros });
+      const fiber = parseFiber(customFiber);
+      if (fiber === null) {
+        setCustomFiberError(true);
+        return;
+      }
+      addEntry({ id: crypto.randomUUID(), date, mealType, customName, ...customMacros, ...(fiber !== undefined && { fiber }) });
     }
     setShowAdd(false);
     editServings("1");
     setCustomName("");
     setCustomMacros({ calories: 0, protein: 0, carbs: 0, fat: 0 });
+    setCustomFiber("");
+    setCustomFiberError(false);
   };
 
   return (
@@ -232,6 +258,19 @@ export default function DiaryPage() {
         <MacroBar label="Proteínas" value={totals.protein} goal={profile.proteinGoal} range={profile.proteinRange} tone="protein" />
         <MacroBar label="Carbohidratos" value={totals.carbs} goal={profile.carbsGoal} tone="carbs" />
         <MacroBar label="Grasas" value={totals.fat} goal={profile.fatGoal} tone="fat" />
+        <MacroBar
+          label="Fibra"
+          value={fiberDay.total}
+          goal={fiberTarget}
+          tone="fiber"
+          valueText={`${formatFiber(fiberDay.total)} / ${fiberTarget}`}
+          flag={fiberDay.missing > 0 && <Chip tone="expiring">parcial</Chip>}
+          note={
+            fiberDay.missing > 0
+              ? `Faltan datos de fibra en ${fiberDay.missing} de ${fiberDay.count} ${fiberDay.count === 1 ? "entrada" : "entradas"}`
+              : undefined
+          }
+        />
       </Card>
 
       {/* R8: con ≥ 2 pendientes, encima de las tarjetas */}
@@ -283,12 +322,18 @@ export default function DiaryPage() {
                 // Raciones (R4): "× 0,5" junto al nombre; nada con 1 ración o en entradas anteriores (R5).
                 // Alimentos (#13, R9): "150 g" o "2 ud · 120 g"; una entrada tiene una cosa o la otra.
                 const label = servingsLabel(e) ?? quantityLabel(e);
+                const fiber = entryFiber(e, recipes);
                 return (
                   <div key={e.id} className="flex justify-between items-center py-1 text-sm">
-                    <span>
-                      {e.customName ?? recipes.find((r) => r.id === e.recipeId)?.name ?? "Receta"}
-                      {label && <span className="text-[var(--color-text-muted)]"> {label}</span>}
-                    </span>
+                    <div>
+                      <span>
+                        {e.customName ?? recipes.find((r) => r.id === e.recipeId)?.name ?? "Receta"}
+                        {label && <span className="text-[var(--color-text-muted)]"> {label}</span>}
+                      </span>
+                      <span className="block text-xs text-[var(--color-text-muted)]">
+                        {fiber === undefined ? "Fibra: sin dato" : `Fibra ${formatFiber(fiber)} g`}
+                      </span>
+                    </div>
                     <span className="flex items-center gap-2 text-[var(--color-text-muted)]">
                       {/* Con raciones los macros pueden no ser enteros (0,25 × 150 = 37,5): se redondea al mostrar */}
                       {Math.round(e.calories)} kcal
@@ -442,6 +487,24 @@ export default function DiaryPage() {
                   </label>
                 ))}
               </div>
+              <label className="w-1/4 text-[10px] text-[var(--color-text-muted)] flex flex-col gap-0.5">
+                fibra
+                <input
+                  inputMode="decimal"
+                  className={inputCls}
+                  value={customFiber}
+                  aria-invalid={customFiberError}
+                  onChange={(e) => {
+                    setCustomFiber(e.target.value);
+                    setCustomFiberError(false);
+                  }}
+                />
+              </label>
+              {customFiberError && (
+                <span role="alert" className="text-xs text-[var(--color-expired)]">
+                  {FIBER_ERROR}
+                </span>
+              )}
             </>
           )}
           <div className="flex gap-2">

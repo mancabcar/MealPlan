@@ -7,6 +7,7 @@ import { Recipe, daysUntil, todayStr } from "@/lib/types";
 import { rankByPantry, recipesUsingItem, type RecipeUsage } from "@/lib/pantryRecipes";
 import { toRecipeProfile } from "@/lib/recipePrompt";
 import { apiUrl } from "@/lib/apiBase";
+import { formatFiber } from "@/lib/fiber";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { AllergenBadge } from "@/components/ui/AllergenBadge";
@@ -238,17 +239,19 @@ export default function RecipesPage() {
             <Flame className="w-4 h-4" aria-hidden /> {selected.calories} kcal
           </span>
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center text-sm">
+        <div className="grid grid-cols-4 gap-2 text-center text-sm">
           {(
             [
-              ["Proteínas", selected.protein, "--color-protein"],
-              ["Carbos", selected.carbs, "--color-carbs"],
-              ["Grasas", selected.fat, "--color-fat"],
+              ["Proteínas", `${selected.protein}g`, "--color-protein"],
+              ["Carbos", `${selected.carbs}g`, "--color-carbs"],
+              ["Grasas", `${selected.fat}g`, "--color-fat"],
+              // Fibra (#23, R4): sin dato = «—», no 0
+              ["Fibra", selected.fiber === undefined ? "—" : `${formatFiber(selected.fiber)} g`, "--color-fiber"],
             ] as const
           ).map(([label, v, colorVar]) => (
             <Card key={label} padding="sm">
               <div className="font-display font-bold text-lg" style={{ color: `var(${colorVar})` }}>
-                {v}g
+                {v}
               </div>
               <div className="text-xs text-[var(--color-text-muted)]">{label}</div>
             </Card>

@@ -95,7 +95,9 @@ function fromCiqual(item) {
         3 * (v[C.organicAcids] ?? 0),
       1,
     );
-  return { kcal, protein, carbs, fat };
+  // Fibra (#23): "-" (no determinada) se queda sin dato; "traces" y "< x" ya son 0 (parseValue)
+  const fiber = v[C.fibre];
+  return { kcal, protein, carbs, fat, ...(fiber !== undefined && { fiber }) };
 }
 
 const list = JSON.parse(readFileSync(LIST, "utf8"));
@@ -103,7 +105,7 @@ const foods = list.map((item) => {
   const values =
     item.source === "CIQUAL"
       ? fromCiqual(item)
-      : { kcal: item.kcal, protein: item.protein, carbs: item.carbs, fat: item.fat };
+      : { kcal: item.kcal, protein: item.protein, carbs: item.carbs, fat: item.fat, ...(item.fiber !== undefined && { fiber: item.fiber }) };
   return {
     id: item.id,
     name: item.name,

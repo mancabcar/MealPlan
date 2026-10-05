@@ -41,15 +41,19 @@ export interface LoadOptions<T> {
   backup?: boolean;
 }
 
-/** Siembra idempotente: quita las recetas semilla retiradas y añade las del JSON cuyo id falte. */
+/** Siembra idempotente: quita las recetas semilla retiradas, añade las del JSON cuyo id falte y rellena la fibra (#23) de las semilla guardadas sin ella. */
 export function withSeedRecipes(raw: unknown): Recipe[] {
   const saved = (raw as Recipe[] | null) ?? [];
   const stored = saved.some((r) => Object.hasOwn(RETIRED_RECIPE_IDS, r.id))
     ? saved.filter((r) => !Object.hasOwn(RETIRED_RECIPE_IDS, r.id))
     : saved;
-  const existing = new Set(stored.map((r) => r.id));
+  // Quien ya tenía las semilla guardadas antes de que el catálogo trajera fibra no las recibiría con la siembra por id (#23, R4)
+  const seedFiber = new Map((seedData.recipes as Recipe[]).flatMap((r) => (r.fiber === undefined ? [] : [[r.id, r.fiber] as const])));
+  const needsFiber = (r: Recipe) => r.fiber === undefined && seedFiber.has(r.id);
+  const filled = stored.some(needsFiber) ? stored.map((r) => (needsFiber(r) ? { ...r, fiber: seedFiber.get(r.id) } : r)) : stored;
+  const existing = new Set(filled.map((r) => r.id));
   const missing = (seedData.recipes as Recipe[]).filter((r) => !existing.has(r.id));
-  return missing.length > 0 ? [...stored, ...missing] : stored;
+  return missing.length > 0 ? [...filled, ...missing] : filled;
 }
 
 /** Lista de ids sin duplicados ni basura. Los ids de recetas que ya no existen se descartan al guardar (store). */
