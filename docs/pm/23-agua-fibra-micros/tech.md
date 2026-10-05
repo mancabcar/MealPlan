@@ -106,7 +106,7 @@ PR 1 (fibra)
 2. [x] `UserProfile.fiberGoal?` y fila «Fibra» en Perfil con validación (R3).
 3. [x] Las entradas guardan fibra: `recipeEntry`, `foodEntry` y «Personalizada» con `parseFiber` (R1, R7, R8).
 4. [x] Rutas OFF (`search`, `barcode`) con `fiber_100g` y tests; `BrandProduct.fiber?` y hooks del cliente (R6).
-5. [ ] `build-foods.mjs` y `foods-list.json` con fibra; regenerar `foods.json`; `LocalFood.fiber?` (R5).
+5. [x] `build-foods.mjs` y `foods-list.json` con fibra; regenerar `foods.json`; `LocalFood.fiber?` (R5).
 6. [x] Diario: barra de fibra, chip «parcial», aviso, etiqueta por entrada, tarjeta del alimento (R2, R9).
 7. [x] Ficha de receta con la quinta celda y campo en `RecipeForm`/`recipeEdit` (R4, R8).
 8. [ ] e2e de la entrega 1 y abrir el PR.

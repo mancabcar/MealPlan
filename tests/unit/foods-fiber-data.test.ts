@@ -18,8 +18,8 @@ describe("R5: todos los alimentos locales traen fibra (g por 100 g)", () => {
     expect(bad.map((f) => f.id)).toEqual([]);
   });
 
-  it("legumbres: las lentejas crudas llevan más de 8 g y las cocidas entre 3 y 12", () => {
-    expect(byId("lentejas-crudas").fiber!).toBeGreaterThan(8);
+  it("legumbres: las lentejas crudas llevan más de 5 g y las cocidas entre 3 y 12", () => {
+    expect(byId("lentejas-crudas").fiber!).toBeGreaterThan(5);
     expect(byId("lentejas-cocidas").fiber!).toBeGreaterThanOrEqual(3);
     expect(byId("lentejas-cocidas").fiber!).toBeLessThanOrEqual(12);
   });

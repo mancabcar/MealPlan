@@ -14,7 +14,7 @@ import { expect, test, type Page } from "@playwright/test";
 import foodsJson from "@/data/foods.json";
 import { formatFiber } from "@/lib/fiber";
 import type { LocalFood } from "@/lib/foods";
-import type { MealEntry, Recipe, UserProfile } from "@/lib/types";
+import type { MealEntry, UserProfile } from "@/lib/types";
 import { lucia } from "../fixtures/profiles";
 import {
   DIA_COMPLETO,
