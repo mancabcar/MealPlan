@@ -20,3 +20,4 @@ El Plan asigna siempre una ración completa por franja (`DayPlanSlot = { mealTyp
 ## Follow-ups
 - Resuelto (2026-10-05): la pregunta abierta de #17 («¿reescribir #29 sobre `cookedServings`?») se cierra con campos separados: `servings` (se come) y `cookedServings` (se cocina). Ver [tech.md](tech.md).
 - Fuera de este issue (non-goals del spec): redondeo de unidades contables en la compra; sugerir raciones a cocinar; raciones por defecto en el perfil. Sin issue creado.
+- Review (2026-10-05): hallazgos de comportamiento (etiqueta sin normalizar, Guardar con la franja desaparecida) → [#128](https://github.com/mancabcar/MealPlan/issues/128). Limpieza (botones duplicados de `BatchSheet`, ternario de `batch.ts:151`, `servingsLabel` repetido, hook `useServingsInput`) solo en [review.md](review.md).
