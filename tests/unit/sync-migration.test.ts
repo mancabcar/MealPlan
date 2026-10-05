@@ -130,7 +130,7 @@ describe("listLocalAccounts: cuentas locales entre las que elegir los datos a tr
 });
 
 describe("R6: servidor vacío → se suben los datos locales sin pérdida", () => {
-  it("R6: adoptar la cuenta local copia sus 9 claves bajo el id del servidor y no borra las originales", () => {
+  it("R6: adoptar la cuenta local copia sus 10 claves bajo el id del servidor y no borra las originales", () => {
     seedLocal(storage, ACCOUNT_A.id, ALL_A);
     seedLocal(storage, OTHER_ACCOUNT.id, { entries: [{ id: "otro" }] });
     const before = keysOf(storage);
@@ -140,7 +140,7 @@ describe("R6: servidor vacío → se suben los datos locales sin pérdida", () =
     expect(storage.getItem(k(SERVER_ID, "entries"))).not.toContain("otro");
   });
 
-  it("R6: tras adoptar y sincronizar, las 9 claves del servidor son idénticas a las locales", async () => {
+  it("R6: tras adoptar y sincronizar, las 10 claves del servidor son idénticas a las locales", async () => {
     backend.seed("lucia", "secreto-123", {});
     seedLocal(storage, ACCOUNT_A.id, ALL_A);
     adoptLocalData(storage, ACCOUNT_A.id, SERVER_ID);
@@ -189,7 +189,7 @@ describe("R7: datos en ambos lados → el servidor gana, con confirmación", () 
 });
 
 describe("R12: cerrar sesión limpia la copia local de ese usuario", () => {
-  it("R12: clearUserData borra sus 9 claves, los metadatos de sync y las copias *_v1_backup, y nada más", () => {
+  it("R12: clearUserData borra sus 10 claves, los metadatos de sync y las copias *_v1_backup, y nada más", () => {
     seedLocal(storage, SERVER_ID, ALL_A);
     storage.setItem(k(SERVER_ID, "syncmeta"), JSON.stringify({ versions: { entries: 3 }, pending: [] }));
     storage.setItem(k(SERVER_ID, "profile_v1_backup"), "{}");

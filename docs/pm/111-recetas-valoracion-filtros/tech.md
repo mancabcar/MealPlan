@@ -88,3 +88,37 @@ Elegida A por el usuario, que coincide con la recomendación de Claude.
 ## Spec feedback
 - R3: los tramos de kcal pasan de ≤400/600/800 a ≤300/400/500, porque ≤600 y ≤800 dejaban 104 y 107 de 107 recetas. Decidido por el usuario el 2026-10-05; `spec.md` actualizado.
 - Pendiente (no bloquea el diseño): decidir con #42 cuál se fusiona primero antes de codificar (se acordó avanzar en paralelo y rebasar).
+
+## UI test contract
+Los tests de dev-test (`tests/e2e/valoracion-filtros.spec.ts`) fijan estos nombres accesibles; dev-code los implementa tal cual:
+- Detalle: cinco botones «Valorar <receta> con N estrellas» (N = 1…5), de ≥44 px, con `aria-pressed` en la nota actual; tocar la actual la quita.
+- Nota visible en tarjeta y detalle: texto «Valoración N de 5» dentro de la tarjeta (su botón); sin nota no se renderiza nada.
+- Botón «Filtros» (o «Filtros (N)» con N filtros activos de tiempo, kcal, proteína y alérgenos) con `aria-expanded`; el panel está cerrado por defecto y los chips no existen en el DOM mientras está cerrado.
+- Chips (`button` con `aria-pressed`, uno activo por tipo): «≤15 min», «≤30 min», «≤45 min», «≤300 kcal», «≤400 kcal», «≤500 kcal», «≥20 g», «≥30 g», «≥40 g».
+- Interruptor `role="switch"` «Ocultar mis alérgenos» con `aria-checked`; solo existe si el perfil tiene alergias.
+- Select con etiqueta «Ordenar por» y opciones, por este orden, «A–Z», «Proteína», «Calorías», «Tiempo», «Valoración»; por defecto «A–Z». Está dentro del panel.
+- Botón «Quitar filtros» (dentro del panel y en el estado vacío). Con algún filtro de los cuatro activo y cero resultados, el mensaje es «Ninguna receta coincide con los filtros» (gana sobre el «Sin resultados para …» de la búsqueda); sin esos filtros, los mensajes actuales no cambian.
+- «Quitar filtros» limpia solo tiempo, kcal, proteína y alérgenos; no toca la búsqueda ni el orden.
+- El bloque «Destacadas este mes» (región) se oculta con cualquier filtro, orden distinto de A–Z, búsqueda o «Solo favoritas»/«De temporada»/«Usa lo que tengo».
+- Filtros y orden son estado de la página: al salir de Recetas y volver están restablecidos.
+
+## Test coverage
+Tests actualizados por el cambio de nueve a diez claves (mecánico, acordado con el usuario): `tests/unit/backup.test.ts`, `backup-water.test.ts`, `sync-engine.test.ts`, `sync-migration.test.ts`, `server/tests/unit/sync-routes.test.ts`, y los fixtures `tests/fixtures/backup.ts` (`ratings` en `ACCOUNT_A_DATA`) y `fakeSyncBackend.ts`.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | tests/unit/store-ratings.test.tsx › «R1: setRating» | unit | 🔴 failing (not built) |
+| R1 | tests/e2e/valoracion-filtros.spec.ts › «R1: puntuar en el detalle» (2) | e2e | 🔴 failing (not built) |
+| R2 | tests/unit/ratings.test.ts › sanitizeRatings, clave `ratings`, SYNC_KEYS del servidor y copia de seguridad | unit | 🔴 failing (not built) |
+| R2 | tests/unit/store-ratings.test.tsx › «R2: persistencia por usuario» e «importData» | unit | 🔴 failing (not built) |
+| R2 | tests/unit/backup.test.ts, backup-water, sync-engine, sync-migration y server/tests/unit/sync-routes.test.ts (diez claves) | unit | 🔴 failing (not built; backup y servidor) |
+| R2 | tests/e2e/valoracion-filtros.spec.ts › «R2: persistencia, aislamiento y copia de seguridad» (5) | e2e | 🔴 failing (not built) |
+| R3 | tests/unit/recipe-filters.test.ts › «R3: tramos» y «R3: filterRecipes» | unit | 🔴 failing (not built) |
+| R3 | tests/e2e/valoracion-filtros.spec.ts › «R3: filtros…» (4, incluye ≤3 toques) | e2e | 🔴 failing (not built) |
+| R4 | tests/unit/recipe-filters.test.ts › «R4: ocultar alérgenos» | unit | 🔴 failing (not built) |
+| R4 | tests/e2e/valoracion-filtros.spec.ts › «R4: ocultar mis alérgenos» (2) | e2e | 🔴 failing (not built) |
+| R5 | tests/unit/recipe-filters.test.ts › «R5: sortRecipes» | unit | 🔴 failing (not built) |
+| R5 | tests/e2e/valoracion-filtros.spec.ts › «R5: orden» (5, incluye «Usa lo que tengo») | e2e | 🔴 failing (not built) |
+| R6 | tests/e2e/valoracion-filtros.spec.ts › «R6: la nota se ve…» (2) | e2e | 🔴 failing (not built) |
+| R7 | tests/unit/recipe-filters.test.ts › «R7: countActiveFilters» | unit | 🔴 failing (not built) |
+| R7 | tests/e2e/valoracion-filtros.spec.ts › «R7: panel de filtros, vacío y reinicio» (4) y axe | e2e | 🔴 failing (not built) |
