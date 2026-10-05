@@ -1,7 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// Local: reutiliza el `npm run dev` que ya esté corriendo (Next 16 no permite dos dev servers en la misma carpeta)
-const PORT = 3000;
+// Local: reutiliza el `npm run dev` que ya esté corriendo (Next 16 no permite dos dev servers en la misma carpeta).
+// Con varios worktrees, cada uno debe usar su puerto (`PORT=3217 npm run test:e2e`); si no, se reutiliza el servidor
+// del 3000 aunque sea de otro checkout.
+const PORT = Number(process.env.PORT) || 3000;
 
 export default defineConfig({
   testDir: "tests/e2e",
