@@ -91,7 +91,7 @@ applyCopy(plan, monday, recipeIds, mode: "keep" | "replace"): { plan: WeekPlan; 
 2. [x] Botón bajo `WeekNav` y copia sin conflictos con `Toast` (R1, R4)
 3. [x] `CopyWeekSheet` y flujo de conflictos (R2)
 4. [x] Deshacer en el `Toast` y reset al cambiar de semana (R5)
-5. [ ] Tests e2e y brief
+5. [x] Tests e2e y brief
 
 ## Spec feedback
 - Hueco resuelto por el usuario: una franja idéntica en destino no es conflicto ni se cuenta como copiada (añadido aquí; `spec.md` no cambia salvo que el usuario lo pida).
