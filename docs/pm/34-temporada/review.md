@@ -22,11 +22,13 @@ Evidencia: 1280 tests unit, 185 de servidor y 489 e2e en verde (5 saltados ya ex
 Ninguno.
 
 ## Non-blocking
-1. **El error de la IA se arrastra entre vistas** (src/app/recetas/page.tsx:123): el estado `error` es compartido por la lista y la página de producto y no se limpia al navegar. Un fallo en una vista aparece en la otra tras «Volver». → Limpiar el error al cambiar de vista o guardarlo por vista.
-2. **El detalle puede abrirse tras salir de la vista** (src/app/recetas/page.tsx:161): si el usuario sale de la página de producto mientras la IA genera, `selectRecipe(generated[0])` abre el detalle de la receta nueva sin que lo haya pedido. La receta sí se guarda. → Ignorar el resultado si la vista ya no es la del producto, o avisar con un aviso en vez de saltar. (Plausible, no reproducido.)
+1. **(arreglado)** **El error de la IA se arrastra entre vistas** (src/app/recetas/page.tsx:123): el estado `error` es compartido por la lista y la página de producto y no se limpia al navegar. Un fallo en una vista aparece en la otra tras «Volver». → Limpiar el error al cambiar de vista o guardarlo por vista.
+2. **(arreglado)** **El detalle puede abrirse tras salir de la vista** (src/app/recetas/page.tsx:161): si el usuario sale de la página de producto mientras la IA genera, `selectRecipe(generated[0])` abre el detalle de la receta nueva sin que lo haya pedido. La receta sí se guarda. → Ignorar el resultado si la vista ya no es la del producto, o avisar con un aviso en vez de saltar. (Plausible, no reproducido.)
 3. **El e2e de orden de «Destacadas» depende de las recetas semilla** (tests/e2e/temporada.spec.ts:107): asume que ninguna semilla tiene 5 productos de octubre. Si el catálogo crece, el test puede fallar sin que el código esté mal. → Fijar el contenido con recetas propias o comprobar el orden relativo entre fixtures.
 4. **Pregunta abierta de la spec:** los básicos no tienen página de producto desde el calendario; hoy no se enlazan.
 5. **Calendario a revisar:** `src/data/seasonal.json` (57 productos, temporada plena) es una curación del autor de la rama; Manuel lo revisa antes de darlo por bueno.
+
+Actualización 2026-10-05: los puntos 1 y 2 se arreglaron en la misma rama a petición de Manuel (el error se limpia al cambiar de vista; la receta generada se guarda siempre pero su detalle solo se abre si sigues en la página de ese producto), con 2 tests e2e nuevos que fallan sin el arreglo. Quedan abiertos el 3, el 4 y el 5. Veredicto sin cambios.
 
 Decisión del usuario sobre la spec R1: lechuga y rábano tienen dos ventanas al año (mar–jun y oct–nov); cada ventana cuenta por separado para «empieza» / «últimas».
 
