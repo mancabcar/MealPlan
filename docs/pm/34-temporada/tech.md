@@ -102,24 +102,24 @@ Hechos ancla del calendario real, acordados con Manuel en dev-test: calabaza, ca
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | tests/unit/seasonal.test.ts › "R1: marcas «empieza» / «últimas»", "R1: seasonalProducts…" | unit | 🔴 failing (not built) |
-| R1 | tests/e2e/temporada.spec.ts › "R1: franja «De temporada · <mes>»" (3 casos) | e2e | 🔴 failing (not built) |
-| R2 | tests/unit/seasonal.test.ts › "R2: featuredRecipes" (orden, límite 10, básicos fuera, empate, vacío) | unit | 🔴 failing (not built) |
-| R2 | tests/unit/seasonal-data.test.ts › "R2: los 6 básicos…" | unit | 🔴 failing (not built) |
-| R2 | tests/e2e/temporada.spec.ts › "R2: «Destacadas este mes»" (4 casos, incluida la cabecera oculta con filtros) | e2e | 🔴 failing (not built) |
-| R3 | tests/unit/seasonal.test.ts › "R3/R6: seasonalIn casa los ingredientes por palabra completa" | unit | 🔴 failing (not built) |
-| R3 | tests/e2e/temporada.spec.ts › "R3: filtro «De temporada» e indicadores" (4 casos) | e2e | 🔴 failing (not built) |
-| R4 | tests/unit/seasonal.test.ts › "R4: recipesWithProduct" | unit | 🔴 failing (not built) |
-| R4 | tests/e2e/temporada.spec.ts › "R4: página de producto" (2 casos) | e2e | 🔴 failing (not built) |
-| R5 | tests/unit/recipe-prompt.test.ts › "R5: ingrediente preferido en el prompt", "R5: safePreferredIngredient…" | unit | 🔴 failing (not built; 6 de 9 fallan, 3 ya pasan por ser el comportamiento actual) |
-| R5 | tests/e2e/temporada.spec.ts › "R5: producto sin recetas y sugerencia con IA" (3 casos; la IA se simula con `page.route`) | e2e | 🔴 failing (not built) |
-| R6 | tests/unit/seasonal.test.ts › "R6: currentMonth…", seasonalIn no modifica la receta, receta nueva destacada | unit | 🔴 failing (not built) |
-| R6 | tests/unit/seasonal-data.test.ts › "R6: forma del calendario estático" | unit | 🔴 failing (not built) |
-| R6 | tests/e2e/temporada.spec.ts › "R5 … queda destacada" (receta nueva sin tocar nada más) | e2e | 🔴 failing (not built) |
-| R7 | tests/e2e/temporada.spec.ts › "R7: el aviso de alérgenos sigue en las vistas nuevas" | e2e | 🔴 failing (not built) |
-| R8 | tests/e2e/temporada.spec.ts › "R8: calendario completo" | e2e | 🔴 failing (not built) |
-| R8 | tests/unit/seasonal-data.test.ts › "R1/R8: hechos ancla" | unit | 🔴 failing (not built) |
-| — | tests/e2e/temporada.spec.ts › "Accesibilidad de las vistas nuevas (axe)" (4 vistas) | e2e | 🔴 failing (not built) |
+| R1 | tests/unit/seasonal.test.ts › "R1: marcas «empieza» / «últimas»", "R1: seasonalProducts…" | unit | ✅ passing |
+| R1 | tests/e2e/temporada.spec.ts › "R1: franja «De temporada · <mes>»" (3 casos) | e2e | ✅ passing |
+| R2 | tests/unit/seasonal.test.ts › "R2: featuredRecipes" (orden, límite 10, básicos fuera, empate, vacío) | unit | ✅ passing |
+| R2 | tests/unit/seasonal-data.test.ts › "R2: los 6 básicos…" | unit | ✅ passing |
+| R2 | tests/e2e/temporada.spec.ts › "R2: «Destacadas este mes»" (4 casos, incluida la cabecera oculta con filtros) | e2e | ✅ passing |
+| R3 | tests/unit/seasonal.test.ts › "R3/R6: seasonalIn casa los ingredientes por palabra completa" | unit | ✅ passing |
+| R3 | tests/e2e/temporada.spec.ts › "R3: filtro «De temporada» e indicadores" (4 casos) | e2e | ✅ passing |
+| R4 | tests/unit/seasonal.test.ts › "R4: recipesWithProduct" | unit | ✅ passing |
+| R4 | tests/e2e/temporada.spec.ts › "R4: página de producto" (2 casos) | e2e | ✅ passing |
+| R5 | tests/unit/recipe-prompt.test.ts › "R5: ingrediente preferido en el prompt", "R5: safePreferredIngredient…" | unit | ✅ passing |
+| R5 | tests/e2e/temporada.spec.ts › "R5: producto sin recetas y sugerencia con IA" (3 casos; la IA se simula con `page.route`) | e2e | ✅ passing |
+| R6 | tests/unit/seasonal.test.ts › "R6: currentMonth…", seasonalIn no modifica la receta, receta nueva destacada | unit | ✅ passing |
+| R6 | tests/unit/seasonal-data.test.ts › "R6: forma del calendario estático" | unit | ✅ passing |
+| R6 | tests/e2e/temporada.spec.ts › "R5 … queda destacada" (receta nueva sin tocar nada más) | e2e | ✅ passing |
+| R7 | tests/e2e/temporada.spec.ts › "R7: el aviso de alérgenos sigue en las vistas nuevas" | e2e | ✅ passing |
+| R8 | tests/e2e/temporada.spec.ts › "R8: calendario completo" | e2e | ✅ passing |
+| R8 | tests/unit/seasonal-data.test.ts › "R1/R8: hechos ancla" | unit | ✅ passing |
+| — | tests/e2e/temporada.spec.ts › "Accesibilidad de las vistas nuevas (axe)" (4 vistas) | e2e | ✅ passing |
 
 ## Tasks
 1. [x] `src/data/seasonal.json` + `SeasonalProduct` + `tests/unit/seasonal-data.test.ts` (covers R6, R8)
@@ -129,7 +129,7 @@ Hechos ancla del calendario real, acordados con Manuel en dev-test: calabaza, ca
 5. [x] Indicadores en tarjeta y detalle (chip con +N, chips con enlace, ingredientes marcados) (covers R3, R4)
 6. [x] Página de producto `?producto=` con barra de 12 meses, vacío e IA (count 1, guardar y abrir) (covers R4, R5, R7)
 7. [x] Calendario completo `?vista=calendario` (covers R8)
-8. [ ] `tests/e2e/temporada.spec.ts` con reloj fijado y axe (covers R1–R8)
+8. [x] `tests/e2e/temporada.spec.ts` con reloj fijado y axe (covers R1–R8)
 
 ## Spec feedback
 Decididas por el usuario en este paso, y recogidas en `spec.md`:
@@ -139,3 +139,11 @@ Decididas por el usuario en este paso, y recogidas en `spec.md`:
 
 Abiertas, sin bloquear el código:
 - [ ] ¿Los productos básicos tienen página de producto al tocarlos en el calendario? Por defecto el calendario no los enlaza. (Manuel)
+
+Decididas por el usuario durante dev-code:
+- Criterio del calendario: **temporada plena** (meses principales de cada producto), no la disponibilidad que publica el MAPA, que da casi todo el año para calabacín, pimiento, lechuga o berenjena. Es una curación del autor de la rama (57 productos) que Manuel revisa en el PR; las fuentes consultadas (MAPA 2026 vía enterat.com, Mercasa) citan el membrillo desde julio o septiembre.
+- Ancla de los tests: «el membrillo empieza en octubre» pasa a «la mandarina empieza en octubre» (el membrillo solo se exige en octubre). El e2e comprueba «empieza» en Mandarina; el estado vacío sigue con membrillo, que no está en ninguna receta semilla.
+- Ventanas de verano acortadas a jun–sep (tomate, pimiento, berenjena, judía verde; calabacín may–sep). Antes, en octubre, 81 de las 107 recetas semilla contaban como de temporada y el filtro apenas filtraba.
+- Franja: una banda con scroll horizontal por tipo (verduras y frutas), en vez de chips en varias líneas (33 productos ocupaban toda la primera pantalla).
+- Tests: las fixtures e2e se ajustaron a las recetas semilla, que compiten en «Destacadas» (hasta 4 productos de octubre): las fixtures que deben entrar seguro llevan 5 productos, y el orden se comprueba entre ellas. No se debilitó ninguna aserción de comportamiento.
+- Los ingredientes opcionales («(opcional)») no cuentan como productos de temporada (igual que en Despensa→recetas).

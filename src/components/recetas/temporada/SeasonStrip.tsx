@@ -18,14 +18,14 @@ function ProductList({
 }) {
   if (products.length === 0) return null;
   return (
-    <ul aria-label={label} className="flex flex-wrap gap-2">
+    <ul aria-label={label} className="flex gap-2 overflow-x-auto pb-1">
       {products.map((p) => {
         const mark = monthMark(p, month);
         return (
-          <li key={p.id}>
+          <li key={p.id} className="shrink-0">
             <button
               onClick={() => onProduct(p)}
-              className="flex items-center gap-1.5 rounded-full border border-[var(--color-border)] px-3 py-1.5 text-sm font-medium"
+              className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[var(--color-border)] px-3 py-1.5 text-sm font-medium"
             >
               <Icon className="w-4 h-4 text-[var(--color-accent)]" aria-hidden />
               {p.name}
