@@ -1,16 +1,13 @@
 "use client";
 
 import { useCallback, useId, useState, type MouseEvent, type ReactNode } from "react";
-import { Check, CheckCheck, Minus, Plus, X } from "lucide-react";
+import { Check, CheckCheck, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import type { StatsPeriod } from "@/lib/diaryStats";
 import { addDays } from "@/lib/week";
 import {
-  SERVINGS,
-  SERVINGS_ERROR,
   foodEntry,
-  formatServings,
   parseServings,
   pendingSlots,
   quantityLabel,
@@ -18,7 +15,6 @@ import {
   recipeEntry,
   repeatEntry,
   servingsLabel,
-  stepServings,
 } from "@/lib/diary";
 import { macroStatus } from "@/lib/planMacros";
 import { FIBER_ERROR, dayFiber, entryFiber, fiberGoal, formatFiber, parseFiber } from "@/lib/fiber";
@@ -37,6 +33,7 @@ import { PeriodSummary, loadStatsDays, saveStatsDays } from "@/components/diario
 import { RecentMeals } from "@/components/diario/RecentMeals";
 import { WaterCard } from "@/components/diario/WaterCard";
 import { glassMl, waterGoalMl } from "@/lib/water";
+import { ServingsField } from "@/components/ui/ServingsField";
 import { RecipePicker } from "@/components/recetas/RecipePicker";
 import { FoodPicker } from "@/components/diario/FoodPicker";
 import { Toast } from "@/components/ui/Toast";
@@ -119,10 +116,6 @@ const MODES: [AddMode, string][] = [
   ["custom", "Personalizada"],
 ];
 
-// Botones − / + de "Raciones": cuadrados con borde, como los toggles Receta/Personalizada
-const stepBtnCls =
-  "shrink-0 flex items-center justify-center w-10 h-10 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] disabled:opacity-40";
-
 export default function DiaryPage() {
   const { profile, entries, recipes, weekPlan, water, setWaterDay, addEntry, removeEntry } = useApp();
   const userId = useAuth().user?.id;
@@ -145,7 +138,6 @@ export default function DiaryPage() {
   const [servingsText, setServingsText] = useState("1");
   const [servingsError, setServingsError] = useState(false);
   const servingsId = `${idPrefix}-servings`;
-  const servingsErrorId = `${servingsId}-error`;
   // Base de alimentos (docs/pm/13-base-alimentos, R10): aviso con Deshacer tras añadir un alimento
   const [added, setAdded] = useState<{ entryId: string; text: string } | null>(null);
   const hideAdded = useCallback(() => setAdded(null), []);
@@ -426,50 +418,14 @@ export default function DiaryPage() {
                   cambiar de franja se reinician el buscador y «Ver todas» */}
               <RecipePicker key={mealType} mealType={mealType} value={recipeId} onPick={setRecipeId} />
               {/* Raciones (docs/pm/raciones, R1/R6): independiente de la receta elegida; se valida al pulsar "Añadir" */}
-              <div className="flex flex-col gap-1 text-sm">
-                <label htmlFor={servingsId} className="font-medium">
-                  Raciones
-                </label>
-                <div className="flex items-center gap-2 max-w-72">
-                  {/* R8: ±0,25, deshabilitados en los extremos */}
-                  <button
-                    type="button"
-                    onClick={() => editServings(formatServings(stepServings(servingsText, -1)))}
-                    disabled={parsedServings === SERVINGS.min}
-                    aria-label="Quitar 0,25 raciones"
-                    className={stepBtnCls}
-                  >
-                    <Minus className="w-4 h-4" aria-hidden />
-                  </button>
-                  <input
-                    id={servingsId}
-                    inputMode="decimal"
-                    value={servingsText}
-                    onChange={(e) => editServings(e.target.value)}
-                    aria-invalid={servingsError}
-                    aria-describedby={servingsError ? servingsErrorId : undefined}
-                    className={`${inputCls} min-w-0 text-center ${servingsError ? "border-[var(--color-expired)]" : ""}`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => editServings(formatServings(stepServings(servingsText, 1)))}
-                    disabled={parsedServings === SERVINGS.max}
-                    aria-label="Añadir 0,25 raciones"
-                    className={stepBtnCls}
-                  >
-                    <Plus className="w-4 h-4" aria-hidden />
-                  </button>
-                  {/* R9: vista previa, solo con receta elegida y valor válido */}
-                  {previewKcal !== null && (
-                    <span className="shrink-0 text-[var(--color-text-muted)]">= {previewKcal} kcal</span>
-                  )}
-                </div>
-                {servingsError && (
-                  <span id={servingsErrorId} role="alert" className="text-xs text-[var(--color-expired)]">
-                    {SERVINGS_ERROR}
-                  </span>
-                )}
-              </div>
+              <ServingsField
+                id={servingsId}
+                value={servingsText}
+                onChange={editServings}
+                error={servingsError}
+                // R9: vista previa, solo con receta elegida y valor válido
+                preview={previewKcal !== null && <span className="shrink-0 text-[var(--color-text-muted)]">= {previewKcal} kcal</span>}
+              />
             </>
           ) : (
             <>

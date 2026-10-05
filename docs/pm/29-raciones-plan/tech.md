@@ -91,7 +91,7 @@ Los tests se escriben antes del código (dev-test, decisión del usuario).
 1. [x] Tipo + `slotServings` + `dayPlanSummary` escalado (covers R1, R4, R7)
 2. [x] `aggregate` escala por `servings` (covers R5, R8)
 3. [x] `setSlotServings` + conservar en `commitAssign` y `deleteOrigin("keep")` (covers R9)
-4. [ ] Extraer `ServingsField` del Diario sin cambiar comportamiento
+4. [x] Extraer `ServingsField` del Diario sin cambiar comportamiento
 5. [ ] Campo en la tarjeta de asignación + etiqueta "× N" en la franja (covers R2, R3)
 6. [ ] `ServingsSheet` + botón "Raciones" por franja, incluidas sobras (covers R3, R8)
 7. [ ] Pendientes: etiqueta, Hecho y Registrar todo con raciones (covers R6)
