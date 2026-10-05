@@ -69,7 +69,7 @@ Ninguno: nada se guarda.
 ## Tasks
 1. [x] Tests rojos con dev-test (R1–R4)
 2. [x] `DayState` y `weekDayStates` en `diaryStats.ts` (R1, R2)
-3. [ ] `WeekBarChart` con `state`/`name`, icono, `sr-only` y leyenda, y `page.tsx` que construye `week` con ellos, en un solo commit para no romper la app (R1–R4)
+3. [x] `WeekBarChart` con `state`/`name`, icono, `sr-only` y leyenda, y `page.tsx` que construye `week` con ellos, en un solo commit para no romper la app (R1–R4)
 4. [ ] Verificar en la app (claro/oscuro, móvil) y pasar lint, typecheck, tests y build
 
 ## Spec feedback
