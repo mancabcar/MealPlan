@@ -1,10 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ChefHat, Clock, Download, ExternalLink, Flame, Plus, Sparkles, X } from "lucide-react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Clock, Download, ExternalLink, Flame, Leaf, Plus, Sparkles, X } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { Recipe, daysUntil, todayStr } from "@/lib/types";
+import { Recipe, todayStr } from "@/lib/types";
 import { rankByPantry, recipesUsingItem, type RecipeUsage } from "@/lib/pantryRecipes";
+import {
+  MONTH_NAMES,
+  currentMonth,
+  featuredRecipes,
+  recipesWithProduct,
+  seasonalIn,
+  seasonalInLine,
+  type SeasonalProduct,
+} from "@/lib/seasonal";
+import { CALENDAR_HREF, RECIPES_HREF, productHref, useSeasonView } from "@/lib/useSeasonView";
 import { toRecipeProfile } from "@/lib/recipePrompt";
 import { apiUrl } from "@/lib/apiBase";
 import { formatFiber } from "@/lib/fiber";
@@ -19,30 +30,34 @@ import { ImportRecipeSheet } from "@/components/recetas/ImportRecipeSheet";
 import { dayName } from "@/lib/week";
 import { duplicateRecipe, slotsUsingRecipe, suggestedTags } from "@/lib/recipeEdit";
 import { searchRecipes, sortByName } from "@/lib/recipeSearch";
-import { Highlight } from "@/components/ui/Highlight";
-
-/** Placeholder de imagen (R9/non-goal: sin fotos reales todavía, ver spec § Non-goals). */
-function RecipeImagePlaceholder({ className = "" }: { className?: string }) {
-  return (
-    <div
-      aria-hidden
-      className={`flex items-center justify-center rounded-xl bg-[var(--color-surface-2)] text-[var(--color-text-muted)] shrink-0 ${className}`}
-    >
-      <ChefHat className="w-7 h-7" />
-    </div>
-  );
-}
+import { RecipeCard, RecipeImagePlaceholder } from "@/components/recetas/RecipeCard";
+import { SeasonStrip } from "@/components/recetas/temporada/SeasonStrip";
+import { FeaturedRecipes } from "@/components/recetas/temporada/FeaturedRecipes";
+import { SeasonalProductLinks } from "@/components/recetas/temporada/SeasonalChips";
+import { ProductView } from "@/components/recetas/temporada/ProductView";
+import { SeasonCalendar } from "@/components/recetas/temporada/SeasonCalendar";
 
 const secondaryBtn = "flex-1 border border-[var(--color-border)] rounded-lg py-2 text-sm font-semibold";
 const newId = () => `custom_${crypto.randomUUID()}`;
 
+// useSearchParams (producto y calendario en la URL) exige un Suspense con el export estático
 export default function RecipesPage() {
+  return (
+    <Suspense fallback={null}>
+      <RecipesScreen />
+    </Suspense>
+  );
+}
+
+function RecipesScreen() {
   const { recipes, favorites, addRecipes, saveRecipe, removeRecipe, weekPlan, profile, pantry, recipeFocus, setRecipeFocus } =
     useApp();
   const [search, setSearch] = useState("");
   const [usePantry, setUsePantry] = useState(false);
   // R5 (docs/pm/20-recetas-filtros): solo las marcadas con la estrella
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  // R3 (docs/pm/34-temporada): solo las recetas con algún producto de temporada del mes
+  const [onlySeasonal, setOnlySeasonal] = useState(false);
   // Por id, para que el detalle muestre los cambios al editar
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // Receta en el formulario: "new" = nueva; una receta = editar (o la copia sin guardar de "Duplicar y editar")
@@ -57,6 +72,9 @@ export default function RecipesPage() {
   const [error, setError] = useState("");
 
   const today = todayStr();
+  const month = currentMonth();
+  const router = useRouter();
+  const { product, calendar } = useSeasonView();
   const focusItem = recipeFocus ? pantry.find((i) => i.id === recipeFocus) : undefined;
   // El ítem enfocado se borró de la Despensa: se ignora y se limpia
   useEffect(() => {
@@ -70,8 +88,20 @@ export default function RecipesPage() {
     if (usePantry) list = rankByPantry(base, pantry, today);
     else list = sortByName(base).map((recipe) => ({ recipe })); // A–Z; con «Usa lo que tengo» manda el ranking
     const found = new Set(searchRecipes(list.map((x) => x.recipe), search));
-    return list.filter(({ recipe: r }) => (!onlyFavorites || favorites.includes(r.id)) && found.has(r));
-  }, [recipes, favorites, onlyFavorites, pantry, focusItem, usePantry, search, today]);
+    return list.filter(
+      ({ recipe: r }) =>
+        (!onlyFavorites || favorites.includes(r.id)) && (!onlySeasonal || seasonalIn(r, month).length > 0) && found.has(r),
+    );
+  }, [recipes, favorites, onlyFavorites, onlySeasonal, month, pantry, focusItem, usePantry, search, today]);
+
+  // R2: las destacadas se calculan al vuelo; con búsqueda o filtros activos se ocultan junto con la franja
+  const featured = useMemo(() => featuredRecipes(recipes, favorites, month), [recipes, favorites, month]);
+  const filtersActive = Boolean(focusItem || usePantry || onlyFavorites || onlySeasonal || search.trim());
+
+  const openProduct = (p: SeasonalProduct) => {
+    setSelectedId(null);
+    router.push(productHref(p.id));
+  };
 
   const selectRecipe = (r: Recipe) => {
     setSelectedId(r.id);
@@ -87,7 +117,8 @@ export default function RecipesPage() {
     });
   };
 
-  const generate = async () => {
+  // `preferredIngredient`: producto a aprovechar (temporada, #34); `count` 1 para una sola receta. null = falló.
+  const requestRecipes = async (opts: { count?: number; preferredIngredient?: string } = {}): Promise<Recipe[] | null> => {
     setGenerating(true);
     setError("");
     try {
@@ -96,7 +127,7 @@ export default function RecipesPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // Solo lo que usa el prompt: sexo, edad y peso no salen del navegador
-        body: JSON.stringify({ profile: profile && toRecipeProfile(profile), pantryItems: pantry }),
+        body: JSON.stringify({ profile: profile && toRecipeProfile(profile), pantryItems: pantry, ...opts }),
       }).catch(() => null);
       if (!res) throw new Error("Sin conexión. Prueba de nuevo cuando vuelvas a tener red.");
       const data = await res.json();
@@ -104,12 +135,30 @@ export default function RecipesPage() {
       if (data.recipes.length === 0 && data.droppedCount > 0) {
         throw new Error("Ninguna receta era segura para tus alergias. Prueba de nuevo.");
       }
-      addRecipes(data.recipes);
+      return data.recipes as Recipe[];
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error generando recetas");
+      return null;
     } finally {
       setGenerating(false);
     }
+  };
+
+  const generate = async () => {
+    const generated = await requestRecipes();
+    if (generated) addRecipes(generated);
+  };
+
+  // R5: una receta con el producto como ingrediente preferido; se guarda y se abre
+  const suggestWith = async (p: SeasonalProduct) => {
+    const generated = await requestRecipes({ count: 1, preferredIngredient: p.name });
+    if (!generated) return;
+    if (generated.length === 0) {
+      setError("No se pudo generar la receta. Prueba de nuevo.");
+      return;
+    }
+    addRecipes(generated);
+    selectRecipe(generated[0]);
   };
 
   const onSave = (r: Recipe) => {
@@ -148,6 +197,7 @@ export default function RecipesPage() {
   );
 
   if (selected) {
+    const selectedSeasonal = seasonalIn(selected, month);
     // Las semilla son de solo lectura: solo las propias y las de IA se editan y borran
     const editable = selected.isCustom || selected.isAIGenerated;
     const affected = slotsUsingRecipe(weekPlan, selected.id);
@@ -205,6 +255,7 @@ export default function RecipesPage() {
           {selected.isCustom && <Chip tone="accent">Propia</Chip>}
           {selected.macrosEstimated && <Chip tone="expiring">Macros estimados</Chip>}
         </div>
+        <SeasonalProductLinks products={selectedSeasonal} monthName={MONTH_NAMES[month - 1]} onProduct={openProduct} />
         {selected.sourceUrl && /^https?:[/][/]/i.test(selected.sourceUrl) && (
           <a
             href={selected.sourceUrl}
@@ -272,6 +323,12 @@ export default function RecipesPage() {
                       className="accent-[var(--color-accent)] w-4 h-4"
                     />
                     <span className={checked ? "line-through text-[var(--color-text-muted)]" : ""}>{ing}</span>
+                    {seasonalInLine(ing, month).length > 0 && (
+                      <>
+                        <Leaf className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" aria-hidden />
+                        <span className="sr-only">de temporada</span>
+                      </>
+                    )}
                   </label>
                 </li>
               );
@@ -287,6 +344,24 @@ export default function RecipesPage() {
           </ol>
         </Card>
       </div>
+    );
+  }
+
+  if (calendar) return <SeasonCalendar month={month} onBack={() => router.push(RECIPES_HREF)} />;
+
+  if (product) {
+    return (
+      <ProductView
+        product={product}
+        recipes={sortByName(recipesWithProduct(recipes, product))}
+        month={month}
+        allergies={profile?.allergies}
+        generating={generating}
+        error={error}
+        onSelect={selectRecipe}
+        onSuggest={() => suggestWith(product)}
+        onBack={() => router.push(RECIPES_HREF)}
+      />
     );
   }
 
@@ -326,6 +401,12 @@ export default function RecipesPage() {
           {error}
         </p>
       )}
+      {!filtersActive && (
+        <>
+          <SeasonStrip month={month} onProduct={openProduct} onCalendar={() => router.push(CALENDAR_HREF)} />
+          <FeaturedRecipes recipes={featured} month={month} allergies={profile?.allergies} onSelect={selectRecipe} />
+        </>
+      )}
       <input className={inputCls} placeholder="Buscar por nombre o etiqueta..." value={search} onChange={(e) => setSearch(e.target.value)} />
       <div className="flex flex-wrap items-center gap-2">
         <button
@@ -350,6 +431,17 @@ export default function RecipesPage() {
         >
           Solo favoritas
         </button>
+        <button
+          onClick={() => setOnlySeasonal(!onlySeasonal)}
+          aria-pressed={onlySeasonal}
+          className={`rounded-full px-3 py-1 text-sm font-semibold border ${
+            onlySeasonal
+              ? "bg-[var(--color-accent)] text-[var(--color-on-accent)] border-transparent"
+              : "border-[var(--color-border)] text-[var(--color-text-muted)]"
+          }`}
+        >
+          De temporada
+        </button>
         {focusItem && (
           <span className="flex items-center gap-1 rounded-full px-3 py-1 text-sm bg-[var(--color-surface-2)]">
             con: {focusItem.name}
@@ -359,14 +451,16 @@ export default function RecipesPage() {
           </span>
         )}
       </div>
-      {results.length === 0 && (focusItem || usePantry || onlyFavorites || search.trim()) && (
+      {results.length === 0 && (focusItem || usePantry || onlyFavorites || onlySeasonal || search.trim()) && (
         <div className="flex flex-col items-center gap-3 py-6 text-center text-sm text-[var(--color-text-muted)]">
           <p>
             {search.trim()
               ? `Sin resultados para «${search.trim()}»`
               : onlyFavorites && favorites.length === 0
                 ? "Aún no tienes recetas favoritas. Toca la estrella de una receta para marcarla."
-                : focusItem
+                : onlySeasonal
+                  ? "Ninguna receta con productos de temporada coincide con los filtros"
+                  : focusItem
                   ? `Ninguna receta usa ${focusItem.name}`
                   : usePantry
                     ? "Nada que aprovechar todavía"
@@ -376,43 +470,15 @@ export default function RecipesPage() {
       )}
       <div className="flex flex-col gap-2">
         {results.map(({ recipe: r, usage }) => (
-          // La estrella va fuera del botón de la tarjeta (un botón dentro de otro no es válido)
-          <div key={r.id} className="relative">
-            <button onClick={() => selectRecipe(r)} className="text-left w-full">
-              <Card className="flex gap-3">
-                <RecipeImagePlaceholder className="h-16 w-16" />
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-sm flex items-center gap-1.5 pr-10">
-                    {r.isAIGenerated && <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" aria-hidden />}
-                    <span className="truncate">
-                      <Highlight text={r.name} query={search} />
-                    </span>
-                    {r.isCustom && <Chip tone="accent">Propia</Chip>}
-                  </div>
-                  <AllergenBadge recipe={r} allergies={profile?.allergies} className="mt-1" />
-                  {usage && (
-                    <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-[var(--color-text-muted)]">
-                      <span>
-                        Tienes {usage.matched} de {usage.total} ingredientes
-                      </span>
-                      {usage.soonest && daysUntil(usage.soonest) <= 2 && <Chip tone="expiring">caduca pronto</Chip>}
-                    </div>
-                  )}
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    <Chip icon={Flame}>{r.calories} kcal</Chip>
-                    <Chip tone="protein">P {r.protein}g</Chip>
-                    <Chip icon={Clock}>{r.prepTimeMinutes} min</Chip>
-                    {r.tags.map((t) => (
-                      <Chip key={t} tone="neutral">
-                        {t}
-                      </Chip>
-                    ))}
-                  </div>
-                </div>
-              </Card>
-            </button>
-            <FavoriteStar recipe={r} className="absolute top-1 right-1" />
-          </div>
+          <RecipeCard
+            key={r.id}
+            recipe={r}
+            query={search}
+            usage={usage}
+            allergies={profile?.allergies}
+            month={month}
+            onSelect={selectRecipe}
+          />
         ))}
       </div>
     </div>

@@ -27,13 +27,29 @@ import { lucia } from "../fixtures/profiles";
 import { recipe } from "../fixtures/shopping";
 import { readStored, signIn } from "./helpers";
 
-const CREMA_TRIO = recipe("t-crema-trio", "Crema de calabaza, caqui y membrillo", ["300g calabaza", "1 caqui", "1 membrillo", "1 cebolla"]);
+// Las ~107 recetas semilla compiten en «Destacadas» (en octubre hasta 4 productos, 81 recetas con alguno): para entrar
+// seguro en el top 10 hacen falta 5 productos de octubre. «Membrillo» queda fuera de las fixtures: su página arranca vacía.
+const CREMA_CINCO = recipe("t-crema-cinco", "Crema otoñal de calabaza y fruta", [
+  "300g calabaza",
+  "1 caqui",
+  "1 granada",
+  "1 castaña",
+  "1 mandarina",
+  "1 cebolla",
+]);
 const CREMA_DOS = recipe("t-crema-dos", "Crema dulce de calabaza y caqui", ["300g calabaza", "1 caqui"]);
 const ASADO = recipe("t-asado-calabaza", "Asado sencillo de calabaza", ["400g calabaza", "1 cucharada de aceite de oliva"]);
-const CON_NUECES = recipe("t-calabaza-nueces", "Calabaza con nueces", ["300g calabaza", "30g nueces"]);
+const CON_NUECES = recipe("t-calabaza-nueces", "Calabaza con nueces", [
+  "300g calabaza",
+  "1 caqui",
+  "1 granada",
+  "1 castaña",
+  "1 mandarina",
+  "30g nueces",
+]);
 const SOFRITO = recipe("t-sofrito-basico", "Sofrito básico de cebolla y ajo", ["2 cebollas", "3 dientes de ajo", "1 zanahoria"]);
 const BATIDO = recipe("t-batido-fresa", "Batido de fresas del huerto", ["250g fresas", "200 ml leche"]);
-const RECIPES = [CREMA_TRIO, CREMA_DOS, ASADO, CON_NUECES, SOFRITO, BATIDO];
+const RECIPES = [CREMA_CINCO, CREMA_DOS, ASADO, CON_NUECES, SOFRITO, BATIDO];
 
 const OCTUBRE = new Date("2026-10-05T10:00:00");
 const MAYO = new Date("2026-05-15T10:00:00");
@@ -86,8 +102,10 @@ test.describe("R2: «Destacadas este mes»", () => {
   test("lista recetas con productos de octubre, la de más productos primero, y no las de solo básicos o de otro mes", async ({ page }) => {
     await open(page);
     await expect(page.getByRole("heading", { name: "Destacadas este mes" })).toBeVisible();
-    await expect(featuredCard(page, CREMA_TRIO.name)).toBeVisible();
-    await expect(featured(page).getByRole("button").first()).toContainText(CREMA_TRIO.name); // 3 productos (los básicos no cuentan)
+    await expect(featuredCard(page, CREMA_CINCO.name)).toBeVisible();
+    // Las dos fixtures de 5 productos (los básicos no cuentan) van las primeras, y entre ellas por nombre A–Z
+    await expect(featured(page).getByRole("button").nth(0)).toContainText(CON_NUECES.name);
+    await expect(featured(page).getByRole("button").nth(1)).toContainText(CREMA_CINCO.name);
     await expect(featuredCard(page, SOFRITO.name)).toHaveCount(0);
     await expect(featuredCard(page, BATIDO.name)).toHaveCount(0);
   });
@@ -100,7 +118,7 @@ test.describe("R2: «Destacadas este mes»", () => {
   test("en mayo destaca el batido de fresas y no la crema de calabaza", async ({ page }) => {
     await open(page, "/recetas", { when: MAYO });
     await expect(featuredCard(page, BATIDO.name)).toBeVisible();
-    await expect(featuredCard(page, CREMA_TRIO.name)).toHaveCount(0);
+    await expect(featuredCard(page, CREMA_CINCO.name)).toHaveCount(0);
   });
 
   test("con búsqueda o con cualquier filtro activo se ocultan la franja y las destacadas", async ({ page }) => {
@@ -121,7 +139,7 @@ test.describe("R3: filtro «De temporada» e indicadores en cada receta", () => 
     await open(page);
     await seasonalFilter(page).click();
     await expect(seasonalFilter(page)).toHaveAttribute("aria-pressed", "true");
-    for (const r of [CREMA_TRIO, CREMA_DOS, ASADO, CON_NUECES]) await expect(listCard(page, r.name)).toBeVisible();
+    for (const r of [CREMA_CINCO, CREMA_DOS, ASADO, CON_NUECES]) await expect(listCard(page, r.name)).toBeVisible();
     await expect(listCard(page, SOFRITO.name)).toHaveCount(0);
     await expect(listCard(page, BATIDO.name)).toHaveCount(0);
     await expect(strip(page)).toHaveCount(0);
@@ -138,14 +156,14 @@ test.describe("R3: filtro «De temporada» e indicadores en cada receta", () => 
   test("la tarjeta indica los productos de temporada (hasta 2 y +N)", async ({ page }) => {
     await open(page);
     await expect(listCard(page, CREMA_DOS.name)).toContainText(/De temporada:.*calabaza.*caqui/i);
-    await expect(listCard(page, CREMA_TRIO.name)).toContainText(/De temporada:.*\+1/);
+    await expect(listCard(page, CREMA_CINCO.name)).toContainText(/De temporada:.*\+3/);
     await expect(listCard(page, SOFRITO.name)).not.toContainText("De temporada:");
   });
 
   test("el detalle muestra todos los productos de temporada, cada uno abre su página", async ({ page }) => {
     await open(page);
-    await listCard(page, CREMA_TRIO.name).click();
-    for (const n of ["Calabaza", "Caqui", "Membrillo"]) await expect(page.getByRole("button", { name: `Ver producto: ${n}` })).toBeVisible();
+    await listCard(page, CREMA_CINCO.name).click();
+    for (const n of ["Calabaza", "Caqui", "Granada", "Castaña", "Mandarina"]) await expect(page.getByRole("button", { name: `Ver producto: ${n}` })).toBeVisible();
     await page.getByRole("button", { name: "Ver producto: Calabaza" }).click();
     await expect(page.getByRole("heading", { name: "Calabaza", level: 1 })).toBeVisible();
     await expect(page).toHaveURL(/producto=calabaza/);
@@ -159,7 +177,7 @@ test.describe("R4: página de producto", () => {
     const months = page.getByRole("list", { name: "Meses de temporada" }).getByRole("listitem");
     await expect(months).toHaveCount(12);
     await expect(page.getByRole("list", { name: "Meses de temporada" }).locator('[aria-current="date"]')).toHaveCount(1);
-    for (const r of [CREMA_TRIO, CREMA_DOS, ASADO]) await expect(listCard(page, r.name)).toBeVisible();
+    for (const r of [CREMA_CINCO, CREMA_DOS, ASADO]) await expect(listCard(page, r.name)).toBeVisible();
     await expect(listCard(page, BATIDO.name)).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Más ideas con Calabaza" })).toBeVisible();
     await expect(page.getByText("Aún no hay recetas con calabaza")).toHaveCount(0);
@@ -178,7 +196,8 @@ test.describe("R4: página de producto", () => {
 
 test.describe("R5: producto sin recetas y sugerencia con IA", () => {
   const IA = {
-    ...recipe("ai_e2e_0", "Membrillo asado con yogur", ["2 membrillos", "150g yogur"]),
+    // 5 productos de octubre: así entra seguro en «Destacadas» entre las semilla
+    ...recipe("ai_e2e_0", "Membrillo asado con fruta de otoño", ["2 membrillos", "1 caqui", "1 granada", "1 castaña", "1 mandarina", "150g yogur"]),
     isAIGenerated: true,
   };
 

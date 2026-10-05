@@ -125,10 +125,10 @@ Hechos ancla del calendario real, acordados con Manuel en dev-test: calabaza, ca
 1. [x] `src/data/seasonal.json` + `SeasonalProduct` + `tests/unit/seasonal-data.test.ts` (covers R6, R8)
 2. [x] `src/lib/seasonal.ts` (casado, mes, marcas, destacadas, recetas por producto) + `tests/unit/seasonal.test.ts` (covers R1, R2, R3, R6)
 3. [x] `preferredIngredient` en `recipePrompt.ts` y `server/app/api/recipes/route.ts` + tests del prompt (covers R5)
-4. [ ] Franja, destacadas y chip «De temporada» en `/recetas`, cabecera oculta con filtros (covers R1, R2, R3, R7)
-5. [ ] Indicadores en tarjeta y detalle (chip con +N, chips con enlace, ingredientes marcados) (covers R3, R4)
-6. [ ] Página de producto `?producto=` con barra de 12 meses, vacío e IA (count 1, guardar y abrir) (covers R4, R5, R7)
-7. [ ] Calendario completo `?vista=calendario` (covers R8)
+4. [x] Franja, destacadas y chip «De temporada» en `/recetas`, cabecera oculta con filtros (covers R1, R2, R3, R7)
+5. [x] Indicadores en tarjeta y detalle (chip con +N, chips con enlace, ingredientes marcados) (covers R3, R4)
+6. [x] Página de producto `?producto=` con barra de 12 meses, vacío e IA (count 1, guardar y abrir) (covers R4, R5, R7)
+7. [x] Calendario completo `?vista=calendario` (covers R8)
 8. [ ] `tests/e2e/temporada.spec.ts` con reloj fijado y axe (covers R1–R8)
 
 ## Spec feedback
