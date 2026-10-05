@@ -4,7 +4,7 @@ import { Suspense, useCallback, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, ShoppingCart } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { MEAL_TYPES, MealType, WeekPlan, todayStr } from "@/lib/types";
+import { DayPlanSlot, MEAL_TYPES, MealType, WeekPlan, todayStr } from "@/lib/types";
 import { MEAL_TYPE_ICON_COMPONENTS } from "@/lib/categoryIcons";
 import { Card } from "@/components/ui/Card";
 import { DaySelector } from "@/components/ui/DaySelector";
@@ -58,7 +58,8 @@ function PlanContent() {
   const [servingsError, setServingsError] = useState(false);
   const servingsId = useId();
   // Aviso tras «Copiar semana anterior» (docs/pm/53-copiar-semana-anterior R5)
-  const [copyNotice, setCopyNotice] = useState<string | null>(null);
+  // `before`: los 7 días de la semana destino antes de copiar; Deshacer restaura solo esos (sin él, no hay Deshacer)
+  const [copyNotice, setCopyNotice] = useState<{ text: string; before?: Record<string, DayPlanSlot[] | undefined> } | null>(null);
   const hideCopyNotice = useCallback(() => setCopyNotice(null), []);
   const copyHelpId = useId();
   const recipeIds = useMemo(() => new Set(recipes.map((r) => r.id)), [recipes]);
@@ -133,11 +134,26 @@ function PlanContent() {
   const copyWeek = (mode: CopyMode) => {
     const { plan, copied } = applyCopy(weekPlan, monday, recipeIds, mode);
     if (copied === 0) {
-      setCopyNotice("No hay nada nuevo que copiar");
+      setCopyNotice({ text: "No hay nada nuevo que copiar" });
       return;
     }
     setWeekPlan(plan);
-    setCopyNotice(copied === 1 ? "Copiada 1 franja" : `Copiadas ${copied} franjas`);
+    setCopyNotice({
+      text: copied === 1 ? "Copiada 1 franja" : `Copiadas ${copied} franjas`,
+      before: Object.fromEntries(dates.map((d) => [d, weekPlan[d]])),
+    });
+  };
+  // R5: devuelve los 7 días de la semana destino a como estaban; lo demás del plan no se toca
+  const undoCopy = () => {
+    const before = copyNotice?.before;
+    if (!before) return;
+    const restored = { ...weekPlan };
+    for (const d of dates) {
+      if (before[d] === undefined) delete restored[d];
+      else restored[d] = before[d];
+    }
+    setWeekPlan(restored);
+    setCopyNotice(null);
   };
   const sourceEmpty = isSourceEmpty(weekPlan, monday);
 
@@ -335,7 +351,11 @@ function PlanContent() {
         </div>
       </Card>
 
-      {copyNotice && <Toast onDismiss={hideCopyNotice}>{copyNotice}</Toast>}
+      {copyNotice && (
+        <Toast onDismiss={hideCopyNotice} action={copyNotice.before ? { label: "Deshacer", onClick: undoCopy } : undefined}>
+          {copyNotice.text}
+        </Toast>
+      )}
     </div>
   );
 }
