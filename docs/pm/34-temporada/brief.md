@@ -1,5 +1,5 @@
 # Frutas y verduras de temporada y recetas que las aprovechan
-_Status: tests · Updated: 2026-10-05 · Issue: [#34](https://github.com/mancabcar/MealPlan/issues/34) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/Ej1uFXxDYUsXWHFfoQY7Ts) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: coding · Updated: 2026-10-05 · Issue: [#34](https://github.com/mancabcar/MealPlan/issues/34) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/Ej1uFXxDYUsXWHFfoQY7Ts) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Follow-ups
 - Lista de la compra: marcar los productos de temporada (o sugerir cambiar uno de fuera de temporada) cuando la lista se genera desde el plan ([lista-compra](../lista-compra/brief.md)).

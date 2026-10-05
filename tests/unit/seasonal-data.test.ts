@@ -1,8 +1,9 @@
 // Spec: docs/pm/34-temporada/spec.md › R6, R8 (calendario nacional estático).
 // Tech: docs/pm/34-temporada/tech.md › Data model (`SeasonalProduct`) y Testing strategy.
 // Se prueba el calendario REAL (src/data/seasonal.json). La forma es estricta; el contenido, solo con unos hechos ancla
-// estables (acordados en dev-test): calabaza, caqui y membrillo en octubre; fresa en mayo y no en octubre; membrillo
-// empieza en octubre; los 6 básicos marcados. Si la fuente (MAPA/Mercasa) contradijera un ancla, se habla con Manuel.
+// estables (acordados en dev-test): calabaza, caqui y membrillo en octubre; fresa en mayo y no en octubre; mandarina
+// empieza en octubre; los 6 básicos marcados. (Ancla cambiada en dev-code con el OK de Manuel: «membrillo empieza en
+// octubre» chocaba con MAPA, que lo da desde septiembre; ahora la que empieza en octubre es la mandarina.)
 import { describe, expect, it } from "vitest";
 import { normalizeKey } from "@/lib/shopping/parse";
 import { SEASONAL_PRODUCTS, type SeasonalProduct } from "@/lib/seasonal";
@@ -76,7 +77,8 @@ describe("R1/R8: hechos ancla del calendario", () => {
     expect(byId("fresa").months).not.toContain(10);
   });
 
-  it("el membrillo empieza en octubre (septiembre no está en su ventana)", () => {
-    expect(byId("membrillo").months).not.toContain(9);
+  it("la mandarina empieza en octubre (septiembre no está en su ventana)", () => {
+    expect(byId("mandarina").months).toContain(10);
+    expect(byId("mandarina").months).not.toContain(9);
   });
 });

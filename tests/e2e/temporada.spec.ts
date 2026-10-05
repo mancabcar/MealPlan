@@ -2,7 +2,7 @@
 // Tech: docs/pm/34-temporada/tech.md › UI y Test coverage › «UI test contract» (nombres accesibles que dev-code debe respetar).
 // Reloj: helpers.signIn fija septiembre de 2026; aquí se vuelve a fijar a OCTUBRE (2026-10-05) o MAYO (2026-05-15).
 // La app añade siempre las recetas semilla, así que los casos se anclan a recetas propias con nombres únicos y a
-// productos ancla: calabaza, caqui y membrillo (octubre), fresa (mayo). «Membrillo» no está en ninguna receta semilla
+// productos ancla: calabaza, caqui y membrillo (octubre), mandarina (empieza en octubre), fresa (mayo). «Membrillo» no está en ninguna receta semilla
 // (como en despensa-recetas.spec.ts): su página arranca vacía.
 //
 // UI test contract (en /recetas):
@@ -56,14 +56,14 @@ const listCard = (page: Page, name: string) => listCards(page).filter({ hasText:
 const seasonalFilter = (page: Page) => page.getByRole("button", { name: "De temporada", exact: true });
 
 test.describe("R1: franja «De temporada · <mes>»", () => {
-  test("en octubre muestra los productos del mes en verduras y frutas, con «empieza» en el membrillo", async ({ page }) => {
+  test("en octubre muestra los productos del mes en verduras y frutas, con «empieza» en la mandarina", async ({ page }) => {
     await open(page);
     await expect(strip(page)).toHaveText("De temporada · Octubre");
     const verduras = page.getByRole("list", { name: "Verduras" });
     const frutas = page.getByRole("list", { name: "Frutas" });
     await expect(verduras.getByRole("button", { name: /^Calabaza/ })).toBeVisible();
     await expect(frutas.getByRole("button", { name: /^Caqui/ })).toBeVisible();
-    await expect(frutas.getByRole("button", { name: /^Membrillo.*empieza/ })).toBeVisible();
+    await expect(frutas.getByRole("button", { name: /^Mandarina.*empieza/ })).toBeVisible();
     await expect(frutas.getByRole("button", { name: /^Fresa/ })).toHaveCount(0);
   });
 

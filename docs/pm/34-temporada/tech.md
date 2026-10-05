@@ -98,7 +98,7 @@ Todo en `/recetas`, mapeado al prototipo:
 - Cada criterio de aceptación de la spec tiene al menos una prueba.
 
 ## Test coverage
-Hechos ancla del calendario real, acordados con Manuel en dev-test: calabaza, caqui y membrillo en octubre; fresa en mayo y no en octubre; membrillo empieza en octubre; los 6 básicos con `basic: true`. Si la fuente contradijera alguno, se habla con Manuel antes de tocar el test. Contrato de UI de los e2e: cabecera de `tests/e2e/temporada.spec.ts`.
+Hechos ancla del calendario real, acordados con Manuel en dev-test: calabaza, caqui y membrillo en octubre; fresa en mayo y no en octubre; mandarina empieza en octubre (ancla cambiada en dev-code: MAPA da el membrillo desde septiembre); los 6 básicos con `basic: true`. Si la fuente contradijera alguno, se habla con Manuel antes de tocar el test. Contrato de UI de los e2e: cabecera de `tests/e2e/temporada.spec.ts`.
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
@@ -122,8 +122,8 @@ Hechos ancla del calendario real, acordados con Manuel en dev-test: calabaza, ca
 | — | tests/e2e/temporada.spec.ts › "Accesibilidad de las vistas nuevas (axe)" (4 vistas) | e2e | 🔴 failing (not built) |
 
 ## Tasks
-1. [ ] `src/data/seasonal.json` + `SeasonalProduct` + `tests/unit/seasonal-data.test.ts` (covers R6, R8)
-2. [ ] `src/lib/seasonal.ts` (casado, mes, marcas, destacadas, recetas por producto) + `tests/unit/seasonal.test.ts` (covers R1, R2, R3, R6)
+1. [x] `src/data/seasonal.json` + `SeasonalProduct` + `tests/unit/seasonal-data.test.ts` (covers R6, R8)
+2. [x] `src/lib/seasonal.ts` (casado, mes, marcas, destacadas, recetas por producto) + `tests/unit/seasonal.test.ts` (covers R1, R2, R3, R6)
 3. [ ] `preferredIngredient` en `recipePrompt.ts` y `server/app/api/recipes/route.ts` + tests del prompt (covers R5)
 4. [ ] Franja, destacadas y chip «De temporada» en `/recetas`, cabecera oculta con filtros (covers R1, R2, R3, R7)
 5. [ ] Indicadores en tarjeta y detalle (chip con +N, chips con enlace, ingredientes marcados) (covers R3, R4)
