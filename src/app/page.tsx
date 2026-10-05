@@ -17,6 +17,7 @@ import {
   servingsLabel,
 } from "@/lib/diary";
 import { macroStatus } from "@/lib/planMacros";
+import { TOLERANCE_DEFAULT } from "@/lib/tolerance";
 import { FIBER_ERROR, dayFiber, entryFiber, fiberGoal, formatFiber, parseFiber } from "@/lib/fiber";
 import {
   MEAL_TYPES,
@@ -69,7 +70,8 @@ function MacroBar({
   const scale = range ? range.max : goal;
   const pct = Math.min(100, scale > 0 ? (value / scale) * 100 : 0);
   // Mismo criterio que el Plan (docs/pm/10-macros-plan, R3): se juzga el valor redondeado que se muestra
-  const inBand = range && macroStatus(value, range) === "within";
+  // Un rango no usa la tolerancia (solo los objetivos numéricos): el valor que se pasa no influye
+  const inBand = range && macroStatus(value, range, TOLERANCE_DEFAULT) === "within";
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex justify-between items-center text-xs">

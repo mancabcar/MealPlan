@@ -1,11 +1,11 @@
 // Spec: docs/pm/49-tolerancia-cumplido/spec.md › R2 y R3 (macroStatus recibe la tolerancia; el rango de proteína no la usa).
 // Tech: tech.md › APIs / interfaces: macroStatus(value, target, tolerancePct) con el tercer parámetro obligatorio.
-// Fallan hasta que macroStatus acepte la tolerancia (tarea 2 del tech design).
+// Contrato implementado en la tarea 2 del tech design.
 import { describe, expect, it } from "vitest";
-import { macroStatus, type MacroTarget } from "@/lib/planMacros";
+import { macroStatus } from "@/lib/planMacros";
 
-// Los tests antiguos de planMacros.test.ts pasan a la firma de tres parámetros en la tarea 2 (dev-code).
-const status = macroStatus as unknown as (value: number, target: MacroTarget, tolerancePct: number) => string;
+// Los tests antiguos de planMacros.test.ts y diaryStats.test.ts pasan 10 como tercer parámetro.
+const status = macroStatus;
 
 describe("R3: kcal con objetivo 2000 y distintas tolerancias", () => {
   it.each([

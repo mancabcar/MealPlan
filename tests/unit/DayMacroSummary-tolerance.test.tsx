@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // Spec: docs/pm/49-tolerancia-cumplido/spec.md › R2 (el Plan juzga con la tolerancia del perfil; ausente = 10).
 // Tech: tech.md › Components & files (`DayMacroSummary` pasa `tolerancePct(profile)` a `macroStatus`).
-// Falla hasta que el componente use la tolerancia (tarea 2).
+// Implementado en la tarea 2 del tech design.
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { DayMacroSummary } from "@/components/plan/DayMacroSummary";

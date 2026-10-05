@@ -183,8 +183,8 @@ describe("R4: un día cumple por kcal (±10 %) y proteína (rango o ±10 %), com
         for (const protein of [125.6, 129.5, 145, 160.4, 160.5]) {
           const t = day(calories, protein);
           const plan =
-            macroStatus(calories, macroTarget("calories", profile)) === "within" &&
-            macroStatus(protein, macroTarget("protein", profile)) === "within";
+            macroStatus(calories, macroTarget("calories", profile), 10) === "within" &&
+            macroStatus(protein, macroTarget("protein", profile), 10) === "within";
           expect(isCompliantDay(t, profile), `${calories} kcal / ${protein} g`).toBe(plan);
         }
       }

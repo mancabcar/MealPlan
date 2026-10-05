@@ -1,13 +1,13 @@
 // Spec: docs/pm/49-tolerancia-cumplido/spec.md › R2 (Plan y Diario juzgan con el mismo valor) y R6 (el histórico se recalcula).
 // Tech: tech.md › Components & files: `isCompliantDay` y `periodStats` toman la tolerancia de `profile.tolerancePct`.
-// Fallan hasta que existan `tolerancePct` en el perfil y su uso en diaryStats (tarea 2).
+// Implementado en la tarea 2 del tech design.
 import { describe, expect, it } from "vitest";
 import { isCompliantDay, periodStats } from "@/lib/diaryStats";
-import { macroStatus, macroTarget, type MacroTarget } from "@/lib/planMacros";
+import { macroStatus, macroTarget } from "@/lib/planMacros";
 import type { UserProfile } from "@/lib/types";
 import { WEEK_ENTRIES, statsProfileNoRange } from "../fixtures/medias-adherencia";
 
-const status = macroStatus as unknown as (v: number, t: MacroTarget, pct: number) => string;
+const status = macroStatus;
 const withTol = (tolerancePct?: number) => ({ ...statsProfileNoRange, tolerancePct }) as UserProfile;
 const day = (calories: number, protein: number) => ({ calories, protein, carbs: 200, fat: 60 });
 const DATES = ["2026-09-15", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21"];
