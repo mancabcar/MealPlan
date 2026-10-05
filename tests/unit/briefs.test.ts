@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkBrief } from "../../scripts/check-briefs.mjs";
+import { checkBrief, compareWithGitHub, githubRefs } from "../../scripts/check-briefs.mjs";
 import { markMerged } from "../../scripts/mark-brief-merged.mjs";
 
 const R = "https://github.com/o/r";
@@ -73,5 +73,36 @@ describe("markMerged", () => {
     const out = markMerged(brief(ok).replace(/\n/g, "\r\n"), 9, "2026-10-06")!;
     expect(out).toContain("\r\n");
     expect(out).not.toMatch(/[^\r]\n/);
+  });
+});
+
+describe("githubRefs y compareWithGitHub", () => {
+  it("lee estado, PRs e issue de la línea", () => {
+    const line =
+      `_Status: shipped (2026-10-05) · Updated: 2026-10-05 · Issue: [#23](${R}/issues/23) · PR: [#120](${R}/pull/120), [#121](${R}/pull/121)_`;
+    expect(githubRefs(brief(line))).toEqual({ status: "shipped", prs: [120, 121], issue: 23 });
+  });
+
+  it("error si el PR está mergeado y el brief sigue en un estado temprano", () => {
+    const r = compareWithGitHub({ status: "in review", prs: [9], issue: 7 }, { 9: "MERGED" }, "OPEN");
+    expect(r.errors.join()).toContain("está mergeado");
+  });
+
+  it("error si dice merged o shipped y el PR no está mergeado", () => {
+    for (const status of ["merged", "shipped"]) {
+      const r = compareWithGitHub({ status, prs: [9], issue: null }, { 9: "OPEN" }, null);
+      expect(r.errors.join()).toContain("está OPEN");
+    }
+  });
+
+  it("un issue cerrado con el brief en merged es un aviso, no un error", () => {
+    const r = compareWithGitHub({ status: "merged", prs: [9], issue: 7 }, { 9: "MERGED" }, "CLOSED");
+    expect(r.errors).toEqual([]);
+    expect(r.warnings.join()).toContain("¿ya es shipped?");
+  });
+
+  it("shipped con PR mergeado e issue cerrado no da nada", () => {
+    const r = compareWithGitHub({ status: "shipped", prs: [9], issue: 7 }, { 9: "MERGED" }, "CLOSED");
+    expect(r).toEqual({ errors: [], warnings: [] });
   });
 });
