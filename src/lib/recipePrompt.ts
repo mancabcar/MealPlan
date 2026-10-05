@@ -36,6 +36,15 @@ export function safeAllergies(raw: Partial<Allergies> | undefined): Allergies {
   };
 }
 
+/** Ingrediente que el usuario quiere aprovechar (p. ej. un producto de temporada): el cliente puede mandar cualquier
+ * cosa y va al prompt tal cual, así que solo se acepta un nombre corto de una línea; si no, se ignora. */
+export function safePreferredIngredient(raw: unknown): string | undefined {
+  if (typeof raw !== "string") return undefined;
+  const name = raw.trim();
+  if (name === "" || name.length > 40 || /[\r\n]/.test(name)) return undefined;
+  return name;
+}
+
 function allergySection(allergies: Allergies): string {
   const lines = [
     ...allergies.preset.map((p) => `- ${ALLERGEN_LABELS[p]}: ${ALLERGEN_FAMILIES[p].join(", ")}`),
@@ -45,7 +54,12 @@ function allergySection(allergies: Allergies): string {
   return `ALERGIAS E INTOLERANCIAS (regla estricta: nunca uses estos ingredientes, ni derivados, ni trazas):\n${lines.join("\n")}`;
 }
 
-export function buildRecipePrompt(profile: RecipeProfile, pantryItems: PantryItem[], count: number): string {
+export function buildRecipePrompt(
+  profile: RecipeProfile,
+  pantryItems: PantryItem[],
+  count: number,
+  preferredIngredient?: string,
+): string {
   const allergies = safeAllergies(profile.allergies);
   const dislikes = profile.dislikedIngredients ?? [];
   const expiring = pantryItems.filter(isExpiringSoon).map((i) => i.name);
@@ -71,7 +85,7 @@ ${allItems.length ? allItems.join("\n") : "Sin información de despensa"}
 
 INGREDIENTES QUE URGE USAR (caducan pronto):
 ${expiring.length ? expiring.join(", ") : "Ninguno"}
-
+${preferredIngredient ? `\nINGREDIENTE PREFERIDO (preferencia, no regla): incluye ${preferredIngredient} como ingrediente principal si es posible. Las alergias y la dieta siguen mandando sobre esta preferencia.\n` : ""}
 INSTRUCCIONES:
 - Prioriza usar los ingredientes que caducan pronto
 - Cada receta debe ser para 1 persona
