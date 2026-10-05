@@ -87,7 +87,7 @@ applyCopy(plan, monday, recipeIds, mode: "keep" | "replace"): { plan: WeekPlan; 
 - **E2E** (`copiar-semana.spec.ts`): botón y copia; hoja con las tres opciones; botón desactivado con su texto; Toast con N y Deshacer (R5); «No hay nada nuevo»; cierre de hoja/aviso al cambiar de semana. Sembrar el plan por `localStorage` como hace `plan-semanas.spec.ts`.
 
 ## Tasks
-1. [ ] `copyWeek.ts` puro + tests unitarios (R1–R4)
+1. [x] `copyWeek.ts` puro + tests unitarios (R1–R4)
 2. [ ] Botón bajo `WeekNav` y copia sin conflictos con `Toast` (R1, R4)
 3. [ ] `CopyWeekSheet` y flujo de conflictos (R2)
 4. [ ] Deshacer en el `Toast` y reset al cambiar de semana (R5)
