@@ -59,6 +59,11 @@ describe("#50 R3: texto accesible por barra con los 4 estados", () => {
     expect(screen.getByText(/^Lunes, 2000 kcal, no cumple el objetivo$/i)).toBeTruthy();
   });
 
+  it("sin nombre de día (fecha borrada) el texto dice solo el estado, sin «undefined»", () => {
+    const { container } = render(<WeekBarChart data={[{ label: "", value: 0, state: "empty", name: "" }]} goal={2000} />);
+    expect(container.querySelector(".sr-only")?.textContent).toBe("sin registros");
+  });
+
   it("la letra visible no se lee además del texto (aria-hidden)", () => {
     render(<WeekBarChart data={WEEK} goal={2000} />);
     expect(screen.getByText("X", { exact: true }).closest("[aria-hidden='true']")).not.toBeNull();

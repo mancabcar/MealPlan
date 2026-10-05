@@ -192,6 +192,24 @@ test.describe("#50: días que cumplen en la gráfica «Calorías esta semana»",
     await expect(page.getByText(/, cumple el objetivo$/)).toHaveCount(0);
   });
 
+  test("Edge case: con la fecha borrada el Diario no lee «undefined» ni «NaN» en la gráfica", async ({ page }) => {
+    await openDiary(page);
+    await page.locator('input[type="date"]').fill("");
+    await expect(legend(page)).toBeVisible();
+    const chart = page.getByRole("heading", { name: "Calorías esta semana" }).locator("xpath=..");
+    await expect(chart.getByText("sin registros").first()).toBeAttached();
+    await expect(chart).not.toContainText(/undefined|NaN/);
+  });
+
+  test("Edge case: una entrada restaurada sin kcal suma 0 en la gráfica, sin «NaN»", async ({ page }) => {
+    const sinKcal: Partial<(typeof WEEK_ENTRIES)[number]> = { ...WEEK_ENTRIES[0] };
+    delete sinKcal.calories;
+    await openDiary(page, [sinKcal as (typeof WEEK_ENTRIES)[number], ...WEEK_ENTRIES.slice(1)]);
+    const chart = page.getByRole("heading", { name: "Calorías esta semana" }).locator("xpath=..");
+    await expect(chart.getByText("Miércoles, 0 kcal, no cumple el objetivo", { exact: true })).toBeAttached();
+    await expect(chart).not.toContainText(/undefined|NaN/);
+  });
+
   test("R2: con una fecha futura, ningún día de hoy en adelante se marca aunque tenga registros", async ({ page }) => {
     const future = { ...TODAY_ENTRY, id: "futuro", date: TOMORROW, calories: 2000, protein: 140 };
     await openDiary(page, [...WEEK_ENTRIES, future]);

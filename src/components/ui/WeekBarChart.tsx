@@ -14,7 +14,8 @@ const STATE_TEXT: Record<DayState, string> = {
 
 /** «Lunes, 1850 kcal, cumple el objetivo»; sin registros no hay kcal que decir (también un día futuro con registros). */
 function spoken({ name, value, state }: { name: string; value: number; state: DayState }) {
-  return state === "empty" ? `${name}, ${STATE_TEXT[state]}` : `${name}, ${Math.round(value)} kcal, ${STATE_TEXT[state]}`;
+  const kcal = state === "empty" ? "" : `${Math.round(value)} kcal`;
+  return [name, kcal, STATE_TEXT[state]].filter(Boolean).join(", ");
 }
 
 export function WeekBarChart({
