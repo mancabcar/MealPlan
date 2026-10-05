@@ -237,6 +237,33 @@ test.describe("R5: producto sin recetas y sugerencia con IA", () => {
   });
 });
 
+test.describe("R5 (review): la IA no deja rastro al cambiar de vista", () => {
+  test("un error de la generación no aparece en la lista tras «Volver»", async ({ page }) => {
+    await page.route("**/api/recipes", (route) => route.fulfill({ status: 502, json: { error: "Error de la API de Claude (HTTP 529)." } }));
+    await open(page, "/recetas?producto=membrillo");
+    await page.getByRole("button", { name: "Sugerir receta con Membrillo" }).click();
+    await expect(page.getByText("Error de la API de Claude (HTTP 529).")).toBeVisible();
+    await page.getByRole("button", { name: "Volver" }).click();
+    await expect(strip(page)).toBeVisible();
+    await expect(page.getByText("Error de la API de Claude (HTTP 529).")).toHaveCount(0);
+  });
+
+  test("si sales de la página del producto mientras genera, la receta se guarda pero no se abre su detalle", async ({ page }) => {
+    const IA = recipe("ai_e2e_lenta", "Membrillo lento al horno", ["2 membrillos", "150g yogur"]);
+    await page.route("**/api/recipes", async (route) => {
+      await new Promise((r) => setTimeout(r, 800));
+      await route.fulfill({ json: { recipes: [{ ...IA, isAIGenerated: true }], droppedCount: 0 } });
+    });
+    await open(page, "/recetas?producto=membrillo");
+    await page.getByRole("button", { name: "Sugerir receta con Membrillo" }).click();
+    await page.getByRole("button", { name: "Volver" }).click();
+    await expect(strip(page)).toBeVisible();
+    await expect.poll(async () => (await readStored<{ id: string }[]>(page, "recipes")).some((r) => r.id === IA.id)).toBe(true);
+    await expect(page.getByRole("heading", { name: IA.name, level: 1 })).toHaveCount(0);
+    await expect(strip(page)).toBeVisible();
+  });
+});
+
 test.describe("R7: el aviso de alérgenos sigue en las vistas nuevas", () => {
   test("en destacadas, en el filtro y en la página de producto", async ({ page }) => {
     await open(page, "/recetas", { profile: allergic });
