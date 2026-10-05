@@ -20,6 +20,7 @@
       "protein": 22,
       "carbs": 8,
       "fat": 5,
+      "fiber": 2,
       "tags": ["alto proteína", "bajo en grasa", "vegetariano", "rápido", "desayuno"]
     },
     {
@@ -44,6 +45,7 @@
       "protein": 42,
       "carbs": 52,
       "fat": 14,
+      "fiber": 4.5,
       "tags": ["alto proteína", "comida", "clásico fitness"]
     },
     {
@@ -67,6 +69,7 @@
       "protein": 24,
       "carbs": 58,
       "fat": 16,
+      "fiber": 7.5,
       "tags": ["desayuno", "rápido", "vegetariano", "sin cocinar"]
     },
     {
@@ -91,6 +94,7 @@
       "protein": 35,
       "carbs": 40,
       "fat": 24,
+      "fiber": 5.5,
       "tags": ["cena", "omega 3", "sin gluten", "al horno"]
     },
     {
@@ -116,6 +120,7 @@
       "protein": 32,
       "carbs": 42,
       "fat": 14,
+      "fiber": 12.5,
       "tags": ["rápido", "sin cocinar", "alto proteína", "comida", "legumbres"]
     },
     {
@@ -141,6 +146,7 @@
       "protein": 7,
       "carbs": 28,
       "fat": 8,
+      "fiber": 5.5,
       "tags": ["cena", "ligero", "vegetariano", "sin gluten"]
     },
     {
@@ -165,6 +171,7 @@
       "protein": 34,
       "carbs": 38,
       "fat": 28,
+      "fiber": 8.5,
       "tags": ["comida", "alto proteína", "mexicano"]
     },
     {
@@ -188,6 +195,7 @@
       "protein": 15,
       "carbs": 60,
       "fat": 9,
+      "fiber": 9,
       "tags": ["desayuno", "rápido", "vegetariano"]
     },
     {
@@ -213,6 +221,7 @@
       "protein": 38,
       "carbs": 55,
       "fat": 22,
+      "fiber": 11,
       "tags": ["comida", "alto proteína", "sin gluten", "bowl"]
     },
     {
@@ -236,6 +245,7 @@
       "protein": 32,
       "carbs": 62,
       "fat": 10,
+      "fiber": 8,
       "tags": ["comida", "rápido", "alto proteína", "pasta"]
     },
     {
@@ -258,6 +268,7 @@
       "protein": 13,
       "carbs": 24,
       "fat": 20,
+      "fiber": 7,
       "tags": ["desayuno", "rápido", "vegetariano"]
     },
     {
@@ -283,6 +294,7 @@
       "protein": 22,
       "carbs": 20,
       "fat": 16,
+      "fiber": 6.5,
       "tags": ["cena", "vegano", "vegetariano", "asiático"]
     },
     {
@@ -307,6 +319,7 @@
       "protein": 7,
       "carbs": 45,
       "fat": 6,
+      "fiber": 7.5,
       "tags": ["cena", "vegetariano", "vegano", "bajo en grasa"]
     },
     {
@@ -334,6 +347,7 @@
       "protein": 22,
       "carbs": 58,
       "fat": 11,
+      "fiber": 12,
       "tags": ["comida", "legumbres", "vegano", "vegetariano", "alto fibra"]
     },
     {
@@ -359,6 +373,7 @@
       "protein": 36,
       "carbs": 38,
       "fat": 12,
+      "fiber": 6,
       "tags": ["comida", "rápido", "alto proteína"]
     },
     {
@@ -382,6 +397,7 @@
       "protein": 14,
       "carbs": 65,
       "fat": 8,
+      "fiber": 9,
       "tags": ["desayuno", "vegetariano", "rápido"]
     },
     {
@@ -408,6 +424,7 @@
       "protein": 32,
       "carbs": 14,
       "fat": 14,
+      "fiber": 4.5,
       "tags": ["cena", "pescado", "sin gluten", "bajo en grasa"]
     },
     {
@@ -434,6 +451,7 @@
       "protein": 17,
       "carbs": 58,
       "fat": 24,
+      "fiber": 17,
       "tags": ["comida", "vegano", "vegetariano", "sin gluten", "legumbres"]
     },
     {
@@ -458,6 +476,7 @@
       "protein": 31,
       "carbs": 6,
       "fat": 15,
+      "fiber": 2,
       "tags": ["cena", "rápido", "alto proteína", "sin gluten", "bajo carbohidrato"]
     },
     {
@@ -480,6 +499,7 @@
       "protein": 35,
       "carbs": 55,
       "fat": 7,
+      "fiber": 6,
       "tags": ["desayuno", "snack", "rápido", "sin cocinar", "alto proteína"]
     },
     {
@@ -506,6 +526,7 @@
       "protein": 40,
       "carbs": 58,
       "fat": 9,
+      "fiber": 5,
       "tags": ["comida", "alto proteína", "clásico fitness"]
     },
     {
@@ -530,6 +551,7 @@
       "protein": 42,
       "carbs": 8,
       "fat": 27,
+      "fiber": 2,
       "tags": ["comida", "cena", "rápido", "sin gluten", "alto proteína"]
     },
     {
@@ -552,6 +574,7 @@
       "protein": 10,
       "carbs": 28,
       "fat": 7,
+      "fiber": 10.5,
       "tags": ["snack", "vegano", "vegetariano", "al horno", "legumbres", "sin gluten"]
     },
     {
@@ -576,6 +599,7 @@
       "protein": 34,
       "carbs": 12,
       "fat": 11,
+      "fiber": 2.5,
       "tags": ["cena", "pescado", "al horno", "sin gluten", "bajo en grasa"]
     },
     {
@@ -600,6 +624,7 @@
       "protein": 18,
       "carbs": 52,
       "fat": 15,
+      "fiber": 7,
       "tags": ["desayuno", "vegetariano", "rápido"]
     },
     {
@@ -625,6 +650,7 @@
       "protein": 23,
       "carbs": 62,
       "fat": 13,
+      "fiber": 4,
       "tags": ["comida", "asiático", "aprovechamiento"]
     },
     {
@@ -650,6 +676,7 @@
       "protein": 20,
       "carbs": 50,
       "fat": 13,
+      "fiber": 11,
       "tags": ["comida", "cena", "vegano", "vegetariano", "legumbres", "sin gluten"]
     },
     {
@@ -674,6 +701,7 @@
       "protein": 38,
       "carbs": 38,
       "fat": 18,
+      "fiber": 3.5,
       "tags": ["comida", "alto proteína", "sin gluten"]
     },
     {
@@ -699,6 +727,7 @@
       "protein": 25,
       "carbs": 58,
       "fat": 12,
+      "fiber": 4.5,
       "tags": ["comida", "pasta", "rápido", "para llevar"]
     },
     {
@@ -722,6 +751,7 @@
       "protein": 33,
       "carbs": 4,
       "fat": 20,
+      "fiber": 0,
       "tags": ["cena", "alto proteína", "bajo carbohidrato", "sin gluten"]
     },
     {
@@ -747,6 +777,7 @@
       "protein": 12,
       "carbs": 24,
       "fat": 16,
+      "fiber": 6.5,
       "tags": ["cena", "vegetariano", "bajo en grasa", "sin gluten"]
     },
     {
@@ -769,6 +800,7 @@
       "protein": 28,
       "carbs": 42,
       "fat": 8,
+      "fiber": 6,
       "tags": ["desayuno", "snack", "rápido", "sin cocinar", "para llevar"]
     },
     {
@@ -794,6 +826,7 @@
       "protein": 36,
       "carbs": 60,
       "fat": 19,
+      "fiber": 1,
       "tags": ["comida", "cena", "pescado", "asiático", "omega 3"]
     },
     {
@@ -819,6 +852,7 @@
       "protein": 38,
       "carbs": 40,
       "fat": 21,
+      "fiber": 5.5,
       "tags": ["comida", "alto proteína", "clásico"]
     },
     {
@@ -840,6 +874,7 @@
       "protein": 18,
       "carbs": 24,
       "fat": 12,
+      "fiber": 7.5,
       "tags": ["desayuno", "snack", "rápido", "sin cocinar", "vegetariano", "sin gluten"]
     },
     {
@@ -865,6 +900,7 @@
       "protein": 32,
       "carbs": 36,
       "fat": 7,
+      "fiber": 4,
       "tags": ["cena", "reconfortante", "bajo en grasa"]
     },
     {
@@ -891,6 +927,7 @@
       "protein": 36,
       "carbs": 48,
       "fat": 19,
+      "fiber": 5.5,
       "tags": ["cena", "comida", "tex-mex", "alto proteína"]
     },
     {
@@ -918,6 +955,7 @@
       "protein": 14,
       "carbs": 78,
       "fat": 13,
+      "fiber": 15.5,
       "tags": ["cena", "vegano", "vegetariano", "sin gluten", "de cuchara", "legumbres", "otoño"]
     },
     {
@@ -942,6 +980,7 @@
       "protein": 40,
       "carbs": 47,
       "fat": 12,
+      "fiber": 6,
       "tags": ["comida", "alto proteína", "sin gluten", "al horno", "otoño"]
     },
     {
@@ -967,6 +1006,7 @@
       "protein": 38,
       "carbs": 33,
       "fat": 17,
+      "fiber": 9,
       "tags": ["comida", "cena", "alto proteína", "sin gluten", "otoño"]
     },
     {
@@ -993,6 +1033,7 @@
       "protein": 35,
       "carbs": 18,
       "fat": 12,
+      "fiber": 6.5,
       "tags": ["cena", "pescado", "ligero", "bajo carbohidrato", "sin gluten", "otoño"]
     },
     {
@@ -1016,6 +1057,7 @@
       "protein": 21,
       "carbs": 65,
       "fat": 8,
+      "fiber": 9.5,
       "tags": ["desayuno", "vegetariano", "rápido", "otoño"]
     },
     {
@@ -1037,6 +1079,7 @@
       "protein": 32,
       "carbs": 45,
       "fat": 2,
+      "fiber": 6,
       "tags": ["snack", "pre-gym", "rápido", "sin cocinar", "alto proteína", "otoño"]
     },
     {
@@ -1064,6 +1107,7 @@
       "protein": 45,
       "carbs": 58,
       "fat": 27,
+      "fiber": 11.5,
       "tags": ["comida", "alto proteína", "sin gluten", "bowl", "otoño"]
     },
     {
@@ -1094,6 +1138,7 @@
       "protein": 25,
       "carbs": 79,
       "fat": 12,
+      "fiber": 18.5,
       "tags": ["comida", "legumbres", "vegano", "vegetariano", "sin gluten", "de cuchara", "alto fibra", "otoño"]
     },
     {
@@ -1119,6 +1164,7 @@
       "protein": 36,
       "carbs": 37,
       "fat": 15,
+      "fiber": 8.5,
       "tags": ["cena", "pescado", "sin gluten", "al horno", "otoño"]
     },
     {
@@ -1144,6 +1190,7 @@
       "protein": 30,
       "carbs": 50,
       "fat": 23,
+      "fiber": 9,
       "tags": ["cena", "pescado", "omega 3", "sin gluten", "otoño"]
     },
     {
@@ -1170,6 +1217,7 @@
       "protein": 47,
       "carbs": 72,
       "fat": 18,
+      "fiber": 10,
       "tags": ["comida", "pasta", "alto proteína", "otoño"]
     },
     {
@@ -1191,6 +1239,7 @@
       "protein": 14,
       "carbs": 32,
       "fat": 7,
+      "fiber": 4.5,
       "tags": ["snack", "postre", "vegetariano", "sin gluten", "al horno", "otoño"]
     },
     {
@@ -1216,6 +1265,7 @@
       "protein": 28,
       "carbs": 49,
       "fat": 11,
+      "fiber": 7,
       "tags": ["desayuno", "vegetariano", "alto proteína", "otoño"]
     },
     {
@@ -1244,6 +1294,7 @@
       "protein": 46,
       "carbs": 47,
       "fat": 16,
+      "fiber": 17.5,
       "tags": ["comida", "legumbres", "pescado", "alto proteína", "sin gluten", "de cuchara", "otoño"]
     },
     {
@@ -1268,6 +1319,7 @@
       "protein": 34,
       "carbs": 40,
       "fat": 17,
+      "fiber": 6,
       "tags": ["desayuno", "alto proteína", "rápido", "plan nutricionista"]
     },
     {
@@ -1291,6 +1343,7 @@
       "protein": 29,
       "carbs": 46,
       "fat": 15,
+      "fiber": 9.5,
       "tags": ["desayuno", "rápido", "omega 3", "plan nutricionista"]
     },
     {
@@ -1315,6 +1368,7 @@
       "protein": 36,
       "carbs": 10,
       "fat": 22,
+      "fiber": 4,
       "tags": ["desayuno", "alto proteína", "bajo carbohidrato", "sin gluten", "rápido", "plan nutricionista"]
     },
     {
@@ -1338,6 +1392,7 @@
       "protein": 30,
       "carbs": 57,
       "fat": 5,
+      "fiber": 8,
       "tags": ["desayuno", "vegetariano", "sin cocinar", "para llevar", "alto proteína"]
     },
     {
@@ -1361,6 +1416,7 @@
       "protein": 27,
       "carbs": 46,
       "fat": 18,
+      "fiber": 9,
       "tags": ["desayuno", "vegetariano", "rápido", "otoño"]
     },
     {
@@ -1387,6 +1443,7 @@
       "protein": 30,
       "carbs": 32,
       "fat": 17,
+      "fiber": 5,
       "tags": ["desayuno", "alto proteína", "al horno"]
     },
     {
@@ -1410,6 +1467,7 @@
       "protein": 26,
       "carbs": 42,
       "fat": 16,
+      "fiber": 7,
       "tags": ["desayuno", "clásico", "rápido"]
     },
     {
@@ -1435,6 +1493,7 @@
       "protein": 31,
       "carbs": 50,
       "fat": 7,
+      "fiber": 8.5,
       "tags": ["desayuno", "vegetariano", "alto proteína", "otoño"]
     },
     {
@@ -1460,6 +1519,7 @@
       "protein": 29,
       "carbs": 34,
       "fat": 21,
+      "fiber": 5,
       "tags": ["desayuno", "alto proteína", "rápido", "para llevar"]
     },
     {
@@ -1484,6 +1544,7 @@
       "protein": 23,
       "carbs": 40,
       "fat": 14,
+      "fiber": 9,
       "tags": ["desayuno", "rápido", "sin cocinar"]
     },
     {
@@ -1512,6 +1573,7 @@
       "protein": 36,
       "carbs": 61,
       "fat": 25,
+      "fiber": 20,
       "tags": ["comida", "legumbres", "vegetariano", "alto fibra", "de cuchara"]
     },
     {
@@ -1541,6 +1603,7 @@
       "protein": 52,
       "carbs": 60,
       "fat": 13,
+      "fiber": 15,
       "tags": ["comida", "legumbres", "marisco", "alto proteína", "sin gluten", "de cuchara"]
     },
     {
@@ -1567,6 +1630,7 @@
       "protein": 46,
       "carbs": 76,
       "fat": 12,
+      "fiber": 17,
       "tags": ["comida", "legumbres", "alto proteína", "clásico", "reconfortante", "otoño", "de cuchara"]
     },
     {
@@ -1596,6 +1660,7 @@
       "protein": 52,
       "carbs": 41,
       "fat": 13,
+      "fiber": 2.5,
       "tags": ["cena", "pescado", "marisco", "alto proteína", "sin gluten", "de cuchara"]
     },
     {
@@ -1625,6 +1690,7 @@
       "protein": 40,
       "carbs": 47,
       "fat": 18,
+      "fiber": 7.5,
       "tags": ["comida", "pescado", "omega 3", "sin gluten", "clásico", "de cuchara"]
     },
     {
@@ -1654,6 +1720,7 @@
       "protein": 40,
       "carbs": 58,
       "fat": 18,
+      "fiber": 10,
       "tags": ["comida", "alto proteína", "sin gluten", "clásico", "reconfortante", "de cuchara"]
     },
     {
@@ -1682,6 +1749,7 @@
       "protein": 50,
       "carbs": 66,
       "fat": 13,
+      "fiber": 13.5,
       "tags": ["comida", "legumbres", "alto proteína", "sin gluten", "alto fibra", "otoño", "de cuchara"]
     },
     {
@@ -1708,6 +1776,7 @@
       "protein": 26,
       "carbs": 62,
       "fat": 15,
+      "fiber": 9.5,
       "tags": ["cena", "sin gluten", "otoño", "de cuchara"]
     },
     {
@@ -1734,6 +1803,7 @@
       "protein": 37,
       "carbs": 40,
       "fat": 28,
+      "fiber": 5.5,
       "tags": ["cena", "clásico", "reconfortante", "alto proteína", "de cuchara"]
     },
     {
@@ -1763,6 +1833,7 @@
       "protein": 44,
       "carbs": 72,
       "fat": 13,
+      "fiber": 11,
       "tags": ["comida", "arroz", "alto proteína", "sin gluten", "otoño", "de cuchara"]
     },
     {
@@ -1788,6 +1859,7 @@
       "protein": 30,
       "carbs": 12,
       "fat": 16,
+      "fiber": 3,
       "tags": ["cena", "ligero", "pescado", "sin gluten", "al horno", "bajo carbohidrato"]
     },
     {
@@ -1812,6 +1884,7 @@
       "protein": 38,
       "carbs": 11,
       "fat": 12,
+      "fiber": 5.5,
       "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato"]
     },
     {
@@ -1836,6 +1909,7 @@
       "protein": 26,
       "carbs": 12,
       "fat": 15,
+      "fiber": 3.5,
       "tags": ["cena", "ligero", "vegetariano", "sin gluten", "bajo carbohidrato"]
     },
     {
@@ -1861,6 +1935,7 @@
       "protein": 39,
       "carbs": 12,
       "fat": 16,
+      "fiber": 5.5,
       "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato"]
     },
     {
@@ -1886,6 +1961,7 @@
       "protein": 34,
       "carbs": 11,
       "fat": 12,
+      "fiber": 2.5,
       "tags": ["cena", "ligero", "pescado", "marisco", "alto proteína", "sin gluten", "rápido"]
     },
     {
@@ -1913,6 +1989,7 @@
       "protein": 41,
       "carbs": 15,
       "fat": 14,
+      "fiber": 6,
       "tags": ["cena", "ligero", "alto proteína", "sin gluten", "plan nutricionista"]
     },
     {
@@ -1937,6 +2014,7 @@
       "protein": 37,
       "carbs": 13,
       "fat": 13,
+      "fiber": 5.5,
       "tags": ["cena", "ligero", "marisco", "alto proteína", "asiático", "rápido"]
     },
     {
@@ -1959,6 +2037,7 @@
       "protein": 35,
       "carbs": 5,
       "fat": 19,
+      "fiber": 3,
       "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato", "rápido"]
     },
     {
@@ -1984,6 +2063,7 @@
       "protein": 37,
       "carbs": 11,
       "fat": 10,
+      "fiber": 3,
       "tags": ["cena", "ligero", "alto proteína", "sin gluten", "bajo carbohidrato"]
     },
     {
@@ -2010,6 +2090,7 @@
       "protein": 39,
       "carbs": 17,
       "fat": 13,
+      "fiber": 4.5,
       "tags": ["cena", "ligero", "alto proteína", "sin gluten", "al horno"]
     },
     {
@@ -2029,6 +2110,7 @@
       "protein": 13,
       "carbs": 25,
       "fat": 2,
+      "fiber": 1.5,
       "tags": ["snack", "rápido", "sin cocinar", "para llevar", "sin gluten", "plan nutricionista"]
     },
     {
@@ -2048,6 +2130,7 @@
       "protein": 31,
       "carbs": 27,
       "fat": 2,
+      "fiber": 3,
       "tags": ["snack", "rápido", "sin cocinar", "alto proteína", "plan nutricionista", "otoño"]
     },
     {
@@ -2067,6 +2150,7 @@
       "protein": 25,
       "carbs": 29,
       "fat": 2,
+      "fiber": 3,
       "tags": ["snack", "pre-gym", "rápido", "sin cocinar", "alto proteína", "plan nutricionista"]
     },
     {
@@ -2085,6 +2169,7 @@
       "protein": 5,
       "carbs": 21,
       "fat": 10,
+      "fiber": 6,
       "tags": ["snack", "rápido", "sin cocinar", "para llevar", "vegano", "vegetariano", "sin gluten", "plan nutricionista", "otoño"]
     },
     {
@@ -2110,6 +2195,7 @@
       "protein": 11,
       "carbs": 35,
       "fat": 10,
+      "fiber": 10.5,
       "tags": ["snack", "para llevar", "vegano", "vegetariano", "sin gluten", "legumbres", "otoño"]
     },
     {
@@ -2131,6 +2217,7 @@
       "protein": 23,
       "carbs": 17,
       "fat": 7,
+      "fiber": 3,
       "tags": ["snack", "postre", "sin cocinar", "vegetariano", "sin gluten", "alto proteína"]
     },
     {
@@ -2151,6 +2238,7 @@
       "protein": 13,
       "carbs": 5,
       "fat": 10,
+      "fiber": 1,
       "tags": ["snack", "para llevar", "vegetariano", "sin gluten", "bajo carbohidrato"]
     },
     {
@@ -2172,6 +2260,7 @@
       "protein": 25,
       "carbs": 7,
       "fat": 2,
+      "fiber": 2,
       "tags": ["snack", "alto proteína", "sin gluten", "bajo carbohidrato", "para llevar"]
     },
     {
@@ -2192,6 +2281,7 @@
       "protein": 17,
       "carbs": 13,
       "fat": 8,
+      "fiber": 7.5,
       "tags": ["snack", "vegano", "vegetariano", "sin gluten", "asiático", "rápido"]
     },
     {
@@ -2215,6 +2305,7 @@
       "protein": 18,
       "carbs": 31,
       "fat": 7,
+      "fiber": 7,
       "tags": ["snack", "pre-gym", "sin cocinar", "para llevar", "vegetariano"]
     },
     {
@@ -2245,6 +2336,7 @@
       "protein": 40,
       "carbs": 60,
       "fat": 12,
+      "fiber": 11.5,
       "tags": [
         "comida",
         "para llevar",
@@ -2282,6 +2374,7 @@
       "protein": 44,
       "carbs": 62,
       "fat": 20,
+      "fiber": 11,
       "tags": [
         "comida",
         "para llevar",
@@ -2319,6 +2412,7 @@
       "protein": 38,
       "carbs": 50,
       "fat": 9,
+      "fiber": 5.5,
       "tags": [
         "comida",
         "para llevar",
@@ -2354,6 +2448,7 @@
       "protein": 40,
       "carbs": 45,
       "fat": 15,
+      "fiber": 15,
       "tags": [
         "comida",
         "para llevar",
@@ -2388,6 +2483,7 @@
       "protein": 38,
       "carbs": 32,
       "fat": 16,
+      "fiber": 3.5,
       "tags": [
         "comida",
         "para llevar",
@@ -2426,6 +2522,7 @@
       "protein": 47,
       "carbs": 64,
       "fat": 10,
+      "fiber": 15,
       "tags": [
         "comida",
         "para llevar",
@@ -2464,6 +2561,7 @@
       "protein": 36,
       "carbs": 40,
       "fat": 15,
+      "fiber": 5.5,
       "tags": [
         "comida",
         "para llevar",
@@ -2500,6 +2598,7 @@
       "protein": 39,
       "carbs": 52,
       "fat": 8,
+      "fiber": 8,
       "tags": [
         "comida",
         "para llevar",
@@ -2531,6 +2630,7 @@
       "protein": 38,
       "carbs": 38,
       "fat": 13,
+      "fiber": 7,
       "tags": [
         "comida",
         "para llevar",
@@ -2563,6 +2663,7 @@
       "protein": 33,
       "carbs": 36,
       "fat": 26,
+      "fiber": 8,
       "tags": [
         "cena",
         "pescado",
@@ -2593,6 +2694,7 @@
       "protein": 40,
       "carbs": 36,
       "fat": 15,
+      "fiber": 6,
       "tags": [
         "cena",
         "alto proteína",
@@ -2624,6 +2726,7 @@
       "protein": 36,
       "carbs": 40,
       "fat": 10,
+      "fiber": 6,
       "tags": [
         "cena",
         "pescado",
@@ -2655,6 +2758,7 @@
       "protein": 48,
       "carbs": 48,
       "fat": 14,
+      "fiber": 8.5,
       "tags": [
         "cena",
         "alto proteína",
@@ -2684,6 +2788,7 @@
       "protein": 32,
       "carbs": 32,
       "fat": 14,
+      "fiber": 5,
       "tags": [
         "cena",
         "pescado",
@@ -2714,6 +2819,7 @@
       "protein": 33,
       "carbs": 6,
       "fat": 16,
+      "fiber": 3,
       "tags": [
         "cena",
         "rápido",
@@ -2741,6 +2847,7 @@
       "protein": 33,
       "carbs": 42,
       "fat": 4,
+      "fiber": 8,
       "tags": [
         "desayuno",
         "alto proteína",

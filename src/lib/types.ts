@@ -8,6 +8,8 @@ export interface Recipe {
   protein: number;
   carbs: number;
   fat: number;
+  /** Fibra por ración, en gramos (estimada). Opcional: las recetas propias e importadas pueden no traerla (#23). */
+  fiber?: number;
   tags: string[];
   isAIGenerated?: boolean;
   /** Receta creada o duplicada por el usuario (#18). Id `custom_<uuid>`. */
