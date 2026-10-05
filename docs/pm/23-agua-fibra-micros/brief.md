@@ -1,5 +1,5 @@
 # Seguimiento de agua y fibra en el Diario
-_Status: in review · Updated: 2026-10-05 · Issue: [#23](https://github.com/mancabcar/MealPlan/issues/23) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/5qcuWMP2ueJJzGfvuYV21n) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#120](https://github.com/mancabcar/MealPlan/pull/120), [#121](https://github.com/mancabcar/MealPlan/pull/121) (agua) (entrega 1, fibra; #119 ya aportó los datos del catálogo) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+_Status: shipped · Updated: 2026-10-05 · Issue: [#23](https://github.com/mancabcar/MealPlan/issues/23) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/5qcuWMP2ueJJzGfvuYV21n) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#120](https://github.com/mancabcar/MealPlan/pull/120), [#121](https://github.com/mancabcar/MealPlan/pull/121) (agua) (entrega 1, fibra; #119 ya aportó los datos del catálogo) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
 - Azúcar y sodio: campos opcionales en recetas, entradas, alimentos y OFF, y su visualización. (brainstorm; el issue los pedía, el usuario los dejó fuera de esta entrega) → [#124](https://github.com/mancabcar/MealPlan/issues/124)
@@ -85,6 +85,13 @@ _Design: https://claude.ai/artifact/5qcuWMP2ueJJzGfvuYV21n · 2026-10-05_
   - Colores: verde para fibra, cian para agua; vaso a elegir entre 200/250/330/500 ml; «Objetivo cumplido» en acento sin bloquear más vasos.
 - Pending ASSUMPTIONs: ninguna (el aviso «Faltan datos…» y «Fibra: sin dato» se confirmaron como Should, R9 del spec).
 - What to learn from testing it: si el total parcial se entiende y no da falsa sensación de poca fibra; si el contador de agua se lee de un vistazo.
+
+## Shipped
+_2026-10-05 · fibra en [#120](https://github.com/mancabcar/MealPlan/pull/120) (con los datos del catálogo de [#119](https://github.com/mancabcar/MealPlan/pull/119)), agua en [#121](https://github.com/mancabcar/MealPlan/pull/121); servidor con la clave `water` desplegado._
+Qué vigilar (métricas del [spec](spec.md)), midiéndolas a mano en el Diario:
+- Agua al objetivo al menos 5 de cada 7 días durante las primeras 2 semanas.
+- Total de fibra completo (sin chip «parcial») al menos 5 de cada 7 días.
+Si el total sale casi siempre «parcial», revisar qué entradas no traen fibra (alimentos de marca sin dato, «Personalizada» sin rellenar).
 
 ## Open questions
 - ¿Cómo se aplican los objetivos por defecto (38 g, 2 L) a los perfiles ya existentes: se rellenan al migrar o el seguimiento aparece al activarlo? ¿Qué se muestra hasta entonces?
