@@ -86,3 +86,4 @@ Los tests antiguos de `planMacros.test.ts` y `diaryStats.test.ts` que llaman a `
 ## Spec feedback
 - Hallazgo: la tolerancia ya se aplica a kcal, hidratos, grasas y proteína sin rango, no solo a proteína (recogido en la spec).
 - Pregunta abierta de la spec sobre clientes antiguos: cerrada, riesgo aceptado.
+- Divergencia aceptada en la revisión (2026-10-05): `MacroBar` (`src/app/page.tsx`) pasa `TOLERANCE_DEFAULT` a `macroStatus` en lugar de `tolerancePct(profile)`, porque solo juzga rangos y un rango no usa la tolerancia.
