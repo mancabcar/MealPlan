@@ -1,6 +1,6 @@
 # Tolerancia de «cumplido» editable en Perfil, compartida por Plan y Diario
 
-_Status: in review · Updated: 2026-10-05 · Issue: [#49](https://github.com/mancabcar/MealPlan/issues/49) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#143](https://github.com/mancabcar/MealPlan/pull/143) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+_Status: in review · Updated: 2026-10-05 · Issue: [#49](https://github.com/mancabcar/MealPlan/issues/49) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#143](https://github.com/mancabcar/MealPlan/pull/143) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Problema
 La tolerancia de «cumplido» es fija en ±10 % (`PLAN_TOLERANCE_PCT`, `src/lib/planMacros.ts`), así que el usuario no puede ajustar lo estricta que es la adherencia.
