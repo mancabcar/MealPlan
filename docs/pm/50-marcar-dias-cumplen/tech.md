@@ -35,7 +35,7 @@ Ninguno: nada se guarda.
 - `WeekBarChart` data: `{ label, value, state, name }[]`.
 ### UI
 - Barra, luego `Check` (`w-3 h-3`, acento, `aria-hidden`) solo si `met`; los demás estados reservan el mismo hueco para que las letras no salten. Letra visible en `aria-hidden`.
-- `sr-only` por barra: «lunes, 1850 kcal, cumple el objetivo» · «martes, sin registros» · «hoy, 900 kcal, día en curso». «No cumple el objetivo» para `missed`.
+- `sr-only` por barra: «Lunes, 1850 kcal, cumple el objetivo» · «Martes, sin registros» · «martes, 900 kcal, día en curso» (siempre el nombre del día, sin caso especial para hoy). «No cumple el objetivo» para `missed`.
 - Leyenda siempre visible bajo las barras: «✓ día dentro del objetivo (kcal y proteína)».
 
 ## Spec coverage
@@ -67,10 +67,26 @@ Ninguno: nada se guarda.
 - **E2E** (`medias-adherencia.spec.ts`, fixture existente): los días con icono coinciden con «2 de 3 días dentro del objetivo»; hoy sin icono.
 
 ## Tasks
-1. [ ] Tests rojos con dev-test (R1–R4)
+1. [x] Tests rojos con dev-test (R1–R4)
 2. [ ] `DayState` y `weekDayStates` en `diaryStats.ts` (R1, R2)
 3. [ ] `WeekBarChart` con `state`/`name`, icono, `sr-only` y leyenda, y `page.tsx` que construye `week` con ellos, en un solo commit para no romper la app (R1–R4)
 4. [ ] Verificar en la app (claro/oscuro, móvil) y pasar lint, typecheck, tests y build
 
 ## Spec feedback
 Sin cambios en el spec. La open question del icono queda resuelta: `Check` de lucide bajo la barra.
+
+## Test coverage
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | `tests/unit/diaryStats.test.ts` › «#50 R1 · R2» (cumple 2150/135, no cumple 2150/125, fixture 16/18/20 sep) | unit | 🔴 failing (not built) |
+| R1 | `tests/unit/WeekBarChart.test.tsx` › «#50 R1 · R2: icono solo en los días cumplidos» | component | 🔴 failing (not built) |
+| R1 | `tests/e2e/medias-adherencia.spec.ts` › «R1 · R2 · R3: los días cumplidos llevan icono…» y «fecha 14 sep» | e2e | 🔴 failing (not built) |
+| R2 | `diaryStats.test.ts` › hoy → today, vacío, futuro con entradas → empty | unit | 🔴 failing (not built) |
+| R2 | `medias-adherencia.spec.ts` › «hoy no se marca aunque cumpla» y «fecha futura» | e2e | 🔴 failing (not built) |
+| R3 | `WeekBarChart.test.tsx` › «#50 R3» (4 textos, 7 barras, redondeo, letra aria-hidden) | component | 🔴 failing (not built) |
+| R3 | `medias-adherencia.spec.ts` › «R1 · R2 · R3» (7 textos en la app) | e2e | 🔴 failing (not built) |
+| R4 | `WeekBarChart.test.tsx` › «#50 R4» (con y sin días cumplidos) | component | 🔴 failing (not built) |
+| R4 | `medias-adherencia.spec.ts` › «R1 · R2 · R3» (leyenda visible) | e2e | 🔴 failing (not built) |
+| Métrica | `diaryStats.test.ts` › «Métrica…periodStats» y `medias-adherencia.spec.ts` › «Métrica…2 de 3» | unit · e2e | 🔴 failing (not built) |
+| Edge | `diaryStats.test.ts` › macro ausente o NaN, sin fechas | unit | 🔴 failing (not built) |
+| Edge | Fecha seleccionada borrada, hueco reservado bajo cada barra | — | no probado: ver hand-off (el hueco se verifica en la app, tarea 4) |
