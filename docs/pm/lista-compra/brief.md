@@ -1,5 +1,5 @@
 # Lista de la compra desde el plan semanal
-_Status: merged · Updated: 2026-09-26 · Issue: [#5](https://github.com/mancabcar/MealPlan/issues/5) (cerrado) · Prototype: [canvas](https://claude.ai/artifact/P1MhiwSReXZZ668pVjNAgW) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#24](https://github.com/mancabcar/MealPlan/pull/24) (mergeado 2026-09-23) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+_Status: merged · Updated: 2026-09-26 · Issue: [#5](https://github.com/mancabcar/MealPlan/issues/5) · Prototype: [canvas](https://claude.ai/artifact/P1MhiwSReXZZ668pVjNAgW) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#24](https://github.com/mancabcar/MealPlan/pull/24) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 > Brainstorm omitido: el issue #5 ya trae problema, propuesta, criterios de aceptación y notas técnicas. Se pasa directamente a prototipo (decisión del usuario, 2026-09-23).
 

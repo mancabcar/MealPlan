@@ -1,0 +1,39 @@
+name: Brief merged
+
+# Al mergear un PR a main, el brief que lo enlaza pasa de `in review` a `merged`.
+# `shipped` lo confirma una persona (ver la skill pm-pipeline).
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  mark:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Marcar el brief como merged
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          MERGED_AT: ${{ github.event.pull_request.merged_at }}
+        run: node scripts/mark-brief-merged.mjs "$PR" "${MERGED_AT%%T*}"
+      - name: Validar y commitear
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if git diff --quiet; then echo "Ningún brief que actualizar"; exit 0; fi
+          node scripts/check-briefs.mjs
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Brief: PR #$PR mergeado [skip ci]"
+          git push
