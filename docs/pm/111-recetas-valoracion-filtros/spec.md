@@ -63,9 +63,9 @@ Usuario: Manuel, en el móvil.
 
 **R3**
 - Given el chip «≤30 min», when está activo, then solo aparecen recetas con `prepTimeMinutes` ≤ 30.
-- Given el chip «≤600 kcal», when está activo, then solo aparecen recetas con kcal ≤ 600.
+- Given el chip «≤400 kcal», when está activo, then solo aparecen recetas con kcal ≤ 400.
 - Given el chip «≥30 g», when está activo, then solo aparecen recetas con proteína ≥ 30 g.
-- Given tramos de tiempo ≤15/30/45 min, kcal ≤400/600/800 y proteína ≥20/30/40 g, when elijo uno de un tipo, then solo hay uno activo por tipo y tocarlo de nuevo lo quita.
+- Given tramos de tiempo ≤15/30/45 min, kcal ≤300/400/500 y proteína ≥20/30/40 g, when elijo uno de un tipo, then solo hay uno activo por tipo y tocarlo de nuevo lo quita.
 - Given filtros activos y un texto de búsqueda, when ambos están activos, then la lista cumple todos.
 - Given una receta sin dato en el campo filtrado, when el filtro está activo, then se compara con el valor guardado (0 si falta).
 
