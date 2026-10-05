@@ -12,6 +12,7 @@
 // Fallan hasta construir la entrega 1 (tareas 2–7 del tech design).
 import { expect, test, type Page } from "@playwright/test";
 import foodsJson from "@/data/foods.json";
+import { formatFiber } from "@/lib/fiber";
 import type { LocalFood } from "@/lib/foods";
 import type { MealEntry, Recipe, UserProfile } from "@/lib/types";
 import { lucia } from "../fixtures/profiles";
@@ -197,14 +198,15 @@ test.describe("R8: «Personalizada» con fibra opcional", () => {
 });
 
 test.describe("R5: un alimento local registra la fibra proporcional a los gramos", () => {
-  test("150 g de «Lentejas, cocidas» guardan fibra = fibra/100 g × 1,5 y la tarjeta muestra «Fibra»", async ({ page }) => {
+  test("150 g de «Lentejas, cocidas» guardan fibra = fibra/100 g × 1,5 y la tarjeta muestra su fibra", async ({ page }) => {
     await openDiario(page, []);
     await page.getByRole("button", { name: "Añadir comida" }).click();
     await page.getByRole("button", { name: "Alimento", exact: true }).click();
     await page.getByLabel("Buscar alimento").fill("lentejas coc");
     await page.getByRole("button", { name: /^Lentejas, cocidas\b/ }).click();
     await page.getByLabel("Gramos", { exact: true }).and(page.locator("input:not([type=radio])")).fill("150");
-    await expect(page.getByText("Fibra", { exact: true })).toBeVisible();
+    // La tarjeta muestra la fibra de los 150 g (en el Diario vacío no hay otro texto igual)
+    await expect(page.getByText(`${formatFiber(LENTEJAS_COCIDAS.fiber! * 1.5)} g`, { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Añadir 150 g", exact: true }).click();
 
     const [entry] = await readStored<MealEntry[]>(page, "entries");

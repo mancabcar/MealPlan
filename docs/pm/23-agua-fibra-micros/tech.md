@@ -104,11 +104,11 @@ Los criterios de aceptación de cada R se verifican con los tests anteriores; lo
 PR 1 (fibra)
 1. [x] Tipos (`MealEntry.fiber?`, `Macros.fiber?`, `Per100.fiber?`) y `src/lib/fiber.ts` puro con tests (R1, R2, R3, R7, R9).
 2. [x] `UserProfile.fiberGoal?` y fila «Fibra» en Perfil con validación (R3).
-3. [~] Las entradas guardan fibra: `recipeEntry`, `foodEntry` y «Personalizada» con `parseFiber` (R1, R7, R8).
+3. [x] Las entradas guardan fibra: `recipeEntry`, `foodEntry` y «Personalizada» con `parseFiber` (R1, R7, R8).
 4. [x] Rutas OFF (`search`, `barcode`) con `fiber_100g` y tests; `BrandProduct.fiber?` y hooks del cliente (R6).
 5. [ ] `build-foods.mjs` y `foods-list.json` con fibra; regenerar `foods.json`; `LocalFood.fiber?` (R5).
-6. [ ] Diario: barra de fibra, chip «parcial», aviso, etiqueta por entrada, tarjeta del alimento (R2, R9).
-7. [ ] Ficha de receta con la quinta celda y campo en `RecipeForm`/`recipeEdit` (R4, R8).
+6. [x] Diario: barra de fibra, chip «parcial», aviso, etiqueta por entrada, tarjeta del alimento (R2, R9).
+7. [x] Ficha de receta con la quinta celda y campo en `RecipeForm`/`recipeEdit` (R4, R8).
 8. [ ] e2e de la entrega 1 y abrir el PR.
 
 PR 2 (agua)

@@ -23,6 +23,7 @@ import {
   type Per100,
 } from "@/lib/foods";
 import { formatServings } from "@/lib/diary";
+import { formatFiber } from "@/lib/fiber";
 import { useBrandSearch } from "@/lib/useBrandSearch";
 import { useBarcodeLookup } from "@/lib/useBarcodeLookup";
 import { BarcodeScanner } from "./BarcodeScanner";
@@ -244,13 +245,15 @@ export function FoodPicker({
         </div>
 
         {/* R6: macros en vivo, redondeados */}
-        <div className="grid grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-5 gap-1.5">
           {(
             [
               ["kcal", displayMacro(macros.calories, "kcal"), "kcal"],
               ["protein", `${displayMacro(macros.protein, "protein")} g`, "Prot."],
               ["carbs", `${displayMacro(macros.carbs, "carbs")} g`, "Hidr."],
               ["fat", `${displayMacro(macros.fat, "fat")} g`, "Grasa"],
+              // Fibra (#23): «—» si el alimento no la trae
+              ["fiber", macros.fiber === undefined ? "—" : `${formatFiber(macros.fiber)} g`, "Fibra"],
             ] as const
           ).map(([k, value, label]) => (
             <p key={k} className="flex flex-col items-center gap-0.5 rounded-lg bg-[var(--color-surface-2)] px-1 py-2">
