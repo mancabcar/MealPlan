@@ -33,6 +33,12 @@ const num = (v: unknown) => {
   return typeof n === "number" && Number.isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : undefined;
 };
 
+// Fibra por 100 g (#23): fuera de 0–100 es un dato roto de OFF y se trata como sin dato
+const fiberOf = (v: unknown) => {
+  const f = num(v);
+  return f !== undefined && f <= 100 ? f : undefined;
+};
+
 /** null si falta el código, el nombre o alguno de los cuatro macros por 100 g (mismo criterio que R4 de #13). */
 function toProduct(product: V2Product): BrandProduct | null {
   const code = text(product.code);
@@ -42,6 +48,7 @@ function toProduct(product: V2Product): BrandProduct | null {
   const protein = num(n.proteins_100g);
   const carbs = num(n.carbohydrates_100g);
   const fat = num(n.fat_100g);
+  const fiber = fiberOf(n.fiber_100g);
   if (!code || !name || kcal === undefined || protein === undefined || carbs === undefined || fat === undefined) {
     return null;
   }
@@ -58,6 +65,7 @@ function toProduct(product: V2Product): BrandProduct | null {
     protein,
     carbs,
     fat,
+    ...(fiber !== undefined && { fiber }),
     ...(servingGrams && { servingGrams }),
   };
 }

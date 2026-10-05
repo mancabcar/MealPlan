@@ -3,7 +3,7 @@
 // GET /api/foods/search (Open Food Facts).
 import foodsJson from "@/data/foods.json";
 import { parseDecimal } from "./nutrition";
-import type { Macros } from "./planMacros";
+import type { MacrosWithFiber } from "./planMacros";
 import { normalize } from "./text";
 
 /** Valores por 100 g, con los mismos nombres en la tabla local y en OFF. */
@@ -76,7 +76,7 @@ export function searchLocalFoods(query: string, foods: LocalFood[] = FOODS, limi
 }
 
 /** R6: macros de `grams` gramos, sin redondear (se guardan así y se redondean al mostrar). */
-export function scaleMacros(per100: Per100, grams: number): Macros {
+export function scaleMacros(per100: Per100, grams: number): MacrosWithFiber {
   const f = grams / 100;
   return {
     calories: per100.kcal * f,

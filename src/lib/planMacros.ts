@@ -7,7 +7,10 @@ export interface Macros {
   protein: number;
   carbs: number;
   fat: number;
-  /** Fibra en g (#23). Ausente = sin dato; el Plan no la suma. */
+}
+
+/** Macros de una receta o entrada con su fibra (#23), que no tiene dato en todas: ausente = sin dato. El Plan no la suma. */
+export interface MacrosWithFiber extends Macros {
   fiber?: number;
 }
 
@@ -19,7 +22,7 @@ export type MacroStatus = "below" | "within" | "above";
 export const PLAN_TOLERANCE_PCT = 10;
 
 /** R9: macros de una franja = receta × raciones, sin redondear. Único punto de escalado; #29 pasará slot.servings. */
-export function slotMacros(recipe: Recipe, servings = 1): Macros {
+export function slotMacros(recipe: Recipe, servings = 1): MacrosWithFiber {
   return {
     calories: recipe.calories * servings,
     protein: recipe.protein * servings,
