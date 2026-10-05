@@ -1,0 +1,2 @@
+# Los snapshots de Vitest se escriben con LF; evita que autocrlf (Windows) los reescriba
+*.snap text eol=lf
