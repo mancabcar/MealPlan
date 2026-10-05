@@ -146,6 +146,10 @@ export interface UserProfile {
   fatGoal: number;
   /** Objetivo diario de fibra en g (#23, entero 10–100). Ausente = 38 (lib/fiber.ts › fiberGoal). */
   fiberGoal?: number;
+  /** Objetivo diario de agua en ml (#23, 500–6000). Ausente = 2000 (lib/water.ts › waterGoalMl). */
+  waterGoalMl?: number;
+  /** Tamaño del vaso en ml (#23: 200, 250, 330 o 500). Ausente = 250 (lib/water.ts › glassMl). */
+  glassMl?: number;
   /** >= 1, siempre en el orden de MEAL_TYPES. */
   meals: MealType[];
   allergies: Allergies;
