@@ -1,6 +1,6 @@
 # Raciones al registrar recetas (media ración, 1,5…)
 
-_Status: shipped (2026-09-24, [PR #30](https://github.com/mancabcar/MealPlan/pull/30) mergeado) · review: ✅ aprobar, no bloqueantes 2 y 3 arreglados ([review](review.md)) · Updated: 2026-09-24 · Origen: [issue #7](https://github.com/mancabcar/MealPlan/issues/7) (cerrado) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: shipped (2026-09-24) · Updated: 2026-09-24 · Issue: [#7](https://github.com/mancabcar/MealPlan/issues/7) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#30](https://github.com/mancabcar/MealPlan/pull/30) · Review: [review.md](review.md) — ✅ approved_
 
 ## Problema
 Registrar una receta en el Diario suma siempre el 100 % de sus macros (`src/app/page.tsx`, `submitAdd` → `recipeEntry`). No se puede registrar media ración ni una ración y media, y las recetas no indican para cuántas personas son.
