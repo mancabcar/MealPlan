@@ -53,6 +53,7 @@ npm run typecheck   # tsc --noEmit
 - Unitarios en `tests/unit/` (entorno `node`; para componentes añade `// @vitest-environment jsdom`).
 - E2E en `tests/e2e/`; `helpers.ts` siembra una sesión local para saltarse el login.
 - La primera vez: `npx playwright install chromium`.
+- Puerto de los e2e: 3000 por defecto. Con varios worktrees abiertos usa uno distinto en cada uno (`PORT=3217 npm run test:e2e`) para no reutilizar el dev server de otro checkout.
 - CI (`.github/workflows/ci.yml`) ejecuta lint, typecheck, unitarios, build y e2e en cada PR.
 - Los e2e del service worker (`tests/e2e/pwa.spec.ts`) necesitan el build: en CI corren siempre; en local se saltan con `next dev`. Para ejecutarlos: `npm run build`, `npx serve out -l 3000` en otra terminal y `PWA_E2E=1 npm run test:e2e -- tests/e2e/pwa.spec.ts`.
 
