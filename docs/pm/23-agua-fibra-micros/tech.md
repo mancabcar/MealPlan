@@ -122,3 +122,39 @@ PR 2 (agua)
 - R4: el dato y el tipo ya están en main por el PR #119; queda mostrarlo en la ficha. (Decidido por el usuario.)
 - R1 / Edge cases: las entradas de receta anteriores recuperan su fibra de la receta (receta × raciones) en vez de ser «sin dato». Las demás entradas antiguas siguen sin dato. (Decidido por el usuario; el `spec.md` no se ha modificado todavía.)
 - Abierto: dónde se obtiene el XML de CIQUAL para regenerar `foods.json` (el script no lo trae y no se commitea); lo descarga quien implemente la tarea 5.
+
+## UI test contract (entrega 1)
+Acordado con Manuel al escribir los tests (dev-test, 2026-10-05); lo fijan `tests/e2e/fibra.spec.ts` y `tests/unit/*fiber*`:
+- Diario, tarjeta de macros: cuarta barra «Fibra» con chip «28 / 38»; si el día es parcial, chip «parcial» y bajo la barra «Faltan datos de fibra en N de M entradas». Cada entrada: «Fibra 9 g» o «Fibra: sin dato». Día sin entradas: «0 / 38» sin «parcial» ni aviso.
+- «Añadir comida» › «Personalizada»: campo «fibra» (vacío = sin dato). «Alimento»: la tarjeta muestra «Fibra».
+- Perfil › «Objetivos diarios»: fila «Fibra» («38 g») y botón «Editar fibra» → campo «Objetivo de fibra (g)» con «Guardar» (deshabilitado fuera de enteros 10–100) y «Cancelar».
+- Recetas › detalle: celda «Fibra» en la fila de macros, «14 g» o «—».
+- `RecipeForm`: campo «Fibra (g)» (opcional, 0–200).
+- `src/lib/fiber.ts`: `FIBER_GOAL_DEFAULT`, `fiberGoal`, `entryFiber(entry, recipes)`, `dayFiber(entries, recipes)` → `{ total, missing, count }`, `scaleFiber`, `parseFiber` (número | undefined vacío | null inválido), `parseFiberGoal`, `formatFiber`.
+- `recipeEdit`: `RecipeDraft.fiber: string`; `validateRecipeDraft` devuelve `recipe.fiber` solo si hay dato y `errors.fiber` si no es válido.
+- Rutas OFF: `fiber` (g/100 g, 2 decimales) solo si existe y está entre 0 y 100; si no, sin la propiedad.
+
+## Test coverage
+Entrega 1 (fibra). Estado a 2026-10-05, antes de escribir el código: «🔴» = falla porque falta la función/UI; «🟢 guarda» = ya pasa y protege que no se rompa.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | `tests/unit/fiber.test.ts` › R1 / R8 y R1 / R2 (sin dato ≠ 0, receta antigua, 0 explícito) | unit | 🔴 failing (not built) |
+| R1 | `tests/unit/backup-fiber.test.ts` › R1: una copia anterior carga sin errores | unit | 🟢 guarda |
+| R1 / R7 | `tests/unit/diary-fiber.test.ts` › R7, R1 (recetas con/sin fibra, raciones, repetir) | unit | 🔴 failing (not built) |
+| R2 | `tests/unit/fiber.test.ts` › R2: total del día (completo, parcial, sin datos, vacío, 0) | unit | 🔴 failing (not built) |
+| R2 | `tests/e2e/fibra.spec.ts` › R2 (barra, chip «parcial», día vacío, receta antigua, supera objetivo) | e2e | 🔴 failing (not built) |
+| R3 | `tests/unit/fiber.test.ts` › R3 (38 por defecto, `parseFiberGoal` 10–100 enteros) | unit | 🔴 failing (not built) |
+| R3 | `tests/e2e/fibra.spec.ts` › R3 (Perfil: ver, editar, validar, cancelar; el Diario lo usa) | e2e | 🔴 failing (not built) |
+| R4 | `tests/e2e/fibra.spec.ts` › R4 (ficha con «14 g» y con «—») | e2e | 🔴 failing (not built) |
+| R5 | `tests/unit/fiber.test.ts` › R5 (`scaleFiber`, formato) y `diary-fiber.test.ts` › R5 | unit | 🔴 failing (not built) |
+| R5 | `tests/unit/foods-fiber-data.test.ts` (161 alimentos con fibra válida y valores razonables) | unit | 🔴 failing (not built) |
+| R5 | `tests/e2e/fibra.spec.ts` › R5 (150 g de lentejas cocidas) | e2e | 🔴 failing (not built) |
+| R6 | `server/tests/unit/foods-fiber-routes.test.ts` (search y barcode: presente, 0, ausente, negativa, > 100) | unit (servidor) | 🔴 con fibra (4) · 🟢 guarda sin fibra (6) |
+| R7 | `tests/unit/diary-fiber.test.ts` › R7 (1, 2 y 0,5 raciones) | unit | 🔴 failing (not built) |
+| R8 | `tests/unit/recipe-edit-fiber.test.ts`, `tests/unit/RecipeForm-fiber.test.tsx` | unit / componente | 🔴 failing (not built) |
+| R8 | `tests/e2e/fibra.spec.ts` › R8 («Personalizada» con 4,5 / vacía / 0) | e2e | 🔴 failing (not built) |
+| R9 | `tests/e2e/fibra.spec.ts` › R9 (aviso «3 de 5» y etiquetas por entrada) | e2e | 🔴 failing (not built) |
+| R13 (fibra) | `tests/unit/backup-fiber.test.ts` › R13: restaura fibra y objetivo | unit | 🟢 guarda |
+
+Pendiente de la entrega 2 (agua, R10–R13): sus tests se escriben antes de esa entrega (`water.test.ts`, sync de la novena clave, `water.spec.ts`).
