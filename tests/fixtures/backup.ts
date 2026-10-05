@@ -87,6 +87,8 @@ export const ACCOUNT_A_DATA = {
   measurements: BACKUP_MEASUREMENTS,
   /** docs/pm/20-recetas-filtros: ids de recetas favoritas, el octavo dato del usuario. */
   favorites: [AI_RECIPE.id, POLLO_BROCOLI.id],
+  /** docs/pm/23-agua-fibra-micros: ml bebidos por día, el noveno dato del usuario. */
+  water: { [TODAY]: 1250, "2026-09-21": 1500 } as Record<string, number>,
 };
 
 /** Datos previos de la cuenta B: todo distinto de A, para ver que la importación los sustituye. */

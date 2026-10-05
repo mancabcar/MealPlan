@@ -159,6 +159,22 @@ describe("R5: bajar los cambios de otros dispositivos", () => {
     expect(stored("entries")).toEqual([]);
   });
 
+  it("R13 (#23): el agua de otro dispositivo se baja, se escribe en mp_<usuario>_water y avisa", async () => {
+    backend.remoteWrite("lucia", "water", ACCOUNT_A_DATA.water);
+    const engine = makeEngine();
+    await engine.pull();
+    expect(stored("water")).toEqual(ACCOUNT_A_DATA.water);
+    expect(changed).toEqual(["water"]);
+  });
+
+  it("R13 (#23): el agua local se sube al servidor al marcarla como pendiente", async () => {
+    const engine = makeEngine();
+    local("water", ACCOUNT_A_DATA.water);
+    engine.markDirty("water");
+    await engine.flush();
+    expect(backend.dataOf("lucia").water.value).toEqual(ACCOUNT_A_DATA.water);
+  });
+
   it("R5: pide al servidor solo lo posterior a las versiones que ya conoce (since)", async () => {
     backend.remoteWrite("lucia", "entries", []);
     const engine = makeEngine();
@@ -294,7 +310,7 @@ describe("R8 y R10: sin red la app sigue y avisa; al volver se pone al día sin 
 });
 
 describe("R11: lo importado se sincroniza", () => {
-  it("R11: marcar las 8 claves como pendientes sube las 8", async () => {
+  it("R11: marcar las 9 claves como pendientes sube las 9", async () => {
     const engine = makeEngine();
     const all: Record<string, unknown> = { ...ACCOUNT_A_DATA, favorites: ["pollo-al-horno"], shopping: { current: { week: "2026-09-21", bought: {}, overrides: [], moved: {} }, usage: {} } };
     for (const key of SYNC_KEYS) {
@@ -302,7 +318,7 @@ describe("R11: lo importado se sincroniza", () => {
       engine.markDirty(key);
     }
     await engine.flush();
-    expect(puts()).toHaveLength(8);
+    expect(puts()).toHaveLength(9);
     for (const key of SYNC_KEYS) expect(backend.dataOf("lucia")[key].value).toEqual(all[key]);
   });
 });

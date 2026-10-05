@@ -116,6 +116,7 @@ const FULL_DATA: UserData = {
   shopping: SHOPPING_A as UserData["shopping"],
   measurements: BACKUP_MEASUREMENTS,
   favorites: ACCOUNT_A_DATA.favorites,
+  water: ACCOUNT_A_DATA.water,
 };
 
 function expectError(text: string, message: string) {
@@ -131,8 +132,8 @@ const badSection = (k: string) => `La sección «${k}» no tiene el formato espe
 // ---------------------------------------------------------------------------
 
 describe("userData: registro compartido de los datos del usuario (base de R7)", () => {
-  it("las ocho claves, en este orden (historial-medidas añade «measurements» y #20 «favorites» al final)", () => {
-    expect(USER_DATA_KEYS).toEqual(["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites"]);
+  it("las nueve claves, en este orden (historial-medidas añade «measurements», #20 «favorites» y #23 «water» al final)", () => {
+    expect(USER_DATA_KEYS).toEqual(["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water"]);
   });
 
   it("EMPTY_USER_DATA: sin perfil y todo vacío", () => {
@@ -145,6 +146,7 @@ describe("userData: registro compartido de los datos del usuario (base de R7)", 
       shopping: EMPTY_SHOPPING,
       measurements: [],
       favorites: [],
+      water: {},
     });
   });
 
