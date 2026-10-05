@@ -1,5 +1,5 @@
 # Recetas: favoritos, valoración y filtros
-_Status: merged (2026-10-02) · Updated: 2026-10-04 · Issue: [#20](https://github.com/mancabcar/MealPlan/issues/20) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/D4XE1CEYJQKxZ4zHm2EzEJ) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#89](https://github.com/mancabcar/MealPlan/pull/89) (mergeado 2026-10-02) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+_Status: shipped (2026-10-05) · Updated: 2026-10-05 · Issue: [#20](https://github.com/mancabcar/MealPlan/issues/20) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/D4XE1CEYJQKxZ4zHm2EzEJ) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#89](https://github.com/mancabcar/MealPlan/pull/89) (mergeado 2026-10-02) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
 - Review #89 (no bloqueantes): orden de borrado de favoritas en `removeRecipe`; poda de `toggleFavorite` con el último valor escrito; búsqueda de Recetas sin tildes (reutilizar el matcher de `recipeSlots.ts`); test e2e que cuente los toques; e2e del fallback «Otras recetas».
