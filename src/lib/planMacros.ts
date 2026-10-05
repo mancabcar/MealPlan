@@ -7,6 +7,8 @@ export interface Macros {
   protein: number;
   carbs: number;
   fat: number;
+  /** Fibra en g (#23). Ausente = sin dato; el Plan no la suma. */
+  fiber?: number;
 }
 
 /** Objetivo de un macro: un número (se juzga con ±10 %) o un rango prescrito (min ≤ v ≤ max). */
@@ -23,6 +25,8 @@ export function slotMacros(recipe: Recipe, servings = 1): Macros {
     protein: recipe.protein * servings,
     carbs: recipe.carbs * servings,
     fat: recipe.fat * servings,
+    // Sin dato de fibra no se inventa un 0 (#23, R1)
+    ...(recipe.fiber !== undefined && { fiber: recipe.fiber * servings }),
   };
 }
 

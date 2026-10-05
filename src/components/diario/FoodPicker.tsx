@@ -46,7 +46,13 @@ interface Selected extends PickedFood {
 
 type QtyMode = "grams" | "units";
 
-const per100Of = (f: Per100): Per100 => ({ kcal: f.kcal, protein: f.protein, carbs: f.carbs, fat: f.fat });
+const per100Of = (f: Per100): Per100 => ({
+  kcal: f.kcal,
+  protein: f.protein,
+  carbs: f.carbs,
+  fat: f.fat,
+  ...(f.fiber !== undefined && { fiber: f.fiber }),
+});
 
 function fromLocal(f: LocalFood): Selected {
   return {
