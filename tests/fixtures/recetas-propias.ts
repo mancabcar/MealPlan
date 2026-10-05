@@ -50,7 +50,7 @@ export const SEMILLA_TORTILLA: Recipe = {
   protein: 22,
   carbs: 8,
   fat: 5,
-  // Como en src/data/recipes.json desde #119; withSeedRecipes la rellena en las semilla guardadas sin ella (#23)
+  // Como en src/data/recipes.json desde #119; el catálogo se lee del bundle y no se guarda, así que la fibra llega sin rellenar (#23, #42)
   fiber: 2,
   tags: ["alto proteína", "vegetariano", "desayuno"],
 };

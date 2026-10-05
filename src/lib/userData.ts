@@ -1,6 +1,6 @@
 // Registro de los datos de cada usuario (mp_<userId>_<clave>) y de cómo se cargan. Lo usan AppProvider al montar y
 // la importación de copias (backup.ts), así una copia pasa exactamente por las mismas migraciones (backup-datos R7).
-import seedData from "@/data/recipes.json";
+import { CATALOG_IDS } from "./catalog";
 import { sanitizeMeasurements } from "./measurements";
 import { migrateEntries, migrateProfile, migrateWeekPlan, RETIRED_RECIPE_IDS } from "./migrate";
 import { sanitizeWater } from "./water";
@@ -45,19 +45,14 @@ export interface LoadOptions<T> {
   backup?: boolean;
 }
 
-/** Siembra idempotente: quita las recetas semilla retiradas, añade las del JSON cuyo id falte y rellena la fibra (#23) de las semilla guardadas sin ella. */
-export function withSeedRecipes(raw: unknown): Recipe[] {
-  const saved = (raw as Recipe[] | null) ?? [];
-  const stored = saved.some((r) => Object.hasOwn(RETIRED_RECIPE_IDS, r.id))
-    ? saved.filter((r) => !Object.hasOwn(RETIRED_RECIPE_IDS, r.id))
-    : saved;
-  // Quien ya tenía las semilla guardadas antes de que el catálogo trajera fibra no las recibiría con la siembra por id (#23, R4)
-  const seedFiber = new Map((seedData.recipes as Recipe[]).flatMap((r) => (r.fiber === undefined ? [] : [[r.id, r.fiber] as const])));
-  const needsFiber = (r: Recipe) => r.fiber === undefined && seedFiber.has(r.id);
-  const filled = stored.some(needsFiber) ? stored.map((r) => (needsFiber(r) ? { ...r, fiber: seedFiber.get(r.id) } : r)) : stored;
-  const existing = new Set(filled.map((r) => r.id));
-  const missing = (seedData.recipes as Recipe[]).filter((r) => !existing.has(r.id));
-  return missing.length > 0 ? [...filled, ...missing] : filled;
+/**
+ * Recetas del usuario (IA y propias): quita las del catálogo, que viven en el bundle (src/lib/catalog.ts) y no se guardan,
+ * y las retiradas. Idempotente: también limpia lo que dejó la siembra anterior y las copias de seguridad antiguas.
+ */
+export function userRecipes(raw: unknown): Recipe[] {
+  const saved = Array.isArray(raw) ? (raw as Recipe[]) : [];
+  const isCatalog = (r: Recipe) => CATALOG_IDS.has(r.id) || Object.hasOwn(RETIRED_RECIPE_IDS, r.id);
+  return saved.some(isCatalog) ? saved.filter((r) => !isCatalog(r)) : saved;
 }
 
 /** Lista de ids sin duplicados ni basura. Los ids de recetas que ya no existen se descartan al guardar (store). */
@@ -69,7 +64,7 @@ export function sanitizeFavorites(raw: unknown): string[] {
 /** Mismas opciones que usa AppProvider al cargar: única fuente de las migraciones (R7). */
 export const LOAD_OPTIONS: { [K in UserDataKey]: LoadOptions<UserData[K]> } = {
   profile: { fallback: null, upgrade: migrateProfile, backup: true },
-  recipes: { fallback: [], upgrade: withSeedRecipes },
+  recipes: { fallback: [], upgrade: userRecipes },
   entries: {
     fallback: [],
     upgrade: (raw) => migrateEntries((raw as MealEntry[] | null) ?? []),

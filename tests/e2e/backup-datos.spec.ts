@@ -402,16 +402,17 @@ test.describe("R7: una copia antigua pasa por las migraciones", () => {
     expect(await readKey(page, ACCOUNT_B.id, "profile_v1_backup")).toBeNull();
   });
 
-  test("las recetas de ejemplo siguen ahí aunque la copia no las traiga", async ({ page }) => {
+  test("las recetas del catálogo se ven aunque la copia no las traiga, y no se guardan", async ({ page }) => {
     await signInB(page);
     await openPerfil(page);
     const { done } = await importFile(page, jsonFile(backupText({ profile: manuel, recipes: [AI_RECIPE] })));
     await expect(dataSection(page).getByRole("status")).toHaveText(/Datos importados/);
     done();
     const recipes: { id: string }[] = await readKey(page, ACCOUNT_B.id, "recipes");
-    expect(recipes[0].id).toBe(AI_RECIPE.id);
-    expect(recipes.length).toBeGreaterThan(1);
-    expect(new Set(recipes.map((r) => r.id)).size).toBe(recipes.length);
+    // Lo guardado son solo las del usuario; el catálogo viene con la app (docs/pm/recetas-almacenamiento R2, R5)
+    expect(recipes.map((r) => r.id)).toEqual([AI_RECIPE.id]);
+    await goTo(page, "Recetas");
+    await expect(page.getByText("Tortilla de claras con verduras", { exact: true })).toHaveCount(1);
   });
 });
 

@@ -79,30 +79,30 @@ Ninguna pantalla cambia. El hueco huérfano del Plan sigue mostrando "Añadir".
 - **E2E (`recetas-catalogo.spec.ts`, modelo `retired-recipes.spec.ts`)**: cuenta con catálogo guardado + IA + propia migra; plan, diario, favoritos y compra quedan igual (R3, R6); un hueco del plan con id huérfano se muestra como "Añadir" (R7).
 
 ## Tasks
-1. [ ] `catalog.ts`, `userRecipes` como migración del almacén y `AppProvider` que deriva `recipes`; tests unitarios de `userRecipes` y del store (covers R1, R2, R3, R6).
-2. [ ] `hasUserData` con `CATALOG_IDS`; reescribir los tests y fixtures que asumían el catálogo guardado o la siembra: `backup.test.ts`, `sync-migration.test.ts`, `migrate.test.ts` (la prueba de carga con `withSeedRecipes`), `seed-recipes-fiber.test.ts` (el relleno de fibra de #23 desaparece: sustituirlo por «la fibra del catálogo se ve sin migrar»), `store.test.tsx`, `store-recipes.test.tsx` y los fixtures que citan la siembra (covers R4, R5).
-3. [ ] `tests/unit/catalog-ids.test.ts` con la lista congelada de ids.
-4. [ ] E2E de migración de una cuenta real y del hueco huérfano (covers R3, R6, R7).
-5. [ ] Actualizar `spec.md` (R7 relajado, ids de IA resueltos) y el brief.
+1. [x] `catalog.ts`, `userRecipes` como migración del almacén y `AppProvider` que deriva `recipes`; tests unitarios de `userRecipes` y del store (covers R1, R2, R3, R6).
+2. [x] `hasUserData` con `CATALOG_IDS`; reescribir los tests y fixtures que asumían el catálogo guardado o la siembra: `backup.test.ts`, `sync-migration.test.ts`, `migrate.test.ts` (la prueba de carga con `withSeedRecipes`), `seed-recipes-fiber.test.ts` (el relleno de fibra de #23 desaparece: sustituirlo por «la fibra del catálogo se ve sin migrar»), `store.test.tsx`, `store-recipes.test.tsx` y los fixtures que citan la siembra (covers R4, R5).
+3. [x] `tests/unit/catalog-ids.test.ts` con la lista congelada de ids.
+4. [x] E2E de migración de una cuenta real y del hueco huérfano (covers R3, R6, R7).
+5. [x] Actualizar `spec.md` (R7 relajado, ids de IA resueltos) y el brief.
 
 Sin flag: el cambio es interno y la migración es idempotente.
 
 ## Spec feedback
-- **R7 relajado** (decisión del usuario): se quita la etiqueta "Receta no disponible"; basta con el comportamiento actual (el hueco muestra "Añadir") fijado con un test. Pendiente de editar `spec.md` en la tarea 5.
-- **Ids de IA repetidos**: resuelto, no es un riesgo: el servidor genera `ai_<sufijo>_<i>`. Pendiente de quitar de las preguntas abiertas de `spec.md` y de corregir el edge case.
+- **R7 relajado** (decisión del usuario): se quita la etiqueta "Receta no disponible"; basta con el comportamiento actual (el hueco muestra "Añadir") fijado con un test. `spec.md` actualizado en la tarea 5.
+- **Ids de IA repetidos**: resuelto, no es un riesgo: el servidor genera `ai_<sufijo>_<i>`. `spec.md` actualizado en la tarea 5.
 - **`schemaVersion`**: se queda en 1 (decisión del usuario).
 - **Dispositivo antiguo en sincronización**: basta la idempotencia, sin `markDirty` (decisión del usuario).
 
 ## Test coverage
-Escritos antes del código. Comandos: `npx vitest run tests/unit/recipe-catalog.test.ts tests/unit/store-catalog.test.tsx tests/unit/store-catalog-change.test.tsx tests/unit/catalog-ids.test.ts` y `npx playwright test tests/e2e/recetas-catalogo.spec.ts`. R1 no tiene e2e: el bundle no cambia en tiempo de ejecución, así que se simula con un mock de `@/data/recipes.json`.
+Escritos antes del código; ahora en verde con el código de las tareas 1–2. Comandos: `npx vitest run tests/unit/recipe-catalog.test.ts tests/unit/store-catalog.test.tsx tests/unit/store-catalog-change.test.tsx tests/unit/catalog-ids.test.ts` y `npx playwright test tests/e2e/recetas-catalogo.spec.ts`. R1 no tiene e2e: el bundle no cambia en tiempo de ejecución, así que se simula con un mock de `@/data/recipes.json`.
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | tests/unit/store-catalog-change.test.tsx › "R1: un cambio del catálogo llega a una cuenta existente…" (2) | unit | 🔴 failing (not built) |
-| R2 | tests/unit/store-catalog.test.tsx › "R2: en localStorage solo se guardan recetas del usuario" (4) · tests/unit/recipe-catalog.test.ts › "R2: un almacén nuevo…" (2) | unit | 🔴 failing (not built) |
-| R3 | tests/unit/recipe-catalog.test.ts › "R3: la migración del almacén…" (6; la idempotencia pasa hoy a propósito) · tests/unit/store-catalog.test.tsx › "R3: al cargar…" (3) · tests/e2e/recetas-catalogo.spec.ts › "R3, R6: una cuenta con el catálogo guardado migra…" | unit + e2e | 🔴 failing (not built) |
-| R4 | tests/unit/store-catalog.test.tsx › "R4: la copia de seguridad exporta solo…" | unit | 🔴 failing (not built) |
-| R5 | tests/unit/recipe-catalog.test.ts › "R5: importar una copia de seguridad…" (4; el de «todo o nada» pasa hoy a propósito) | unit | 🔴 failing (not built) |
+| R1 | tests/unit/store-catalog-change.test.tsx › "R1: un cambio del catálogo llega a una cuenta existente…" (2) | unit | 🟢 passing |
+| R2 | tests/unit/store-catalog.test.tsx › "R2: en localStorage solo se guardan recetas del usuario" (4) · tests/unit/recipe-catalog.test.ts › "R2: un almacén nuevo…" (2) | unit | 🟢 passing |
+| R3 | tests/unit/recipe-catalog.test.ts › "R3: la migración del almacén…" (6; la idempotencia pasa hoy a propósito) · tests/unit/store-catalog.test.tsx › "R3: al cargar…" (3) · tests/e2e/recetas-catalogo.spec.ts › "R3, R6: una cuenta con el catálogo guardado migra…" | unit + e2e | 🟢 passing |
+| R4 | tests/unit/store-catalog.test.tsx › "R4: la copia de seguridad exporta solo…" | unit | 🟢 passing |
+| R5 | tests/unit/recipe-catalog.test.ts › "R5: importar una copia de seguridad…" (4; el de «todo o nada» pasa hoy a propósito) | unit | 🟢 passing |
 | R6 | tests/unit/store-catalog.test.tsx › "R6: el plan, el diario y los favoritos…" (2) · el e2e de R3 | unit + e2e | 🟢 pasa hoy (red de seguridad de la migración); el e2e falla por R3 |
 | R7 (relajado) | tests/unit/store-catalog.test.tsx › "R7 (relajado)…" · tests/e2e/recetas-catalogo.spec.ts › "R7: un hueco del plan…" | unit + e2e | 🟢 pasa hoy (fija el comportamiento actual) |
 | Regla de ids | tests/unit/catalog-ids.test.ts (2) | unit | 🟢 pasa hoy (barrera: falla si se quita un id sin alias) |

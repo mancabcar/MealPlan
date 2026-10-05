@@ -1,5 +1,5 @@
 # Separar el catálogo de recetas de las del usuario: Spec
-_Status: Draft · Owner: Manuel · Updated: 2026-10-05_
+_Status: Draft · Owner: Manuel · Updated: 2026-10-05 (R7 relajado y ids de IA resueltos tras el tech design)_
 _Related: [brief](brief.md) · Issue [#42](https://github.com/mancabcar/MealPlan/issues/42)_
 
 ## TL;DR
@@ -40,7 +40,7 @@ Manuel, con cuenta existente (con 107 recetas copiadas y alguna de IA o propia).
 | R4 | La copia de seguridad exporta solo las recetas del usuario. | Must |
 | R5 | Importar una copia antigua (con las recetas del catálogo dentro) funciona y no crea duplicados. | Must |
 | R6 | Las pantallas, el plan, el diario, la lista de la compra y los favoritos se comportan igual que hoy: el usuario ve el catálogo y sus recetas juntos. | Must |
-| R7 | Un id del catálogo que ya no existe no rompe el plan, el diario ni la compra: el hueco del plan se muestra como "Receta no disponible" y se puede quitar. | Should |
+| R7 | Un id del catálogo que ya no existe no rompe el plan, el diario ni la compra: se comportan como hoy (el hueco del plan se muestra como "Añadir"). | Should |
 
 Regla de contenido (no es un requisito de software): un id del catálogo no se borra; una receta retirada se redirige a otra con `RETIRED_RECIPE_IDS`, como ya se hace.
 
@@ -77,11 +77,11 @@ Regla de contenido (no es un requisito de software): un id del catálogo no se b
 - Given una receta del catálogo marcada como favorita, when se migra, then sigue siendo favorita.
 
 **R7**
-- Given un hueco del plan con un id sin receta, when se abre el Plan, then se muestra "Receta no disponible", los macros y la lista de la compra lo omiten sin fallar, y se puede quitar el hueco.
+- Given un hueco del plan con un id sin receta, when se abre el Plan, then se muestra "Añadir", los macros y la lista de la compra lo omiten sin fallar, y el hueco no se borra en silencio.
 - Given una entrada del diario con un id sin receta, when se abre el diario, then se muestra sin romper la pantalla.
 
 ## Edge cases
-- Una receta de IA con id parecido a uno del catálogo: los ids de IA son `ai_NNN`, no `recipe_*`, así que no se confunden con el catálogo.
+- Una receta de IA con id parecido a uno del catálogo: los ids de IA son `ai_<sufijo>_<i>` (`server/app/api/recipes/route.ts`) y los propios `custom_<uuid>`, no `recipe_*`, así que no se confunden con el catálogo ni se repiten entre generaciones.
 - Un perfil o una copia con `recipes` vacío o ausente: queda vacío y el usuario ve solo el catálogo.
 - Una receta retirada con alias (`RETIRED_RECIPE_IDS`): las entradas y el plan siguen migrando al id que se queda (R3 no lo cambia).
 - Dos dispositivos sincronizados, uno con la versión antigua de la app: el antiguo vuelve a sembrar el catálogo en su almacén y lo sube al servidor. La carga de la versión nueva lo vuelve a quitar (R3 es idempotente).
@@ -96,6 +96,6 @@ Sin métricas formales (app de uso propio): se verifica con los criterios de ace
 - Debe ir antes de [recetas-cocina](../recetas-cocina/brief.md), que es lo primero que cambia el JSON.
 
 ## Open questions
-- [ ] ¿Sube `schemaVersion` de la copia de seguridad? (tech design)
-- [ ] ¿Cómo se comporta un dispositivo con la app antigua en sincronización (edge case de arriba)? ¿Basta la idempotencia de R3 o hay que evitar la subida? (tech design)
-- [ ] ¿Qué ocurre con los ids de recetas de IA duplicados entre generaciones (`ai_001` repetido)? Ya existe hoy; fuera de esta spec salvo que el tech design vea un riesgo. (Manuel)
+- [x] ¿Sube `schemaVersion` de la copia de seguridad? No: se queda en 1 (tech design).
+- [x] Dispositivo con la app antigua en sincronización: basta la idempotencia de R3, sin `markDirty` (tech design).
+- [x] Ids de IA repetidos entre generaciones: no ocurre, el servidor genera `ai_<sufijo>_<i>`.

@@ -78,7 +78,7 @@ describe("usePersisted: varias escrituras en un mismo evento", () => {
 
 const IMPORTED: UserData = {
   profile: BACKUP_PROFILE,
-  recipes: [AI_RECIPE, ...(seedData.recipes as Recipe[])],
+  recipes: [AI_RECIPE],
   entries: BACKUP_ENTRIES,
   pantry: BACKUP_PANTRY,
   weekplan: BACKUP_PLAN,
@@ -129,7 +129,8 @@ describe("R6: importData sustituye los datos sin recargar", () => {
     act(() => ref.app!.importData(IMPORTED));
 
     expect(ref.app!.profile).toEqual(IMPORTED.profile);
-    expect(ref.app!.recipes).toEqual(IMPORTED.recipes);
+    // El contexto suma el catálogo del bundle a las recetas importadas del usuario
+    expect(ref.app!.recipes).toEqual([...(seedData.recipes as Recipe[]), ...IMPORTED.recipes]);
     expect(ref.app!.entries).toEqual(IMPORTED.entries);
     expect(ref.app!.pantry).toEqual(IMPORTED.pantry);
     expect(ref.app!.weekPlan).toEqual(IMPORTED.weekplan);
@@ -216,7 +217,8 @@ describe("R7: la carga del store y parseBackup migran igual", () => {
     if (!parsed.ok) return;
     expect(parsed.data.profile).toEqual(ref.app!.profile);
     expect(parsed.data.entries).toEqual(ref.app!.entries);
-    expect(parsed.data.recipes).toEqual(ref.app!.recipes);
+    // El estado del store suma el catálogo; lo que se guarda (y lo que da parseBackup) son solo las del usuario
+    expect(parsed.data.recipes).toEqual(JSON.parse(localStorage.getItem("mp_u_recipes")!));
   });
 });
 
