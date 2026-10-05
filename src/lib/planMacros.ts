@@ -21,7 +21,7 @@ export type MacroStatus = "below" | "within" | "above";
 /** ±10 % para los objetivos sin rango (R4). Porcentaje entero: macroStatus lo compara en aritmética entera. */
 export const PLAN_TOLERANCE_PCT = 10;
 
-/** R9: macros de una franja = receta × raciones, sin redondear. Único punto de escalado; #29 pasará slot.servings. */
+/** R9: macros de una franja = receta × raciones, sin redondear. Único punto de escalado (`dayPlanSummary` pasa slotServings). */
 export function slotMacros(recipe: Recipe, servings = 1): MacrosWithFiber {
   return {
     calories: recipe.calories * servings,
@@ -31,6 +31,15 @@ export function slotMacros(recipe: Recipe, servings = 1): MacrosWithFiber {
     // Sin dato de fibra no se inventa un 0 (#23, R1)
     ...(recipe.fiber !== undefined && { fiber: recipe.fiber * servings }),
   };
+}
+
+/**
+ * Raciones que se comen en una franja (docs/pm/29-raciones-plan › R7): ausente = 1. Una copia de seguridad con un valor
+ * que no es un número positivo se trata como 1, no como 0 ni NaN.
+ */
+export function slotServings(slot: Pick<DayPlanSlot, "servings">): number {
+  const s = slot.servings;
+  return typeof s === "number" && Number.isFinite(s) && s > 0 ? s : 1;
 }
 
 export const finiteOr0 = (n: number) => (Number.isFinite(n) ? n : 0);
@@ -77,7 +86,7 @@ export function dayPlanSummary({
     const slot = slots.find((s) => s.mealType === mealType);
     const recipe = slot && recipes.find((r) => r.id === slot.recipeId);
     if (!recipe) continue;
-    const m = slotMacros(recipe);
+    const m = slotMacros(recipe, slotServings(slot));
     // Una receta restaurada de un backup solo se valida por id: un macro ausente o no numérico suma 0, no NaN
     totals.calories += finiteOr0(m.calories);
     totals.protein += finiteOr0(m.protein);

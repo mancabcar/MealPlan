@@ -88,7 +88,7 @@ Los tests se escriben antes del código (dev-test, decisión del usuario).
 - **Regresión:** `raciones`, `sobras`, `macros-plan`, `shopping-list` y `diario-desde-plan` siguen en verde.
 
 ## Tasks
-1. [ ] Tipo + `slotServings` + `dayPlanSummary` escalado (covers R1, R4, R7)
+1. [x] Tipo + `slotServings` + `dayPlanSummary` escalado (covers R1, R4, R7)
 2. [ ] `aggregate` escala por `servings` (covers R5, R8)
 3. [ ] `setSlotServings` + conservar en `commitAssign` y `deleteOrigin("keep")` (covers R9)
 4. [ ] Extraer `ServingsField` del Diario sin cambiar comportamiento
