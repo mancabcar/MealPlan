@@ -7,6 +7,7 @@ import type { ShoppingState } from "./shopping/state";
 import { writeUserData } from "./backup";
 import { withoutRecipe } from "./recipeEdit";
 import { useSync } from "./syncContext";
+import { withWater } from "./water";
 import { LOAD_OPTIONS, USER_DATA_KEYS, type LoadOptions, type UserData, type UserDataKey } from "./userData";
 
 interface AppState {
@@ -20,6 +21,8 @@ interface AppState {
   measurements: Measurement[];
   /** Ids de las recetas favoritas (docs/pm/20-recetas-filtros). */
   favorites: string[];
+  /** Agua bebida por día en ml (docs/pm/23-agua-fibra-micros). */
+  water: Record<string, number>;
   loaded: boolean;
   /** Id del ítem de la Despensa por el que Recetas filtra ("Recetas con esto"). Efímero: no se persiste ni entra en el backup. */
   recipeFocus: string | null;
@@ -44,6 +47,8 @@ interface AppState {
   removeMeasurement: (id: string) => void;
   /** Marca o desmarca una receta como favorita; al guardar descarta los ids de recetas que ya no existen. */
   toggleFavorite: (id: string) => void;
+  /** Fija los ml bebidos de un día (docs/pm/23-agua-fibra-micros); 0 quita el día. */
+  setWaterDay: (date: string, ml: number) => void;
   /** Sustituye los ocho datos del usuario (ya validados con parseBackup). Lanza si falla la escritura (nada cambia). */
   importData: (data: UserData) => void;
 }
@@ -115,6 +120,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
   const [measurements, setMeasurements, reloadMeasurements] = usePersisted(k("measurements"), LOAD_OPTIONS.measurements, dirty("measurements"));
 
   const [favorites, setFavorites, reloadFavorites] = usePersisted(k("favorites"), LOAD_OPTIONS.favorites, dirty("favorites"));
+  const [water, setWater, reloadWater] = usePersisted(k("water"), LOAD_OPTIONS.water, dirty("water"));
 
   const [recipeFocus, setRecipeFocus] = useState<string | null>(null);
 
@@ -130,6 +136,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     reloadShopping();
     reloadMeasurements();
     reloadFavorites();
+    reloadWater();
     // #22 R11: lo importado se sube entero
     for (const key of USER_DATA_KEYS) markDirty(key);
   };
@@ -144,6 +151,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     shopping: reloadShopping,
     measurements: reloadMeasurements,
     favorites: reloadFavorites,
+    water: reloadWater,
   };
   const latestReloaders = useRef(reloaders);
   useEffect(() => {
@@ -160,6 +168,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     shopping,
     measurements,
     favorites,
+    water,
     loaded: true,
     recipeFocus,
     setRecipeFocus,
@@ -193,6 +202,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
         const kept = prev.filter((f) => known.has(f));
         return kept.includes(id) ? kept.filter((f) => f !== id) : [...kept, id];
       }),
+    setWaterDay: (date, ml) => setWater((prev) => withWater(prev, date, ml)),
     importData,
   };
 

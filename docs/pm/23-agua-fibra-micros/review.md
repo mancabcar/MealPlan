@@ -32,3 +32,35 @@ Desviaciones aceptadas: la fibra de las entradas de receta antiguas se recupera 
 
 ## Code review findings
 Los cinco de arriba salen de la pasada de `code-review` (nivel high) y de la comprobación contra el spec; no hay otros.
+
+---
+
+# Entrega 2 (agua): Review
+_PR: [#121](https://github.com/mancabcar/MealPlan/pull/121) · Reviewed: 2026-10-05 · Verdict: ⚠️ approved with follow-ups_
+
+## Summary
+La entrega 2 implementa R10–R13 con tests, y typecheck, lint, build, 1226 tests unitarios, 181 del servidor y 467 e2e están en verde. No hay hallazgos bloqueantes: los cuatro de la revisión quedan como seguimientos (decisión del usuario). Se puede mergear tras desplegar el servidor con la clave `water`.
+
+## Spec conformance
+| Req | Status | Where | Tested |
+|---|---|---|---|
+| R10 | ✅ Done | `src/lib/water.ts`, `src/components/diario/WaterCard.tsx`, `src/app/page.tsx` | ✅ `water.test.ts`, `store-water.test.tsx`, `agua.spec.ts` |
+| R11 | ✅ Done | `src/app/perfil/page.tsx` (`WaterGoalRow`, `GlassSizeSection`), `src/lib/water.ts` | ✅ unit + e2e |
+| R12 | ✅ Done | `WaterCard.tsx` («Objetivo cumplido», sin bloquear `+` hasta 6 L) | ✅ unit + e2e |
+| R13 | ✅ Done | `userData.ts`, `store.tsx`, `backup.ts`, `syncMigration.ts`, `server/lib/sync.ts` | ✅ `backup-water`, `sync-engine`, `sync-migration`, `sync-routes` |
+
+Desviaciones aceptadas: los botones se llaman «Sumar un vaso» / «Quitar un vaso» (no «Añadir…») porque un test existente de comida busca `/^Añadir /`; documentado en `tech.md`. «Quitar un vaso» no se deshabilita en 0 (el spec dice que tocarlo deja 0). Sin alcance extra ni cambios sin relación.
+
+## Blocking
+Ninguno.
+
+## Non-blocking
+- Un 400 de una clave desconocida (cliente nuevo contra servidor sin `water`) hace que `pushPending` (`src/lib/sync.ts:126`) se pare en esa clave y no suba las que están en cola detrás hasta desplegar el servidor; el texto del PR decía que no impedía usar la app y se corrigió. → Tratar un 400 como fallo permanente de esa clave y seguir con las demás.
+- `WaterGoalRow` es una copia de `FiberGoalRow` (`src/app/perfil/page.tsx`). → Extraer un `GoalRow` común.
+- El total y «Objetivo cumplido» cambian sin anunciarse a lectores de pantalla (`WaterCard.tsx`). → `role="status"` en el texto del total.
+- Con más agua que el objetivo la tarjeta dice «9 de 8 vasos» con 8 vasos dibujados. → Limitar el número mostrado o dibujar los extra.
+- Siguen abiertos los seguimientos de la entrega 1 (validar `fiber`/`fiberGoal`, `scaleFiber`, `fiberOf`, `entryFiber`) y actualizar `spec.md`.
+
+## Code review findings
+Los cuatro de arriba salen de la pasada de `code-review` (nivel high); no hay otros.
+

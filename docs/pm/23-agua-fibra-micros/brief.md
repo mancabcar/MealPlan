@@ -1,10 +1,15 @@
 # Seguimiento de agua y fibra en el Diario
-_Status: in review · Updated: 2026-10-05 · Issue: [#23](https://github.com/mancabcar/MealPlan/issues/23) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/5qcuWMP2ueJJzGfvuYV21n) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#120](https://github.com/mancabcar/MealPlan/pull/120) (entrega 1, fibra; #119 ya aportó los datos del catálogo) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+_Status: in review · Updated: 2026-10-05 · Issue: [#23](https://github.com/mancabcar/MealPlan/issues/23) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/5qcuWMP2ueJJzGfvuYV21n) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#120](https://github.com/mancabcar/MealPlan/pull/120), [#121](https://github.com/mancabcar/MealPlan/pull/121) (agua) (entrega 1, fibra; #119 ya aportó los datos del catálogo) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
-- Azúcar y sodio: campos opcionales en recetas, entradas, alimentos y OFF, y su visualización. (brainstorm; el issue los pedía, el usuario los dejó fuera de esta entrega)
+- Azúcar y sodio: campos opcionales en recetas, entradas, alimentos y OFF, y su visualización. (brainstorm; el issue los pedía, el usuario los dejó fuera de esta entrega) → [#124](https://github.com/mancabcar/MealPlan/issues/124)
 - Micronutrientes tipo Cronometer (hierro, etc.) con una tabla de nutrientes genérica en vez de campos sueltos. (brainstorm)
 - Contador manual de «fibra del día» (sumar gramos o raciones de verdura/legumbre/fruta/integral) sin tocar recetas ni alimentos. (brainstorm)
+
+- Sincronización: un 400 de una clave no debe detener la subida de las demás. (review de #121) → [#122](https://github.com/mancabcar/MealPlan/issues/122)
+- Validar fibra, objetivo de fibra, agua y vaso al cargar datos externos. (reviews de #120 y #121) → [#123](https://github.com/mancabcar/MealPlan/issues/123)
+- Limpieza y accesibilidad de fibra y agua (GoalRow común, scaleFiber, fiberOf, entryFiber, aria-live, «9 de 8 vasos»). (reviews de #120 y #121) → [#125](https://github.com/mancabcar/MealPlan/issues/125)
+- Actualizar spec.md con el cambio de las entradas antiguas de receta (la fibra se recupera de la receta). (review de #120)
 
 ## Problem
 Necesito un modo de seguir mi agua y mi fibra del día dentro del Diario, porque hoy la app solo me deja ver kcal y macros y me quedo sin saber si hidrato y como suficiente fibra. Hoy no lo anoto en ningún sitio.

@@ -112,11 +112,11 @@ PR 1 (fibra)
 8. [x] e2e de la entrega 1 y abrir el PR.
 
 PR 2 (agua)
-9. [ ] `src/lib/water.ts` con tests (R10, R11).
-10. [ ] Clave `water`: `userData`, `store`, `backup`, `syncMigration`, `sync` y `server/lib/sync.ts` con sus tests (R13).
-11. [ ] `waterGoalMl`/`glassMl` y filas de Perfil (R11).
-12. [ ] `WaterCard` en el Diario (R10, R12).
-13. [ ] e2e de agua y abrir el PR.
+9. [x] `src/lib/water.ts` con tests (R10, R11).
+10. [x] Clave `water`: `userData`, `store`, `backup`, `syncMigration`, `sync` y `server/lib/sync.ts` con sus tests (R13).
+11. [x] `waterGoalMl`/`glassMl` y filas de Perfil (R11).
+12. [x] `WaterCard` en el Diario (R10, R12).
+13. [x] e2e de agua y abrir el PR.
 
 ## Spec feedback
 - R4: el dato y el tipo ya están en main por el PR #119; queda mostrarlo en la ficha. (Decidido por el usuario.)
@@ -157,4 +157,28 @@ Entrega 1 (fibra). Estado a 2026-10-05, antes de escribir el código: «🔴» =
 | R9 | `tests/e2e/fibra.spec.ts` › R9 (aviso «3 de 5» y etiquetas por entrada) | e2e | 🔴 failing (not built) |
 | R13 (fibra) | `tests/unit/backup-fiber.test.ts` › R13: restaura fibra y objetivo | unit | 🟢 guarda |
 
-Pendiente de la entrega 2 (agua, R10–R13): sus tests se escriben antes de esa entrega (`water.test.ts`, sync de la novena clave, `water.spec.ts`).
+## UI test contract (entrega 2)
+Acordado con Manuel al escribir los tests de agua (dev-test, 2026-10-05); lo fijan `tests/e2e/agua.spec.ts` y `tests/unit/*water*`:
+- Diario: región «Agua» justo debajo de macros y fibra, con «1,25 / 2 L», «5 de 8 vasos · vaso de 250 ml», botones «Sumar un vaso» y «Quitar un vaso» (no «Añadir…», que chocaría con el botón «Añadir» del formulario de comida) y vasos «Vaso N» (aria-pressed). Tocar el vaso N fija el total en N vasos (si ya hay exactamente N llenos, queda en N − 1). «Objetivo cumplido» al llegar al objetivo, sin bloquear más vasos hasta 6 L. Sigue la fecha del Diario.
+- Reglas: vasos bebidos = ml ÷ vaso hacia abajo; vasos del objetivo = objetivo ÷ vaso hacia arriba (2 L con 330 ml = 7); «+» no pasa de 6000 ml (se recorta); «−» no baja de 0; litros con coma y hasta 2 decimales sin ceros sobrantes.
+- Perfil › «Objetivos diarios»: fila «Agua» («2 L») con «Editar agua» → «Objetivo de agua (L)» (0,5–6, coma o punto, hasta 2 decimales) con «Guardar» (deshabilitado si no vale) y «Cancelar». Región «Tamaño del vaso» con radios 200/250/330/500 ml que se guardan al tocarlos.
+- Datos: `water` = `Record<YYYY-MM-DD, ml>`, novena clave de `USER_DATA_KEYS`/`SYNC_KEYS`; `AppState.water` y `setWaterDay(date, ml)` (0 ml quita el día); `sanitizeWater` descarta fechas mal formadas y valores no numéricos, no finitos, negativos o cero, y recorta a 6000. `hasUserData` cuenta el agua como dato propio. `UserProfile.waterGoalMl?` y `glassMl?` (vaso fuera de las cuatro opciones = 250).
+- `src/lib/water.ts`: `WATER_GOAL_DEFAULT_ML`, `GLASS_DEFAULT_ML`, `GLASS_OPTIONS`, `WATER_MAX_ML`, `waterGoalMl`, `glassMl`, `glassesFor`, `glassesDrunk`, `addGlass`, `removeGlass`, `tapGlass`, `goalReached`, `parseWaterGoal`, `formatLiters`, `withWater`, `sanitizeWater`.
+- Los tests existentes que contaban ocho claves (`backup`, `sync-engine`, `sync-migration`, `sync-routes` del servidor y `fakeSyncBackend`) pasan a nueve.
+
+## Test coverage (entrega 2, agua)
+Estado a 2026-10-05, antes de escribir el código: «🔴» = falla porque falta la función/UI; «🟢 guarda» = ya pasa y protege.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R10 | `tests/unit/water.test.ts` › sumar/restar, tocar vaso, tope 6 L, formato, `withWater`, `sanitizeWater` | unit | 🔴 failing (not built) |
+| R10 | `tests/unit/store-water.test.tsx` › `water`/`setWaterDay`, persistencia por usuario, saneo | unit (store) | 🔴 failing (not built) |
+| R10 | `tests/e2e/agua.spec.ts` › R10 (contador, «−» en 0, tocar vaso, recarga, fecha del Diario, tope, orden en la pantalla) | e2e | 🔴 failing (not built) |
+| R11 | `tests/unit/water.test.ts` › R11 (por defecto, perfil, vaso inválido, `parseWaterGoal`, vasos redondeados) | unit | 🔴 failing (not built) |
+| R11 | `tests/e2e/agua.spec.ts` › R11 (Perfil: ver, editar, validar, cancelar, tamaño del vaso, ml intactos) | e2e | 🔴 failing (not built) |
+| R12 | `tests/unit/water.test.ts` › R12 y `tests/e2e/agua.spec.ts` › R12 («Objetivo cumplido» y seguir sumando) | unit + e2e | 🔴 failing (not built) |
+| R13 | `tests/unit/backup-water.test.ts` (novena clave, restaurar, copia anterior, sección inválida, saneo) y `tests/unit/backup.test.ts` (nueve claves, `EMPTY_USER_DATA`) | unit | 🔴 failing (not built) |
+| R13 | `tests/unit/sync-engine.test.ts` › R13 (bajar `water` de otro dispositivo) | unit | 🔴 failing (not built) |
+| R13 | `tests/unit/sync-engine.test.ts` › R13 (subir `water`) y «marcar las 9 claves» | unit | 🟢 guarda (el motor ya sube cualquier clave) |
+| R13 | `tests/unit/sync-migration.test.ts` › 9 claves al adoptar/limpiar, agua cuenta como dato | unit | 🔴 failing (not built) |
+| R13 | `server/tests/unit/sync-routes.test.ts` › las 9 claves se guardan y devuelven | unit (servidor) | 🔴 failing (not built) |
