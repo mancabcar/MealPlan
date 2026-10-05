@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useId, useState } from "react";
+import { Suspense, useCallback, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, ShoppingCart } from "lucide-react";
 import { useApp } from "@/lib/store";
@@ -21,6 +21,8 @@ import { DAY_NAMES } from "@/lib/week";
 import { useShoppingList } from "@/lib/shopping/useShoppingList";
 import { useWeekParam, weekHref } from "@/lib/useWeekParam";
 import { WeekNav } from "@/components/plan/WeekNav";
+import { Toast } from "@/components/ui/Toast";
+import { applyCopy, isSourceEmpty, type CopyMode } from "@/lib/plan/copyWeek";
 
 /**
  * Hoja abierta sobre una tanda (docs/pm/17-sobras-batch-cooking): crear/editar, ver una sobra o decidir qué hacer con
@@ -53,6 +55,11 @@ function PlanContent() {
   const [servingsText, setServingsText] = useState("1");
   const [servingsError, setServingsError] = useState(false);
   const servingsId = useId();
+  // Aviso tras «Copiar semana anterior» (docs/pm/53-copiar-semana-anterior R5)
+  const [copyNotice, setCopyNotice] = useState<string | null>(null);
+  const hideCopyNotice = useCallback(() => setCopyNotice(null), []);
+  const copyHelpId = useId();
+  const recipeIds = useMemo(() => new Set(recipes.map((r) => r.id)), [recipes]);
   // Selector de días (R8): qué día de la semana se muestra debajo
   const [selectedDate, setSelectedDate] = useState(todayStr());
   // Al cambiar de semana se cierra lo que estuviera abierto (apuntaría a una fecha que ya no se ve) y el día vuelve
@@ -62,6 +69,7 @@ function PlanContent() {
     setShownWeek(monday);
     setEditing(null);
     setModal(null);
+    setCopyNotice(null);
     setSelectedDate(today);
   }
   // Solo las comidas que el usuario hace, en el orden canónico (R8)
@@ -112,6 +120,19 @@ function PlanContent() {
     commitAssign(batch ? deleteOrigin(weekPlan, current!.batchId!, "all") : weekPlan, editing, recipeId, servings);
   };
 
+  // R1: copia la semana anterior a la vista; sin Deshacer ni aviso de conflictos todavía (tareas 3 y 4)
+  const copyWeek = (mode: CopyMode) => {
+    setEditing(null);
+    const { plan, copied } = applyCopy(weekPlan, monday, recipeIds, mode);
+    if (copied === 0) {
+      setCopyNotice("No hay nada nuevo que copiar");
+      return;
+    }
+    setWeekPlan(plan);
+    setCopyNotice(copied === 1 ? "Copiada 1 franja" : `Copiadas ${copied} franjas`);
+  };
+  const sourceEmpty = isSourceEmpty(weekPlan, monday);
+
   const recipeName = (id: string) => recipes.find((r) => r.id === id)?.name ?? "la receta";
   const slotOf = (at: SlotRef) => (weekPlan[at.date] ?? []).find((s) => s.mealType === at.mealType);
 
@@ -125,6 +146,24 @@ function PlanContent() {
       <h1 className="font-display text-2xl font-bold">Plan semanal</h1>
 
       <WeekNav monday={monday} today={today} path="/plan" />
+
+      {/* Copiar semana anterior (docs/pm/53-copiar-semana-anterior R1, R4) */}
+      <div className="flex flex-col gap-1">
+        <button
+          type="button"
+          onClick={() => copyWeek("keep")}
+          disabled={sourceEmpty}
+          aria-describedby={sourceEmpty ? copyHelpId : undefined}
+          className="min-h-11 rounded-xl border border-[var(--color-border)] text-sm font-medium disabled:opacity-50"
+        >
+          Copiar semana anterior
+        </button>
+        {sourceEmpty && (
+          <p id={copyHelpId} className="text-xs text-[var(--color-text-muted)] text-center">
+            La semana anterior no tiene nada que copiar
+          </p>
+        )}
+      </div>
 
       <DaySelector dates={dates} selected={effectiveSelectedDate} onSelect={setSelectedDate} todayDate={today} />
 
@@ -278,6 +317,8 @@ function PlanContent() {
           })}
         </div>
       </Card>
+
+      {copyNotice && <Toast onDismiss={hideCopyNotice}>{copyNotice}</Toast>}
     </div>
   );
 }

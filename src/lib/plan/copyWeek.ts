@@ -32,10 +32,14 @@ function put(plan: WeekPlan, date: string, slot: DayPlanSlot): WeekPlan {
   return { ...plan, [date]: [...day, slot] };
 }
 
+/** ¿La semana anterior a la de `monday` no tiene ninguna franja? (R4) */
+export function isSourceEmpty(plan: WeekPlan, monday: string): boolean {
+  return weekDates(addDays(monday, -7)).every((d) => (plan[d] ?? []).length === 0);
+}
+
 /** Franjas a copiar y sus conflictos; las idénticas a lo que ya hay (receta y raciones, sin tanda) no cuentan. */
 function build(plan: WeekPlan, monday: string, recipeIds: ReadonlySet<string>) {
   const sourceDates = weekDates(addDays(monday, -7));
-  const sourceEmpty = sourceDates.every((d) => (plan[d] ?? []).length === 0);
 
   const source = sourceDates.flatMap((date) =>
     (plan[date] ?? []).filter((s) => recipeIds.has(s.recipeId)).map((slot) => ({ date, slot })),
@@ -69,7 +73,7 @@ function build(plan: WeekPlan, monday: string, recipeIds: ReadonlySet<string>) {
     if (identical) continue;
     entries.push({ date: target, mealType: slot.mealType, slot: copy, conflict: existing !== undefined, group });
   }
-  return { entries, sourceEmpty };
+  return { entries, sourceEmpty: isSourceEmpty(plan, monday) };
 }
 
 /** Qué copiaría «Copiar semana anterior» sobre la semana de `monday`: franjas, conflictos y si el origen está vacío (R4). */
