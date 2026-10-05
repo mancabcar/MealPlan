@@ -126,6 +126,19 @@ describe("sync (#22): hasUserData solo cuenta las recetas del usuario", () => {
     expect(hasUserData(withRecipes(SEED), "u")).toBe(false);
   });
 
+  // #134: los ids retirados siguen guardados en dispositivos con el catálogo antiguo y la carga ya los trata como no del usuario.
+  it("#134: el catálogo antiguo con ids retirados guardado no cuenta como datos", () => {
+    const retired = Object.keys(RETIRED_RECIPE_IDS).map((id) => ({ ...SEED[0], id }));
+    expect(retired.length).toBeGreaterThan(0);
+    expect(hasUserData(withRecipes(retired), "u")).toBe(false);
+    expect(hasUserData(withRecipes([...SEED, ...retired]), "u")).toBe(false);
+  });
+
+  it("#134: una receta propia sigue contando aunque haya ids retirados al lado", () => {
+    const retired = Object.keys(RETIRED_RECIPE_IDS).map((id) => ({ ...SEED[0], id }));
+    expect(hasUserData(withRecipes([...retired, CUSTOM]), "u")).toBe(true);
+  });
+
   it("una receta de IA o propia sí cuenta, con o sin el catálogo al lado", () => {
     expect(hasUserData(withRecipes([AI_RECIPE]), "u")).toBe(true);
     expect(hasUserData(withRecipes([...SEED, CUSTOM]), "u")).toBe(true);
