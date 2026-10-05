@@ -325,13 +325,15 @@ export default function DiaryPage() {
                 const fiber = entryFiber(e, recipes);
                 return (
                   <div key={e.id} className="flex justify-between items-center py-1 text-sm">
-                    <span>
-                      {e.customName ?? recipes.find((r) => r.id === e.recipeId)?.name ?? "Receta"}
-                      {label && <span className="text-[var(--color-text-muted)]"> {label}</span>}
+                    <div>
+                      <span>
+                        {e.customName ?? recipes.find((r) => r.id === e.recipeId)?.name ?? "Receta"}
+                        {label && <span className="text-[var(--color-text-muted)]"> {label}</span>}
+                      </span>
                       <span className="block text-xs text-[var(--color-text-muted)]">
                         {fiber === undefined ? "Fibra: sin dato" : `Fibra ${formatFiber(fiber)} g`}
                       </span>
-                    </span>
+                    </div>
                     <span className="flex items-center gap-2 text-[var(--color-text-muted)]">
                       {/* Con raciones los macros pueden no ser enteros (0,25 × 150 = 37,5): se redondea al mostrar */}
                       {Math.round(e.calories)} kcal

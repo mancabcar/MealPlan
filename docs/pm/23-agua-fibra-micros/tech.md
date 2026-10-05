@@ -109,7 +109,7 @@ PR 1 (fibra)
 5. [x] `build-foods.mjs` y `foods-list.json` con fibra; regenerar `foods.json`; `LocalFood.fiber?` (R5).
 6. [x] Diario: barra de fibra, chip «parcial», aviso, etiqueta por entrada, tarjeta del alimento (R2, R9).
 7. [x] Ficha de receta con la quinta celda y campo en `RecipeForm`/`recipeEdit` (R4, R8).
-8. [ ] e2e de la entrega 1 y abrir el PR.
+8. [x] e2e de la entrega 1 y abrir el PR.
 
 PR 2 (agua)
 9. [ ] `src/lib/water.ts` con tests (R10, R11).
