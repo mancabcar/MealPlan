@@ -1,6 +1,6 @@
 # Raciones en el Plan (multiplicador por franja)
 
-_Status: in review · Updated: 2026-10-05 · Issue: [#29](https://github.com/mancabcar/MealPlan/issues/29) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#127](https://github.com/mancabcar/MealPlan/pull/127)_
+_Status: in review · Updated: 2026-10-05 · Issue: [#29](https://github.com/mancabcar/MealPlan/issues/29) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#127](https://github.com/mancabcar/MealPlan/pull/127) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 > Brainstorm omitido: el issue #29 ya trae problema, propuesta y contexto, y los specs de #7, #10 y #17 delimitan el terreno. Se entra en spec (decisión del usuario, 2026-10-05). Resumen del issue confirmado por el usuario.
 
