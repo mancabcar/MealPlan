@@ -1,6 +1,6 @@
 # Macros por día en el Plan semanal (frente a los objetivos)
 
-_Status: merged (2026-09-26, [PR #38](https://github.com/mancabcar/MealPlan/pull/38) mergeado) · review: ✅ approved tras arreglar los 3 no bloqueantes ([review](review.md)) · Updated: 2026-09-26 · Issue: [#10](https://github.com/mancabcar/MealPlan/issues/10) (@mancabcar, cerrado) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: shipped (2026-09-26) · Updated: 2026-10-05 · Issue: [#10](https://github.com/mancabcar/MealPlan/issues/10) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#38](https://github.com/mancabcar/MealPlan/pull/38) · Review: [review.md](review.md) — ✅ approved_
 
 ## Problema
 El Plan semanal (`src/app/plan/page.tsx`) solo muestra el total de kcal del día seleccionado. No enseña proteínas, carbohidratos ni grasas, así que no hay forma de saber si un día planificado cumple el plan de la nutricionista antes de comerlo. Hoy eso solo se ve a posteriori, en el Diario (`MacroBar` en `src/app/page.tsx`), cuando ya se ha comido.
@@ -15,8 +15,8 @@ El issue ya trae el problema, la propuesta y los criterios de aceptación, así 
 - **Raciones (#7):** solo existen en el Diario. `DayPlanSlot` no tiene `servings`: se dejó fuera a propósito en [raciones/spec.md](../raciones/spec.md) y se movió al issue #29. El criterio "respeta las raciones cuando existan" se cumple hoy trivialmente (multiplicador 1). Si el cálculo usa el mismo punto de entrada, #29 lo heredará.
 
 ## Follow-ups
-- Criterio de "cumplido" con tolerancia (±10 %) también en el Diario (`MacroBar`), para que Plan y Diario digan lo mismo. (spec)
-- Marcar en el selector de días los días que cumplen (R8, Could). (spec) Sale casi gratis con `dayPlanSummary` + `macroStatus` por fecha: candidato a issue pequeño. (tech)
+- Criterio de "cumplido" con tolerancia (±10 %) también en el Diario (`MacroBar`), para que Plan y Diario digan lo mismo. (spec) → [#49](https://github.com/mancabcar/MealPlan/issues/49)
+- Marcar en el selector de días los días que cumplen (R8, Could). (spec) → [#50](https://github.com/mancabcar/MealPlan/issues/50) Sale casi gratis con `dayPlanSummary` + `macroStatus` por fecha: candidato a issue pequeño. (tech)
 - Si `MacroBar` pasa a usar `macroStatus` (tech.md › Spec feedback 1), el Diario marca cumplida la proteína a menos de 0,5 g del límite del rango (p. ej. 129,6 con 130–160); comprobarlo con raciones. (tech)
 - Cuando llegue #29, `dayPlanSummary` debe pasar `slot.servings` a `slotMacros` (único punto, R9). (tech)
 - La frase sr-only de cada celda solo tiene ejemplos para Grasas y Proteínas; los e2e aceptan la unidad tras el objetivo como opcional ("Calorías 2030 de 2000( kcal), dentro"). Decidido: unidad solo en Calorías ("Calorías 2030 de 2000 kcal, dentro"). (tests)
