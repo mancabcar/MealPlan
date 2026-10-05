@@ -1,5 +1,5 @@
 # Seguimiento de agua y fibra en el Diario
-_Status: tech design · Updated: 2026-10-05 · Issue: [#23](https://github.com/mancabcar/MealPlan/issues/23) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/5qcuWMP2ueJJzGfvuYV21n) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#119](https://github.com/mancabcar/MealPlan/pull/119) (solo datos del catálogo, mergeado)_
+_Status: tests · Updated: 2026-10-05 · Issue: [#23](https://github.com/mancabcar/MealPlan/issues/23) (@mancabcar) · Prototype: [canvas](https://claude.ai/artifact/5qcuWMP2ueJJzGfvuYV21n) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#119](https://github.com/mancabcar/MealPlan/pull/119) (solo datos del catálogo, mergeado)_
 
 ## Follow-ups
 - Azúcar y sodio: campos opcionales en recetas, entradas, alimentos y OFF, y su visualización. (brainstorm; el issue los pedía, el usuario los dejó fuera de esta entrega)
