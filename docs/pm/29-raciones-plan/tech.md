@@ -95,7 +95,7 @@ Los tests se escriben antes del código (dev-test, decisión del usuario).
 5. [x] Campo en la tarjeta de asignación + etiqueta "× N" en la franja (covers R2, R3)
 6. [x] `ServingsSheet` + botón "Raciones" por franja, incluidas sobras (covers R3, R8)
 7. [x] Pendientes: etiqueta, Hecho y Registrar todo con raciones (covers R6)
-8. [ ] E2E `raciones-plan.spec.ts` y docs
+8. [x] E2E `raciones-plan.spec.ts` y docs
 
 Sin flag: ausente = 1, nada cambia si no se toca.
 
@@ -109,23 +109,25 @@ Tests escritos antes del código (dev-test, 2026-10-05). Ajuste a la estrategia:
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | tests/unit/plan-servings.test.ts › "R1 / R7: slotServings" | unit | 🔴 failing (not built) |
-| R1 | tests/unit/plan-set-servings.test.ts › "R1: setSlotServings guarda las raciones de la franja" | unit | 🔴 failing (not built) |
-| R1 | tests/e2e/raciones-plan.spec.ts › "R1: con 1 ración la franja guardada no tiene el campo servings…" | e2e | 🟢 passing (guarda de regresión) |
-| R2 | tests/e2e/raciones-plan.spec.ts › "R2: asignar una receta con raciones" (valor inicial, 0,5 / 0.5, − / +, inválidos 0,3 · 5 · 0 · abc) | e2e | 🔴 failing (not built) |
-| R3 | tests/e2e/raciones-plan.spec.ts › "R3: editar las raciones sin reasignar la receta" (hoja, persistencia, volver a 1, inválido/Cancelar, otras franjas) | e2e | 🔴 failing (not built) |
-| R3 | tests/unit/plan-set-servings.test.ts › "R3: cambiar 0,5 → 0,75 no altera la receta…" | unit | 🔴 failing (not built) |
-| R4 | tests/unit/plan-servings.test.ts › "R4: el total del día multiplica por las raciones" | unit | 🔴 failing (not built) |
-| R4 | tests/e2e/raciones-plan.spec.ts › "R4: el total del día multiplica por las raciones" | e2e | 🔴 failing (not built) |
-| R5 | tests/unit/plan-servings.test.ts › "R5: la lista de la compra escala por las raciones de franjas normales" | unit | 🔴 failing (not built) |
-| R5 | tests/e2e/raciones-plan.spec.ts › "R5: la lista de la compra escala por las raciones" | e2e | 🔴 failing (not built) |
-| R6 | tests/unit/plan-servings.test.ts › "R6: pendingSlots lleva las raciones planificadas" | unit | 🔴 failing (not built) |
-| R6 | tests/e2e/raciones-plan.spec.ts › "R6: Hecho y Registrar todo el día usan las raciones planificadas" | e2e | 🔴 failing (not built) |
-| R7 | tests/unit/plan-servings.test.ts › "R7: …" (slotServings, total y lista sin servings) | unit | 🟡 parte pasa hoy (guardas de regresión) |
-| R7 | tests/e2e/raciones-plan.spec.ts › "R7: un plan guardado antes de este cambio…" | e2e | 🔴 failing (not built) |
-| R8 | tests/unit/plan-servings.test.ts › "R8: …" (total, batch en compra, pendiente) | unit | 🟡 compra pasa hoy (guarda); resto 🔴 |
-| R8 | tests/e2e/raciones-plan.spec.ts › "R8: raciones en cocinada y sobras (batch de #17)" | e2e | 🔴 failing (not built) |
-| R9 | tests/unit/plan-servings.test.ts › "R9: 'Dejar como normales' conserva las raciones…" | unit | 🔴 failing (not built) |
-| R9 | tests/e2e/raciones-plan.spec.ts › "R9: cambiar la receta o dejar las sobras como normales…" | e2e | 🔴 failing (not built) |
+| R1 | tests/unit/plan-servings.test.ts › "R1 / R7: slotServings" | unit | 🟢 passing |
+| R1 | tests/unit/plan-set-servings.test.ts › "R1: setSlotServings guarda las raciones de la franja" | unit | 🟢 passing |
+| R1 | tests/e2e/raciones-plan.spec.ts › "R1: con 1 ración la franja guardada no tiene el campo servings…" | e2e | 🟢 passing |
+| R2 | tests/e2e/raciones-plan.spec.ts › "R2: asignar una receta con raciones" (valor inicial, 0,5 / 0.5, − / +, inválidos 0,3 · 5 · 0 · abc) | e2e | 🟢 passing |
+| R3 | tests/e2e/raciones-plan.spec.ts › "R3: editar las raciones sin reasignar la receta" (hoja, persistencia, volver a 1, inválido/Cancelar, otras franjas) | e2e | 🟢 passing |
+| R3 | tests/unit/plan-set-servings.test.ts › "R3: cambiar 0,5 → 0,75 no altera la receta…" | unit | 🟢 passing |
+| R4 | tests/unit/plan-servings.test.ts › "R4: el total del día multiplica por las raciones" | unit | 🟢 passing |
+| R4 | tests/e2e/raciones-plan.spec.ts › "R4: el total del día multiplica por las raciones" | e2e | 🟢 passing |
+| R5 | tests/unit/plan-servings.test.ts › "R5: la lista de la compra escala por las raciones de franjas normales" | unit | 🟢 passing |
+| R5 | tests/e2e/raciones-plan.spec.ts › "R5: la lista de la compra escala por las raciones" | e2e | 🟢 passing |
+| R6 | tests/unit/plan-servings.test.ts › "R6: pendingSlots lleva las raciones planificadas" | unit | 🟢 passing |
+| R6 | tests/e2e/raciones-plan.spec.ts › "R6: Hecho y Registrar todo el día usan las raciones planificadas" | e2e | 🟢 passing |
+| R7 | tests/unit/plan-servings.test.ts › "R7: …" (slotServings, total y lista sin servings) | unit | 🟢 passing |
+| R7 | tests/e2e/raciones-plan.spec.ts › "R7: un plan guardado antes de este cambio…" | e2e | 🟢 passing |
+| R8 | tests/unit/plan-servings.test.ts › "R8: …" (total, batch en compra, pendiente) | unit | 🟢 passing |
+| R8 | tests/e2e/raciones-plan.spec.ts › "R8: raciones en cocinada y sobras (batch de #17)" | e2e | 🟢 passing |
+| R9 | tests/unit/plan-servings.test.ts › "R9: 'Dejar como normales' conserva las raciones…" | unit | 🟢 passing |
+| R9 | tests/e2e/raciones-plan.spec.ts › "R9: cambiar la receta o dejar las sobras como normales…" | e2e | 🟢 passing |
 
 **Contrato de UI que fijan los e2e** (dev-code debe implementarlo tal cual): campo "Raciones" con botones "Quitar 0,25 raciones" / "Añadir 0,25 raciones" y error `SERVINGS_ERROR` (role="alert", aria-invalid) en la tarjeta de asignación; texto "× 0,5" en la franja (nada con 1); botón "Raciones: × 0,5 (Cena)" / "Raciones: 1 (Cena)" por franja con receta, también sobras; diálogo con el campo "Raciones", "Guardar" y "Cancelar"; "× 0,5" en la tarjeta del pendiente del Diario. Resultado inicial: 34 unit (10 pasan, guardas de regresión) y 28 e2e (2 pasan).
+
+**Resultado final (2026-10-05):** 1268 unit y 495 e2e en verde; `lint`, `typecheck` y `next build` limpios. Ajustes durante el código: el test de media cebolla espera "½" (formato actual de fracciones de la lista, que el spec manda mantener) y la aserción de `pendingSlots` de `diary.test.ts` incluye `servings: 1`. La tarjeta del pendiente muestra las kcal escaladas (decidido con Manuel, 2026-10-05).
