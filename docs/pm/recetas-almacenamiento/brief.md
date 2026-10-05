@@ -1,5 +1,5 @@
 # Dónde viven las recetas: JSON, localStorage o base de datos
-_Status: in review · Updated: 2026-10-05 · Issue: [#42](https://github.com/mancabcar/MealPlan/issues/42) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#133](https://github.com/mancabcar/MealPlan/pull/133)_
+_Status: in review · Updated: 2026-10-05 · Issue: [#42](https://github.com/mancabcar/MealPlan/issues/42) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#133](https://github.com/mancabcar/MealPlan/pull/133) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
 - `saveRecipe` con un id del catálogo guardaría una receta que la carga siguiente descarta (la migración quita por id). Hoy la interfaz no lo permite (las del catálogo se duplican con id nuevo); si #18 llega a editar in situ, decidir la precedencia por id.
