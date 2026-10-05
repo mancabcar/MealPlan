@@ -6,6 +6,7 @@ import { LogOut, Trash2 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import { ALLERGEN_LABELS } from "@/lib/allergens";
+import { FIBER_GOAL_ERROR, fiberGoal, parseFiberGoal } from "@/lib/fiber";
 import { withoutAllergies } from "@/lib/migrate";
 import { ageFromBirthYear, calculateTargets, parseDecimal, PROTEIN_G_PER_KG, type Targets } from "@/lib/nutrition";
 import {
@@ -110,6 +111,51 @@ const Row = ({ label, value }: { label: string; value: ReactNode }) => (
   </div>
 );
 
+// Objetivo de fibra (#23, R3): fila propia con su edición, para los dos orígenes de objetivos (calculado / nutricionista)
+function FiberGoalRow({ profile, update }: { profile: UserProfile; update: Update }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const fieldId = useId();
+  if (draft === null) {
+    return (
+      <div className="flex justify-between items-center text-sm">
+        <span className="text-[var(--color-text-muted)]">Fibra</span>
+        <span className="flex items-center gap-3">
+          <span className="text-[var(--color-text)]">{`${fiberGoal(profile)} g`}</span>
+          <button type="button" className={smallBtn} onClick={() => setDraft(String(fiberGoal(profile)))}>
+            Editar fibra
+          </button>
+        </span>
+      </div>
+    );
+  }
+  const parsed = parseFiberGoal(draft);
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={fieldId} className="text-sm font-medium">
+        Objetivo de fibra (g)
+      </label>
+      <input
+        id={fieldId}
+        inputMode="numeric"
+        className={inputCls}
+        value={draft}
+        aria-invalid={parsed === null}
+        onChange={(e) => setDraft(e.target.value)}
+      />
+      {parsed === null && <p className="text-xs text-[var(--color-expired)]">{FIBER_GOAL_ERROR}</p>}
+      <SaveBar
+        disabled={parsed === null}
+        onSave={() => {
+          if (parsed === null) return;
+          update({ fiberGoal: parsed });
+          setDraft(null);
+        }}
+        onCancel={() => setDraft(null)}
+      />
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- Tu objetivo
 
 function GoalSection({ profile, update }: { profile: UserProfile; update: Update }) {
@@ -188,6 +234,7 @@ function TargetsSection({ profile, update }: { profile: UserProfile; update: Upd
           />
           <Row label="Carbohidratos" value={`${profile.carbsGoal} g`} />
           <Row label="Grasas" value={`${profile.fatGoal} g`} />
+          <FiberGoalRow profile={profile} update={update} />
           {/* Cambiar de origen (R13): al plan se pasa con las cifras actuales; al cálculo, con los datos guardados */}
           <button
             type="button"
