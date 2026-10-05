@@ -83,6 +83,8 @@ export function todayStr(): string {
 export interface DayPlanSlot {
   mealType: MealType;
   recipeId: string;
+  /** Raciones que se comen (docs/pm/29-raciones-plan): 0,25–4 en pasos de 0,25. Ausente = 1; con 1 no se guarda. */
+  servings?: number;
   /** Sobras y batch cooking (docs/pm/17-sobras-batch-cooking): cocinada y sobras comparten batchId. Ausente = franja normal. */
   batchId?: string;
   /** Solo la cocinada: raciones cocinadas (N entero, 2–8). Es lo que escala la lista de la compra. */

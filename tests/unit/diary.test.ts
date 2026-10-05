@@ -78,7 +78,7 @@ describe("recipeEntry: la entrada de receta que crean 'Hecho' y el formulario", 
 describe("R1: franjas pendientes de la fecha seleccionada", () => {
   it("hoy con 'Lentejas' planificada en Comida y sin entradas → Comida pendiente con la receta", () => {
     const p = pending({ weekPlan: { [TODAY]: [slot("Comida", LENTEJAS)] } });
-    expect(p).toEqual([{ mealType: "Comida", recipe: LENTEJAS }]);
+    expect(p).toEqual([{ mealType: "Comida", recipe: LENTEJAS, servings: 1 }]);
   });
 
   it("sin plan para la fecha → ninguna pendiente", () => {

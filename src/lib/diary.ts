@@ -2,7 +2,7 @@
 // "Pendiente" nunca se guarda: se deriva en cada render del plan y de las entradas.
 import { scaleMacros, type Per100 } from "./foods";
 import { parseDecimal } from "./nutrition";
-import { slotMacros } from "./planMacros";
+import { slotMacros, slotServings } from "./planMacros";
 import { MEAL_TYPES, type MealEntry, type MealType, type Recipe, type WeekPlan } from "./types";
 
 // Raciones (docs/pm/raciones/tech.md › APIs): 0,25–4 en pasos de 0,25.
@@ -93,6 +93,8 @@ export function quantityLabel(entry: Pick<MealEntry, "grams" | "units">): string
 export interface PendingSlot {
   mealType: MealType;
   recipe: Recipe;
+  /** Raciones planificadas (docs/pm/29-raciones-plan, R6): las que registra "Hecho". 1 si la franja no las tiene. */
+  servings: number;
 }
 
 /** Franjas planificadas sin ninguna entrada, en orden MEAL_TYPES. Vacío para fechas futuras. */
@@ -124,7 +126,7 @@ export function pendingSlots({
     const recipe = slot && recipes.find((r) => r.id === slot.recipeId);
     if (!recipe) continue;
     if (logged.has(mt)) continue;
-    result.push({ mealType: mt, recipe });
+    result.push({ mealType: mt, recipe, servings: slotServings(slot) });
   }
   return result;
 }
