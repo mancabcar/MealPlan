@@ -92,8 +92,8 @@ Los tests se escriben antes del código (dev-test, decisión del usuario).
 2. [x] `aggregate` escala por `servings` (covers R5, R8)
 3. [x] `setSlotServings` + conservar en `commitAssign` y `deleteOrigin("keep")` (covers R9)
 4. [x] Extraer `ServingsField` del Diario sin cambiar comportamiento
-5. [ ] Campo en la tarjeta de asignación + etiqueta "× N" en la franja (covers R2, R3)
-6. [ ] `ServingsSheet` + botón "Raciones" por franja, incluidas sobras (covers R3, R8)
+5. [x] Campo en la tarjeta de asignación + etiqueta "× N" en la franja (covers R2, R3)
+6. [x] `ServingsSheet` + botón "Raciones" por franja, incluidas sobras (covers R3, R8)
 7. [ ] Pendientes: etiqueta, Hecho y Registrar todo con raciones (covers R6)
 8. [ ] E2E `raciones-plan.spec.ts` y docs
 
