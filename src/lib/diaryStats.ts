@@ -76,6 +76,35 @@ export function periodStats({
   };
 }
 
+/** #50: estado de cada día de la gráfica semanal. Solo `met` lleva icono; hoy y lo que viene nunca se juzgan. */
+export type DayState = "met" | "missed" | "empty" | "today";
+
+/**
+ * #50 R1–R2: `today` si es hoy; `empty` si no hay entradas o la fecha es posterior a hoy (aunque tenga);
+ * `met`/`missed` según isCompliantDay, el mismo criterio que la adherencia. Una entrada por fecha pedida, en orden.
+ */
+export function weekDayStates({
+  entries,
+  profile,
+  dates,
+  today,
+}: {
+  entries: MealEntry[];
+  profile: UserProfile;
+  dates: string[];
+  today: string;
+}): Map<string, DayState> {
+  const totals = dailyTotals(entries, dates);
+  const states = new Map<string, DayState>();
+  for (const date of dates) {
+    const t = totals.get(date);
+    if (date === today) states.set(date, "today");
+    else if (date > today || !t) states.set(date, "empty");
+    else states.set(date, isCompliantDay(t, profile) ? "met" : "missed");
+  }
+  return states;
+}
+
 /** R8: "19–25 sep"; si cambia el mes, "27 ago–25 sep". Sin año. */
 export function formatPeriod(start: string, end: string): string {
   const sameMonth = start.slice(0, 7) === end.slice(0, 7);
