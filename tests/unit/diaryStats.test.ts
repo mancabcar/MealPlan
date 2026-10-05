@@ -3,7 +3,7 @@
 // `periodStats`, `formatPeriod`, `addDays`, `macroTarget`) y Testing strategy.
 // Falla hasta que existan src/lib/diaryStats.ts, `addDays` en src/lib/week.ts y `macroTarget` en planMacros (tareas 2–3).
 import { describe, expect, it } from "vitest";
-import { dailyTotals, formatPeriod, isCompliantDay, periodStats, statsPeriod } from "@/lib/diaryStats";
+import { dailyTotals, formatPeriod, isCompliantDay, periodStats, statsPeriod, weekDayStates } from "@/lib/diaryStats";
 import { macroStatus, macroTarget } from "@/lib/planMacros";
 import { addDays } from "@/lib/week";
 import {
@@ -13,6 +13,7 @@ import {
   TODAY_ENTRY,
   TOMORROW,
   WEEK_ENTRIES,
+  YESTERDAY,
   statsProfile,
   statsProfileNoRange,
 } from "../fixtures/medias-adherencia";
@@ -233,5 +234,70 @@ describe("R8: rango de fechas del periodo", () => {
 
   it("cambio de mes: «23 ago–21 sep»", () => {
     expect(formatPeriod("2026-08-23", "2026-09-21")).toBe("23 ago–21 sep");
+  });
+});
+
+// Spec: docs/pm/50-marcar-dias-cumplen/spec.md › R1, R2 y Edge cases.
+// Tech: docs/pm/50-marcar-dias-cumplen/tech.md › APIs / interfaces (`weekDayStates`, `DayState`).
+// Falla hasta que exista `weekDayStates` en src/lib/diaryStats.ts (tarea 2).
+describe("#50 R1 · R2: estado de cada día de la gráfica semanal", () => {
+  // Hoy es martes 22 sep: la gráfica con la fecha de hoy enseña 16–22 sep (incluye hoy).
+  const dates = ["2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21", TODAY];
+  const states = (entries = ALL_ENTRIES, ds = dates) => weekDayStates({ entries, profile: statsProfile, dates: ds, today: TODAY });
+
+  it("R1: con el fixture, 16 y 18 sep cumplen y 20 sep no", () => {
+    const s = states();
+    expect(s.get("2026-09-16")).toBe("met");
+    expect(s.get("2026-09-18")).toBe("met");
+    expect(s.get("2026-09-20")).toBe("missed");
+  });
+
+  it("R1: 2150 kcal y 135 g (rango 130–160) cumple", () => {
+    const e = [entry("2026-09-16", "Comida", { calories: 2150, protein: 135, carbs: 200, fat: 60 })];
+    expect(states(e).get("2026-09-16")).toBe("met");
+  });
+
+  it("R1: 2150 kcal y 125 g no cumple (proteína por debajo del rango)", () => {
+    const e = [entry("2026-09-16", "Comida", { calories: 2150, protein: 125, carbs: 200, fat: 60 })];
+    expect(states(e).get("2026-09-16")).toBe("missed");
+  });
+
+  it("R2: un día pasado sin entradas es «empty»", () => {
+    const s = states();
+    for (const d of ["2026-09-17", "2026-09-19", "2026-09-21"]) expect(s.get(d)).toBe("empty");
+  });
+
+  it("R2: hoy es «today» aunque sus entradas cumplirían el objetivo", () => {
+    const e = [entry(TODAY, "Comida", { calories: 2000, protein: 140, carbs: 200, fat: 60 })];
+    expect(states(e).get(TODAY)).toBe("today");
+  });
+
+  it("R2: hoy sin entradas también es «today»", () => {
+    expect(states([]).get(TODAY)).toBe("today");
+  });
+
+  it("R2: un día futuro es «empty» aunque tenga entradas que cumplirían", () => {
+    const e = [entry(TOMORROW, "Comida", { calories: 2000, protein: 140, carbs: 200, fat: 60 })];
+    expect(states(e, [YESTERDAY, TODAY, TOMORROW]).get(TOMORROW)).toBe("empty");
+  });
+
+  it("devuelve una entrada por cada fecha pedida, en orden", () => {
+    expect([...states().keys()]).toEqual(dates);
+  });
+
+  it("Edge case: un macro ausente o no numérico (backup) suma 0 y no rompe el estado", () => {
+    const broken = { ...entry("2026-09-16", "Comida", { calories: 2000, protein: 140 }), fat: undefined as unknown as number, carbs: NaN };
+    expect(states([broken]).get("2026-09-16")).toBe("met");
+  });
+
+  it("Edge case: sin fechas, mapa vacío", () => {
+    expect(states(ALL_ENTRIES, []).size).toBe(0);
+  });
+
+  it("Métrica: los días «met» de los días completos coinciden con los cumplidos de periodStats", () => {
+    const past = statsPeriod(TODAY, TODAY, 7); // 15–21 sep
+    const s = weekDayStates({ entries: ALL_ENTRIES, profile: statsProfile, dates: past.dates, today: TODAY });
+    const met = [...s.values()].filter((v) => v === "met").length;
+    expect(met).toBe(periodStats({ entries: ALL_ENTRIES, profile: statsProfile, dates: past.dates })!.compliantDays);
   });
 });

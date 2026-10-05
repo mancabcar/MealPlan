@@ -4,8 +4,8 @@ import { useCallback, useId, useState, type MouseEvent, type ReactNode } from "r
 import { Check, CheckCheck, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
-import type { StatsPeriod } from "@/lib/diaryStats";
-import { addDays } from "@/lib/week";
+import { dailyTotals, weekDayStates, type StatsPeriod } from "@/lib/diaryStats";
+import { addDays, dayName } from "@/lib/week";
 import {
   foodEntry,
   parseServings,
@@ -182,11 +182,20 @@ export default function DiaryPage() {
   const fiberTarget = fiberGoal(profile);
 
   // Gráfica semanal: últimos 7 días terminando en la fecha seleccionada
-  const week = Array.from({ length: 7 }, (_, i) => {
-    const key = addDays(date, i - 6);
+  // #50: cada día lleva su estado (cumple, no cumple, sin registros, hoy) con el mismo criterio que la adherencia
+  const weekDates = Array.from({ length: 7 }, (_, i) => addDays(date, i - 6));
+  const weekStates = weekDayStates({ entries, profile, dates: weekDates, today: todayStr() });
+  // Las kcal salen del mismo dailyTotals que el estado: una entrada de backup sin kcal suma 0, no NaN
+  const weekTotals = dailyTotals(entries, weekDates);
+  const week = weekDates.map((key) => {
     const d = new Date(key + "T00:00:00");
-    const kcal = entries.filter((e) => e.date === key).reduce((s, e) => s + e.calories, 0);
-    return { label: ["D", "L", "M", "X", "J", "V", "S"][d.getDay()], value: kcal };
+    return {
+      label: ["D", "L", "M", "X", "J", "V", "S"][d.getDay()],
+      value: weekTotals.get(key)?.calories ?? 0,
+      state: weekStates.get(key)!,
+      // Con la fecha borrada no hay día de la semana: "" y el texto accesible solo dice el estado
+      name: dayName(key) ?? "",
+    };
   });
 
   const submitAdd = () => {
