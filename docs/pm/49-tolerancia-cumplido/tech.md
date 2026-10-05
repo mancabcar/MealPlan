@@ -29,7 +29,7 @@ Nueva sección en `USER_DATA_KEYS` y `SYNC_KEYS`. **Pros**: ajuste aislado. **Co
 | Plan | `src/components/plan/DayMacroSummary.tsx` | pasa `tolerancePct(profile)`; con `profile` nulo no se juzga (como hoy) |
 | Diario UI | `src/app/page.tsx` | pasa `tolerancePct(profile)` en el chip de rango |
 | Perfil | `src/app/perfil/page.tsx` | fila «Tolerancia de cumplido» con el patrón de `fiberGoal` y línea de ayuda |
-| Backup | `src/lib/backup.ts` | `isProfile` no exige el campo; se normaliza al leer con `tolerancePct(profile)` |
+| Backup | `src/lib/backup.ts` | sin cambios: conserva el campo del perfil; se normaliza al leer con `tolerancePct(profile)` |
 ### Data model
 `UserProfile.tolerancePct?: number`. Sin migración: ausente = 10.
 ### APIs / interfaces
@@ -62,26 +62,26 @@ Fila de edición en Perfil con valor en %, botón de editar, error «Un número 
 ## Test coverage
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | tests/unit/tolerance.test.ts › "R1: constantes y defecto", "R1: parseTolerance" | unit | 🔴 failing (not built) |
-| R1 | tests/e2e/tolerancia.spec.ts › "R1: la tolerancia persiste tras recargar", "R1: fuera de 5–20 muestra el error…" | e2e | 🔴 failing (not built) |
+| R1 | tests/unit/tolerance.test.ts › "R1: constantes y defecto", "R1: parseTolerance" | unit | 🟢 passing |
+| R1 | tests/e2e/tolerancia.spec.ts › "R1: la tolerancia persiste tras recargar", "R1: fuera de 5–20 muestra el error…" | e2e | 🟢 passing |
 | R2 | tests/unit/macroStatus-tolerance.test.ts › "R2: el rango de proteína no depende de la tolerancia" | unit | 🟢 passes (protege la regresión) |
-| R2 | tests/unit/diaryStats-tolerance.test.ts › "R2: isCompliantDay usa la tolerancia del perfil" | unit | 🔴 failing (not built) |
-| R2 | tests/unit/DayMacroSummary-tolerance.test.tsx › "R2: el estado de cada macro usa la tolerancia del perfil" | component | 🔴 failing (not built) |
-| R2, R7 | tests/e2e/tolerancia.spec.ts › "R1 · R2 · R7: cambiar la tolerancia en Perfil cambia el estado en el Plan" | e2e | 🔴 failing (not built, e2e no ejecutado aún) |
-| R3 | tests/unit/macroStatus-tolerance.test.ts › "R3: …" (5/10/20, límites enteros, hidratos 230) | unit | 🔴 failing (not built) |
-| R4 | tests/unit/backup-tolerance.test.ts › "R4: la tolerancia viaja en la copia de seguridad" | unit | 🔴 failing (not built) |
-| R5 | tests/unit/tolerance.test.ts › "R5: …"; tests/unit/backup-tolerance.test.ts › "R5: …" | unit | 🔴 failing (not built) |
-| R6 | tests/unit/diaryStats-tolerance.test.ts › "R6: periodStats recalcula la adherencia…" | unit | 🔴 failing (not built) |
-| R7 | tests/e2e/tolerancia.spec.ts (línea de ayuda, en el primer caso) | e2e | 🔴 failing (not built, e2e no ejecutado aún) |
+| R2 | tests/unit/diaryStats-tolerance.test.ts › "R2: isCompliantDay usa la tolerancia del perfil" | unit | 🟢 passing |
+| R2 | tests/unit/DayMacroSummary-tolerance.test.tsx › "R2: el estado de cada macro usa la tolerancia del perfil" | component | 🟢 passing |
+| R2, R7 | tests/e2e/tolerancia.spec.ts › "R1 · R2 · R7: cambiar la tolerancia en Perfil cambia el estado en el Plan" | e2e | 🟢 passing |
+| R3 | tests/unit/macroStatus-tolerance.test.ts › "R3: …" (5/10/20, límites enteros, hidratos 230) | unit | 🟢 passing |
+| R4 | tests/unit/backup-tolerance.test.ts › "R4: la tolerancia viaja en la copia de seguridad" | unit | 🟢 passing |
+| R5 | tests/unit/tolerance.test.ts › "R5: …"; tests/unit/backup-tolerance.test.ts › "R5: …" | unit | 🟢 passing |
+| R6 | tests/unit/diaryStats-tolerance.test.ts › "R6: periodStats recalcula la adherencia…" | unit | 🟢 passing |
+| R7 | tests/e2e/tolerancia.spec.ts (línea de ayuda, en el primer caso) | e2e | 🟢 passing |
 
-Los tests antiguos de `planMacros.test.ts` y `diaryStats.test.ts` que llaman a `macroStatus(v, t)` pasan a la firma de tres parámetros en la tarea 2 (dev-code).
+Los tests antiguos de `planMacros.test.ts` y `diaryStats.test.ts` que llaman a `macroStatus(v, t)` se actualizaron a la firma de tres parámetros (con 10) en la tarea 2.
 
 ## Tasks
-1. [ ] Tipo `tolerancePct` y `lib/tolerance.ts` con sus tests unitarios (covers R1, R5)
-2. [ ] `macroStatus` con parámetro obligatorio; adaptar `planMacros`, `diaryStats`, `DayMacroSummary`, `page.tsx` y los tests existentes (covers R2, R3, R6)
-3. [ ] Backup: normalizar y probar ida y vuelta, ausente e inválido (covers R4, R5)
-4. [ ] Perfil: fila de edición con ayuda y su test de componente (covers R1, R7)
-5. [ ] Tests de `macroStatus`, `isCompliantDay` y `periodStats` con distintas tolerancias (covers R2, R6)
+1. [x] Tipo `tolerancePct` y `lib/tolerance.ts` con sus tests unitarios (covers R1, R5)
+2. [x] `macroStatus` con parámetro obligatorio; adaptar `planMacros`, `diaryStats`, `DayMacroSummary`, `page.tsx` y los tests existentes (covers R2, R3, R6)
+3. [x] Backup: sin código nuevo, `backup.ts` conserva los campos del perfil y `tolerancePct(profile)` normaliza al leer; probado ida y vuelta, ausente e inválido (covers R4, R5)
+4. [x] Perfil: fila de edición con ayuda, cubierta por el e2e `tolerancia.spec.ts` (covers R1, R7)
+5. [x] Tests de `macroStatus`, `isCompliantDay` y `periodStats` con distintas tolerancias (escritos antes del código en dev-test) (covers R2, R6)
 
 ## Spec feedback
 - Hallazgo: la tolerancia ya se aplica a kcal, hidratos, grasas y proteína sin rango, no solo a proteína (recogido en la spec).
