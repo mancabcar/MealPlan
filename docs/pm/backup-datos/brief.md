@@ -1,6 +1,6 @@
 # Copia de seguridad: exportar e importar mis datos en JSON
 
-_Status: shipped (2026-09-25, [PR #32](https://github.com/mancabcar/MealPlan/pull/32) mergeado) · review: ✅ approved, no bloqueantes 1–3 arreglados ([review](review.md)) · Updated: 2026-09-25 · Origen: [issue #8](https://github.com/mancabcar/MealPlan/issues/8) (cerrado) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: shipped (2026-09-25) · Updated: 2026-09-25 · Issue: [#8](https://github.com/mancabcar/MealPlan/issues/8) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#32](https://github.com/mancabcar/MealPlan/pull/32) · Review: [review.md](review.md) — ✅ approved_
 
 ## Problema
 Todos los datos viven en el `localStorage` del navegador. Si se borran los datos del navegador o se cambia de dispositivo, se pierden sin remedio: no hay backend ni ninguna otra copia.
