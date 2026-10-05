@@ -25,6 +25,8 @@
   --color-protein: #5aa9ff;
   --color-carbs: #ffa64d;
   --color-fat: #ff8a80;
+  /* Fibra (#23): verde, distinto del azul de proteína; 10:1 sobre --color-surface */
+  --color-fiber: #8fd694;
   --color-expired: #ff6b6b;
   --color-expiring: #ffc94d;
 }
@@ -41,6 +43,7 @@
   --color-protein: var(--color-protein);
   --color-carbs: var(--color-carbs);
   --color-fat: var(--color-fat);
+  --color-fiber: var(--color-fiber);
   --color-expired: var(--color-expired);
   --color-expiring: var(--color-expiring);
 

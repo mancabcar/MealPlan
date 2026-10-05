@@ -1,3 +1,4 @@
+import { FIBER_ERROR, parseFiber } from "./fiber";
 import { MEAL_TYPES, type MealEntry, type MealType, type Recipe, type WeekPlan } from "./types";
 
 /** Lo que escribe el usuario en el formulario: todo texto salvo las etiquetas. Ingredientes y pasos, uno por línea. */
@@ -10,6 +11,8 @@ export interface RecipeDraft {
   protein: string;
   carbs: string;
   fat: string;
+  /** Fibra por ración (#23). Opcional: vacío o ausente = sin dato. */
+  fiber?: string;
   tags: string[];
 }
 
@@ -56,6 +59,9 @@ export function validateRecipeDraft(draft: RecipeDraft): RecipeValidation {
   const carbs = amount("carbs", false);
   const fat = amount("fat", false);
   const prepTimeMinutes = amount("prepTimeMinutes", false);
+  // Fibra (#23, R8): vacía = sin dato (no 0); 0 escrito es un dato
+  const fiber = parseFiber(draft.fiber ?? "");
+  if (fiber === null) errors.fiber = FIBER_ERROR;
 
   if (Object.keys(errors).length > 0) return { ok: false, errors };
   return {
@@ -69,6 +75,7 @@ export function validateRecipeDraft(draft: RecipeDraft): RecipeValidation {
       protein,
       carbs,
       fat,
+      ...(typeof fiber === "number" && { fiber }),
       tags: draft.tags,
     },
   };
