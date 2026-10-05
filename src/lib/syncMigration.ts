@@ -2,6 +2,7 @@
 // Funciones puras con el Storage inyectado, como backup.ts.
 import { loadShoppingState } from "./shopping/state";
 import { CATALOG_IDS } from "./catalog";
+import { RETIRED_RECIPE_IDS } from "./migrate";
 import { USER_DATA_KEYS } from "./userData";
 
 const userKey = (userId: string, key: string) => `mp_${userId}_${key}`;
@@ -37,7 +38,8 @@ export function hasUserData(storage: Storage, userId: string): boolean {
   }
   const recipes = read(storage, userId, "recipes");
   if (Array.isArray(recipes)) {
-    if (recipes.some((r) => !CATALOG_IDS.has((r as { id?: string }).id ?? ""))) return true;
+    const isCatalog = (id: string) => CATALOG_IDS.has(id) || Object.hasOwn(RETIRED_RECIPE_IDS, id);
+    if (recipes.some((r) => !isCatalog((r as { id?: string }).id ?? ""))) return true;
   }
   // loadShoppingState entiende también el formato anterior { current, usage }
   const shopping = loadShoppingState(read(storage, userId, "shopping"));
