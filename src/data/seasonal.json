@@ -1,0 +1,899 @@
+[
+  {
+    "id": "acelga",
+    "name": "Acelga",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "acelga"
+    ]
+  },
+  {
+    "id": "aguacate",
+    "name": "Aguacate",
+    "kind": "fruta",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "aguacate"
+    ]
+  },
+  {
+    "id": "ajo",
+    "name": "Ajo",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "ajo"
+    ],
+    "basic": true
+  },
+  {
+    "id": "albaricoque",
+    "name": "Albaricoque",
+    "kind": "fruta",
+    "months": [
+      5,
+      6,
+      7
+    ],
+    "keywords": [
+      "albaricoque"
+    ]
+  },
+  {
+    "id": "alcachofa",
+    "name": "Alcachofa",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "alcachofa"
+    ]
+  },
+  {
+    "id": "apio",
+    "name": "Apio",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "apio"
+    ]
+  },
+  {
+    "id": "berenjena",
+    "name": "Berenjena",
+    "kind": "verdura",
+    "months": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "keywords": [
+      "berenjena"
+    ]
+  },
+  {
+    "id": "boniato",
+    "name": "Boniato",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "boniato"
+    ]
+  },
+  {
+    "id": "breva",
+    "name": "Breva",
+    "kind": "fruta",
+    "months": [
+      6,
+      7
+    ],
+    "keywords": [
+      "breva"
+    ]
+  },
+  {
+    "id": "brocoli",
+    "name": "Brócoli",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "brocoli"
+    ]
+  },
+  {
+    "id": "calabacin",
+    "name": "Calabacín",
+    "kind": "verdura",
+    "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "keywords": [
+      "calabacin"
+    ]
+  },
+  {
+    "id": "calabaza",
+    "name": "Calabaza",
+    "kind": "verdura",
+    "months": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "calabaza"
+    ]
+  },
+  {
+    "id": "caqui",
+    "name": "Caqui",
+    "kind": "fruta",
+    "months": [
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "caqui"
+    ]
+  },
+  {
+    "id": "cardo",
+    "name": "Cardo",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      11,
+      12
+    ],
+    "keywords": [
+      "cardo"
+    ]
+  },
+  {
+    "id": "castana",
+    "name": "Castaña",
+    "kind": "fruta",
+    "months": [
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "castana"
+    ]
+  },
+  {
+    "id": "cebolla",
+    "name": "Cebolla",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "cebolla",
+      "cebolleta"
+    ],
+    "basic": true
+  },
+  {
+    "id": "cereza",
+    "name": "Cereza",
+    "kind": "fruta",
+    "months": [
+      5,
+      6,
+      7
+    ],
+    "keywords": [
+      "cereza"
+    ]
+  },
+  {
+    "id": "champinon",
+    "name": "Champiñón",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "champinon"
+    ],
+    "basic": true
+  },
+  {
+    "id": "chirimoya",
+    "name": "Chirimoya",
+    "kind": "fruta",
+    "months": [
+      1,
+      2,
+      3,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "chirimoya"
+    ]
+  },
+  {
+    "id": "ciruela",
+    "name": "Ciruela",
+    "kind": "fruta",
+    "months": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "keywords": [
+      "ciruela"
+    ]
+  },
+  {
+    "id": "col",
+    "name": "Col",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "col",
+      "repollo",
+      "lombarda"
+    ]
+  },
+  {
+    "id": "coliflor",
+    "name": "Coliflor",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "coliflor"
+    ]
+  },
+  {
+    "id": "escarola",
+    "name": "Escarola",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "escarola"
+    ]
+  },
+  {
+    "id": "esparrago",
+    "name": "Espárrago",
+    "kind": "verdura",
+    "months": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "keywords": [
+      "esparrago"
+    ]
+  },
+  {
+    "id": "espinaca",
+    "name": "Espinaca",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "espinaca"
+    ]
+  },
+  {
+    "id": "fresa",
+    "name": "Fresa",
+    "kind": "fruta",
+    "months": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "keywords": [
+      "fresa",
+      "freson"
+    ]
+  },
+  {
+    "id": "granada",
+    "name": "Granada",
+    "kind": "fruta",
+    "months": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "granada"
+    ]
+  },
+  {
+    "id": "guisante",
+    "name": "Guisante",
+    "kind": "verdura",
+    "months": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "keywords": [
+      "guisante"
+    ]
+  },
+  {
+    "id": "haba",
+    "name": "Haba",
+    "kind": "verdura",
+    "months": [
+      3,
+      4,
+      5
+    ],
+    "keywords": [
+      "haba"
+    ]
+  },
+  {
+    "id": "higo",
+    "name": "Higo",
+    "kind": "fruta",
+    "months": [
+      8,
+      9,
+      10
+    ],
+    "keywords": [
+      "higo"
+    ]
+  },
+  {
+    "id": "judia-verde",
+    "name": "Judía verde",
+    "kind": "verdura",
+    "months": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "keywords": [
+      "judia verd"
+    ]
+  },
+  {
+    "id": "kiwi",
+    "name": "Kiwi",
+    "kind": "fruta",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      11,
+      12
+    ],
+    "keywords": [
+      "kiwi"
+    ]
+  },
+  {
+    "id": "lechuga",
+    "name": "Lechuga",
+    "kind": "verdura",
+    "months": [
+      3,
+      4,
+      5,
+      6,
+      10,
+      11
+    ],
+    "keywords": [
+      "lechuga"
+    ]
+  },
+  {
+    "id": "limon",
+    "name": "Limón",
+    "kind": "fruta",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "limon"
+    ],
+    "basic": true
+  },
+  {
+    "id": "mandarina",
+    "name": "Mandarina",
+    "kind": "fruta",
+    "months": [
+      1,
+      2,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "mandarina"
+    ]
+  },
+  {
+    "id": "mango",
+    "name": "Mango",
+    "kind": "fruta",
+    "months": [
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "mango"
+    ]
+  },
+  {
+    "id": "manzana",
+    "name": "Manzana",
+    "kind": "fruta",
+    "months": [
+      1,
+      2,
+      9,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "manzana"
+    ]
+  },
+  {
+    "id": "melocoton",
+    "name": "Melocotón",
+    "kind": "fruta",
+    "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "keywords": [
+      "melocoton",
+      "paraguaya"
+    ]
+  },
+  {
+    "id": "melon",
+    "name": "Melón",
+    "kind": "fruta",
+    "months": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "keywords": [
+      "melon"
+    ]
+  },
+  {
+    "id": "membrillo",
+    "name": "Membrillo",
+    "kind": "fruta",
+    "months": [
+      9,
+      10,
+      11
+    ],
+    "keywords": [
+      "membrillo"
+    ]
+  },
+  {
+    "id": "nabo",
+    "name": "Nabo",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "nabo"
+    ]
+  },
+  {
+    "id": "naranja",
+    "name": "Naranja",
+    "kind": "fruta",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      11,
+      12
+    ],
+    "keywords": [
+      "naranja"
+    ]
+  },
+  {
+    "id": "nectarina",
+    "name": "Nectarina",
+    "kind": "fruta",
+    "months": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "keywords": [
+      "nectarina"
+    ]
+  },
+  {
+    "id": "nispero",
+    "name": "Níspero",
+    "kind": "fruta",
+    "months": [
+      4,
+      5
+    ],
+    "keywords": [
+      "nispero"
+    ]
+  },
+  {
+    "id": "patata",
+    "name": "Patata",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "patata"
+    ],
+    "basic": true
+  },
+  {
+    "id": "pepino",
+    "name": "Pepino",
+    "kind": "verdura",
+    "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "keywords": [
+      "pepino"
+    ]
+  },
+  {
+    "id": "pera",
+    "name": "Pera",
+    "kind": "fruta",
+    "months": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "pera"
+    ]
+  },
+  {
+    "id": "pimiento",
+    "name": "Pimiento",
+    "kind": "verdura",
+    "months": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "keywords": [
+      "pimiento"
+    ]
+  },
+  {
+    "id": "pomelo",
+    "name": "Pomelo",
+    "kind": "fruta",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      11,
+      12
+    ],
+    "keywords": [
+      "pomelo"
+    ]
+  },
+  {
+    "id": "puerro",
+    "name": "Puerro",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "puerro"
+    ]
+  },
+  {
+    "id": "rabano",
+    "name": "Rábano",
+    "kind": "verdura",
+    "months": [
+      3,
+      4,
+      5,
+      6,
+      10,
+      11
+    ],
+    "keywords": [
+      "rabano"
+    ]
+  },
+  {
+    "id": "remolacha",
+    "name": "Remolacha",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      9,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "remolacha"
+    ]
+  },
+  {
+    "id": "sandia",
+    "name": "Sandía",
+    "kind": "fruta",
+    "months": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "keywords": [
+      "sandia"
+    ]
+  },
+  {
+    "id": "seta",
+    "name": "Seta",
+    "kind": "verdura",
+    "months": [
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "seta",
+      "hongo"
+    ]
+  },
+  {
+    "id": "tomate",
+    "name": "Tomate",
+    "kind": "verdura",
+    "months": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "keywords": [
+      "tomate"
+    ]
+  },
+  {
+    "id": "uva",
+    "name": "Uva",
+    "kind": "fruta",
+    "months": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "keywords": [
+      "uva"
+    ]
+  },
+  {
+    "id": "zanahoria",
+    "name": "Zanahoria",
+    "kind": "verdura",
+    "months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "keywords": [
+      "zanahoria"
+    ],
+    "basic": true
+  }
+]

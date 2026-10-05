@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import type { PantryItem, Recipe } from "../../../../src/lib/types";
 import { recipeViolations } from "../../../../src/lib/allergens";
-import { buildRecipePrompt, safeAllergies, type RecipeProfile } from "../../../../src/lib/recipePrompt";
+import { buildRecipePrompt, safeAllergies, safePreferredIngredient, type RecipeProfile } from "../../../../src/lib/recipePrompt";
 import { preflight, withCors } from "../../../lib/cors";
 
 export const maxDuration = 60;
@@ -19,17 +19,19 @@ async function handlePOST(request: Request): Promise<NextResponse> {
     );
   }
 
-  const { profile, pantryItems = [], count = 3 } = (await request.json()) as {
+  const { profile, pantryItems = [], count = 3, preferredIngredient } = (await request.json()) as {
     profile: RecipeProfile;
     pantryItems?: PantryItem[];
     count?: number;
+    /** Opcional (docs/pm/34-temporada): un servidor antiguo lo ignora y genera una receta genérica. */
+    preferredIngredient?: unknown;
   };
 
   if (!profile) {
     return NextResponse.json({ error: "Falta el perfil del usuario." }, { status: 400 });
   }
 
-  const prompt = buildRecipePrompt(profile, pantryItems, count);
+  const prompt = buildRecipePrompt(profile, pantryItems, count, safePreferredIngredient(preferredIngredient));
   const client = new Anthropic();
 
   try {
