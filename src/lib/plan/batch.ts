@@ -148,7 +148,7 @@ export function deleteOrigin(plan: WeekPlan, batchId: string, mode: "all" | "kee
   if (!batch) return plan;
   let next = replaceSlot(plan, batch.origin, null);
   for (const l of batch.leftovers) {
-    next = replaceSlot(next, l, mode === "all" ? null : { mealType: l.mealType, recipeId: l.slot.recipeId });
+    next = replaceSlot(next, l, mode === "all" ? null : { mealType: l.mealType, recipeId: l.slot.recipeId, ...(l.slot.servings === undefined ? {} : { servings: l.slot.servings }) });
   }
   return next;
 }

@@ -119,8 +119,8 @@ describe("R5: la lista de la compra escala por las raciones de franjas normales"
     expect(pechuga(plan)).toBe("225 g");
   });
 
-  it('"1 cebolla" con 0,5 raciones → 0,5 (escala lineal, sin redondear)', () => {
-    expect(formatAmount(get(items(guisoTue(0.5)), "cebolla"))).toBe("0,5");
+  it('"1 cebolla" con 0,5 raciones → "½" (escala lineal, con el formato actual de fracciones)', () => {
+    expect(formatAmount(get(items(guisoTue(0.5)), "cebolla"))).toBe("½");
   });
 
   it('una línea sin cantidad ("perejil fresco") sigue siendo "al gusto" con cualquier número de raciones', () => {

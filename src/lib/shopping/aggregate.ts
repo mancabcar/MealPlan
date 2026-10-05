@@ -1,5 +1,6 @@
 // Del plan semanal a la lista agregada (docs/pm/lista-compra › R2, R4). Puro.
 import { normalize } from "@/lib/text";
+import { slotServings } from "@/lib/planMacros";
 import { MEAL_TYPES, type DayPlanSlot, type MealType, type Recipe, type WeekPlan } from "@/lib/types";
 import { classify, type Aisle } from "./classify";
 import { normalizeKey, parseIngredientLine, type ParsedIngredient, type Unit } from "./parse";
@@ -47,13 +48,14 @@ function* plannedSlots(i: PlanInput): Generator<{ date: string; slot: DayPlanSlo
 
 /**
  * Fuentes de la semana: solo días de `dates`, comidas activas y recetas que existen (R2). Una cocinada cuenta sus
- * ingredientes ×`cookedServings`; las sobras no suman nada (sobras › R3).
+ * ingredientes ×`cookedServings` (en un batch `servings` no escala la compra); una franja normal, ×`servings` (raciones-plan › R5);
+ * las sobras no suman nada (sobras › R3).
  */
 export function collectSources(i: PlanInput): ItemSource[] {
   const sources: ItemSource[] = [];
   for (const { date, slot, recipe, isLeftover } of plannedSlots(i)) {
     if (isLeftover) continue;
-    const factor = slot.cookedServings ?? 1;
+    const factor = slot.cookedServings ?? slotServings(slot);
     for (const line of recipe.ingredients) {
       for (const parsed of parseIngredientLine(line)) {
         const qty = parsed.qty === null ? null : parsed.qty * factor;
