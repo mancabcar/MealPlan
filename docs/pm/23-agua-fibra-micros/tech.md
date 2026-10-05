@@ -114,9 +114,9 @@ PR 1 (fibra)
 PR 2 (agua)
 9. [x] `src/lib/water.ts` con tests (R10, R11).
 10. [x] Clave `water`: `userData`, `store`, `backup`, `syncMigration`, `sync` y `server/lib/sync.ts` con sus tests (R13).
-11. [ ] `waterGoalMl`/`glassMl` y filas de Perfil (R11).
-12. [ ] `WaterCard` en el Diario (R10, R12).
-13. [ ] e2e de agua y abrir el PR.
+11. [x] `waterGoalMl`/`glassMl` y filas de Perfil (R11).
+12. [x] `WaterCard` en el Diario (R10, R12).
+13. [x] e2e de agua y abrir el PR.
 
 ## Spec feedback
 - R4: el dato y el tipo ya están en main por el PR #119; queda mostrarlo en la ficha. (Decidido por el usuario.)
@@ -159,7 +159,7 @@ Entrega 1 (fibra). Estado a 2026-10-05, antes de escribir el código: «🔴» =
 
 ## UI test contract (entrega 2)
 Acordado con Manuel al escribir los tests de agua (dev-test, 2026-10-05); lo fijan `tests/e2e/agua.spec.ts` y `tests/unit/*water*`:
-- Diario: región «Agua» justo debajo de macros y fibra, con «1,25 / 2 L», «5 de 8 vasos · vaso de 250 ml», botones «Añadir un vaso» y «Quitar un vaso» y vasos «Vaso N» (aria-pressed). Tocar el vaso N fija el total en N vasos (si ya hay exactamente N llenos, queda en N − 1). «Objetivo cumplido» al llegar al objetivo, sin bloquear más vasos hasta 6 L. Sigue la fecha del Diario.
+- Diario: región «Agua» justo debajo de macros y fibra, con «1,25 / 2 L», «5 de 8 vasos · vaso de 250 ml», botones «Sumar un vaso» y «Quitar un vaso» (no «Añadir…», que chocaría con el botón «Añadir» del formulario de comida) y vasos «Vaso N» (aria-pressed). Tocar el vaso N fija el total en N vasos (si ya hay exactamente N llenos, queda en N − 1). «Objetivo cumplido» al llegar al objetivo, sin bloquear más vasos hasta 6 L. Sigue la fecha del Diario.
 - Reglas: vasos bebidos = ml ÷ vaso hacia abajo; vasos del objetivo = objetivo ÷ vaso hacia arriba (2 L con 330 ml = 7); «+» no pasa de 6000 ml (se recorta); «−» no baja de 0; litros con coma y hasta 2 decimales sin ceros sobrantes.
 - Perfil › «Objetivos diarios»: fila «Agua» («2 L») con «Editar agua» → «Objetivo de agua (L)» (0,5–6, coma o punto, hasta 2 decimales) con «Guardar» (deshabilitado si no vale) y «Cancelar». Región «Tamaño del vaso» con radios 200/250/330/500 ml que se guardan al tocarlos.
 - Datos: `water` = `Record<YYYY-MM-DD, ml>`, novena clave de `USER_DATA_KEYS`/`SYNC_KEYS`; `AppState.water` y `setWaterDay(date, ml)` (0 ml quita el día); `sanitizeWater` descarta fechas mal formadas y valores no numéricos, no finitos, negativos o cero, y recorta a 6000. `hasUserData` cuenta el agua como dato propio. `UserProfile.waterGoalMl?` y `glassMl?` (vaso fuera de las cuatro opciones = 250).

@@ -35,6 +35,8 @@ import { ProgressRing } from "@/components/ui/ProgressRing";
 import { WeekBarChart } from "@/components/ui/WeekBarChart";
 import { PeriodSummary, loadStatsDays, saveStatsDays } from "@/components/diario/PeriodSummary";
 import { RecentMeals } from "@/components/diario/RecentMeals";
+import { WaterCard } from "@/components/diario/WaterCard";
+import { glassMl, waterGoalMl } from "@/lib/water";
 import { RecipePicker } from "@/components/recetas/RecipePicker";
 import { FoodPicker } from "@/components/diario/FoodPicker";
 import { Toast } from "@/components/ui/Toast";
@@ -122,7 +124,7 @@ const stepBtnCls =
   "shrink-0 flex items-center justify-center w-10 h-10 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] disabled:opacity-40";
 
 export default function DiaryPage() {
-  const { profile, entries, recipes, weekPlan, addEntry, removeEntry } = useApp();
+  const { profile, entries, recipes, weekPlan, water, setWaterDay, addEntry, removeEntry } = useApp();
   const userId = useAuth().user?.id;
   // Medias y adherencia (docs/pm/11-medias-adherencia): 7 por defecto, la opción se recuerda por usuario (R11)
   const [statsDays, setStatsDays] = useState<StatsPeriod>(() => loadStatsDays(userId));
@@ -272,6 +274,9 @@ export default function DiaryPage() {
           }
         />
       </Card>
+
+      {/* Agua (#23): sigue la fecha elegida */}
+      <WaterCard ml={water[date] ?? 0} goalMl={waterGoalMl(profile)} glass={glassMl(profile)} onChange={(ml) => date !== "" && setWaterDay(date, ml)} />
 
       {/* R8: con ≥ 2 pendientes, encima de las tarjetas */}
       {pending.length >= 2 && (

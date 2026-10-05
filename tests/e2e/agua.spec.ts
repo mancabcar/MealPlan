@@ -1,7 +1,7 @@
 // Spec: docs/pm/23-agua-fibra-micros/spec.md › entrega 2 (agua), R10, R11, R12. Tech: tech.md › UI y Testing strategy.
 // Contrato de la UI (acordado con Manuel):
 //   - Diario: una región «Agua» (tarjeta) justo debajo de la de macros y fibra, con el texto «1,25 / 2 L» (bebido / objetivo),
-//     «5 de 8 vasos · vaso de 250 ml», los botones «Añadir un vaso» y «Quitar un vaso», y una fila de vasos: botones
+//     «5 de 8 vasos · vaso de 250 ml», los botones «Sumar un vaso» y «Quitar un vaso», y una fila de vasos: botones
 //     «Vaso N» con aria-pressed (true si está lleno). Tocar el vaso N fija el total en N vasos (el último lleno, lo quita).
 //     Al llegar al objetivo la región muestra «Objetivo cumplido» y los botones siguen activos hasta 6 L.
 //     Sigue la fecha elegida en el Diario.
@@ -18,7 +18,7 @@ import { AGUA_DOS_DIAS, TODAY, YESTERDAY } from "../fixtures/agua";
 import { readStored, signIn } from "./helpers";
 
 const card = (page: Page) => page.getByRole("region", { name: "Agua", exact: true });
-const plus = (page: Page) => card(page).getByRole("button", { name: "Añadir un vaso" });
+const plus = (page: Page) => card(page).getByRole("button", { name: "Sumar un vaso" });
 const minus = (page: Page) => card(page).getByRole("button", { name: "Quitar un vaso" });
 const glass = (page: Page, n: number) => card(page).getByRole("button", { name: `Vaso ${n}`, exact: true });
 const storedWater = (page: Page) => readStored<Record<string, number>>(page, "water");

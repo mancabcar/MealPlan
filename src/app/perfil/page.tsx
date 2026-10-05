@@ -7,6 +7,7 @@ import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import { ALLERGEN_LABELS } from "@/lib/allergens";
 import { FIBER_GOAL_ERROR, fiberGoal, parseFiberGoal } from "@/lib/fiber";
+import { GLASS_OPTIONS, WATER_GOAL_ERROR, formatLiters, glassMl, parseWaterGoal, waterGoalMl } from "@/lib/water";
 import { withoutAllergies } from "@/lib/migrate";
 import { ageFromBirthYear, calculateTargets, parseDecimal, PROTEIN_G_PER_KG, type Targets } from "@/lib/nutrition";
 import {
@@ -45,7 +46,7 @@ import {
   SuggestedTargets,
   type Preferences,
 } from "@/components/perfil/steps";
-import { Field, inputCls } from "@/components/perfil/ui";
+import { ChoiceGroup, Field, inputCls } from "@/components/perfil/ui";
 import { DataSection } from "@/components/perfil/DataSection";
 import { InstallSection } from "@/components/perfil/InstallSection";
 import { RecalcOffer, recalcPatch } from "@/components/perfil/RecalcOffer";
@@ -156,6 +157,70 @@ function FiberGoalRow({ profile, update }: { profile: UserProfile; update: Updat
   );
 }
 
+// Objetivo de agua (#23, R11): fila propia con su edición, como la de fibra; se escribe en litros y se guarda en ml
+function WaterGoalRow({ profile, update }: { profile: UserProfile; update: Update }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const fieldId = useId();
+  if (draft === null) {
+    return (
+      <div className="flex justify-between items-center text-sm">
+        <span className="text-[var(--color-text-muted)]">Agua</span>
+        <span className="flex items-center gap-3">
+          <span className="text-[var(--color-text)]">{`${formatLiters(waterGoalMl(profile))} L`}</span>
+          <button type="button" className={smallBtn} onClick={() => setDraft(formatLiters(waterGoalMl(profile)))}>
+            Editar agua
+          </button>
+        </span>
+      </div>
+    );
+  }
+  const parsed = parseWaterGoal(draft);
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={fieldId} className="text-sm font-medium">
+        Objetivo de agua (L)
+      </label>
+      <input
+        id={fieldId}
+        inputMode="decimal"
+        className={inputCls}
+        value={draft}
+        aria-invalid={parsed === null}
+        onChange={(e) => setDraft(e.target.value)}
+      />
+      {parsed === null && <p className="text-xs text-[var(--color-expired)]">{WATER_GOAL_ERROR}</p>}
+      <SaveBar
+        disabled={parsed === null}
+        onSave={() => {
+          if (parsed === null) return;
+          update({ waterGoalMl: parsed });
+          setDraft(null);
+        }}
+        onCancel={() => setDraft(null)}
+      />
+    </div>
+  );
+}
+
+// Tamaño del vaso (#23, R11): se guarda al elegirlo; los ml ya bebidos no cambian
+function GlassSizeSection({ profile, update }: { profile: UserProfile; update: Update }) {
+  const id = useId();
+  return (
+    <Card as="section" aria-labelledby={id} className="flex flex-col gap-3">
+      <h2 id={id} className="font-semibold text-[var(--color-text)]">
+        Tamaño del vaso
+      </h2>
+      <ChoiceGroup
+        legend="Cada toque en el Diario suma un vaso de"
+        name="glass-size"
+        options={GLASS_OPTIONS.map((ml) => ({ value: String(ml), label: `${ml} ml` }))}
+        value={String(glassMl(profile))}
+        onChange={(v) => update({ glassMl: Number(v) })}
+      />
+    </Card>
+  );
+}
+
 // ---------------------------------------------------------------- Tu objetivo
 
 function GoalSection({ profile, update }: { profile: UserProfile; update: Update }) {
@@ -235,6 +300,7 @@ function TargetsSection({ profile, update }: { profile: UserProfile; update: Upd
           <Row label="Carbohidratos" value={`${profile.carbsGoal} g`} />
           <Row label="Grasas" value={`${profile.fatGoal} g`} />
           <FiberGoalRow profile={profile} update={update} />
+          <WaterGoalRow profile={profile} update={update} />
           {/* Cambiar de origen (R13): al plan se pasa con las cifras actuales; al cálculo, con los datos guardados */}
           <button
             type="button"
@@ -636,6 +702,7 @@ export default function ProfilePage() {
       <Fragment key={importCount}>
         <GoalSection profile={profile} update={update} />
         <TargetsSection profile={profile} update={update} />
+        <GlassSizeSection profile={profile} update={update} />
         <EvolutionCard measurements={measurements} />
         <BodySection
           profile={profile}
