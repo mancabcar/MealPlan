@@ -1,5 +1,5 @@
 # Dónde viven las recetas: JSON, localStorage o base de datos
-_Status: brainstorm · Updated: 2026-09-27 · Issue: [#42](https://github.com/mancabcar/MealPlan/issues/42)_
+_Status: tech design · Updated: 2026-10-05 · Issue: [#42](https://github.com/mancabcar/MealPlan/issues/42) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Follow-ups
 - Si algún día se hace la sincronización entre dispositivos ([#22](https://github.com/mancabcar/MealPlan/issues/22)), las recetas del usuario van a la base de datos con el resto de sus datos. El catálogo puede seguir en el bundle.
