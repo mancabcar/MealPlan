@@ -1,6 +1,6 @@
 # Plan: copiar la semana anterior
 
-_Status: merged (2026-10-06) · Updated: 2026-10-06 · Issue: [#53](https://github.com/mancabcar/MealPlan/issues/53) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#148](https://github.com/mancabcar/MealPlan/pull/148) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+_Status: shipped (2026-10-06) · Updated: 2026-10-06 · Issue: [#53](https://github.com/mancabcar/MealPlan/issues/53) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#148](https://github.com/mancabcar/MealPlan/pull/148) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Problema
 Planificar una semana parecida a la anterior exige volver a asignar franja a franja en el Plan.
@@ -22,8 +22,11 @@ Un «Copiar semana anterior» en el Plan que trae las asignaciones de la semana 
 - Semana de origen vacía.
 - Si la acción está en cualquier semana o solo en la actual.
 
+## Qué vigilar tras el despliegue
+Sin métricas de uso (spec). Comprobar a mano: (1) copiar una semana con una tanda de sobras y que la lista de la compra de la semana destino cuente bien; (2) «Deshacer» tras copiar; (3) que la copia se sincroniza entre dos dispositivos.
+
 ## Follow-ups
-- Deshacer: test de que solo restaura los 7 días de la semana destino (extraer `restoreDays` de `undoCopy`).
-- El recuento de «Copiadas N franjas» incluye comidas que el perfil no muestra.
-- Simplificar `planCopy` (`slots`/`CopySlot` sin uso en producción) y evitar el doble `build`.
+- Test de alcance de Deshacer: [#149](https://github.com/mancabcar/MealPlan/issues/149)
+- Recuento de «Copiadas N franjas» con comidas ocultas: [#150](https://github.com/mancabcar/MealPlan/issues/150)
+- Simplificar `planCopy` y el doble `build`: [#151](https://github.com/mancabcar/MealPlan/issues/151)
 - Deshacer pisa ediciones hechas tras copiar en la misma semana (aceptado por ahora, ventana de 10 s).
