@@ -1,10 +1,10 @@
 "use client";
 
-import { Suspense, useId, useState } from "react";
+import { Suspense, useCallback, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, ShoppingCart } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { MEAL_TYPES, MealType, WeekPlan, todayStr } from "@/lib/types";
+import { DayPlanSlot, MEAL_TYPES, MealType, WeekPlan, todayStr } from "@/lib/types";
 import { MEAL_TYPE_ICON_COMPONENTS } from "@/lib/categoryIcons";
 import { Card } from "@/components/ui/Card";
 import { DaySelector } from "@/components/ui/DaySelector";
@@ -21,6 +21,9 @@ import { DAY_NAMES } from "@/lib/week";
 import { useShoppingList } from "@/lib/shopping/useShoppingList";
 import { useWeekParam, weekHref } from "@/lib/useWeekParam";
 import { WeekNav } from "@/components/plan/WeekNav";
+import { Toast } from "@/components/ui/Toast";
+import { applyCopy, isSourceEmpty, planCopy, type CopyMode } from "@/lib/plan/copyWeek";
+import { CopyWeekSheet } from "@/components/plan/CopyWeekSheet";
 
 /**
  * Hoja abierta sobre una tanda (docs/pm/17-sobras-batch-cooking): crear/editar, ver una sobra o decidir qué hacer con
@@ -30,6 +33,7 @@ type Modal =
   | { kind: "batch"; origin: SlotRef }
   | { kind: "leftover"; at: SlotRef }
   | { kind: "servings"; at: SlotRef }
+  | { kind: "copy"; conflicts: number } // conflictos de «Copiar semana anterior» (docs/pm/53-copiar-semana-anterior R2)
   | { kind: "warning"; at: SlotRef; batchId: string; recipeId: string; servings: number }; // recipeId "" = borrar la franja
 
 // useSearchParams (semana en la URL) exige un Suspense con el export estático
@@ -53,6 +57,14 @@ function PlanContent() {
   const [servingsText, setServingsText] = useState("1");
   const [servingsError, setServingsError] = useState(false);
   const servingsId = useId();
+  // Aviso tras «Copiar semana anterior» (docs/pm/53-copiar-semana-anterior R5)
+  // `before`: los 7 días de la semana destino antes de copiar; Deshacer restaura solo esos (sin él, no hay Deshacer)
+  const [copyNotice, setCopyNotice] = useState<{ id: number; text: string; before?: Record<string, DayPlanSlot[] | undefined> } | null>(null);
+  // `id` remonta el Toast con cada aviso: el segundo no hereda los 10 s del primero (como el de «Añadido» del Diario)
+  const noticeId = useRef(0);
+  const hideCopyNotice = useCallback(() => setCopyNotice(null), []);
+  const copyHelpId = useId();
+  const recipeIds = useMemo(() => new Set(recipes.map((r) => r.id)), [recipes]);
   // Selector de días (R8): qué día de la semana se muestra debajo
   const [selectedDate, setSelectedDate] = useState(todayStr());
   // Al cambiar de semana se cierra lo que estuviera abierto (apuntaría a una fecha que ya no se ve) y el día vuelve
@@ -62,6 +74,7 @@ function PlanContent() {
     setShownWeek(monday);
     setEditing(null);
     setModal(null);
+    setCopyNotice(null);
     setSelectedDate(today);
   }
   // Solo las comidas que el usuario hace, en el orden canónico (R8)
@@ -112,6 +125,41 @@ function PlanContent() {
     commitAssign(batch ? deleteOrigin(weekPlan, current!.batchId!, "all") : weekPlan, editing, recipeId, servings);
   };
 
+  // R1, R2: con franjas ocupadas que la copia pisaría se pregunta antes de tocar nada
+  const startCopy = () => {
+    setEditing(null);
+    setCopyNotice(null);
+    const { conflicts } = planCopy(weekPlan, monday, recipeIds);
+    if (conflicts > 0) setModal({ kind: "copy", conflicts });
+    else copyWeek("keep");
+  };
+  const copyWeek = (mode: CopyMode) => {
+    const { plan, copied } = applyCopy(weekPlan, monday, recipeIds, mode);
+    if (copied === 0) {
+      setCopyNotice({ id: ++noticeId.current, text: "No hay nada nuevo que copiar" });
+      return;
+    }
+    setWeekPlan(plan);
+    setCopyNotice({
+      id: ++noticeId.current,
+      text: copied === 1 ? "Copiada 1 franja" : `Copiadas ${copied} franjas`,
+      before: Object.fromEntries(dates.map((d) => [d, weekPlan[d]])),
+    });
+  };
+  // R5: devuelve los 7 días de la semana destino a como estaban; lo demás del plan no se toca
+  const undoCopy = () => {
+    const before = copyNotice?.before;
+    if (!before) return;
+    const restored = { ...weekPlan };
+    for (const d of dates) {
+      if (before[d] === undefined) delete restored[d];
+      else restored[d] = before[d];
+    }
+    setWeekPlan(restored);
+    setCopyNotice(null);
+  };
+  const sourceEmpty = isSourceEmpty(weekPlan, monday);
+
   const recipeName = (id: string) => recipes.find((r) => r.id === id)?.name ?? "la receta";
   const slotOf = (at: SlotRef) => (weekPlan[at.date] ?? []).find((s) => s.mealType === at.mealType);
 
@@ -125,6 +173,24 @@ function PlanContent() {
       <h1 className="font-display text-2xl font-bold">Plan semanal</h1>
 
       <WeekNav monday={monday} today={today} path="/plan" />
+
+      {/* Copiar semana anterior (docs/pm/53-copiar-semana-anterior R1, R4) */}
+      <div className="flex flex-col gap-1">
+        <button
+          type="button"
+          onClick={startCopy}
+          disabled={sourceEmpty}
+          aria-describedby={sourceEmpty ? copyHelpId : undefined}
+          className="min-h-11 rounded-xl border border-[var(--color-border)] text-sm font-medium disabled:opacity-50"
+        >
+          Copiar semana anterior
+        </button>
+        {sourceEmpty && (
+          <p id={copyHelpId} className="text-xs text-[var(--color-text-muted)] text-center">
+            La semana anterior no tiene nada que copiar
+          </p>
+        )}
+      </div>
 
       <DaySelector dates={dates} selected={effectiveSelectedDate} onSelect={setSelectedDate} todayDate={today} />
 
@@ -211,6 +277,15 @@ function PlanContent() {
           onClose={() => setModal(null)}
         />
       )}
+      {modal?.kind === "copy" && (
+        <CopyWeekSheet
+          conflicts={modal.conflicts}
+          onChoose={(mode) => {
+            setModal(null);
+            if (mode) copyWeek(mode);
+          }}
+        />
+      )}
       {modal?.kind === "warning" && (
         <BatchWarningSheet
           recipeName={recipeName(slotOf(modal.at)?.recipeId ?? "")}
@@ -278,6 +353,12 @@ function PlanContent() {
           })}
         </div>
       </Card>
+
+      {copyNotice && (
+        <Toast key={copyNotice.id} onDismiss={hideCopyNotice} action={copyNotice.before ? { label: "Deshacer", onClick: undoCopy } : undefined}>
+          {copyNotice.text}
+        </Toast>
+      )}
     </div>
   );
 }
