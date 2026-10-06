@@ -4,7 +4,7 @@ _Status: brainstorm · Updated: 2026-10-06 · Issue: [#54](https://github.com/ma
 
 ## Follow-ups
 - Repetir una entrada suelta del Diario (hoy u otra fecha). (brainstorm)
-- Deshacer tras copiar (como en [#53](../../../../Comidas-53/docs/pm/53-copiar-semana-anterior/brief.md)). (brainstorm)
+- Deshacer tras copiar (como en [#53](https://github.com/mancabcar/MealPlan/issues/53)). (brainstorm)
 - Copiar varios días o una semana del Diario. (brainstorm)
 - Día tipo / plantilla guardada. (brainstorm)
 - Rellenar el Diario desde el Plan al copiar semanas (F). (brainstorm)
