@@ -1,6 +1,6 @@
 # Plan: copiar la semana anterior
 
-_Status: in review · Updated: 2026-10-06 · Issue: [#53](https://github.com/mancabcar/MealPlan/issues/53) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#148](https://github.com/mancabcar/MealPlan/pull/148) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+_Status: merged (2026-10-06) · Updated: 2026-10-06 · Issue: [#53](https://github.com/mancabcar/MealPlan/issues/53) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#148](https://github.com/mancabcar/MealPlan/pull/148) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Problema
 Planificar una semana parecida a la anterior exige volver a asignar franja a franja en el Plan.
