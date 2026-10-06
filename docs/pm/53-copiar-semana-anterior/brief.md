@@ -1,6 +1,6 @@
 # Plan: copiar la semana anterior
 
-_Status: in review · Updated: 2026-10-05 · Issue: [#53](https://github.com/mancabcar/MealPlan/issues/53) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#148](https://github.com/mancabcar/MealPlan/pull/148)_
+_Status: in review · Updated: 2026-10-06 · Issue: [#53](https://github.com/mancabcar/MealPlan/issues/53) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#148](https://github.com/mancabcar/MealPlan/pull/148) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Problema
 Planificar una semana parecida a la anterior exige volver a asignar franja a franja en el Plan.
@@ -23,4 +23,7 @@ Un «Copiar semana anterior» en el Plan que trae las asignaciones de la semana 
 - Si la acción está en cualquier semana o solo en la actual.
 
 ## Follow-ups
-Ninguno todavía.
+- Deshacer: test de que solo restaura los 7 días de la semana destino (extraer `restoreDays` de `undoCopy`).
+- El recuento de «Copiadas N franjas» incluye comidas que el perfil no muestra.
+- Simplificar `planCopy` (`slots`/`CopySlot` sin uso en producción) y evitar el doble `build`.
+- Deshacer pisa ediciones hechas tras copiar en la misma semana (aceptado por ahora, ventana de 10 s).
