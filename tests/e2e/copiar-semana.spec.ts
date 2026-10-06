@@ -218,6 +218,15 @@ test.describe("State & edge cases", () => {
     await expect(notice(page, /Copiad/)).toHaveCount(0);
   });
 
+  test("un segundo aviso remonta el Toast (no hereda el temporizador del primero; review de #148)", async ({ page }) => {
+    await open(page, SRC_SIMPLE);
+    await copyBtn(page).click();
+    const first = await notice(page, "Copiadas 3 franjas").elementHandle();
+    await copyBtn(page).click();
+    await expect(notice(page, "No hay nada nuevo que copiar")).toBeVisible();
+    expect(await first!.evaluate((n) => n.isConnected)).toBe(false); // el nodo del primer aviso se sustituyó
+  });
+
   test("al cambiar de semana se cierra el diálogo de conflictos", async ({ page }) => {
     await open(page, TWO_CONFLICTS);
     await copyBtn(page).click();

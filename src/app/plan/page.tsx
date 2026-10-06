@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useId, useMemo, useState } from "react";
+import { Suspense, useCallback, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, ShoppingCart } from "lucide-react";
 import { useApp } from "@/lib/store";
@@ -59,7 +59,9 @@ function PlanContent() {
   const servingsId = useId();
   // Aviso tras «Copiar semana anterior» (docs/pm/53-copiar-semana-anterior R5)
   // `before`: los 7 días de la semana destino antes de copiar; Deshacer restaura solo esos (sin él, no hay Deshacer)
-  const [copyNotice, setCopyNotice] = useState<{ text: string; before?: Record<string, DayPlanSlot[] | undefined> } | null>(null);
+  const [copyNotice, setCopyNotice] = useState<{ id: number; text: string; before?: Record<string, DayPlanSlot[] | undefined> } | null>(null);
+  // `id` remonta el Toast con cada aviso: el segundo no hereda los 10 s del primero (como el de «Añadido» del Diario)
+  const noticeId = useRef(0);
   const hideCopyNotice = useCallback(() => setCopyNotice(null), []);
   const copyHelpId = useId();
   const recipeIds = useMemo(() => new Set(recipes.map((r) => r.id)), [recipes]);
@@ -134,11 +136,12 @@ function PlanContent() {
   const copyWeek = (mode: CopyMode) => {
     const { plan, copied } = applyCopy(weekPlan, monday, recipeIds, mode);
     if (copied === 0) {
-      setCopyNotice({ text: "No hay nada nuevo que copiar" });
+      setCopyNotice({ id: ++noticeId.current, text: "No hay nada nuevo que copiar" });
       return;
     }
     setWeekPlan(plan);
     setCopyNotice({
+      id: ++noticeId.current,
       text: copied === 1 ? "Copiada 1 franja" : `Copiadas ${copied} franjas`,
       before: Object.fromEntries(dates.map((d) => [d, weekPlan[d]])),
     });
@@ -352,7 +355,7 @@ function PlanContent() {
       </Card>
 
       {copyNotice && (
-        <Toast onDismiss={hideCopyNotice} action={copyNotice.before ? { label: "Deshacer", onClick: undoCopy } : undefined}>
+        <Toast key={copyNotice.id} onDismiss={hideCopyNotice} action={copyNotice.before ? { label: "Deshacer", onClick: undoCopy } : undefined}>
           {copyNotice.text}
         </Toast>
       )}
