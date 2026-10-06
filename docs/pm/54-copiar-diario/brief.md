@@ -1,6 +1,6 @@
 # Diario: copiar un día completo a otra fecha
 
-_Status: brainstorm · Updated: 2026-10-06 · Issue: [#54](https://github.com/mancabcar/MealPlan/issues/54)_
+_Status: prototype · Updated: 2026-10-06 · Issue: [#54](https://github.com/mancabcar/MealPlan/issues/54) · Prototype: [canvas](https://claude.ai/artifact/3BuMmijuwQtipCjmJ74b4v)_
 
 ## Follow-ups
 - Repetir una entrada suelta del Diario (hoy u otra fecha). (brainstorm)
@@ -59,5 +59,16 @@ Cambiaría la apuesta si el prototipo mostrara que elegir la fecha cuesta más d
 
 ## Open questions
 - Si se copian también entradas con raciones, gramos o unidades tal cual (se supone que sí; confirmar en el spec).
-- Qué pasa si el día origen está vacío.
-- Si el destino puede ser una fecha futura o solo pasada/hoy.
+
+## Prototype
+_Design: https://claude.ai/artifact/3BuMmijuwQtipCjmJ74b4v · 2026-10-06_
+- Screens: 1 Diario con entradas · 2 Elegir fecha de destino · 3 Aviso de conflicto · 4 Copiado · 5 Día sin entradas (móvil, siguiendo el look de la app, datos inventados).
+- Decisions (confirmed by the user):
+  - El botón vive en la cabecera, junto a la fecha; solo icono (44 px) con `aria-label` «Copiar día a otra fecha».
+  - Hoja inferior con atajos Hoy, Mañana y En 7 días (contados desde hoy; el que coincide con el día de origen no se ofrece), selector de fecha y botón «Copiar».
+  - Si el destino ya tiene entradas: aviso que las lista y ofrece «Sumar las N entradas» o «Cancelar». Nunca pisa nada.
+  - Tras copiar, el Diario salta al día de destino con el aviso «Copiadas N entradas» y marca «Copiada» en las nuevas mientras dura el aviso. Sin Deshacer en v1.
+  - Con el día de origen sin entradas, el botón sale desactivado (no oculto).
+  - Se permite copiar a fechas futuras.
+- Pending ASSUMPTIONs: ninguna.
+- What to learn from testing it: si copiar un día cuesta 2-3 toques (botón → atajo → Copiar) y si el icono solo se entiende en la cabecera.
