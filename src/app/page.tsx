@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useState, type MouseEvent, type ReactNode } from "react";
+import { useCallback, useId, useState, type ReactNode } from "react";
 import { Check, CheckCheck, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
@@ -38,6 +38,7 @@ import { ServingsField } from "@/components/ui/ServingsField";
 import { RecipePicker } from "@/components/recetas/RecipePicker";
 import { FoodPicker } from "@/components/diario/FoodPicker";
 import { Toast } from "@/components/ui/Toast";
+import { singleClick } from "@/components/ui/singleClick";
 import { inputCls } from "@/components/ui/input";
 
 // Rediseño visual (docs/pm/design-refresh, R7): proteína/carbohidratos/grasas se quedan como barras
@@ -101,14 +102,6 @@ function MacroBar({
     </div>
   );
 }
-
-// Registrar y borrar ignoran el segundo clic de un doble toque (detail > 1): tras el primero la fila cambia
-// (la pendiente pasa a entrada con ✕, o "Registrar todo el día" desaparece y las tarjetas suben) y el segundo
-// caería sobre otro botón. Un toque suelto siempre tiene detail 1.
-const singleClick = (action: () => void) => (ev: MouseEvent) => {
-  if (ev.detail > 1) return;
-  action();
-};
 
 // Pestañas de «Añadir comida», en este orden (docs/pm/13-base-alimentos, R1)
 type AddMode = "recipe" | "food" | "custom";
