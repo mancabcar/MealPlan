@@ -85,6 +85,32 @@ Ninguno: `MealEntry` no cambia, sin migración y sin claves nuevas de sync ni ba
 - **Componente** (`CopyDaySheet.test.tsx`): pasos `pick` y `conflict`, «Copiar» desactivado, «Cancelar» cierra sin llamar a `onCopy`, `Escape`.
 - **E2E** (`diario-copiar-dia.spec.ts`): copia sin conflicto (≤ 3 toques), con conflicto (sumar y cancelar), día vacío con botón desactivado, destino futuro, aviso se cierra al cambiar de día; axe sobre la hoja.
 
+## Test coverage
+Escritos antes del código; fallan hasta que exista cada pieza. Fixtures en `tests/fixtures/copiar-dia.ts`.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | `tests/e2e/diario-copiar-dia.spec.ts` › «R1: está junto al input de fecha…» y «al tocarlo se abre la hoja…» | e2e | 🔴 failing (not built) |
+| R1 | `tests/unit/CopyDaySheet.test.tsx` › «R1: la hoja de destino» (título, resumen, singular, entradas vivas, Escape, Cancelar) | component | 🔴 failing (not built) |
+| R2 | `tests/unit/diary-copy.test.ts` › «R2: copyDay…» (16 casos: ids, campos, orden, `NaN`, receta huérfana) | unit | 🔴 failing (not built) |
+| R2 | `tests/unit/store-entries.test.tsx` › «R2: addEntries…» (una sola escritura) | unit | 🔴 failing (not built) |
+| R2 | `tests/e2e/diario-copiar-dia.spec.ts` › «R2 · R4 · R7: copiar un día sin conflicto» (3 toques, texto de raciones y unidades, ids, agua, franja del perfil) | e2e | 🔴 failing (not built) |
+| R3 | `tests/unit/CopyDaySheet.test.tsx` › «R3: aviso cuando el destino ya tiene entradas» | component | 🔴 failing (not built) |
+| R3 | `tests/e2e/diario-copiar-dia.spec.ts` › «R3: el destino ya tiene entradas» (avisar, cancelar, sumar, reabrir) | e2e | 🔴 failing (not built) |
+| R4 | `tests/e2e/diario-copiar-dia.spec.ts` › «R4 · R8: aviso…» (singular, sin Deshacer, 10 s, pendientes del Plan) | e2e | 🔴 failing (not built) |
+| R5 | `tests/e2e/diario-copiar-dia.spec.ts` › «R5: día sin entradas» | e2e | 🔴 failing (not built) |
+| R6 | `tests/unit/diary-copy.test.ts` › «R6: canCopyTo» | unit | 🔴 failing (not built) |
+| R6 | `tests/unit/CopyDaySheet.test.tsx` › «R6: cuándo se puede copiar» | component | 🔴 failing (not built) |
+| R6 | `tests/e2e/diario-copiar-dia.spec.ts` › «R6 · R7: destino futuro, pasado y atajos» | e2e | 🔴 failing (not built) |
+| R7 | `tests/unit/diary-copy.test.ts` › «R7: copyTargets» y «R7: formatDayShort» | unit | 🔴 failing (not built) |
+| R7 | `tests/unit/CopyDaySheet.test.tsx` › «R7: atajos y botón principal» | component | 🔴 failing (not built) |
+| R8 | `tests/e2e/diario-copiar-dia.spec.ts` › «R8: las 5 entradas nuevas llevan la marca «Copiada»…» | e2e | 🔴 failing (not built) |
+| State | Hoja que se reinicia al reabrir; `copied` se cierra al cambiar de fecha; doble toque | e2e + component | 🔴 failing (not built) |
+| A11y | axe WCAG A/AA sobre la hoja, pasos «elegir» y «conflicto» | e2e | 🔴 failing (not built) |
+| — | «0 entradas al confirmar» (cubierto en unidad por `copyDay → []`) y «aviso de copia vs aviso de Añadir comida» | — | ⚪ sin test (no se puede provocar desde la UI) |
+
+Totales: 36 tests unit (32 de `diary-copy` y 4 de `store-entries`), 28 de componente y 27 e2e (91). Los 27 e2e fallan hoy por el mismo motivo: no existe el botón «Copiar día a otra fecha».
+
 ## Tasks
 1. [ ] `diary.ts`: `copyDay`, `copyTargets`, `canCopyTo`, `formatDayShort`, `entryName` + unit tests (covers R2, R6, R7)
 2. [ ] Store: `addEntries` (covers R2)
@@ -94,5 +120,13 @@ Ninguno: `MealEntry` no cambia, sin migración y sin claves nuevas de sync ni ba
 6. [ ] Lint, tipos, build y pasada de a11y
 
 ## Spec feedback
-- Sin cambios en el spec.
+- Sin cambios en el spec. Decisiones tomadas al escribir los tests (confirmadas por el usuario) que fijan lo que el spec dejaba abierto:
+  - **Sin destino preseleccionado:** la hoja abre sin nada elegido y «Copiar» desactivado (el prototipo dibujó «Hoy» marcado solo como ejemplo); coherente con los 3 toques icono, atajo, Copiar.
+  - **Botón principal:** «Copiar» (sin destino), «Copiar a hoy», «Copiar a mañana» y, para cualquier otra fecha (incluido «En 7 días»), «Copiar al lun 29 sep».
+  - **Singular y plural:** «ya tiene 1 entrada» / «2 entradas», «Sumar la entrada» / «Sumar las 5 entradas», «Copiada 1 entrada» / «Copiadas 5 entradas», «1 entrada · 300 kcal».
+  - **Fechas cortas:** «lun 5 oct»; días `lun mar mié jue vie sáb dom` y meses `ene feb mar abr may jun jul ago sep oct nov dic`.
+  - **Atajos:** botones con `aria-pressed`; el campo «Otra fecha» refleja el destino elegido.
+  - **Accesibilidad:** axe con WCAG A y AA sobre la hoja abierta, en ambos pasos.
+  - **Cierre a los 10 s:** test e2e con espera real (~11 s).
+  - Contrato del componente documentado en la cabecera de `tests/unit/CopyDaySheet.test.tsx`; dev-code debe cumplirlo o pactar el cambio.
 - Decisión nueva (técnica): el aviso se cierra al cambiar de fecha; el spec solo dice que dura 10 s. Si el usuario quiere reflejarlo en R4, se anota allí.
