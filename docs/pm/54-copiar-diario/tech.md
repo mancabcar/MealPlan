@@ -117,7 +117,7 @@ Totales: 36 tests unit (32 de `diary-copy` y 4 de `store-entries`), 28 de compon
 3. [x] `CopyDaySheet` con los dos pasos + test de componente (covers R1, R3, R5, R6, R7)
 4. [x] `page.tsx`: botón, estado, `Toast`, marca «Copiada», usa `entryName` (covers R1, R4, R5, R8)
 5. [x] e2e `diario-copiar-dia.spec.ts` (covers R1–R8)
-6. [ ] Lint, tipos, build y pasada de a11y
+6. [x] Lint, tipos, build y pasada de a11y
 
 ## Spec feedback
 - Sin cambios en el spec. Decisiones tomadas al escribir los tests (confirmadas por el usuario) que fijan lo que el spec dejaba abierto:
