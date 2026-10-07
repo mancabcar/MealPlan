@@ -112,7 +112,7 @@ Escritos antes del código; fallan hasta que exista cada pieza. Fixtures en `tes
 Totales: 36 tests unit (32 de `diary-copy` y 4 de `store-entries`), 28 de componente y 27 e2e (91). Los 27 e2e fallan hoy por el mismo motivo: no existe el botón «Copiar día a otra fecha».
 
 ## Tasks
-1. [ ] `diary.ts`: `copyDay`, `copyTargets`, `canCopyTo`, `formatDayShort`, `entryName` + unit tests (covers R2, R6, R7)
+1. [x] `diary.ts`: `copyDay`, `copyTargets`, `canCopyTo`, `formatDayShort`, `entryName` + unit tests (covers R2, R6, R7)
 2. [ ] Store: `addEntries` (covers R2)
 3. [ ] `CopyDaySheet` con los dos pasos + test de componente (covers R1, R3, R5, R6, R7)
 4. [ ] `page.tsx`: botón, estado, `Toast`, marca «Copiada», usa `entryName` (covers R1, R4, R5, R8)
