@@ -1,13 +1,15 @@
 # Diario: copiar un día completo a otra fecha
 
-_Status: merged (2026-10-09) · Updated: 2026-10-09 · Issue: [#54](https://github.com/mancabcar/MealPlan/issues/54) · Prototype: [canvas](https://claude.ai/artifact/3BuMmijuwQtipCjmJ74b4v) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#153](https://github.com/mancabcar/MealPlan/pull/153)_
+_Status: shipped (2026-10-09) · Updated: 2026-10-09 · Issue: [#54](https://github.com/mancabcar/MealPlan/issues/54) · Prototype: [canvas](https://claude.ai/artifact/3BuMmijuwQtipCjmJ74b4v) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#153](https://github.com/mancabcar/MealPlan/pull/153) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Follow-ups
-- Repetir una entrada suelta del Diario (hoy u otra fecha). (brainstorm)
-- Deshacer tras copiar (como en [#53](https://github.com/mancabcar/MealPlan/issues/53)). (brainstorm)
+- Repetir una entrada suelta del Diario (hoy u otra fecha). (brainstorm) → [#154](https://github.com/mancabcar/MealPlan/issues/154)
+- Deshacer tras copiar (como en [#53](https://github.com/mancabcar/MealPlan/issues/53)). (brainstorm) → [#155](https://github.com/mancabcar/MealPlan/issues/155)
 - Copiar varios días o una semana del Diario. (brainstorm)
 - Día tipo / plantilla guardada. (brainstorm)
 - Rellenar el Diario desde el Plan al copiar semanas (F). (brainstorm)
+- Hoja de conflicto: la lista de entradas existentes no tiene tope y con muchas entradas «Sumar» queda bajo el pliegue; el chip «Copiada» va pegado al texto de la fila (sin espacio para lectores de pantalla). (review)
+- Test de que el aviso de copia y el de «Añadir comida» no se muestran a la vez; atar el cierre del aviso a `date` en vez de al `onChange` del input; unificar estilos de botón de las hojas y el singular/plural. (review)
 
 ## Problema
 Necesito una forma de llevar un día ya registrado del Diario a otra fecha porque hay días casi calcados y repetirlos exige añadir cada entrada desde «Recientes», cambiando fecha y franja cada vez. Hoy lo hago así, entrada a entrada.
@@ -58,7 +60,7 @@ Cambiaría la apuesta si el prototipo mostrara que elegir la fecha cuesta más d
 - Pregunta a responder: ¿se hace en 2-3 toques sin perderse en la cabecera del Diario?
 
 ## Open questions
-- Si se copian también entradas con raciones, gramos o unidades tal cual (se supone que sí; confirmar en el spec).
+- Ninguna: la de raciones, gramos y unidades se resolvió en el spec (se copian tal cual).
 
 ## Prototype
 _Design: https://claude.ai/artifact/3BuMmijuwQtipCjmJ74b4v · 2026-10-06_
@@ -72,3 +74,6 @@ _Design: https://claude.ai/artifact/3BuMmijuwQtipCjmJ74b4v · 2026-10-06_
   - Se permite copiar a fechas futuras.
 - Pending ASSUMPTIONs: ninguna.
 - What to learn from testing it: si copiar un día cuesta 2-3 toques (botón → atajo → Copiar) y si el icono solo se entiende en la cabecera.
+
+## What to watch
+Métrica del [spec](spec.md), medida a mano y sin telemetría: copiar un día a hoy o mañana cuesta ≤ 3 toques (icono, atajo, «Copiar»; 4 con el aviso de conflicto). Mirar además, en el uso real: que el icono solo se entienda en la cabecera y que el aviso de conflicto no esconda «Sumar» en días con muchas entradas (follow-up de la review).
