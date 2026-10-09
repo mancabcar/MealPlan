@@ -1,6 +1,6 @@
 # Favoritos en «Añadir comida»: personalizadas que se guardan y se corrigen
 
-_Status: brainstorm · Updated: 2026-10-09 · Issue: [#55](https://github.com/mancabcar/MealPlan/issues/55) (@mancabcar)_
+_Status: brainstorm · Updated: 2026-10-09 · Issue: [#55](https://github.com/mancabcar/MealPlan/issues/55) (relacionado: [#58](https://github.com/mancabcar/MealPlan/issues/58))_
 
 ## Follow-ups
 - Autocompletar desde el historial: al escribir en Personalizada o en el buscador, ofrecer las personalizadas ya registradas (dirección E). Tapa el hueco si no se marca la ⭐. (brainstorm)
