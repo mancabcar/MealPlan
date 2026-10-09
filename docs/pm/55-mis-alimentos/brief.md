@@ -1,6 +1,6 @@
 # Favoritos en «Añadir comida»: personalizadas que se guardan y se corrigen
 
-_Status: prototype · Updated: 2026-10-09 · Issue: [#55](https://github.com/mancabcar/MealPlan/issues/55) (relacionado: [#58](https://github.com/mancabcar/MealPlan/issues/58)) · Prototype: [canvas](https://claude.ai/artifact/4YYejg1TynbXR8TESnokGX)_
+_Status: spec · Updated: 2026-10-09 · Issue: [#55](https://github.com/mancabcar/MealPlan/issues/55) (relacionado: [#58](https://github.com/mancabcar/MealPlan/issues/58)) · Prototype: [canvas](https://claude.ai/artifact/4YYejg1TynbXR8TESnokGX) · Spec: [spec.md](spec.md)_
 
 ## Follow-ups
 - Autocompletar desde el historial: al escribir en Personalizada o en el buscador, ofrecer las personalizadas ya registradas (dirección E). Tapa el hueco si no se marca la ⭐. (brainstorm)
@@ -65,10 +65,10 @@ Primera versión:
 **La pregunta que debe responder:** ¿se ve y se usa la ⭐, y cómo cabe «Favoritos» en una pantalla que ya tiene franja, Recientes y pestañas sin estorbar?
 
 ## Open questions
-- Orden por franja dentro de Favoritos: ¿por frecuencia de registro en la franja o por la más reciente? (para el spec)
-- ¿Cómo se edita o borra un favorito sin salir de «Añadir comida»? El flujo no entra en el prototipo; se define en el spec.
+- ~~Orden por franja~~ Resuelto en el spec: frecuencia en la franja (R8).
+- ~~Flujo de editar o borrar~~ Resuelto en el spec: «Editar» junto al título, lápiz por fila (R4, R5).
 - ~~¿La ⭐ en un alimento guarda la cantidad o la pide?~~ Resuelto en el prototipo: guarda la cantidad de la fila, sin diálogo.
-- ¿La ⭐ de una receta en «Añadir comida» es el mismo favorito que el de Recetas (#20), o uno aparte?
+- ~~¿⭐ de receta = favorito de #20?~~ Resuelto en el spec: el mismo (R2).
 - ~~¿Tope de Favoritos visibles?~~ Resuelto en el prototipo: 5 y «Ver todos (N)».
 
 ## Prototype
