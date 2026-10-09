@@ -5,7 +5,7 @@ _Status: brainstorm · Updated: 2026-10-09 · Issue: [#55](https://github.com/ma
 ## Follow-ups
 - Autocompletar desde el historial: al escribir en Personalizada o en el buscador, ofrecer las personalizadas ya registradas (dirección E). Tapa el hueco si no se marca la ⭐. (brainstorm)
 - Fusionar personalizadas duplicadas o casi iguales («Tostada aceite» / «tostada con aceite») (dirección C). (brainstorm)
-- Recientes ordenados por frecuencia en la franja («lo que más registras en Cena»): la segunda mitad de #55. Hoy Recientes ya pone primero lo registrado en la franja, pero por recencia. (brainstorm)
+- Recientes ordenados por frecuencia en la franja («lo que más registras en Cena»): la segunda mitad de #55. Hoy Recientes ya pone primero lo registrado en la franja, pero por recencia. (brainstorm) → [#158](https://github.com/mancabcar/MealPlan/issues/158)
 - Cerrar [#58](https://github.com/mancabcar/MealPlan/issues/58) cuando esto se entregue: queda absorbido aquí. (brainstorm)
 
 ## Problem
