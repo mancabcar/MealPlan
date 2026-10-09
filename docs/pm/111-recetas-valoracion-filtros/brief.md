@@ -1,9 +1,9 @@
 # Recetas: valoración 1–5, filtros y orden en el recetario
-_Status: tests · Updated: 2026-10-05 · Issue: [#111](https://github.com/mancabcar/MealPlan/issues/111) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: in review · Updated: 2026-10-09 · Issue: [#111](https://github.com/mancabcar/MealPlan/issues/111) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#157](https://github.com/mancabcar/MealPlan/pull/157)_
 
 ## Follow-ups
 - [#113](https://github.com/mancabcar/MealPlan/issues/113): selector único con autocompletado (queda fuera de esta idea).
-- Conflicto previsible con [#42](https://github.com/mancabcar/MealPlan/issues/42) (rama `feature/42-catalogo-recetas`), que toca `userData.ts`, `store.tsx` y `syncMigration.ts`: el dato nuevo `ratings` debe rebasarse sobre lo que se fusione primero.
+- #42 ya está fusionado: `ratings` se rebasó sobre él sin conflictos. Desplegar el servidor antes que el cliente (SYNC_KEYS pasa a diez claves; ver #122).
 
 ## Problem
 El recetario crece (107 recetas del catálogo más las propias, de IA e importadas) y la página Recetas solo permite buscar por texto y filtrar «Solo favoritas». No puedo valorar una receta, acotar por tiempo, kcal, proteína o alérgenos, ni ordenar. La v1 de [#20](../20-recetas-filtros/brief.md) se acotó a favoritos y franja.
