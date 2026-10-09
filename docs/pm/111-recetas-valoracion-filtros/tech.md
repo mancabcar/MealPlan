@@ -122,3 +122,7 @@ Tests actualizados por el cambio de nueve a diez claves (mecánico, acordado con
 | R6 | tests/e2e/valoracion-filtros.spec.ts › «R6: la nota se ve…» (2) | e2e | 🔴 failing (not built) |
 | R7 | tests/unit/recipe-filters.test.ts › «R7: countActiveFilters» | unit | 🔴 failing (not built) |
 | R7 | tests/e2e/valoracion-filtros.spec.ts › «R7: panel de filtros, vacío y reinicio» (4) y axe | e2e | 🔴 failing (not built) |
+
+## Divergencias aceptadas en la implementación
+- Las estrellas de valoración van en ámbar (`--color-expiring`) para distinguirlas de la favorita (color acento). Decidido por el usuario el 2026-10-09.
+- `RecipeFilters` se divide en `FiltersButton` (en la fila de chips, junto a «Usa lo que tengo», «Solo favoritas» y «De temporada») y `FiltersPanel` (debajo), en el mismo fichero `RecipeFilters.tsx`. Decidido por el usuario el 2026-10-09.
