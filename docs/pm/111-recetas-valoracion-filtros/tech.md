@@ -82,8 +82,8 @@ Elegida A por el usuario, que coincide con la recomendación de Claude.
 ## Tasks
 1. [x] Datos de `ratings`: `userData.ts`, `backup.ts`, `store.tsx`, `syncMigration.ts` y `SYNC_KEYS` del servidor, con sus tests unitarios (covers R2)
 2. [ ] `src/lib/recipeFilters.ts` con tramos, alérgenos y orden, con tests unitarios (covers R3, R4, R5)
-3. [ ] `RatingStars` y `RatingBadge` en el detalle y la tarjeta (covers R1, R6)
-4. [ ] Panel `RecipeFilters` con contador, orden y estado vacío, integrado en `page.tsx` (covers R3, R4, R5, R7)
+3. [x] `RatingStars` y `RatingBadge` en el detalle y la tarjeta (covers R1, R6)
+4. [x] Panel `RecipeFilters` con contador, orden y estado vacío, integrado en `page.tsx` (covers R3, R4, R5, R7)
 
 ## Spec feedback
 - R3: los tramos de kcal pasan de ≤400/600/800 a ≤300/400/500, porque ≤600 y ≤800 dejaban 104 y 107 de 107 recetas. Decidido por el usuario el 2026-10-05; `spec.md` actualizado.

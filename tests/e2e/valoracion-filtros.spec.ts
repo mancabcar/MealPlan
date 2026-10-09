@@ -338,6 +338,7 @@ test.describe("R7: panel de filtros, vacío y reinicio", () => {
     await sortBy(page, "Proteína");
 
     await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("link", { name: "Plan" }).click();
+    await page.waitForURL(/[/]plan/); // sin esto, en dev el segundo clic puede cancelar la navegación aún en curso
     await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("link", { name: "Recetas" }).click();
     await expect(page.getByRole("heading", { name: "Recetas", level: 1 })).toBeVisible();
     await expect(filtersButton(page)).toHaveAccessibleName("Filtros");
