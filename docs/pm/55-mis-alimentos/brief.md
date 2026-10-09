@@ -1,6 +1,6 @@
 # Favoritos en «Añadir comida»: personalizadas que se guardan y se corrigen
 
-_Status: brainstorm · Updated: 2026-10-09 · Issue: [#55](https://github.com/mancabcar/MealPlan/issues/55) (relacionado: [#58](https://github.com/mancabcar/MealPlan/issues/58))_
+_Status: prototype · Updated: 2026-10-09 · Issue: [#55](https://github.com/mancabcar/MealPlan/issues/55) (relacionado: [#58](https://github.com/mancabcar/MealPlan/issues/58)) · Prototype: [canvas](https://claude.ai/artifact/4YYejg1TynbXR8TESnokGX)_
 
 ## Follow-ups
 - Autocompletar desde el historial: al escribir en Personalizada o en el buscador, ofrecer las personalizadas ya registradas (dirección E). Tapa el hueco si no se marca la ⭐. (brainstorm)
@@ -67,6 +67,25 @@ Primera versión:
 ## Open questions
 - Orden por franja dentro de Favoritos: ¿por frecuencia de registro en la franja o por la más reciente? (para el spec)
 - ¿Cómo se edita o borra un favorito sin salir de «Añadir comida»? El flujo no entra en el prototipo; se define en el spec.
-- ¿La ⭐ en un alimento guarda la cantidad que se acaba de usar, o la pide?
+- ~~¿La ⭐ en un alimento guarda la cantidad o la pide?~~ Resuelto en el prototipo: guarda la cantidad de la fila, sin diálogo.
 - ¿La ⭐ de una receta en «Añadir comida» es el mismo favorito que el de Recetas (#20), o uno aparte?
-- ¿Tiene sentido un tope de Favoritos visibles, con «Ver más», como en Recientes?
+- ~~¿Tope de Favoritos visibles?~~ Resuelto en el prototipo: 5 y «Ver todos (N)».
+
+## Prototype
+_Design: https://claude.ai/artifact/4YYejg1TynbXR8TESnokGX · 2026-10-09_
+- Screens: 1 · Favoritos vacío; 2 · ☆ en una fila de Recientes; 3 · ☆ en Personalizada; 4 · Confirmación; 5 · Favoritos con pocos (3); 6 · Favoritos con muchos (12), con el pliegue del móvil marcado.
+- Decisions (confirmed by the user):
+  - Móvil, con el aspecto de la app (tema oscuro, acento lima) y datos inventados realistas.
+  - Favoritos vacío: una pista de una línea en el sitio de la sección.
+  - Recientes: botón ☆ aparte a la derecha de cada fila; la fila sigue añadiendo con un toque.
+  - Personalizada: casilla «Guardar en favoritos» justo encima de Añadir.
+  - Favoritos usa las mismas filas que Recientes, encima de Recientes; con muchos, tope y «Ver todos (N)».
+  - Lo que ya es favorito no se repite en Recientes.
+  - Texto de la pista: «Toca ☆ en lo que repites para tenerlo aquí».
+  - Un toque en ☆ guarda al momento, sin diálogo; para un alimento guarda la cantidad de esa fila y para una receta, sus raciones.
+  - La casilla de Personalizada empieza desmarcada y se desmarca tras cada registro.
+  - Confirmación: la fila sube a Favoritos y sale un aviso «Guardado en Favoritos · Deshacer» unos segundos.
+  - En Favoritos, la ★ rellena quita el favorito con un toque, sin confirmar, con Deshacer.
+  - Tope de 5 favoritos visibles; «Ver todos» despliega la lista en el sitio.
+- Pending ASSUMPTIONs: ninguna (las seis del canvas se confirmaron el 2026-10-09).
+- What to learn from testing it: si la ☆ se ve y se usa sin explicación, y si con 5 favoritos + 5 recientes las pestañas quedan demasiado abajo (pantalla 6).
