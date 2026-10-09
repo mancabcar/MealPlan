@@ -7,7 +7,7 @@ import { sanitizeWater } from "./water";
 import { EMPTY as EMPTY_SHOPPING, loadShoppingState, type ShoppingState } from "./shopping/state";
 import type { MealEntry, Measurement, PantryItem, Recipe, UserProfile, WeekPlan } from "./types";
 
-export const USER_DATA_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water"] as const;
+export const USER_DATA_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water", "ratings"] as const;
 export type UserDataKey = (typeof USER_DATA_KEYS)[number];
 
 export interface UserData {
@@ -22,6 +22,8 @@ export interface UserData {
   favorites: string[];
   /** Agua bebida por día en ml, clave YYYY-MM-DD (docs/pm/23-agua-fibra-micros). */
   water: Record<string, number>;
+  /** Valoración 1–5 por id de receta (docs/pm/111-recetas-valoracion-filtros). */
+  ratings: Record<string, number>;
 }
 
 export const EMPTY_USER_DATA: UserData = {
@@ -34,6 +36,7 @@ export const EMPTY_USER_DATA: UserData = {
   measurements: [],
   favorites: [],
   water: {},
+  ratings: {},
 };
 
 export interface LoadOptions<T> {
@@ -61,6 +64,16 @@ export function sanitizeFavorites(raw: unknown): string[] {
   return [...new Set(raw.filter((id): id is string => typeof id === "string" && id !== ""))];
 }
 
+/** Notas enteras de 1 a 5 por id de receta; descarta lo demás. Los ids de recetas que ya no existen se limpian al guardar (store). */
+export function sanitizeRatings(raw: unknown): Record<string, number> {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return {};
+  const out: Record<string, number> = {};
+  for (const [id, n] of Object.entries(raw)) {
+    if (id !== "" && typeof n === "number" && Number.isInteger(n) && n >= 1 && n <= 5) out[id] = n;
+  }
+  return out;
+}
+
 /** Mismas opciones que usa AppProvider al cargar: única fuente de las migraciones (R7). */
 export const LOAD_OPTIONS: { [K in UserDataKey]: LoadOptions<UserData[K]> } = {
   profile: { fallback: null, upgrade: migrateProfile, backup: true },
@@ -84,4 +97,6 @@ export const LOAD_OPTIONS: { [K in UserDataKey]: LoadOptions<UserData[K]> } = {
   favorites: { fallback: [], upgrade: sanitizeFavorites },
   // Agua (docs/pm/23-agua-fibra-micros): descarta lo mal formado; sin copia *_v1_backup
   water: { fallback: {}, upgrade: sanitizeWater },
+  // Valoraciones (docs/pm/111-recetas-valoracion-filtros): sin copia *_v1_backup
+  ratings: { fallback: {}, upgrade: sanitizeRatings },
 };

@@ -23,6 +23,7 @@ interface AppState {
   measurements: Measurement[];
   /** Ids de las recetas favoritas (docs/pm/20-recetas-filtros). */
   favorites: string[];
+  ratings: Record<string, number>;
   /** Agua bebida por día en ml (docs/pm/23-agua-fibra-micros). */
   water: Record<string, number>;
   loaded: boolean;
@@ -51,9 +52,11 @@ interface AppState {
   removeMeasurement: (id: string) => void;
   /** Marca o desmarca una receta como favorita; al guardar descarta los ids de recetas que ya no existen. */
   toggleFavorite: (id: string) => void;
+  /** Valora la receta de 1 a 5; repetir la nota actual la quita. */
+  setRating: (id: string, n: number) => void;
   /** Fija los ml bebidos de un día (docs/pm/23-agua-fibra-micros); 0 quita el día. */
   setWaterDay: (date: string, ml: number) => void;
-  /** Sustituye los ocho datos del usuario (ya validados con parseBackup). Lanza si falla la escritura (nada cambia). */
+  /** Sustituye los diez datos del usuario (ya validados con parseBackup). Lanza si falla la escritura (nada cambia). */
   importData: (data: UserData) => void;
 }
 
@@ -61,6 +64,9 @@ const AppContext = createContext<AppState | null>(null);
 
 /** Valor nuevo, o función del valor más reciente (para encadenar varias escrituras en un mismo evento). */
 export type Setter<T> = (v: T | ((prev: T) => T)) => void;
+
+const withoutRating = (ratings: Record<string, number>, id: string) =>
+  Object.fromEntries(Object.entries(ratings).filter(([rid]) => rid !== id));
 
 function load<T>(key: string, { fallback, upgrade, backup }: LoadOptions<T>): T {
   let raw: unknown = null;
@@ -125,11 +131,12 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
   const [measurements, setMeasurements, reloadMeasurements] = usePersisted(k("measurements"), LOAD_OPTIONS.measurements, dirty("measurements"));
 
   const [favorites, setFavorites, reloadFavorites] = usePersisted(k("favorites"), LOAD_OPTIONS.favorites, dirty("favorites"));
+  const [ratings, setRatings, reloadRatings] = usePersisted(k("ratings"), LOAD_OPTIONS.ratings, dirty("ratings"));
   const [water, setWater, reloadWater] = usePersisted(k("water"), LOAD_OPTIONS.water, dirty("water"));
 
   const [recipeFocus, setRecipeFocus] = useState<string | null>(null);
 
-  // backup-datos R6/R8: escribe todo o nada y, si ha ido bien, relee las ocho claves en el estado. Como `data` ya
+  // backup-datos R6/R8: escribe todo o nada y, si ha ido bien, relee las diez claves en el estado. Como `data` ya
   // viene migrado (parseBackup), la relectura no reescribe nada ni crea copias *_v1_backup.
   const importData = (data: UserData) => {
     writeUserData(localStorage, userId, data);
@@ -141,6 +148,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     reloadShopping();
     reloadMeasurements();
     reloadFavorites();
+    reloadRatings();
     reloadWater();
     // #22 R11: lo importado se sube entero
     for (const key of USER_DATA_KEYS) markDirty(key);
@@ -157,6 +165,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     measurements: reloadMeasurements,
     favorites: reloadFavorites,
     water: reloadWater,
+    ratings: reloadRatings,
   };
   const latestReloaders = useRef(reloaders);
   useEffect(() => {
@@ -173,6 +182,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     shopping,
     measurements,
     favorites,
+    ratings,
     water,
     loaded: true,
     recipeFocus,
@@ -190,6 +200,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
       setWeekPlan((prev) => withoutRecipe({ entries: [], plan: prev, recipe }).plan);
       setRecipes((prev) => prev.filter((r) => r.id !== id));
       setFavorites((prev) => prev.filter((f) => f !== id));
+      setRatings((prev) => withoutRating(prev, id));
     },
     addEntry: (e) => setEntries((prev) => [...prev, e]),
     addEntries: (es) => setEntries((prev) => [...prev, ...es]),
@@ -208,6 +219,13 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
         const known = new Set(recipes.map((r) => r.id));
         const kept = prev.filter((f) => known.has(f));
         return kept.includes(id) ? kept.filter((f) => f !== id) : [...kept, id];
+      }),
+    setRating: (id, n) =>
+      setRatings((prev) => {
+        const known = new Set(recipes.map((r) => r.id));
+        const kept = Object.fromEntries(Object.entries(prev).filter(([rid]) => known.has(rid)));
+        if (!Number.isInteger(n) || n < 1 || n > 5) return kept;
+        return kept[id] === n ? withoutRating(kept, id) : { ...kept, [id]: n };
       }),
     setWaterDay: (date, ml) => setWater((prev) => withWater(prev, date, ml)),
     importData,

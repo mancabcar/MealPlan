@@ -80,7 +80,7 @@ Elegida A por el usuario, que coincide con la recomendación de Claude.
 - Cada criterio de aceptación del spec se cubre con al menos uno de estos tests. Los tests se escriben antes del código con dev-test.
 
 ## Tasks
-1. [ ] Datos de `ratings`: `userData.ts`, `backup.ts`, `store.tsx`, `syncMigration.ts` y `SYNC_KEYS` del servidor, con sus tests unitarios (covers R2)
+1. [x] Datos de `ratings`: `userData.ts`, `backup.ts`, `store.tsx`, `syncMigration.ts` y `SYNC_KEYS` del servidor, con sus tests unitarios (covers R2)
 2. [ ] `src/lib/recipeFilters.ts` con tramos, alérgenos y orden, con tests unitarios (covers R3, R4, R5)
 3. [ ] `RatingStars` y `RatingBadge` en el detalle y la tarjeta (covers R1, R6)
 4. [ ] Panel `RecipeFilters` con contador, orden y estado vacío, integrado en `page.tsx` (covers R3, R4, R5, R7)
