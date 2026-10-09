@@ -89,6 +89,8 @@ export const ACCOUNT_A_DATA = {
   favorites: [AI_RECIPE.id, POLLO_BROCOLI.id],
   /** docs/pm/23-agua-fibra-micros: ml bebidos por día, el noveno dato del usuario. */
   water: { [TODAY]: 1250, "2026-09-21": 1500 } as Record<string, number>,
+  /** docs/pm/111-recetas-valoracion-filtros: nota 1–5 por receta, el décimo dato del usuario. */
+  ratings: { [AI_RECIPE.id]: 4, [POLLO_BROCOLI.id]: 5 } as Record<string, number>,
 };
 
 /** Datos previos de la cuenta B: todo distinto de A, para ver que la importación los sustituye. */

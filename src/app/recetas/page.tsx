@@ -23,6 +23,9 @@ import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { FavoriteStar } from "@/components/recetas/FavoriteStar";
+import { FiltersButton, FiltersPanel, describeFilters } from "@/components/recetas/RecipeFilters";
+import { RatingBadge } from "@/components/recetas/RatingBadge";
+import { RatingStars } from "@/components/recetas/RatingStars";
 import { inputCls } from "@/components/ui/input";
 import { Sheet } from "@/components/ui/Sheet";
 import { RecipeForm, type ImportedDraft } from "@/components/recetas/RecipeForm";
@@ -30,6 +33,7 @@ import { ImportRecipeSheet } from "@/components/recetas/ImportRecipeSheet";
 import { dayName } from "@/lib/week";
 import { duplicateRecipe, slotsUsingRecipe, suggestedTags } from "@/lib/recipeEdit";
 import { searchRecipes, sortByName } from "@/lib/recipeSearch";
+import { countActiveFilters, filterRecipes, NO_FILTERS, sortRecipes, type RecipeFilterState, type SortKey } from "@/lib/recipeFilters";
 import { RecipeCard, RecipeImagePlaceholder } from "@/components/recetas/RecipeCard";
 import { SeasonStrip } from "@/components/recetas/temporada/SeasonStrip";
 import { FeaturedRecipes } from "@/components/recetas/temporada/FeaturedRecipes";
@@ -50,7 +54,7 @@ export default function RecipesPage() {
 }
 
 function RecipesScreen() {
-  const { recipes, favorites, addRecipes, saveRecipe, removeRecipe, weekPlan, profile, pantry, recipeFocus, setRecipeFocus } =
+  const { recipes, favorites, ratings, addRecipes, saveRecipe, removeRecipe, weekPlan, profile, pantry, recipeFocus, setRecipeFocus } =
     useApp();
   const [search, setSearch] = useState("");
   const [usePantry, setUsePantry] = useState(false);
@@ -58,6 +62,10 @@ function RecipesScreen() {
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   // R3 (docs/pm/34-temporada): solo las recetas con algún producto de temporada del mes
   const [onlySeasonal, setOnlySeasonal] = useState(false);
+  // #111: filtros de tiempo, kcal, proteína y alérgenos, y orden. Estado de la página: se reinicia al salir de Recetas
+  const [filters, setFilters] = useState<RecipeFilterState>(NO_FILTERS);
+  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   // Por id, para que el detalle muestre los cambios al editar
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // Receta en el formulario: "new" = nueva; una receta = editar (o la copia sin guardar de "Duplicar y editar")
@@ -81,22 +89,25 @@ function RecipesScreen() {
     if (recipeFocus && !focusItem) setRecipeFocus(null);
   }, [recipeFocus, focusItem, setRecipeFocus]);
 
-  // Pipeline (R7): ítem enfocado → "Usa lo que tengo" → texto
+  // Pipeline (R7): ítem enfocado → "Usa lo que tengo" → filtros → favoritas/temporada → texto → orden (#111)
   const results = useMemo(() => {
     let list: { recipe: Recipe; usage?: RecipeUsage }[];
-    const base = focusItem ? recipesUsingItem(recipes, focusItem, today) : recipes;
+    const base = filterRecipes(focusItem ? recipesUsingItem(recipes, focusItem, today) : recipes, filters, profile?.allergies);
     if (usePantry) list = rankByPantry(base, pantry, today);
-    else list = sortByName(base).map((recipe) => ({ recipe })); // A–Z; con «Usa lo que tengo» manda el ranking
+    else list = sortRecipes(base, sortKey, ratings).map((recipe) => ({ recipe })); // con «Usa lo que tengo» manda el ranking
     const found = new Set(searchRecipes(list.map((x) => x.recipe), search));
     return list.filter(
       ({ recipe: r }) =>
         (!onlyFavorites || favorites.includes(r.id)) && (!onlySeasonal || seasonalIn(r, month).length > 0) && found.has(r),
     );
-  }, [recipes, favorites, onlyFavorites, onlySeasonal, month, pantry, focusItem, usePantry, search, today]);
+  }, [recipes, favorites, ratings, filters, sortKey, profile?.allergies, onlyFavorites, onlySeasonal, month, pantry, focusItem, usePantry, search, today]);
 
   // R2: las destacadas se calculan al vuelo; con búsqueda o filtros activos se ocultan junto con la franja
   const featured = useMemo(() => featuredRecipes(recipes, favorites, month), [recipes, favorites, month]);
-  const filtersActive = Boolean(focusItem || usePantry || onlyFavorites || onlySeasonal || search.trim());
+  const dataFiltersActive = countActiveFilters(filters) > 0;
+  const filtersActive = Boolean(
+    focusItem || usePantry || onlyFavorites || onlySeasonal || search.trim() || dataFiltersActive || sortKey !== "name",
+  );
 
   // Un error de la IA es de la vista donde ocurrió: se limpia al cambiar de vista (hallazgo 1 de review.md)
   const navigate = (href: string) => {
@@ -264,8 +275,10 @@ function RecipesScreen() {
         <div className="flex flex-wrap items-center gap-2">
           <AllergenBadge recipe={selected} allergies={profile?.allergies} />
           {selected.isCustom && <Chip tone="accent">Propia</Chip>}
+          <RatingBadge recipeId={selected.id} />
           {selected.macrosEstimated && <Chip tone="expiring">Macros estimados</Chip>}
         </div>
+        <RatingStars recipe={selected} />
         <SeasonalProductLinks products={selectedSeasonal} monthName={MONTH_NAMES[month - 1]} onProduct={openProduct} />
         {selected.sourceUrl && /^https?:[/][/]/i.test(selected.sourceUrl) && (
           <a
@@ -453,6 +466,7 @@ function RecipesScreen() {
         >
           De temporada
         </button>
+        <FiltersButton state={filters} open={filtersOpen} onToggle={() => setFiltersOpen(!filtersOpen)} />
         {focusItem && (
           <span className="flex items-center gap-1 rounded-full px-3 py-1 text-sm bg-[var(--color-surface-2)]">
             con: {focusItem.name}
@@ -462,7 +476,25 @@ function RecipesScreen() {
           </span>
         )}
       </div>
-      {results.length === 0 && (focusItem || usePantry || onlyFavorites || onlySeasonal || search.trim()) && (
+      {filtersOpen && (
+        <FiltersPanel
+          state={filters}
+          onChange={setFilters}
+          sort={sortKey}
+          onSort={setSortKey}
+          hasAllergies={Boolean(profile && (profile.allergies.preset.length > 0 || profile.allergies.custom.length > 0))}
+        />
+      )}
+      {results.length === 0 && dataFiltersActive && (
+        <div className="flex flex-col items-center gap-3 py-6 text-center text-sm text-[var(--color-text-muted)]">
+          <p>Ninguna receta coincide con los filtros</p>
+          <p>{describeFilters(filters)}</p>
+          <button onClick={() => setFilters(NO_FILTERS)} className="font-semibold text-[var(--color-accent)]">
+            Quitar filtros
+          </button>
+        </div>
+      )}
+      {results.length === 0 && !dataFiltersActive && (focusItem || usePantry || onlyFavorites || onlySeasonal || search.trim()) && (
         <div className="flex flex-col items-center gap-3 py-6 text-center text-sm text-[var(--color-text-muted)]">
           <p>
             {search.trim()

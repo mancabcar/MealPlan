@@ -30,7 +30,7 @@ import { createFakeBackend } from "../fixtures/fakeSyncBackend";
 import { mockBackend } from "./syncHelpers";
 
 // docs/pm/9-historial-medidas: las mediciones son el séptimo dato y viajan en la copia.
-const USER_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water"] as const;
+const USER_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water", "ratings"] as const;
 
 type Account = { id: string; username: string; salt: string; hash: string };
 
