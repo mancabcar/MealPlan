@@ -1,6 +1,6 @@
 # Diario: copiar un día completo a otra fecha
 
-_Status: in review · Updated: 2026-10-07 · Issue: [#54](https://github.com/mancabcar/MealPlan/issues/54) · Prototype: [canvas](https://claude.ai/artifact/3BuMmijuwQtipCjmJ74b4v) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#153](https://github.com/mancabcar/MealPlan/pull/153)_
+_Status: merged (2026-10-09) · Updated: 2026-10-09 · Issue: [#54](https://github.com/mancabcar/MealPlan/issues/54) · Prototype: [canvas](https://claude.ai/artifact/3BuMmijuwQtipCjmJ74b4v) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#153](https://github.com/mancabcar/MealPlan/pull/153)_
 
 ## Follow-ups
 - Repetir una entrada suelta del Diario (hoy u otra fecha). (brainstorm)
