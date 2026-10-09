@@ -1,5 +1,5 @@
 # Recetas: valoración 1–5, filtros y orden en el recetario
-_Status: in review · Updated: 2026-10-09 · Issue: [#111](https://github.com/mancabcar/MealPlan/issues/111) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#157](https://github.com/mancabcar/MealPlan/pull/157)_
+_Status: in review · Updated: 2026-10-09 · Issue: [#111](https://github.com/mancabcar/MealPlan/issues/111) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#157](https://github.com/mancabcar/MealPlan/pull/157)_
 
 ## Follow-ups
 - [#113](https://github.com/mancabcar/MealPlan/issues/113): selector único con autocompletado (queda fuera de esta idea).
