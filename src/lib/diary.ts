@@ -3,6 +3,7 @@
 import { scaleMacros, type Per100 } from "./foods";
 import { parseDecimal } from "./nutrition";
 import { slotMacros, slotServings } from "./planMacros";
+import { addDays, dayName, toDateStr } from "./week";
 import { MEAL_TYPES, type MealEntry, type MealType, type Recipe, type WeekPlan } from "./types";
 
 // Raciones (docs/pm/raciones/tech.md › APIs): 0,25–4 en pasos de 0,25.
@@ -196,4 +197,44 @@ export function recentMeals({
 /** Copia de una entrada con id, fecha y franja nuevos (R4): conserva macros, recipeId, customName y servings. */
 export function repeatEntry(entry: MealEntry, date: string, mealType: MealType, id = crypto.randomUUID()): MealEntry {
   return { ...entry, id, date, mealType };
+}
+
+// Copiar un día del Diario (docs/pm/54-copiar-diario/tech.md › APIs). Puro: la hoja y el Diario solo lo cablean.
+
+/** R2: las entradas de `from` duplicadas en `to`, con id nuevo y todo lo demás intacto, en su orden de registro. */
+export function copyDay(entries: MealEntry[], from: string, to: string, newId: () => string = () => crypto.randomUUID()): MealEntry[] {
+  return entries.filter((e) => e.date === from).map((e) => repeatEntry(e, to, e.mealType, newId()));
+}
+
+/** R6: fecha de calendario YYYY-MM-DD válida y distinta del día de origen ("" = input borrado). */
+export function canCopyTo(origin: string, target: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(target) || target === origin) return false;
+  // 2026-02-30 pasa el patrón pero Date lo desplaza a marzo: no vuelve a ser la misma fecha
+  return toDateStr(new Date(target + "T00:00:00")) === target;
+}
+
+const COPY_TARGETS = [
+  { label: "Hoy", days: 0 },
+  { label: "Mañana", days: 1 },
+  { label: "En 7 días", days: 7 },
+];
+
+/** R7: atajos de la hoja, contados desde hoy y sin el que coincide con el día de origen. */
+export function copyTargets(origin: string, today: string): { label: string; date: string }[] {
+  return COPY_TARGETS.map(({ label, days }) => ({ label, date: addDays(today, days) })).filter((t) => t.date !== origin);
+}
+
+const MONTHS_SHORT = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+
+/** "2026-10-05" → "lun 5 oct". Coma fija, sin depender de Intl (como formatServings). */
+export function formatDayShort(date: string): string {
+  const [, month, day] = date.split("-").map(Number);
+  const name = dayName(date);
+  if (!name || !MONTHS_SHORT[month - 1]) return date;
+  return `${name.slice(0, 3).toLowerCase()} ${day} ${MONTHS_SHORT[month - 1]}`;
+}
+
+/** Nombre de la entrada en el Diario y en el aviso de conflicto: el propio, el de su receta o «Receta». */
+export function entryName(entry: Pick<MealEntry, "customName" | "recipeId">, recipes: Recipe[]): string {
+  return entry.customName ?? recipes.find((r) => r.id === entry.recipeId)?.name ?? "Receta";
 }

@@ -1,12 +1,14 @@
 "use client";
 
-import { useCallback, useId, useState, type MouseEvent, type ReactNode } from "react";
-import { Check, CheckCheck, Plus, X } from "lucide-react";
+import { useCallback, useId, useState, type ReactNode } from "react";
+import { Check, CheckCheck, Copy, Plus, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import { dailyTotals, weekDayStates, type StatsPeriod } from "@/lib/diaryStats";
 import { addDays, dayName } from "@/lib/week";
 import {
+  copyDay,
+  entryName,
   foodEntry,
   parseServings,
   pendingSlots,
@@ -37,7 +39,9 @@ import { glassMl, waterGoalMl } from "@/lib/water";
 import { ServingsField } from "@/components/ui/ServingsField";
 import { RecipePicker } from "@/components/recetas/RecipePicker";
 import { FoodPicker } from "@/components/diario/FoodPicker";
+import { CopyDaySheet } from "@/components/diario/CopyDaySheet";
 import { Toast } from "@/components/ui/Toast";
+import { singleClick } from "@/components/ui/singleClick";
 import { inputCls } from "@/components/ui/input";
 
 // Rediseño visual (docs/pm/design-refresh, R7): proteína/carbohidratos/grasas se quedan como barras
@@ -102,14 +106,6 @@ function MacroBar({
   );
 }
 
-// Registrar y borrar ignoran el segundo clic de un doble toque (detail > 1): tras el primero la fila cambia
-// (la pendiente pasa a entrada con ✕, o "Registrar todo el día" desaparece y las tarjetas suben) y el segundo
-// caería sobre otro botón. Un toque suelto siempre tiene detail 1.
-const singleClick = (action: () => void) => (ev: MouseEvent) => {
-  if (ev.detail > 1) return;
-  action();
-};
-
 // Pestañas de «Añadir comida», en este orden (docs/pm/13-base-alimentos, R1)
 type AddMode = "recipe" | "food" | "custom";
 const MODES: [AddMode, string][] = [
@@ -119,7 +115,7 @@ const MODES: [AddMode, string][] = [
 ];
 
 export default function DiaryPage() {
-  const { profile, entries, recipes, weekPlan, water, setWaterDay, addEntry, removeEntry } = useApp();
+  const { profile, entries, recipes, weekPlan, water, setWaterDay, addEntry, addEntries, removeEntry } = useApp();
   const userId = useAuth().user?.id;
   // Medias y adherencia (docs/pm/11-medias-adherencia): 7 por defecto, la opción se recuerda por usuario (R11)
   const [statsDays, setStatsDays] = useState<StatsPeriod>(() => loadStatsDays(userId));
@@ -143,6 +139,10 @@ export default function DiaryPage() {
   // Base de alimentos (docs/pm/13-base-alimentos, R10): aviso con Deshacer tras añadir un alimento
   const [added, setAdded] = useState<{ entryId: string; text: string } | null>(null);
   const hideAdded = useCallback(() => setAdded(null), []);
+  // Copiar un día (docs/pm/54-copiar-diario): la hoja abierta y el aviso «Copiadas N entradas» con las ids que se marcan «Copiada»
+  const [copyOpen, setCopyOpen] = useState(false);
+  const [copied, setCopied] = useState<{ ids: string[]; text: string } | null>(null);
+  const hideCopied = useCallback(() => setCopied(null), []);
 
   if (!profile) return null;
 
@@ -226,13 +226,46 @@ export default function DiaryPage() {
     setCustomFiberError(false);
   };
 
+  // R2–R4: copia el día que se ve a `to` (la hoja ya avisó si había entradas) y salta al día de destino.
+  // Solo un aviso a la vez: el de la copia anula el de «Añadir comida» y al revés.
+  const copyToDate = (to: string) => {
+    setCopyOpen(false);
+    const copies = copyDay(entries, date, to);
+    if (copies.length === 0) return;
+    addEntries(copies);
+    setAdded(null);
+    setDate(to);
+    setCopied({ ids: copies.map((e) => e.id), text: copies.length === 1 ? "Copiada 1 entrada" : `Copiadas ${copies.length} entradas` });
+  };
+
   return (
     // Mientras se ve el aviso (fixed, bottom-24), hueco al final para que «Añadir comida» pueda quedar por encima
     // y se pueda añadir otro alimento seguido (review de #13)
-    <div className={`flex flex-col gap-4 ${added ? "pb-20" : ""}`}>
+    <div className={`flex flex-col gap-4 ${added || copied ? "pb-20" : ""}`}>
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Diario</h1>
-        <input type="date" aria-label="Fecha" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Copiar día a otra fecha"
+            disabled={dayEntries.length === 0}
+            onClick={() => setCopyOpen(true)}
+            className="shrink-0 w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-accent)] disabled:opacity-40"
+          >
+            <Copy className="w-5 h-5" aria-hidden />
+          </button>
+          {/* Cambiar de día cierra el aviso de la copia y sus marcas */}
+          <input
+            type="date"
+            aria-label="Fecha"
+            value={date}
+            onChange={(e) => {
+              setDate(e.target.value);
+              setCopied(null);
+            }}
+            className={inputCls}
+          />
+        </div>
       </div>
 
       <Card className="flex flex-col items-center gap-3 py-6">
@@ -339,8 +372,9 @@ export default function DiaryPage() {
                   <div key={e.id} className="flex justify-between items-center py-1 text-sm">
                     <div>
                       <span>
-                        {e.customName ?? recipes.find((r) => r.id === e.recipeId)?.name ?? "Receta"}
+                        {entryName(e, recipes)}
                         {label && <span className="text-[var(--color-text-muted)]"> {label}</span>}
+                        {copied?.ids.includes(e.id) && <Chip tone="accent" className="ml-2">Copiada</Chip>}
                       </span>
                       <span className="block text-xs text-[var(--color-text-muted)]">
                         {fiber === undefined ? "Fibra: sin dato" : `Fibra ${formatFiber(fiber)} g`}
@@ -418,6 +452,7 @@ export default function DiaryPage() {
                 const entry = foodEntry(food, date, mealType, qty);
                 addEntry(entry);
                 setShowAdd(false);
+                setCopied(null);
                 setAdded({ entryId: entry.id, text: `Añadido a ${mealType} · ${quantityLabel(entry)}` });
               })(ev)
             }
@@ -510,6 +545,24 @@ export default function DiaryPage() {
           <Plus className="w-4 h-4" aria-hidden />
           Añadir comida
         </button>
+      )}
+
+      {copyOpen && (
+        <CopyDaySheet
+          from={date}
+          today={todayStr()}
+          entries={entries}
+          recipes={recipes}
+          onCopy={copyToDate}
+          onClose={() => setCopyOpen(false)}
+        />
+      )}
+
+      {copied && (
+        // Sin Deshacer en v1 (docs/pm/54-copiar-diario, non-goals): mismos 10 s que el aviso de «Añadir comida»
+        <Toast key={copied.ids[0]} onDismiss={hideCopied}>
+          {copied.text}
+        </Toast>
       )}
 
       {added && (

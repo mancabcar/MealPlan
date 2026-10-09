@@ -36,6 +36,8 @@ interface AppState {
   /** Borra la receta: sus entradas del Diario pasan a comida suelta y sus franjas del Plan se vacían. */
   removeRecipe: (id: string) => void;
   addEntry: (e: MealEntry) => void;
+  /** Varias de una vez, en una sola escritura (copiar un día del Diario, docs/pm/54-copiar-diario). */
+  addEntries: (es: MealEntry[]) => void;
   removeEntry: (id: string) => void;
   addPantryItem: (i: PantryItem) => void;
   removePantryItem: (id: string) => void;
@@ -190,6 +192,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
       setFavorites((prev) => prev.filter((f) => f !== id));
     },
     addEntry: (e) => setEntries((prev) => [...prev, e]),
+    addEntries: (es) => setEntries((prev) => [...prev, ...es]),
     removeEntry: (id) => setEntries((prev) => prev.filter((e) => e.id !== id)),
     addPantryItem: (i) => setPantry((prev) => [...prev, i]),
     removePantryItem: (id) => setPantry((prev) => prev.filter((i) => i.id !== id)),
