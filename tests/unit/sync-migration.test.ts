@@ -10,7 +10,7 @@ import {
   listLocalAccounts,
   planFirstSync,
 } from "@/lib/syncMigration";
-import { withSeedRecipes } from "@/lib/userData";
+import { CATALOG } from "@/lib/catalog";
 import { createFakeBackend, SYNC_KEYS, type FakeBackend } from "../fixtures/fakeSyncBackend";
 import { ACCOUNT_A, ACCOUNT_A_DATA, ACCOUNT_B, ACCOUNT_B_DATA, OTHER_ACCOUNT } from "../fixtures/backup";
 
@@ -86,8 +86,8 @@ describe("hasUserData: qué cuenta como «hay datos locales»", () => {
     expect(hasUserData(storage, "acc-9d41e7")).toBe(false);
   });
 
-  it("Edge: las recetas de ejemplo sembradas automáticamente no cuentan como datos del usuario", () => {
-    seedLocal(storage, "acc-9d41e7", { recipes: withSeedRecipes([]), entries: [], pantry: [], weekplan: {} });
+  it("Edge: las recetas del catálogo que guardó una versión anterior no cuentan como datos del usuario", () => {
+    seedLocal(storage, "acc-9d41e7", { recipes: CATALOG, entries: [], pantry: [], weekplan: {} });
     expect(hasUserData(storage, "acc-9d41e7")).toBe(false);
   });
 
@@ -98,7 +98,7 @@ describe("hasUserData: qué cuenta como «hay datos locales»", () => {
       expect(hasUserData(s, "acc"), key).toBe(true);
     }
     const s = new MemoryStorage();
-    seedLocal(s, "acc", { recipes: [...withSeedRecipes([]), ACCOUNT_A_DATA.recipes[0]] });
+    seedLocal(s, "acc", { recipes: [...CATALOG, ACCOUNT_A_DATA.recipes[0]] });
     expect(hasUserData(s, "acc")).toBe(true);
   });
 

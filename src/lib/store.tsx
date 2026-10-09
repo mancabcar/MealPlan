@@ -1,10 +1,11 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, ReactNode } from "react";
 import { UserProfile, Recipe, MealEntry, Measurement, PantryItem, WeekPlan } from "./types";
 import { userKey } from "./auth";
 import type { ShoppingState } from "./shopping/state";
 import { writeUserData } from "./backup";
+import { CATALOG } from "./catalog";
 import { withoutRecipe } from "./recipeEdit";
 import { useSync } from "./syncContext";
 import { withWater } from "./water";
@@ -12,6 +13,7 @@ import { LOAD_OPTIONS, USER_DATA_KEYS, type LoadOptions, type UserData, type Use
 
 interface AppState {
   profile: UserProfile | null;
+  /** Catálogo del bundle + recetas del usuario (IA y propias). Solo estas últimas se guardan (docs/pm/recetas-almacenamiento). */
   recipes: Recipe[];
   entries: MealEntry[];
   pantry: PantryItem[];
@@ -34,6 +36,8 @@ interface AppState {
   /** Borra la receta: sus entradas del Diario pasan a comida suelta y sus franjas del Plan se vacían. */
   removeRecipe: (id: string) => void;
   addEntry: (e: MealEntry) => void;
+  /** Varias de una vez, en una sola escritura (copiar un día del Diario, docs/pm/54-copiar-diario). */
+  addEntries: (es: MealEntry[]) => void;
   removeEntry: (id: string) => void;
   addPantryItem: (i: PantryItem) => void;
   removePantryItem: (id: string) => void;
@@ -106,13 +110,14 @@ function usePersisted<T>(
 }
 
 export function AppProvider({ userId, children }: { userId: string; children: ReactNode }) {
-  // Cada usuario tiene sus propias claves: mp_<userId>_<dato>. Migraciones y siembra: LOAD_OPTIONS (userData.ts).
+  // Cada usuario tiene sus propias claves: mp_<userId>_<dato>. Migraciones: LOAD_OPTIONS (userData.ts).
   const k = (key: string) => userKey(userId, key);
   const { markDirty, subscribeRemote } = useSync();
   const dirty = (key: UserDataKey) => () => markDirty(key);
 
   const [profile, setProfile, reloadProfile] = usePersisted(k("profile"), LOAD_OPTIONS.profile, dirty("profile"));
-  const [recipes, setRecipes, reloadRecipes] = usePersisted(k("recipes"), LOAD_OPTIONS.recipes, dirty("recipes"));
+  const [ownRecipes, setRecipes, reloadRecipes] = usePersisted(k("recipes"), LOAD_OPTIONS.recipes, dirty("recipes"));
+  const recipes = useMemo(() => [...CATALOG, ...ownRecipes], [ownRecipes]);
   const [entries, setEntries, reloadEntries] = usePersisted(k("entries"), LOAD_OPTIONS.entries, dirty("entries"));
   const [pantry, setPantry, reloadPantry] = usePersisted(k("pantry"), LOAD_OPTIONS.pantry, dirty("pantry"));
   const [weekPlan, setWeekPlan, reloadWeekPlan] = usePersisted(k("weekplan"), LOAD_OPTIONS.weekplan, dirty("weekplan"));
@@ -176,7 +181,8 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     addRecipes: (r) => setRecipes((prev) => [...prev, ...r]),
     saveRecipe: (r) => setRecipes((prev) => (prev.some((x) => x.id === r.id) ? prev.map((x) => (x.id === r.id ? r : x)) : [...prev, r])),
     removeRecipe: (id) => {
-      const recipe = recipes.find((r) => r.id === id);
+      // Solo las del usuario: el catálogo es de solo lectura
+      const recipe = ownRecipes.find((r) => r.id === id);
       if (!recipe) return;
       // Orden seguro: entradas → plan → receta; si algo falla antes, no se pierde nada y se puede repetir.
       // Cada setter parte del último valor escrito, no del render (como el resto de acciones)
@@ -186,6 +192,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
       setFavorites((prev) => prev.filter((f) => f !== id));
     },
     addEntry: (e) => setEntries((prev) => [...prev, e]),
+    addEntries: (es) => setEntries((prev) => [...prev, ...es]),
     removeEntry: (id) => setEntries((prev) => prev.filter((e) => e.id !== id)),
     addPantryItem: (i) => setPantry((prev) => [...prev, i]),
     removePantryItem: (id) => setPantry((prev) => prev.filter((i) => i.id !== id)),

@@ -31,18 +31,18 @@ describe("R3: proteína con rango 130–160", () => {
     [160, "within"],
     [161, "above"],
   ] as const)("R3: %d g → %s", (value, expected) => {
-    expect(macroStatus(value, range)).toBe(expected);
+    expect(macroStatus(value, range, 10)).toBe(expected);
   });
 
   // Decisión (a): lo que se ve es lo que se juzga. 129,6 se muestra "130" → Dentro.
   it("R3: redondea antes de comparar: 129,6 → 130 → dentro; 129,4 → 129 → por debajo", () => {
-    expect(macroStatus(129.6, range)).toBe("within");
-    expect(macroStatus(129.4, range)).toBe("below");
+    expect(macroStatus(129.6, range, 10)).toBe("within");
+    expect(macroStatus(129.4, range, 10)).toBe("below");
   });
 
   it("R3: redondea antes de comparar en el máximo: 160,4 → dentro; 160,5 → 161 → por encima", () => {
-    expect(macroStatus(160.4, range)).toBe("within");
-    expect(macroStatus(160.5, range)).toBe("above");
+    expect(macroStatus(160.4, range, 10)).toBe("within");
+    expect(macroStatus(160.5, range, 10)).toBe("above");
   });
 });
 
@@ -53,7 +53,7 @@ describe("R4: objetivos sin rango, ±10 %", () => {
     [2200, "within"],
     [2201, "above"],
   ] as const)("R4: %d kcal con objetivo 2000 → %s", (value, expected) => {
-    expect(macroStatus(value, 2000)).toBe(expected);
+    expect(macroStatus(value, 2000, 10)).toBe(expected);
   });
 
   // 230 × 0,9 y 230 × 1,1 no son exactos en coma flotante: los límites 207 y 253 deben ser "dentro".
@@ -63,12 +63,12 @@ describe("R4: objetivos sin rango, ±10 %", () => {
     [253, "within"],
     [254, "above"],
   ] as const)("R4: %d g de hidratos con objetivo 230 → %s", (value, expected) => {
-    expect(macroStatus(value, 230)).toBe(expected);
+    expect(macroStatus(value, 230, 10)).toBe(expected);
   });
 
   it("R4: redondea antes de comparar: 206,5 → 207 → dentro; 206,4 → por debajo", () => {
-    expect(macroStatus(206.5, 230)).toBe("within");
-    expect(macroStatus(206.4, 230)).toBe("below");
+    expect(macroStatus(206.5, 230, 10)).toBe("within");
+    expect(macroStatus(206.4, 230, 10)).toBe("below");
   });
 
   // Review #38, no bloqueante 2: Perfil admite objetivos con decimales. 69,5 → banda 62,55–76,45.
@@ -78,29 +78,29 @@ describe("R4: objetivos sin rango, ±10 %", () => {
     [76, "within"],
     [77, "above"],
   ] as const)("R4: %d g con objetivo decimal 69,5 → %s", (value, expected) => {
-    expect(macroStatus(value, 69.5)).toBe(expected);
+    expect(macroStatus(value, 69.5, 10)).toBe(expected);
   });
 
   it("R4: grasas 80 con objetivo 69 → por encima (ejemplo de R5)", () => {
-    expect(macroStatus(80, 69)).toBe("above");
+    expect(macroStatus(80, 69, 10)).toBe("above");
   });
 
   it("R4: con objetivo 0, 0 está dentro y cualquier valor mayor que 0 por encima", () => {
-    expect(macroStatus(0, 0)).toBe("within");
-    expect(macroStatus(1, 0)).toBe("above");
+    expect(macroStatus(0, 0, 10)).toBe("within");
+    expect(macroStatus(1, 0, 10)).toBe("above");
   });
 
   // Review #38, no bloqueante 1: NaN no cumple nunca (antes caía en "within" porque NaN < x y NaN > x son falsos).
   it.each([NaN, Infinity, -Infinity])("un valor no finito (%s) nunca está dentro", (value) => {
-    expect(macroStatus(value, 2000)).toBe("below");
-    expect(macroStatus(value, { min: 130, max: 160 })).toBe("below");
+    expect(macroStatus(value, 2000, 10)).toBe("below");
+    expect(macroStatus(value, { min: 130, max: 160 }, 10)).toBe("below");
   });
 
   it("R4: la proteína sin rango usa proteinGoal con la misma banda (145 → 131–159)", () => {
-    expect(macroStatus(130, 145)).toBe("below");
-    expect(macroStatus(131, 145)).toBe("within");
-    expect(macroStatus(159, 145)).toBe("within");
-    expect(macroStatus(160, 145)).toBe("above");
+    expect(macroStatus(130, 145, 10)).toBe("below");
+    expect(macroStatus(131, 145, 10)).toBe("within");
+    expect(macroStatus(159, 145, 10)).toBe("within");
+    expect(macroStatus(160, 145, 10)).toBe("above");
   });
 });
 

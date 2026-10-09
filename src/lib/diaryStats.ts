@@ -2,6 +2,7 @@
 // Un día se juzga con macroStatus/macroTarget de planMacros, así que el Plan y el Diario no pueden divergir.
 import { finiteOr0, macroStatus, macroTarget, type Macros } from "./planMacros";
 import { formatShortDate } from "./measurements";
+import { tolerancePct } from "./tolerance";
 import type { MealEntry, UserProfile } from "./types";
 import { addDays } from "./week";
 
@@ -41,9 +42,10 @@ export function dailyTotals(entries: MealEntry[], dates: string[]): Map<string, 
 
 /** R4: kcal dentro de calorieGoal Y proteína dentro de su rango u objetivo. Mismo macroStatus que el Plan. */
 export function isCompliantDay(totals: Macros, profile: UserProfile): boolean {
+  const pct = tolerancePct(profile);
   return (
-    macroStatus(totals.calories, macroTarget("calories", profile)) === "within" &&
-    macroStatus(totals.protein, macroTarget("protein", profile)) === "within"
+    macroStatus(totals.calories, macroTarget("calories", profile), pct) === "within" &&
+    macroStatus(totals.protein, macroTarget("protein", profile), pct) === "within"
   );
 }
 
@@ -72,6 +74,35 @@ export function periodStats({
     compliantDays: days.filter((d) => isCompliantDay(d, profile)).length,
     averages: { calories: sum.calories / n, protein: sum.protein / n, carbs: sum.carbs / n, fat: sum.fat / n },
   };
+}
+
+/** #50: estado de cada día de la gráfica semanal. Solo `met` lleva icono; hoy y lo que viene nunca se juzgan. */
+export type DayState = "met" | "missed" | "empty" | "today";
+
+/**
+ * #50 R1–R2: `today` si es hoy; `empty` si no hay entradas o la fecha es posterior a hoy (aunque tenga);
+ * `met`/`missed` según isCompliantDay, el mismo criterio que la adherencia. Una entrada por fecha pedida, en orden.
+ */
+export function weekDayStates({
+  entries,
+  profile,
+  dates,
+  today,
+}: {
+  entries: MealEntry[];
+  profile: UserProfile;
+  dates: string[];
+  today: string;
+}): Map<string, DayState> {
+  const totals = dailyTotals(entries, dates);
+  const states = new Map<string, DayState>();
+  for (const date of dates) {
+    const t = totals.get(date);
+    if (date === today) states.set(date, "today");
+    else if (date > today || !t) states.set(date, "empty");
+    else states.set(date, isCompliantDay(t, profile) ? "met" : "missed");
+  }
+  return states;
 }
 
 /** R8: "19–25 sep"; si cambia el mes, "27 ago–25 sep". Sin año. */

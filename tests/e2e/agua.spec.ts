@@ -80,7 +80,7 @@ test.describe("R10: contador de vasos del día", () => {
 
   test("sigue la fecha del Diario: sumar en ayer no toca hoy", async ({ page }) => {
     await openDiario(page, { water: AGUA_DOS_DIAS });
-    await page.getByLabel("Fecha").fill(YESTERDAY);
+    await page.getByLabel("Fecha", { exact: true }).fill(YESTERDAY);
     await expect(card(page)).toContainText("1,5 / 2 L");
     await plus(page).click();
     await expect(card(page)).toContainText("1,75 / 2 L");

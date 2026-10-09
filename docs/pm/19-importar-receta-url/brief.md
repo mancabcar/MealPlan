@@ -1,9 +1,11 @@
 # Importar una receta desde una URL
-_Status: merged · Updated: 2026-10-04 · Issue: [#19](https://github.com/mancabcar/MealPlan/issues/19) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#88](https://github.com/mancabcar/MealPlan/pull/88) · Review: ⚠️ approved with follow-ups ([review.md](review.md))_
+_Status: shipped (2026-10-01) · Updated: 2026-10-05 · Issue: [#19](https://github.com/mancabcar/MealPlan/issues/19) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#88](https://github.com/mancabcar/MealPlan/pull/88) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 _Entrada en el pipeline: resumen del issue confirmado por el usuario; se saltan brainstorm completo y prototype (el formulario de receta ya existe por #18) y se entra en spec._
 
 ## Follow-ups
+- Endurecer el importador: `toNumber`, Content-Type, NAT64/6to4, timeout de la IA, `rateLimit`, delimitador del prompt (hallazgos 4–9 de la review). (review) → [#140](https://github.com/mancabcar/MealPlan/issues/140)
+- `tagHint` se devuelve pero la UI no lo usa; aceptado por el usuario. (review)
 
 ## Problem
 Paprika y Samsung Food importan recetas de cualquier web. Hoy en MealPlan hay que copiarlas a mano.

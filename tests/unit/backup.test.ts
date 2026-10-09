@@ -13,7 +13,7 @@ import {
   parseBackup,
   writeUserData,
 } from "@/lib/backup";
-import { EMPTY_USER_DATA, LOAD_OPTIONS, USER_DATA_KEYS, withSeedRecipes, type UserData } from "@/lib/userData";
+import { EMPTY_USER_DATA, LOAD_OPTIONS, USER_DATA_KEYS, type UserData } from "@/lib/userData";
 import { EMPTY as EMPTY_SHOPPING, loadShoppingState } from "@/lib/shopping/state";
 import { migrateEntries, migrateProfile, migrateWeekPlan, PROFILE_SCHEMA_VERSION } from "@/lib/migrate";
 import type { Recipe } from "@/lib/types";
@@ -26,6 +26,7 @@ import {
   BACKUP_MEASUREMENTS,
   BACKUP_PANTRY,
   BACKUP_PLAN,
+  BACKUP_RECIPES,
   BACKUP_PROFILE,
   EXPORTED_AT,
   LEGACY_V1_PROFILE,
@@ -109,7 +110,7 @@ const NOW = new Date("2026-09-24T08:30:00.000Z");
 /** Datos completos y ya migrados, como los que produce parseBackup o la carga del store. */
 const FULL_DATA: UserData = {
   profile: BACKUP_PROFILE,
-  recipes: [AI_RECIPE, ...SEED_RECIPES],
+  recipes: BACKUP_RECIPES,
   entries: BACKUP_ENTRIES,
   pantry: BACKUP_PANTRY,
   weekplan: BACKUP_PLAN,
@@ -158,7 +159,7 @@ describe("userData: registro compartido de los datos del usuario (base de R7)", 
     const plan = { [TODAY]: [{ mealType: "Snack", recipeId: "r1" }] };
     expect(LOAD_OPTIONS.weekplan.upgrade(plan)).toEqual(migrateWeekPlan(plan));
     expect(LOAD_OPTIONS.shopping.upgrade({ current: { week: MONDAY } })).toEqual(loadShoppingState({ current: { week: MONDAY } }));
-    expect(LOAD_OPTIONS.recipes.upgrade(null)).toEqual(SEED_RECIPES);
+    expect(LOAD_OPTIONS.recipes.upgrade(null)).toEqual([]);
     expect(LOAD_OPTIONS.pantry.upgrade(null)).toEqual([]);
     expect(LOAD_OPTIONS.pantry.upgrade(BACKUP_PANTRY)).toEqual(BACKUP_PANTRY);
     // Saneado de lo mal formado: sanitizeMeasurements (tests/unit/measurements.test.ts)
@@ -169,7 +170,7 @@ describe("userData: registro compartido de los datos del usuario (base de R7)", 
   it("LOAD_OPTIONS: nulo → el vacío de cada dato", () => {
     for (const k of USER_DATA_KEYS) {
       expect(LOAD_OPTIONS[k].upgrade(null) ?? LOAD_OPTIONS[k].fallback, k).toEqual(
-        k === "recipes" ? SEED_RECIPES : EMPTY_USER_DATA[k],
+        EMPTY_USER_DATA[k],
       );
     }
   });
@@ -184,12 +185,6 @@ describe("userData: registro compartido de los datos del usuario (base de R7)", 
     expect(LOAD_OPTIONS.measurements.backup).toBeFalsy();
   });
 
-  it("withSeedRecipes añade las de ejemplo que faltan y es idempotente", () => {
-    const once = withSeedRecipes([AI_RECIPE]);
-    expect(once).toEqual([AI_RECIPE, ...SEED_RECIPES]);
-    expect(withSeedRecipes(once)).toEqual(once);
-    expect(withSeedRecipes([SEED_RECIPES[0]]).filter((r) => r.id === SEED_RECIPES[0].id)).toHaveLength(1);
-  });
 });
 
 // ---------------------------------------------------------------------------
@@ -295,11 +290,11 @@ describe("R10: exportar y volver a leer da los mismos datos", () => {
 });
 
 describe("Casos límite: secciones ausentes o vacías", () => {
-  it("una copia sin secciones da todo vacío y las recetas de ejemplo", () => {
+  it("una copia sin secciones da todo vacío (el catálogo viene con la app)", () => {
     expect(parseBackup(backupText({}))).toEqual({
       ok: true,
       exportedAt: EXPORTED_AT,
-      data: { ...EMPTY_USER_DATA, recipes: SEED_RECIPES },
+      data: EMPTY_USER_DATA,
     });
   });
 
@@ -322,18 +317,17 @@ describe("Casos límite: secciones ausentes o vacías", () => {
     expect(result.ok && result.data.profile).toBeNull();
   });
 
-  it("las recetas de ejemplo no se duplican si la copia ya las trae", () => {
+  it("las recetas del catálogo que traiga una copia antigua no se guardan ni se duplican", () => {
     const result = parseBackup(backupText({ recipes: [AI_RECIPE, ...SEED_RECIPES] }));
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     const ids = result.data.recipes.map((r) => r.id);
-    expect(ids).toHaveLength(SEED_RECIPES.length + 1);
-    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toEqual([AI_RECIPE.id]);
   });
 
-  it("las recetas de ejemplo que falten se vuelven a añadir", () => {
+  it("una copia sin las recetas del catálogo no las añade (se leen del bundle)", () => {
     const result = parseBackup(backupText({ recipes: [AI_RECIPE] }));
-    expect(result.ok && result.data.recipes).toEqual([AI_RECIPE, ...SEED_RECIPES]);
+    expect(result.ok && result.data.recipes).toEqual([AI_RECIPE]);
   });
 });
 
@@ -539,7 +533,7 @@ describe("R8: writeUserData escribe todo o nada", () => {
   it("no toca credenciales, sesión, *_v1_backup ni otras cuentas", () => {
     const s = browserWithAccounts();
     const before = s.snapshot();
-    writeUserData(s, U, { ...EMPTY_USER_DATA, recipes: SEED_RECIPES });
+    writeUserData(s, U, { ...EMPTY_USER_DATA, recipes: [AI_RECIPE] });
     const after = s.snapshot();
     const userKeys = new Set(USER_DATA_KEYS.map(keyOf));
     for (const [k, v] of Object.entries(before)) if (!userKeys.has(k)) expect(after[k], k).toBe(v);

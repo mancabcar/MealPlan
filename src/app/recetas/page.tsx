@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Clock, Download, ExternalLink, Flame, Leaf, Plus, Sparkles, X } from "lucide-react";
 import { useApp } from "@/lib/store";
@@ -98,10 +98,20 @@ function RecipesScreen() {
   const featured = useMemo(() => featuredRecipes(recipes, favorites, month), [recipes, favorites, month]);
   const filtersActive = Boolean(focusItem || usePantry || onlyFavorites || onlySeasonal || search.trim());
 
+  // Un error de la IA es de la vista donde ocurrió: se limpia al cambiar de vista (hallazgo 1 de review.md)
+  const navigate = (href: string) => {
+    setError("");
+    router.push(href);
+  };
   const openProduct = (p: SeasonalProduct) => {
     setSelectedId(null);
-    router.push(productHref(p.id));
+    navigate(productHref(p.id));
   };
+  // Producto que se está viendo, para que una generación lenta no abra su detalle si ya saliste (hallazgo 2)
+  const viewedProductId = useRef<string | null>(null);
+  useEffect(() => {
+    viewedProductId.current = product?.id ?? null;
+  }, [product]);
 
   const selectRecipe = (r: Recipe) => {
     setSelectedId(r.id);
@@ -158,7 +168,8 @@ function RecipesScreen() {
       return;
     }
     addRecipes(generated);
-    selectRecipe(generated[0]);
+    // La receta se guarda siempre; el detalle solo se abre si sigues en la página de ese producto
+    if (viewedProductId.current === p.id) selectRecipe(generated[0]);
   };
 
   const onSave = (r: Recipe) => {
@@ -347,7 +358,7 @@ function RecipesScreen() {
     );
   }
 
-  if (calendar) return <SeasonCalendar month={month} onBack={() => router.push(RECIPES_HREF)} />;
+  if (calendar) return <SeasonCalendar month={month} onBack={() => navigate(RECIPES_HREF)} />;
 
   if (product) {
     return (
@@ -360,7 +371,7 @@ function RecipesScreen() {
         error={error}
         onSelect={selectRecipe}
         onSuggest={() => suggestWith(product)}
-        onBack={() => router.push(RECIPES_HREF)}
+        onBack={() => navigate(RECIPES_HREF)}
       />
     );
   }
@@ -403,7 +414,7 @@ function RecipesScreen() {
       )}
       {!filtersActive && (
         <>
-          <SeasonStrip month={month} onProduct={openProduct} onCalendar={() => router.push(CALENDAR_HREF)} />
+          <SeasonStrip month={month} onProduct={openProduct} onCalendar={() => navigate(CALENDAR_HREF)} />
           <FeaturedRecipes recipes={featured} month={month} allergies={profile?.allergies} onSelect={selectRecipe} />
         </>
       )}

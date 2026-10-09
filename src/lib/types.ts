@@ -152,6 +152,8 @@ export interface UserProfile {
   waterGoalMl?: number;
   /** Tamaño del vaso en ml (#23: 200, 250, 330 o 500). Ausente = 250 (lib/water.ts › glassMl). */
   glassMl?: number;
+  /** Tolerancia de «cumplido» en % (#49, entero 5–20), compartida por Plan y Diario. Ausente = 10 (lib/tolerance.ts › tolerancePct). */
+  tolerancePct?: number;
   /** >= 1, siempre en el orden de MEAL_TYPES. */
   meals: MealType[];
   allergies: Allergies;

@@ -3,6 +3,7 @@
 // la parte visual va aria-hidden y una frase sr-only la resume ("Grasas 80 de 69, por encima").
 import { ArrowDown, ArrowUp, Check, type LucideIcon } from "lucide-react";
 import { macroStatus, macroTarget, type MacroStatus, type MacroTarget, type Macros } from "@/lib/planMacros";
+import { tolerancePct } from "@/lib/tolerance";
 import type { UserProfile } from "@/lib/types";
 
 const CELLS: { key: keyof Macros; label: string; unit: string; tone: string }[] = [
@@ -42,7 +43,7 @@ export function DayMacroSummary({
         {CELLS.map(({ key, label, unit, tone }) => {
           const value = Math.round(totals[key]);
           const target = profile ? macroTarget(key, profile) : null;
-          const status = target === null ? null : STATUS[macroStatus(totals[key], target)];
+          const status = !profile || target === null ? null : STATUS[macroStatus(totals[key], target, tolerancePct(profile))];
           // El lector oye "de 130 a 160"; sin los gramos, pero con las kcal ("2030 de 2000" solo sería ambiguo)
           const spoken =
             target === null

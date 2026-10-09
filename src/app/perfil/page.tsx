@@ -7,6 +7,7 @@ import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import { ALLERGEN_LABELS } from "@/lib/allergens";
 import { FIBER_GOAL_ERROR, fiberGoal, parseFiberGoal } from "@/lib/fiber";
+import { TOLERANCE_ERROR, parseTolerance, tolerancePct } from "@/lib/tolerance";
 import { GLASS_OPTIONS, WATER_GOAL_ERROR, formatLiters, glassMl, parseWaterGoal, waterGoalMl } from "@/lib/water";
 import { withoutAllergies } from "@/lib/migrate";
 import { ageFromBirthYear, calculateTargets, parseDecimal, PROTEIN_G_PER_KG, type Targets } from "@/lib/nutrition";
@@ -202,6 +203,54 @@ function WaterGoalRow({ profile, update }: { profile: UserProfile; update: Updat
   );
 }
 
+// Tolerancia de «cumplido» (#49, R1/R7): fila propia con su edición, como la de fibra; un único valor para Plan y Diario
+function ToleranceRow({ profile, update }: { profile: UserProfile; update: Update }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const fieldId = useId();
+  if (draft === null) {
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-[var(--color-text-muted)]">Tolerancia</span>
+          <span className="flex items-center gap-3">
+            <span className="text-[var(--color-text)]">{`${tolerancePct(profile)} %`}</span>
+            <button type="button" className={smallBtn} onClick={() => setDraft(String(tolerancePct(profile)))}>
+              Editar tolerancia
+            </button>
+          </span>
+        </div>
+        <p className="text-xs text-[var(--color-text-muted)]">Margen para dar un objetivo por cumplido. Se aplica al Plan y al Diario.</p>
+      </div>
+    );
+  }
+  const parsed = parseTolerance(draft);
+  return (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={fieldId} className="text-sm font-medium">
+        Tolerancia de cumplido (%)
+      </label>
+      <input
+        id={fieldId}
+        inputMode="numeric"
+        className={inputCls}
+        value={draft}
+        aria-invalid={parsed === null}
+        onChange={(e) => setDraft(e.target.value)}
+      />
+      {parsed === null && <p className="text-xs text-[var(--color-expired)]">{TOLERANCE_ERROR}</p>}
+      <SaveBar
+        disabled={parsed === null}
+        onSave={() => {
+          if (parsed === null) return;
+          update({ tolerancePct: parsed });
+          setDraft(null);
+        }}
+        onCancel={() => setDraft(null)}
+      />
+    </div>
+  );
+}
+
 // Tamaño del vaso (#23, R11): se guarda al elegirlo; los ml ya bebidos no cambian
 function GlassSizeSection({ profile, update }: { profile: UserProfile; update: Update }) {
   const id = useId();
@@ -301,6 +350,7 @@ function TargetsSection({ profile, update }: { profile: UserProfile; update: Upd
           <Row label="Grasas" value={`${profile.fatGoal} g`} />
           <FiberGoalRow profile={profile} update={update} />
           <WaterGoalRow profile={profile} update={update} />
+          <ToleranceRow profile={profile} update={update} />
           {/* Cambiar de origen (R13): al plan se pasa con las cifras actuales; al cálculo, con los datos guardados */}
           <button
             type="button"

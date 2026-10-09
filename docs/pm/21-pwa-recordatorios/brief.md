@@ -1,5 +1,5 @@
 # PWA instalable con recordatorios
-_Status: shipped · Updated: 2026-10-02 · Issue: [#21](https://github.com/mancabcar/MealPlan/issues/21) (@mancabcar) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#92](https://github.com/mancabcar/MealPlan/pull/92) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+_Status: shipped · Updated: 2026-10-02 · Issue: [#21](https://github.com/mancabcar/MealPlan/issues/21) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#92](https://github.com/mancabcar/MealPlan/pull/92) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Shipped
 Entrega 1 (instalable y offline) fusionada el 2026-10-02 (PR [#91](https://github.com/mancabcar/MealPlan/pull/91) docs y [#92](https://github.com/mancabcar/MealPlan/pull/92) código) y en producción en IONOS; Manuel confirma que funciona. La entrega 2 (avisos con Web Push) sigue pendiente, y por eso el issue #21 permanece abierto.
