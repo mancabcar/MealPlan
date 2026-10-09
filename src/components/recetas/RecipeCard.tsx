@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { Highlight } from "@/components/ui/Highlight";
 import { FavoriteStar } from "./FavoriteStar";
+import { RatingBadge } from "./RatingBadge";
 import { SeasonalSummaryChip } from "./temporada/SeasonalChips";
 
 /** Placeholder de imagen (R9/non-goal: sin fotos reales todavía, ver spec § Non-goals). */
@@ -62,6 +63,7 @@ export function RecipeCard({
               </div>
             )}
             <div className="flex flex-wrap gap-1.5 mt-2">
+              <RatingBadge recipeId={r.id} />
               <SeasonalSummaryChip products={seasonalIn(r, month)} />
               <Chip icon={Flame}>{r.calories} kcal</Chip>
               <Chip tone="protein">P {r.protein}g</Chip>

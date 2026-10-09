@@ -23,6 +23,8 @@ import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { FavoriteStar } from "@/components/recetas/FavoriteStar";
+import { RatingBadge } from "@/components/recetas/RatingBadge";
+import { RatingStars } from "@/components/recetas/RatingStars";
 import { inputCls } from "@/components/ui/input";
 import { Sheet } from "@/components/ui/Sheet";
 import { RecipeForm, type ImportedDraft } from "@/components/recetas/RecipeForm";
@@ -264,8 +266,10 @@ function RecipesScreen() {
         <div className="flex flex-wrap items-center gap-2">
           <AllergenBadge recipe={selected} allergies={profile?.allergies} />
           {selected.isCustom && <Chip tone="accent">Propia</Chip>}
+          <RatingBadge recipeId={selected.id} />
           {selected.macrosEstimated && <Chip tone="expiring">Macros estimados</Chip>}
         </div>
+        <RatingStars recipe={selected} />
         <SeasonalProductLinks products={selectedSeasonal} monthName={MONTH_NAMES[month - 1]} onProduct={openProduct} />
         {selected.sourceUrl && /^https?:[/][/]/i.test(selected.sourceUrl) && (
           <a
