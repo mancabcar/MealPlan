@@ -6,15 +6,22 @@ export interface RateLimiter {
   reset(): void;
 }
 
+/** Cada cuánto se barren las claves viejas como mucho (#140: antes se recorría el mapa en cada petición). */
+export const SWEEP_EVERY_MS = 60_000;
+
 export function createRateLimiter({ max, windowMs }: { max: number; windowMs: number }): RateLimiter {
   const hits = new Map<string, number[]>();
+  let lastSweep = 0;
 
   return {
     check(key) {
       const now = Date.now();
       // Limpieza de claves viejas para que el mapa no crezca sin límite
-      for (const [k, times] of hits) {
-        if (times.every((t) => now - t >= windowMs)) hits.delete(k);
+      if (now - lastSweep >= SWEEP_EVERY_MS) {
+        lastSweep = now;
+        for (const [k, times] of hits) {
+          if (times.every((t) => now - t >= windowMs)) hits.delete(k);
+        }
       }
       const recent = (hits.get(key) ?? []).filter((t) => now - t < windowMs);
       if (recent.length >= max) {
@@ -27,6 +34,7 @@ export function createRateLimiter({ max, windowMs }: { max: number; windowMs: nu
     },
     reset() {
       hits.clear();
+      lastSweep = 0;
     },
   };
 }

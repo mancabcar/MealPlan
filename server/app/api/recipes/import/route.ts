@@ -18,6 +18,8 @@ import { SafeFetchError, safeFetch } from "../../../../lib/safeFetch";
 export const maxDuration = 30;
 
 const AI_MODEL = "claude-haiku-4-5-20251001";
+/** Con los 8 s de safeFetch, la ruta responde con JSON antes del límite de 30 s de la función (#140). */
+const AI_TIMEOUT_MS = 18_000;
 
 export async function OPTIONS(request: Request) {
   return preflight(request);
@@ -29,18 +31,26 @@ function failure(code: ImportErrorCode, headers?: Record<string, string>) {
 
 async function extractWithAi(html: string): Promise<Response> {
   const text = htmlToText(html, AI_TEXT_MAX_CHARS);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
   try {
-    const response = await new Anthropic().messages.create({
-      model: AI_MODEL,
-      max_tokens: 2000,
-      messages: [{ role: "user", content: buildImportPrompt(text) }],
-    });
+    // Un solo intento de verdad: el SDK reintenta 2 veces por defecto (#140)
+    const response = await new Anthropic().messages.create(
+      {
+        model: AI_MODEL,
+        max_tokens: 2000,
+        messages: [{ role: "user", content: buildImportPrompt(text) }],
+      },
+      { signal: controller.signal, maxRetries: 0 },
+    );
     const reply = response.content.find((b) => b.type === "text")?.text ?? "";
     const recipe = parseAiRecipe(reply);
     // Un solo intento: cualquier fallo de la IA cuenta como "no hay receta" (R6)
     return recipe ? NextResponse.json({ recipe, source: "ai" }) : failure("no_recipe");
   } catch {
     return failure("no_recipe");
+  } finally {
+    clearTimeout(timer);
   }
 }
 
