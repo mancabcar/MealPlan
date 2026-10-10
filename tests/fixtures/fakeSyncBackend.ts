@@ -112,6 +112,10 @@ export function createFakeBackend() {
       tokens.set(token, id);
       return token;
     },
+    /** Caduca todas las sesiones abiertas: la siguiente petición con token recibe 401. */
+    expireSessions() {
+      tokens.clear();
+    },
     /** Escritura de "otro dispositivo": sube la versión de una clave. */
     remoteWrite(username: string, key: string, value: unknown) {
       const u = users.find((x) => x.username === username)!;

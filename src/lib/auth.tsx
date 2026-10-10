@@ -154,9 +154,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /** R6/R7: con la sesión ya abierta en el servidor, decide qué pasa con los datos de este dispositivo. */
   const finishSignIn = async (serverToken: string, serverUser: SessionUser, remember: boolean, localAccountId: string | null) => {
-    if (localAccountId) adoptLocalData(localStorage, localAccountId, serverUser.id);
-    // Un dispositivo que ya sincronizó antes con esta cuenta (p. ej. tras caducar la sesión) solo se pone al día
+    // Un dispositivo que ya sincronizó antes con esta cuenta (p. ej. tras caducar la sesión) solo se pone al día:
+    // la cuenta local elegida se ignora, porque copiarla pisaría lo ya sincronizado sin marcarlo pendiente (#100)
     const knownDevice = localStorage.getItem(userKey(serverUser.id, "syncmeta")) !== null;
+    if (localAccountId && !knownDevice) adoptLocalData(localStorage, localAccountId, serverUser.id);
     const plan = knownDevice
       ? "download"
       : planFirstSync(hasUserData(localStorage, serverUser.id), await remoteHasData(serverToken));
