@@ -320,3 +320,30 @@ describe("R7: CORS (misma política que /api/recipes)", () => {
     expect(res.headers.get("Access-Control-Allow-Methods")).toContain("POST");
   });
 });
+
+describe("#140: la IA tiene su propio límite de tiempo y no reintenta", () => {
+  it("si Claude no responde, devuelve no_recipe (JSON) antes de que se acabe la función (30 s)", async () => {
+    vi.useFakeTimers();
+    try {
+      pageIs(HTML_TEXT_ONLY);
+      create.mockImplementation(
+        (_body: unknown, opts?: { signal?: AbortSignal }) =>
+          new Promise((_resolve, reject) => opts?.signal?.addEventListener("abort", () => reject(new Error("aborted")))),
+      );
+      const pending = importUrl();
+      await vi.advanceTimersByTimeAsync(22_000);
+      const { status, body } = await pending;
+      expect(status).toBe(422);
+      expect(body.error).toBe("no_recipe");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("pide una sola llamada: sin los reintentos automáticos del SDK", async () => {
+    pageIs(HTML_TEXT_ONLY);
+    claudeReturns(CALABAZA_AI);
+    await importUrl();
+    expect(create.mock.calls[0][1]).toMatchObject({ maxRetries: 0 });
+  });
+});
