@@ -13,9 +13,11 @@ export function Toast({
   children: ReactNode;
   action?: { label: string; onClick: () => void };
   onDismiss: () => void;
-  durationMs?: number;
+  /** null: no se cierra solo (avisos de Favoritos, docs/pm/55-mis-alimentos R11); se quita desmontándolo. */
+  durationMs?: number | null;
 }) {
   useEffect(() => {
+    if (durationMs === null) return;
     const t = setTimeout(onDismiss, durationMs);
     return () => clearTimeout(t);
   }, [onDismiss, durationMs]);
