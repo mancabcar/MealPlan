@@ -90,7 +90,9 @@ export const ACCOUNT_A_DATA = {
   favorites: [AI_RECIPE.id, POLLO_BROCOLI.id],
   /** docs/pm/23-agua-fibra-micros: ml bebidos por día, el noveno dato del usuario. */
   water: { [TODAY]: 1250, "2026-09-21": 1500 } as Record<string, number>,
-  /** docs/pm/55-mis-alimentos: personalizadas y alimentos favoritos, el décimo dato del usuario. */
+  /** docs/pm/111-recetas-valoracion-filtros: nota 1–5 por receta, el décimo dato del usuario. */
+  ratings: { [AI_RECIPE.id]: 4, [POLLO_BROCOLI.id]: 5 } as Record<string, number>,
+  /** docs/pm/55-mis-alimentos: personalizadas y alimentos favoritos, el undécimo dato del usuario. */
   mealFavorites: [
     { id: "bk-fav-tostada", kind: "custom", name: "Tostada con aceite", calories: 210, protein: 5, carbs: 28, fat: 11, fiber: 3 },
     { id: "bk-fav-avena", kind: "food", foodId: "local:avena-copos", name: "Avena", grams: 40, per100: { kcal: 375, protein: 13.5, carbs: 59, fat: 7, fiber: 10 } },

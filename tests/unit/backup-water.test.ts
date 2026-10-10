@@ -12,8 +12,8 @@ function backupWith(data: Record<string, unknown>): string {
 }
 
 describe("R13: el agua viaja en la copia de seguridad", () => {
-  it("la novena clave de los datos del usuario es «water» (detrás va «mealFavorites», #55)", () => {
-    expect(USER_DATA_KEYS).toHaveLength(10);
+  it("«water» es la novena clave de los datos del usuario (detrás van «ratings», #111, y «mealFavorites», #55)", () => {
+    expect(USER_DATA_KEYS).toHaveLength(11);
     expect(USER_DATA_KEYS[8]).toBe("water");
   });
 

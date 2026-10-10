@@ -92,7 +92,7 @@ export function createSyncEngine(options: SyncEngineOptions): SyncEngine {
     onRemoteChange(key);
   };
 
-  /** Devuelve false si hay que parar (sin red, error o sesión caducada). */
+  /** Devuelve false si hay que parar (sin red, error del servidor o sesión caducada); una clave rechazada no para. */
   async function pushPending(): Promise<boolean> {
     for (const key of [...meta.pending]) {
       const raw = storage.getItem(dataKey(userId, key));
@@ -121,6 +121,11 @@ export function createSyncEngine(options: SyncEngineOptions): SyncEngine {
         const body = (await res.json()) as { version: number };
         meta.versions[key] = body.version;
         if ((generation[key] ?? 0) === gen) meta.pending = meta.pending.filter((k) => k !== key);
+      } else if (res.status >= 400 && res.status < 500) {
+        // El servidor rechaza esta clave (400 clave desconocida, 413 bloque > 1 MB): reintentar ya no cambia nada.
+        // Sigue pendiente para cuando el servidor la acepte, pero no bloquea las demás ni la bajada (#122)
+        failed = true;
+        continue;
       } else {
         failed = true;
         return false;

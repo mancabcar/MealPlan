@@ -24,6 +24,7 @@ interface AppState {
   measurements: Measurement[];
   /** Ids de las recetas favoritas (docs/pm/20-recetas-filtros). */
   favorites: string[];
+  ratings: Record<string, number>;
   /** Agua bebida por día en ml (docs/pm/23-agua-fibra-micros). */
   water: Record<string, number>;
   /** Personalizadas y alimentos favoritos de «Añadir comida» (docs/pm/55-mis-alimentos). */
@@ -56,6 +57,8 @@ interface AppState {
   toggleFavorite: (id: string) => void;
   /** Sustituye la lista de recetas favoritas (Deshacer en Favoritos de «Añadir comida», docs/pm/55-mis-alimentos R5). */
   setFavorites: (ids: string[]) => void;
+  /** Valora la receta de 1 a 5; repetir la nota actual la quita. */
+  setRating: (id: string, n: number) => void;
   /** Fija los ml bebidos de un día (docs/pm/23-agua-fibra-micros); 0 quita el día. */
   setWaterDay: (date: string, ml: number) => void;
   /** Edición si ya hay uno con ese id; si no, una personalizada con el mismo nombre se actualiza (R2) y lo demás se añade. */
@@ -71,6 +74,9 @@ const AppContext = createContext<AppState | null>(null);
 
 /** Valor nuevo, o función del valor más reciente (para encadenar varias escrituras en un mismo evento). */
 export type Setter<T> = (v: T | ((prev: T) => T)) => void;
+
+const withoutRating = (ratings: Record<string, number>, id: string) =>
+  Object.fromEntries(Object.entries(ratings).filter(([rid]) => rid !== id));
 
 function load<T>(key: string, { fallback, upgrade, backup }: LoadOptions<T>): T {
   let raw: unknown = null;
@@ -135,6 +141,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
   const [measurements, setMeasurements, reloadMeasurements] = usePersisted(k("measurements"), LOAD_OPTIONS.measurements, dirty("measurements"));
 
   const [favorites, setFavorites, reloadFavorites] = usePersisted(k("favorites"), LOAD_OPTIONS.favorites, dirty("favorites"));
+  const [ratings, setRatings, reloadRatings] = usePersisted(k("ratings"), LOAD_OPTIONS.ratings, dirty("ratings"));
   const [water, setWater, reloadWater] = usePersisted(k("water"), LOAD_OPTIONS.water, dirty("water"));
   const [mealFavorites, setMealFavorites, reloadMealFavorites] = usePersisted(
     k("mealFavorites"),
@@ -156,6 +163,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     reloadShopping();
     reloadMeasurements();
     reloadFavorites();
+    reloadRatings();
     reloadWater();
     reloadMealFavorites();
     // #22 R11: lo importado se sube entero
@@ -173,6 +181,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     measurements: reloadMeasurements,
     favorites: reloadFavorites,
     water: reloadWater,
+    ratings: reloadRatings,
     mealFavorites: reloadMealFavorites,
   };
   const latestReloaders = useRef(reloaders);
@@ -190,6 +199,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     shopping,
     measurements,
     favorites,
+    ratings,
     water,
     mealFavorites,
     loaded: true,
@@ -208,6 +218,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
       setWeekPlan((prev) => withoutRecipe({ entries: [], plan: prev, recipe }).plan);
       setRecipes((prev) => prev.filter((r) => r.id !== id));
       setFavorites((prev) => prev.filter((f) => f !== id));
+      setRatings((prev) => withoutRating(prev, id));
     },
     addEntry: (e) => setEntries((prev) => [...prev, e]),
     addEntries: (es) => setEntries((prev) => [...prev, ...es]),
@@ -226,6 +237,13 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
         const known = new Set(recipes.map((r) => r.id));
         const kept = prev.filter((f) => known.has(f));
         return kept.includes(id) ? kept.filter((f) => f !== id) : [...kept, id];
+      }),
+    setRating: (id, n) =>
+      setRatings((prev) => {
+        const known = new Set(recipes.map((r) => r.id));
+        const kept = Object.fromEntries(Object.entries(prev).filter(([rid]) => known.has(rid)));
+        if (!Number.isInteger(n) || n < 1 || n > 5) return kept;
+        return kept[id] === n ? withoutRating(kept, id) : { ...kept, [id]: n };
       }),
     setFavorites,
     setWaterDay: (date, ml) => setWater((prev) => withWater(prev, date, ml)),

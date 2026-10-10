@@ -12,8 +12,19 @@ export const FIBER_MAX = 200;
 export const FIBER_ERROR = "Entre 0 y 200 g";
 export const FIBER_GOAL_ERROR = "Un número entero entre 10 y 100 g";
 
+/** Un objetivo que no es un entero de 10 a 100 (p. ej. de una copia editada a mano) vuelve al de por defecto (#123). */
 export function fiberGoal(profile: Pick<UserProfile, "fiberGoal">): number {
-  return profile.fiberGoal ?? FIBER_GOAL_DEFAULT;
+  const g = profile.fiberGoal;
+  return typeof g === "number" && Number.isInteger(g) && g >= FIBER_GOAL_MIN && g <= FIBER_GOAL_MAX ? g : FIBER_GOAL_DEFAULT;
+}
+
+/** Fibra de una receta cargada de fuera: si no es un número de 0 a 200 g se quita y queda «sin dato» (#123). */
+export function sanitizeRecipeFiber<T extends { fiber?: number }>(recipe: T): T {
+  const f = recipe.fiber;
+  if (f === undefined || (typeof f === "number" && Number.isFinite(f) && f >= 0 && f <= FIBER_MAX)) return recipe;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { fiber: _bad, ...rest } = recipe;
+  return rest as T;
 }
 
 /** «37», «100» → número; fuera de 10–100, con decimales o no numérico → null. */

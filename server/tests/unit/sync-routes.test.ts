@@ -34,9 +34,9 @@ describe("R3: bloques JSON con versión del servidor", () => {
     expect((await (await get(a)).json()).profile).toEqual({ value: ACCOUNT_A_DATA.profile, version: 1 });
   });
 
-  it("R3: cada una de las 10 claves se guarda (la décima, «mealFavorites», es de #55) y se devuelve intacta", async () => {
+  it("R3: cada una de las 11 claves se guarda (la décima, «ratings», es de #111; la undécima, «mealFavorites», de #55) y se devuelve intacta", async () => {
     const values = { ...ACCOUNT_A_DATA, favorites: ["pollo-al-horno"], mealFavorites: [{ id: "fav-tortilla", kind: "custom", name: "Tortilla francesa", calories: 190, protein: 13, carbs: 1, fat: 15 }], shopping: { current: { week: "2026-09-21", bought: {}, overrides: [], moved: {} }, usage: {} } };
-    expect(Object.keys(values)).toHaveLength(10);
+    expect(Object.keys(values)).toHaveLength(11);
     for (const [key, value] of Object.entries(values)) expect((await put(key, a, value, 0)).status).toBe(200);
     const all = await (await get(a)).json();
     expect(Object.keys(all).sort()).toEqual(Object.keys(values).sort());

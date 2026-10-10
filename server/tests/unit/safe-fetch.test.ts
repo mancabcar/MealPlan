@@ -243,3 +243,23 @@ describe("Codificación del documento", () => {
     expect((await safeFetch(RECIPE_URL, deps(get))).html).toBe("<p>Sofreír</p>");
   });
 });
+
+describe("#140: solo se aceptan páginas web", () => {
+  it.each(["application/pdf", "image/jpeg", "application/octet-stream", "video/mp4", "text/csv", "text/javascript"])("un %s es fetch_failed y no se lee el cuerpo", async (type) => {
+    const read = vi.fn();
+    async function* body() {
+      read();
+      yield bytes("%PDF-1.7");
+    }
+    const get = vi.fn().mockResolvedValue({ status: 200, contentType: type, body: body() });
+    const error = (await failureOf(safeFetch(RECIPE_URL, deps(get)))) as SafeFetchError;
+    expect(error).toBeInstanceOf(SafeFetchError);
+    expect(error.code).toBe("fetch_failed");
+    expect(read).not.toHaveBeenCalled();
+  });
+
+  it.each(["text/html; charset=utf-8", "application/xhtml+xml", "TEXT/HTML", "text/plain", undefined])("%s se acepta", async (type) => {
+    const get = vi.fn().mockResolvedValue({ status: 200, contentType: type, body: chunks(bytes("<p>Hola</p>")) });
+    expect((await safeFetch(RECIPE_URL, deps(get))).html).toBe("<p>Hola</p>");
+  });
+});

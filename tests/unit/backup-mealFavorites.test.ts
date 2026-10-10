@@ -1,5 +1,5 @@
 // Spec: docs/pm/55-mis-alimentos/spec.md › R6 (los favoritos se sincronizan y entran en la copia de seguridad; una copia
-// antigua sin ellos se importa sin error). Tech: tech.md › Data model (décima clave `mealFavorites`) y Components & files
+// antigua sin ellos se importa sin error). Tech: tech.md › Data model (undécima clave `mealFavorites`, detrás de `ratings` de #111) y Components & files
 // (USER_DATA_KEYS, SYNC_KEYS del servidor, SECTION_SHAPE, hasUserData).
 // Fallan hasta la tarea 2 del tech design.
 import { describe, expect, it } from "vitest";
@@ -30,9 +30,9 @@ function memoryStorage(): Storage {
   };
 }
 
-describe("R6: «mealFavorites» es la décima clave de los datos del usuario", () => {
+describe("R6: «mealFavorites» es la undécima clave de los datos del usuario", () => {
   it("va al final de USER_DATA_KEYS, detrás de «water»", () => {
-    expect(USER_DATA_KEYS).toHaveLength(10);
+    expect(USER_DATA_KEYS).toHaveLength(11);
     expect(USER_DATA_KEYS.at(-1)).toBe("mealFavorites");
   });
 

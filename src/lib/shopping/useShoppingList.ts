@@ -6,7 +6,7 @@ import { useApp } from "@/lib/store";
 import { MEAL_TYPES, todayStr, type PantryCategory, type PantryItem } from "@/lib/types";
 import { weekDates } from "@/lib/week";
 import { aggregate, amountSignature, collectSources, formatAmount, leftoverSlotKeys, type ShoppingItem } from "./aggregate";
-import { moveToPantry, pruneBought, pruneWeeks, setOverride, toggleBought, undoLastMove, updateWeek, weekOf, type ShoppingWeekState } from "./state";
+import { moveToPantry, pruneBought, pruneWeeks, setOverride, toggleBought, undoLastMove, updateWeek, weekOf, type ShoppingState, type ShoppingWeekState } from "./state";
 import { buildShoppingView } from "./view";
 
 /** Lista de la semana `monday` (docs/pm/78-plan-navegar-semanas): cada semana tiene su propio estado. */
@@ -26,10 +26,13 @@ export function useShoppingList(monday: string) {
     [items, pantry, week, today],
   );
 
-  // Cada escritura limpia las marcas caducadas, para que el contador semanal sea fiel (review N6)
+  // Cada escritura limpia las marcas caducadas, para que el contador semanal sea fiel (review N6), también al mover (#116)
+  const signatures = () => Object.fromEntries(items.map((i) => [i.key, amountSignature(i)]));
+  const tidy = (state: ShoppingState, sigs: Record<string, string>) =>
+    pruneWeeks(updateWeek(state, monday, (w) => pruneBought(w, sigs)), today);
   const update = (fn: (week: ShoppingWeekState) => ShoppingWeekState) => {
-    const signatures = Object.fromEntries(items.map((i) => [i.key, amountSignature(i)]));
-    setShopping((prev) => pruneWeeks(updateWeek(prev, monday, (w) => pruneBought(fn(w), signatures)), today));
+    const sigs = signatures();
+    setShopping((prev) => tidy(updateWeek(prev, monday, fn), sigs));
   };
 
   return {
@@ -53,13 +56,17 @@ export function useShoppingList(monday: string) {
         addedFromListAt: today,
       }));
       addPantryItems(added);
+      const sigs = signatures();
       setShopping((prev) =>
-        moveToPantry(prev, monday, {
-          // Marca de tiempo completa: la Despensa muestra "Deshacer" solo justo después de mover (R13)
-          at: new Date().toISOString(),
-          pantryIds: added.map((p) => p.id),
-          entries: Object.fromEntries(moves.map(({ item }) => [item.key, amountSignature(item)])),
-        }),
+        tidy(
+          moveToPantry(prev, monday, {
+            // Marca de tiempo completa: la Despensa muestra "Deshacer" solo justo después de mover (R13)
+            at: new Date().toISOString(),
+            pantryIds: added.map((p) => p.id),
+            entries: Object.fromEntries(moves.map(({ item }) => [item.key, amountSignature(item)])),
+          }),
+          sigs,
+        ),
       );
       return added.length;
     },

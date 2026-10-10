@@ -15,7 +15,7 @@ Una clave de datos nueva, `mealFavorites`, guarda las personalizadas y los alime
 
 ## Approaches considered
 ### A. Una clave nueva `mealFavorites` (chosen)
-Una lista con dos tipos (`custom` | `food`); las recetas siguen en `favorites`. Pasamos de 9 a 10 claves. **Pros:** es el mínimo que cumple R6 y no toca el contrato de #20. **Cons:** hay que tocar los tests que cuentan 9 claves. **Effort:** M. Elegida por el usuario (también la recomendación).
+Una lista con dos tipos (`custom` | `food`); las recetas siguen en `favorites`. Pasamos de 9 a 10 claves (11 al integrar `main`, que ya traía `ratings` de #111: `mealFavorites` va detrás). **Pros:** es el mínimo que cumple R6 y no toca el contrato de #20. **Cons:** hay que tocar los tests que cuentan 9 claves. **Effort:** M. Elegida por el usuario (también la recomendación).
 ### B. Dos claves (`customFavorites`, `foodFavorites`)
 Cada una se valida de forma más sencilla, pero hay el doble de código repetido en store, sync y copia sin ventaja real.
 ### C. Ampliar `favorites` con objetos
@@ -28,7 +28,7 @@ Descartada: `sanitizeFavorites` e `isStringList` tiran lo que no es string, así
 | Lógica pura | `src/lib/mealFavorites.ts` (nuevo) | Tipos, `sanitizeMealFavorites`, `favoriteFromEntry`, `favoriteEntry`, `upsertCustom`, `rankFavorites`, `hiddenInRecents`, `customNameKey` |
 | Recientes | `src/lib/diary.ts` | `recentMeals` acepta `exclude?: (e: MealEntry) => boolean` (R7); `recentKey` no cambia |
 | Datos | `src/lib/userData.ts` | `mealFavorites` en `USER_DATA_KEYS`, `UserData`, `EMPTY_USER_DATA` y `LOAD_OPTIONS` |
-| Sync servidor | `server/lib/sync.ts` | `"mealFavorites"` en `SYNC_KEYS` (10) |
+| Sync servidor | `server/lib/sync.ts` | `"mealFavorites"` en `SYNC_KEYS` (11, detrás de `ratings`) |
 | Copia | `src/lib/backup.ts` | `SECTION_SHAPE.mealFavorites` (array de objetos con `id` y `kind`) y `upgrade("mealFavorites")` en `parseBackup` |
 | Store | `src/lib/store.tsx` | `usePersisted` y recarga de la clave, en `importData` y `reloaders`; acciones `saveMealFavorite`, `removeMealFavorite` y `setMealFavorites` (para Deshacer) |
 | Migración sync | `src/lib/syncMigration.ts` | `mealFavorites` en `hasUserData` |
@@ -109,7 +109,7 @@ Orden dentro de «Añadir comida»: franja → `FavoriteMeals` → `RecentMeals`
 - **Dispositivo con la versión anterior:** no conoce la clave. Ni la lee ni la sube, así que no la pisa.
 - **Edición concurrente:** el bloque entero gana por la última escritura, igual que el resto de claves (aceptado por el spec).
 - **`page.tsx` grande:** extraer `CustomMealForm` cambia el formulario actual. Los tests existentes de Personalizada deben seguir pasando sin cambios.
-- **Tests que cuentan 9 claves** (`tests/unit/backup*.test.ts`, `sync-engine.test.ts`, `server/tests/unit/sync-routes.test.ts`) pasan a 10.
+- **Tests que cuentan 9 claves** (`tests/unit/backup*.test.ts`, `sync-engine.test.ts`, `server/tests/unit/sync-routes.test.ts`) pasan a 10 (a 11 con `ratings` de #111, incluido `tests/unit/ratings.test.ts`).
 
 ## State & edge cases
 | State or value | Reset / expected behavior | Mechanism |
@@ -172,7 +172,7 @@ Escritos el 2026-10-10, antes del código. Contratos (firmas, props y nombres ac
 | R3 | CustomMealForm.test.tsx › «R3»; e2e › «R3: registra, guarda…» | component, e2e | ✅ passing |
 | R4 | CustomMealForm.test.tsx › «R4»; FavoriteMeals.test.tsx › «R4»; store-mealFavorites.test.tsx › «R4»; e2e › «R4: corregir la grasa…» | component, e2e | ✅ passing |
 | R5 | FavoriteMeals.test.tsx › «R5»; store-mealFavorites.test.tsx › «R5»; e2e › «R5: …» (2) | component, e2e | ✅ passing |
-| R6 | tests/unit/backup-mealFavorites.test.ts; backup.test.ts, backup-water.test.ts, sync-engine.test.ts, sync-migration.test.ts, server/tests/unit/sync-routes.test.ts (de 9 a 10 claves) | unit | ✅ passing |
+| R6 | tests/unit/backup-mealFavorites.test.ts; backup.test.ts, backup-water.test.ts, sync-engine.test.ts, sync-migration.test.ts, server/tests/unit/sync-routes.test.ts (de 9 a 11 claves con `ratings`; también ratings.test.ts) | unit | ✅ passing |
 | R7 | mealFavorites.test.ts › «R7»; e2e › «R2: ☆ en una receta…» (× 0,5 sigue) | unit, e2e | ✅ passing |
 | R8 | mealFavorites.test.ts › «R8» (criterios del spec + desempates del tech) | unit | ✅ passing |
 | R9 | FavoriteMeals.test.tsx › «R9»; e2e › «Ver todos se pliega…» | component, e2e | ✅ passing |

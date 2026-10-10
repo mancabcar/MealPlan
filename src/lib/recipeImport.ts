@@ -31,12 +31,32 @@ export type ImportResponse =
 type Json = unknown;
 const isObject = (v: Json): v is Record<string, Json> => typeof v === "object" && v !== null && !Array.isArray(v);
 
-/** Primer número (admite coma decimal) de un texto o número: "420 kcal" → 420. */
+const NUMBER = String.raw`\d+(?:[.,]\d+)*`;
+const NUMBER_RE = new RegExp(NUMBER);
+const RANGE_RE = new RegExp(`(${NUMBER})\\s*[-–—]\\s*(${NUMBER})`);
+
+/**
+ * "1.200", "1,200" → 1200 (un solo separador seguido de 3 cifras y sin 0 delante es de miles); "2,5" → 2,5;
+ * "12.345,6" → 12345,6 (con los dos separadores, el último es el decimal).
+ */
+function parseLocaleNumber(s: string): number {
+  const last = Math.max(s.lastIndexOf("."), s.lastIndexOf(","));
+  if (last === -1) return Number(s);
+  const seps = s.match(/[.,]/g)!;
+  const decimals = s.length - last - 1;
+  const thousands = new Set(seps).size === 1 && (seps.length > 1 || (decimals === 3 && !/^0[.,]/.test(s)));
+  if (thousands) return Number(s.replace(/[.,]/g, ""));
+  return Number(`${s.slice(0, last).replace(/[.,]/g, "")}.${s.slice(last + 1)}`);
+}
+
+/** Número de un texto o número: "420 kcal" → 420, "1.200 kcal" → 1200; un rango "350-400" → su punto medio (#140). */
 function toNumber(value: Json): number | undefined {
   if (typeof value === "number") return Number.isFinite(value) && value >= 0 ? value : undefined;
   if (typeof value !== "string") return undefined;
-  const match = value.replace(",", ".").match(/\d+(?:\.\d+)?/);
-  return match ? Number(match[0]) : undefined;
+  const range = value.match(RANGE_RE);
+  if (range) return (parseLocaleNumber(range[1]) + parseLocaleNumber(range[2])) / 2;
+  const match = value.match(NUMBER_RE);
+  return match ? parseLocaleNumber(match[0]) : undefined;
 }
 
 /** Texto de una web: quita etiquetas (<p>, <br>) y decodifica entidades (&amp;, &frac12;). */
@@ -164,7 +184,14 @@ export function decodeEntities(text: string): string {
   });
 }
 
-/** Texto visible de la página (sin scripts, estilos ni etiquetas), recortado a `maxChars`. */
+/** Caracteres que se conservan antes de «Ingredientes» al recortar una página larga (título, raciones, tiempo). */
+const BEFORE_INGREDIENTS = 1_000;
+
+/**
+ * Texto visible de la página (sin scripts, estilos ni etiquetas), recortado a `maxChars`. Si no cabe, el recorte
+ * empieza poco antes del primer encabezado «Ingredientes»/«Ingredients» (una línea que empieza por esa palabra; un
+ * enlace como «Recetas por ingredientes» no cuenta), para que la receta no se quede fuera (#140).
+ */
 export function htmlToText(html: string, maxChars: number): string {
   const text = html
     .replace(/<!--[\s\S]*?-->/g, " ")
@@ -176,7 +203,10 @@ export function htmlToText(html: string, maxChars: number): string {
     .replace(/ ?\n ?/g, "\n")
     .replace(/\n{2,}/g, "\n")
     .trim();
-  return text.slice(0, maxChars);
+  if (text.length <= maxChars) return text;
+  const at = text.search(/^ingredient(?:e)?s\b/im);
+  const start = at === -1 ? 0 : Math.min(Math.max(0, at - BEFORE_INGREDIENTS), text.length - maxChars);
+  return text.slice(start, start + maxChars);
 }
 
 // ---------- URL y direcciones (R7) ----------
@@ -234,6 +264,12 @@ export function isPrivateAddress(ip: string): boolean {
   }
   if ((g[0] & 0xffc0) === 0xfe80) return true; // fe80::/10
   if ((g[0] & 0xfe00) === 0xfc00) return true; // fc00::/7
+  // Rangos que llevan una IPv4 dentro y pueden acabar en una red interna (#140): se bloquean enteros
+  if (g.slice(0, 6).every((x) => x === 0)) return true; // ::a.b.c.d (IPv4 compatible, ::/96)
+  if (g[0] === 0x64 && g[1] === 0xff9b && (g[2] === 1 || g.slice(2, 6).every((x) => x === 0))) return true; // NAT64: 64:ff9b::/96 y 64:ff9b:1::/48
+  if (g[0] === 0x2002) return true; // 6to4: 2002::/16
+  if (g[0] === 0x2001 && g[1] === 0) return true; // Teredo: 2001::/32 (IPv4 ofuscada)
+  if ((g[0] & 0xffc0) === 0xfec0) return true; // site-local (obsoleto): fec0::/10
   return false;
 }
 
@@ -259,6 +295,7 @@ export function validateImportUrl(raw: string): { ok: true; url: URL } | { ok: f
 
 export const AI_TEXT_MAX_CHARS = 30_000;
 
+/** Las comillas triples de la página se reducen a una: no pueden cerrar el delimitador del texto (#140). */
 export function buildImportPrompt(pageText: string): string {
   return `Extrae la receta del texto de esta página web. Responde SOLO con un objeto JSON, sin texto alrededor, con esta forma:
 {"name": string, "ingredients": string[], "instructions": string[], "prepTimeMinutes": number, "calories": number, "protein": number, "carbs": number, "fat": number}
@@ -272,7 +309,7 @@ Reglas:
 
 Texto de la página:
 """
-${pageText}
+${pageText.replace(/"{3,}/g, '"')}
 """`;
 }
 

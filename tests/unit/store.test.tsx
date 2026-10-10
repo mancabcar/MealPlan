@@ -86,6 +86,7 @@ const IMPORTED: UserData = {
   measurements: [NUTRI_JULY],
   favorites: [AI_RECIPE.id],
   water: { "2026-09-22": 1250 },
+  ratings: {},
   mealFavorites: [],
 };
 
