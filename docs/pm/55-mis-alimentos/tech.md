@@ -144,7 +144,7 @@ Orden dentro de «Añadir comida»: franja → `FavoriteMeals` → `RecentMeals`
 3. [x] `Toast` con `durationMs: null`
 4. [x] `MealRow` + ☆ en `RecentMeals`; ocultar en Recientes, `favNotice` y Deshacer (R2, R7, R11)
 5. [x] `FavoriteMeals`: registrar, orden, tope, «Ver todos» y pista (R1, R8, R9, R10)
-6. [ ] Extraer `CustomMealForm` de `page.tsx` sin cambiar su comportamiento; casilla «Guardar en favoritos» (R3)
+6. [x] Extraer `CustomMealForm` de `page.tsx` sin cambiar su comportamiento; casilla «Guardar en favoritos» (R3)
 7. [ ] Modo «Editar»: editar personalizada (R4), quitar con Deshacer (R5), `FoodQuantityForm` (R12)
 8. [ ] e2e del flujo completo; nota de despliegue «servidor primero» en el PR
 
@@ -156,6 +156,11 @@ Decidido con el usuario el 2026-10-10. No cambia `spec.md`; aclara cómo se lee:
 - **R8, desempates:** detrás van los que no se han registrado en la franja, por su último registro en cualquier franja; al final, los que nunca se han registrado, por orden de guardado (el último primero).
 - **Could:** R12 entra; R13 pasa a follow-up.
 - Ninguna pregunta abierta bloquea el código.
+
+Decidido con Manuel durante dev-code (2026-10-10):
+- **Deshacer de recetas:** `setFavorites(ids)` nueva en el store; restaura la instantánea exacta (misma posición, R5).
+- **Botones de `CustomMealForm`:** prop opcional `onCancel`; pinta «Añadir | Cancelar» (o «Guardar cambios | Cancelar» al editar) lado a lado, como hoy. En Personalizada la tarjeta no pinta su fila de botones.
+- **Lo escrito a medias en Personalizada:** sobrevive a un cambio de pestaña (el formulario sigue montado y oculto, como `FoodPicker`), pero se pierde al cerrar «Añadir comida». Antes se conservaba; aceptado.
 
 ## Test coverage
 Escritos el 2026-10-10, antes del código. Contratos (firmas, props y nombres accesibles) acordados con Manuel; están en la cabecera de cada test. 🔴 = falla porque la funcionalidad aún no existe.

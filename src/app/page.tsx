@@ -21,7 +21,7 @@ import {
 import { macroStatus } from "@/lib/planMacros";
 import { favoriteEntry, favoriteFromEntry, hiddenInRecents, rankFavorites, type MealFavorite } from "@/lib/mealFavorites";
 import { TOLERANCE_DEFAULT } from "@/lib/tolerance";
-import { FIBER_ERROR, dayFiber, entryFiber, fiberGoal, formatFiber, parseFiber } from "@/lib/fiber";
+import { dayFiber, entryFiber, fiberGoal, formatFiber } from "@/lib/fiber";
 import {
   MEAL_TYPES,
   MealType,
@@ -34,6 +34,7 @@ import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { WeekBarChart } from "@/components/ui/WeekBarChart";
 import { PeriodSummary, loadStatsDays, saveStatsDays } from "@/components/diario/PeriodSummary";
+import { CustomMealForm, type CustomValues } from "@/components/diario/CustomMealForm";
 import { FavoriteMeals } from "@/components/diario/FavoriteMeals";
 import { RecentMeals } from "@/components/diario/RecentMeals";
 import { WaterCard } from "@/components/diario/WaterCard";
@@ -146,11 +147,8 @@ export default function DiaryPage() {
   );
   const [mode, setMode] = useState<AddMode>("recipe");
   const [recipeId, setRecipeId] = useState("");
-  const [customName, setCustomName] = useState("");
-  const [customMacros, setCustomMacros] = useState({ calories: 0, protein: 0, carbs: 0, fat: 0 });
-  // Fibra opcional de «Personalizada» (#23, R8): texto tal cual se teclea; vacío = sin dato
-  const [customFiber, setCustomFiber] = useState("");
-  const [customFiberError, setCustomFiberError] = useState(false);
+  // «Personalizada» vive en CustomMealForm (#55). R14 de #13: «Añádelo a mano» lo vuelve a montar con el nombre escrito
+  const [customSeed, setCustomSeed] = useState({ key: 0, name: "" });
   // Raciones (docs/pm/raciones): texto tal cual se teclea ("0,5"); el error solo sale al pulsar "Añadir"
   const [servingsText, setServingsText] = useState("1");
   const [servingsError, setServingsError] = useState(false);
@@ -181,6 +179,7 @@ export default function DiaryPage() {
   // Flujo paso 5: cada vez que se abre el formulario, "Raciones" vuelve a 1
   const openAdd = () => {
     editServings("1");
+    setCustomSeed((s) => ({ key: s.key + 1, name: "" }));
     setShowAdd(true);
   };
 
@@ -240,30 +239,28 @@ export default function DiaryPage() {
 
   const submitAdd = () => {
     // Fecha borrada en el input: una entrada sin fecha no saldría en ningún día (review de #12)
-    if (date === "") return;
-    if (mode === "recipe") {
-      if (!selectedRecipe) return;
-      // R6: no se añade y el formulario sigue abierto con el mensaje junto al campo
-      if (parsedServings === null) {
-        setServingsError(true);
-        return;
-      }
-      addEntry(recipeEntry(selectedRecipe, date, mealType, { servings: parsedServings }));
-    } else {
-      if (!customName.trim()) return;
-      const fiber = parseFiber(customFiber);
-      if (fiber === null) {
-        setCustomFiberError(true);
-        return;
-      }
-      addEntry({ id: crypto.randomUUID(), date, mealType, customName, ...customMacros, ...(fiber !== undefined && { fiber }) });
+    if (date === "" || !selectedRecipe) return;
+    // R6: no se añade y el formulario sigue abierto con el mensaje junto al campo
+    if (parsedServings === null) {
+      setServingsError(true);
+      return;
     }
+    addEntry(recipeEntry(selectedRecipe, date, mealType, { servings: parsedServings }));
     closeAdd();
     editServings("1");
-    setCustomName("");
-    setCustomMacros({ calories: 0, protein: 0, carbs: 0, fat: 0 });
-    setCustomFiber("");
-    setCustomFiberError(false);
+  };
+
+  // Personalizada (R3 de #55): la casilla también la guarda en Favoritos, y el aviso del Diario lo dice
+  const submitCustom = ({ name, ...macros }: CustomValues, saveAsFavorite: boolean) => {
+    // Fecha borrada en el input: una entrada sin fecha no saldría en ningún día (review de #12)
+    if (date === "") return;
+    const entry = { id: crypto.randomUUID(), date, mealType, customName: name, ...macros };
+    addEntry(entry);
+    closeAdd();
+    if (!saveAsFavorite) return;
+    saveMealFavorite({ id: crypto.randomUUID(), kind: "custom", name, ...macros });
+    setCopied(null);
+    setAdded({ entryId: entry.id, text: `Añadido a ${mealType} · guardado en Favoritos` });
   };
 
   // R2–R4: copia el día que se ve a `to` (la hoja ya avisó si había entradas) y salta al día de destino.
@@ -529,11 +526,11 @@ export default function DiaryPage() {
             }
             onManual={(name) => {
               // R14: Personalizada con el nombre ya escrito
-              setCustomName(name);
+              setCustomSeed((s) => ({ key: s.key + 1, name }));
               setMode("custom");
             }}
           />
-          {mode === "food" ? null : mode === "recipe" ? (
+          {mode === "recipe" && (
             <>
               {/* Mismo selector que el Plan (docs/pm/20-recetas-filtros R1): filtrado por la franja elegida arriba. key: al
                   cambiar de franja se reinician el buscador y «Ver todas» */}
@@ -548,64 +545,35 @@ export default function DiaryPage() {
                 preview={previewKcal !== null && <span className="shrink-0 text-[var(--color-text-muted)]">= {previewKcal} kcal</span>}
               />
             </>
-          ) : (
-            <>
-              <input
-                className={inputCls}
-                placeholder="Nombre"
-                value={customName}
-                onChange={(e) => setCustomName(e.target.value)}
-              />
-              <div className="grid grid-cols-4 gap-2">
-                {(["calories", "protein", "carbs", "fat"] as const).map((k) => (
-                  <label key={k} className="text-[10px] text-[var(--color-text-muted)] flex flex-col gap-0.5">
-                    {{ calories: "kcal", protein: "prot", carbs: "carb", fat: "grasa" }[k]}
-                    <input
-                      type="number"
-                      className={inputCls}
-                      value={customMacros[k] || ""}
-                      onChange={(e) => setCustomMacros({ ...customMacros, [k]: Number(e.target.value) })}
-                    />
-                  </label>
-                ))}
-              </div>
-              <label className="w-1/4 text-[10px] text-[var(--color-text-muted)] flex flex-col gap-0.5">
-                fibra
-                <input
-                  inputMode="decimal"
-                  className={inputCls}
-                  value={customFiber}
-                  aria-invalid={customFiberError}
-                  onChange={(e) => {
-                    setCustomFiber(e.target.value);
-                    setCustomFiberError(false);
-                  }}
-                />
-              </label>
-              {customFiberError && (
-                <span role="alert" className="text-xs text-[var(--color-expired)]">
-                  {FIBER_ERROR}
-                </span>
-              )}
-            </>
           )}
-          <div className="flex gap-2">
-            {/* En «Alimento» se añade con el botón de la tarjeta («Añadir 150 g») */}
-            {mode !== "food" && (
+          {/* Montado, como FoodPicker: lo escrito sobrevive a un cambio de pestaña. Lleva su propio «Añadir | Cancelar» */}
+          <CustomMealForm
+            key={customSeed.key}
+            hidden={mode !== "custom"}
+            mode="add"
+            initial={{ name: customSeed.name }}
+            onSubmit={submitCustom}
+            onCancel={closeAdd}
+          />
+          {mode !== "custom" && (
+            <div className="flex gap-2">
+              {/* En «Alimento» se añade con el botón de la tarjeta («Añadir 150 g») */}
+              {mode === "recipe" && (
+                <button
+                  onClick={submitAdd}
+                  className="flex-1 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg py-2 font-semibold text-sm"
+                >
+                  Añadir
+                </button>
+              )}
               <button
-                onClick={submitAdd}
-                className="flex-1 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg py-2 font-semibold text-sm"
+                onClick={closeAdd}
+                className="flex-1 rounded-lg py-2 border border-[var(--color-border)] text-sm text-[var(--color-text-muted)]"
               >
-                Añadir
+                Cancelar
               </button>
-            )}
-            <button
-              onClick={closeAdd}
-              className="flex-1 rounded-lg py-2 border border-[var(--color-border)] text-sm text-[var(--color-text-muted)]"
-            >
-              Cancelar
-            </button>
-          </div>
+            </div>
+          )}
         </Card>
       ) : (
         // singleClick: el segundo clic de un doble toque en una reciente cae aquí al cerrarse el formulario (R4)
