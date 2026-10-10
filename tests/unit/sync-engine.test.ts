@@ -298,6 +298,60 @@ describe("R8 y R10: sin red la app sigue y avisa; al volver se pone al día sin 
     expect(stored("entries")).toEqual(ACCOUNT_A_DATA.entries);
   });
 
+  it("#122: un 400 en una clave no impide subir las que van detrás ni bajar los cambios del servidor", async () => {
+    // Servidor sin la clave «water» (desplegado después que el cliente): responde 400 «Clave desconocida»
+    const rejectsWater = (async (input: RequestInfo | URL, init?: RequestInit) =>
+      String(input).endsWith("/api/sync/water")
+        ? new Response(JSON.stringify({ error: "Clave desconocida" }), { status: 400 })
+        : backend.fetch(input, init)) as typeof fetch;
+    const engine = makeEngine({ fetch: rejectsWater });
+    local("water", { "2026-10-05": 500 });
+    engine.markDirty("water");
+    local("entries", ACCOUNT_A_DATA.entries);
+    engine.markDirty("entries");
+    await engine.flush();
+    expect(backend.dataOf("lucia").entries?.value).toEqual(ACCOUNT_A_DATA.entries);
+
+    backend.remoteWrite("lucia", "pantry", ACCOUNT_A_DATA.pantry);
+    await engine.pull();
+    expect(stored("pantry")).toEqual(ACCOUNT_A_DATA.pantry);
+    expect(stored("water")).toEqual({ "2026-10-05": 500 }); // lo local rechazado no se pierde
+    expect(engine.status).toBe("unsynced");
+  });
+
+  it("#122: la clave rechazada sigue pendiente y se sube sola cuando el servidor la acepta", async () => {
+    let serverKnowsWater = false;
+    const fetch = (async (input: RequestInfo | URL, init?: RequestInit) =>
+      !serverKnowsWater && String(input).endsWith("/api/sync/water")
+        ? new Response(JSON.stringify({ error: "Clave desconocida" }), { status: 400 })
+        : backend.fetch(input, init)) as typeof globalThis.fetch;
+    const engine = makeEngine({ fetch });
+    local("water", { "2026-10-05": 500 });
+    engine.markDirty("water");
+    await engine.flush();
+    expect(backend.dataOf("lucia").water).toBeUndefined();
+
+    serverKnowsWater = true; // se despliega el servidor nuevo
+    await engine.pull();
+    expect(backend.dataOf("lucia").water?.value).toEqual({ "2026-10-05": 500 });
+    expect(engine.status).toBe("synced");
+  });
+
+  it("#122: un 413 (bloque > 1 MB) en una clave tampoco bloquea las demás", async () => {
+    const tooLarge = (async (input: RequestInfo | URL, init?: RequestInit) =>
+      String(input).endsWith("/api/sync/entries")
+        ? new Response(JSON.stringify({ error: "El bloque supera 1 MB" }), { status: 413 })
+        : backend.fetch(input, init)) as typeof fetch;
+    const engine = makeEngine({ fetch: tooLarge });
+    local("entries", ACCOUNT_A_DATA.entries);
+    engine.markDirty("entries");
+    local("pantry", ACCOUNT_A_DATA.pantry);
+    engine.markDirty("pantry");
+    await engine.flush();
+    expect(backend.dataOf("lucia").pantry?.value).toEqual(ACCOUNT_A_DATA.pantry);
+    expect(engine.status).toBe("unsynced");
+  });
+
   it("Edge: con la sesión caducada (401) avisa con onUnauthorized y no pierde la copia local", async () => {
     const engine = makeEngine({ token: "caducado" });
     local("entries", ACCOUNT_A_DATA.entries);
