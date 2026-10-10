@@ -133,8 +133,8 @@ const badSection = (k: string) => `La sección «${k}» no tiene el formato espe
 // ---------------------------------------------------------------------------
 
 describe("userData: registro compartido de los datos del usuario (base de R7)", () => {
-  it("las nueve claves, en este orden (historial-medidas añade «measurements», #20 «favorites» y #23 «water» al final)", () => {
-    expect(USER_DATA_KEYS).toEqual(["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water"]);
+  it("las diez claves, en este orden (historial-medidas añade «measurements», #20 «favorites», #23 «water» y #55 «mealFavorites» al final)", () => {
+    expect(USER_DATA_KEYS).toEqual(["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water", "mealFavorites"]);
   });
 
   it("EMPTY_USER_DATA: sin perfil y todo vacío", () => {
@@ -148,6 +148,7 @@ describe("userData: registro compartido de los datos del usuario (base de R7)", 
       measurements: [],
       favorites: [],
       water: {},
+      mealFavorites: [],
     });
   });
 

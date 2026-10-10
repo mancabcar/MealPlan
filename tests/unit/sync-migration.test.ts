@@ -39,7 +39,7 @@ class MemoryStorage implements Storage {
   }
 }
 
-const ALL_A: Record<string, unknown> = { ...ACCOUNT_A_DATA, favorites: ["pollo-al-horno"], shopping: { current: { week: "2026-09-21", bought: { Brócoli: true }, overrides: [], moved: {} }, usage: {} } };
+const ALL_A: Record<string, unknown> = { ...ACCOUNT_A_DATA, favorites: ["pollo-al-horno"], mealFavorites: [{ id: "fav-tortilla", kind: "custom", name: "Tortilla francesa", calories: 190, protein: 13, carbs: 1, fat: 15 }], shopping: { current: { week: "2026-09-21", bought: { Brócoli: true }, overrides: [], moved: {} }, usage: {} } };
 
 function seedLocal(storage: Storage, id: string, data: Record<string, unknown>) {
   for (const [key, value] of Object.entries(data)) storage.setItem(k(id, key), JSON.stringify(value));
@@ -130,7 +130,7 @@ describe("listLocalAccounts: cuentas locales entre las que elegir los datos a tr
 });
 
 describe("R6: servidor vacío → se suben los datos locales sin pérdida", () => {
-  it("R6: adoptar la cuenta local copia sus 9 claves bajo el id del servidor y no borra las originales", () => {
+  it("R6: adoptar la cuenta local copia sus 10 claves bajo el id del servidor y no borra las originales", () => {
     seedLocal(storage, ACCOUNT_A.id, ALL_A);
     seedLocal(storage, OTHER_ACCOUNT.id, { entries: [{ id: "otro" }] });
     const before = keysOf(storage);
@@ -140,7 +140,7 @@ describe("R6: servidor vacío → se suben los datos locales sin pérdida", () =
     expect(storage.getItem(k(SERVER_ID, "entries"))).not.toContain("otro");
   });
 
-  it("R6: tras adoptar y sincronizar, las 9 claves del servidor son idénticas a las locales", async () => {
+  it("R6: tras adoptar y sincronizar, las 10 claves del servidor son idénticas a las locales", async () => {
     backend.seed("lucia", "secreto-123", {});
     seedLocal(storage, ACCOUNT_A.id, ALL_A);
     adoptLocalData(storage, ACCOUNT_A.id, SERVER_ID);
