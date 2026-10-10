@@ -19,7 +19,7 @@ import {
   servingsLabel,
 } from "@/lib/diary";
 import { macroStatus } from "@/lib/planMacros";
-import { favoriteEntry, favoriteFromEntry, hiddenInRecents, rankFavorites, type MealFavorite } from "@/lib/mealFavorites";
+import { customNameKey, favoriteEntry, favoriteFromEntry, hiddenInRecents, rankFavorites, type MealFavorite } from "@/lib/mealFavorites";
 import { TOLERANCE_DEFAULT } from "@/lib/tolerance";
 import { dayFiber, entryFiber, fiberGoal, formatFiber } from "@/lib/fiber";
 import {
@@ -466,6 +466,19 @@ export default function DiaryPage() {
             }
             onRemove={(f) =>
               changeFavorites("Quitado de Favoritos", () => (f.recipe ? toggleFavorite(f.recipe.id) : removeMealFavorite(f.fav!.id)))
+            }
+            // R4: corrige el favorito; lo ya registrado en el Diario no cambia
+            onSaveCustom={saveMealFavorite}
+            // R12: sin `units` si se guardó en gramos
+            onSaveQuantity={(fav, { grams, units }) => {
+              if (fav.kind !== "food") return;
+              const next = { ...fav, grams };
+              if (units === undefined) delete next.units;
+              else next.units = units;
+              saveMealFavorite(next);
+            }}
+            nameTaken={(name, exceptId) =>
+              mealFavorites.some((f) => f.kind === "custom" && f.id !== exceptId && customNameKey(f.name) === customNameKey(name))
             }
           />
           {/* R1: fuera del condicional de modo, visible en Receta y en Personalizada. R4: un toque añade y cierra;

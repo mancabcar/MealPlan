@@ -108,16 +108,16 @@ describe("R9: como mucho 5 filas y «Ver todos (N)»", () => {
 describe("«Editar»: lista completa y lápices (R4, R12)", () => {
   it("«Editar» pasa a «Listo» y abre la lista completa", () => {
     setup(TWELVE_FAVS.map(ranked));
-    fireEvent.click(screen.getByRole("button", { name: "Editar", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
     expect(screen.getByRole("button", { name: "Listo" })).toBeTruthy();
     expect(rowButtons()).toHaveLength(12);
     fireEvent.click(screen.getByRole("button", { name: "Listo" }));
-    expect(screen.getByRole("button", { name: "Editar", exact: true })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Editar" })).toBeTruthy();
   });
 
   it("R4: personalizadas y alimentos llevan lápiz; las recetas, no", () => {
     setup();
-    fireEvent.click(screen.getByRole("button", { name: "Editar", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
     expect(screen.getByRole("button", { name: "Editar Tostada con aceite" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Editar Avena" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Editar Pollo al curry" })).toBeNull();
@@ -126,7 +126,7 @@ describe("«Editar»: lista completa y lápices (R4, R12)", () => {
 
   it("R4: el lápiz abre el formulario relleno; «Guardar cambios» guarda el favorito corregido (mismo id) y vuelve a la lista", () => {
     const { onSaveCustom } = setup();
-    fireEvent.click(screen.getByRole("button", { name: "Editar", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
     fireEvent.click(screen.getByRole("button", { name: "Editar Tostada con aceite" }));
     expect((screen.getByPlaceholderText("Nombre") as HTMLInputElement).value).toBe("Tostada con aceite");
     fireEvent.change(screen.getByLabelText("grasa"), { target: { value: "9" } });
@@ -138,7 +138,7 @@ describe("«Editar»: lista completa y lápices (R4, R12)", () => {
 
   it("R4: con el nombre de otra favorita sale «Ya tienes un favorito con ese nombre» y no se guarda", () => {
     const { onSaveCustom, nameTaken } = setup(MIXED, () => true);
-    fireEvent.click(screen.getByRole("button", { name: "Editar", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
     fireEvent.click(screen.getByRole("button", { name: "Editar Tostada con aceite" }));
     fireEvent.change(screen.getByPlaceholderText("Nombre"), { target: { value: "Tortilla francesa" } });
     fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
@@ -149,7 +149,7 @@ describe("«Editar»: lista completa y lápices (R4, R12)", () => {
 
   it("R5: «Quitar de favoritos» desde el formulario llama a onRemove", () => {
     const { onRemove } = setup();
-    fireEvent.click(screen.getByRole("button", { name: "Editar", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
     fireEvent.click(screen.getByRole("button", { name: "Editar Tostada con aceite" }));
     fireEvent.click(screen.getByRole("button", { name: "Quitar de favoritos" }));
     expect(onRemove).toHaveBeenCalledWith(MIXED[0]);
@@ -157,7 +157,7 @@ describe("«Editar»: lista completa y lápices (R4, R12)", () => {
 
   it("R12: el lápiz de un alimento permite cambiar la cantidad", () => {
     const { onSaveQuantity } = setup();
-    fireEvent.click(screen.getByRole("button", { name: "Editar", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
     fireEvent.click(screen.getByRole("button", { name: "Editar Avena" }));
     const grams = screen.getByLabelText("Gramos") as HTMLInputElement;
     expect(grams.value).toBe("40");

@@ -3,7 +3,8 @@
 import type { MouseEvent } from "react";
 import { Pencil, Star } from "lucide-react";
 
-const ICON_BUTTON = "shrink-0 min-h-11 min-w-11 flex items-center justify-center";
+// Caja de 44 px con borde, como la fila (prototipo, artboards 2 y 3)
+const ICON_BUTTON = "shrink-0 min-h-11 min-w-11 flex items-center justify-center rounded-lg border border-[var(--color-border)]";
 
 export function MealRow({
   name,
@@ -26,7 +27,7 @@ export function MealRow({
   edit?: { label: string; onClick: () => void };
 }) {
   return (
-    <li className="flex items-center gap-1">
+    <li className="flex items-stretch gap-1.5">
       <button
         type="button"
         onClick={onPick}
