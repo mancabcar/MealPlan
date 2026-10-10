@@ -26,7 +26,8 @@ async function openAddForm(page: Page) {
 }
 
 const recentList = (page: Page) => page.getByRole("list", { name: "Recientes" });
-const rows = (page: Page) => recentList(page).getByRole("button");
+// Botones de fila: sin la ☆ «Guardar … en Favoritos» que añade #55 (R2)
+const rows = (page: Page) => recentList(page).getByRole("button", { name: /^(?!Guardar .* en Favoritos$)/ });
 const mealSelect = (page: Page) => page.getByRole("combobox", { name: "Comida del día" });
 const meal = (page: Page, name: string) => page.getByRole("region", { name, exact: true });
 

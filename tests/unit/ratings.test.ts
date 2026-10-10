@@ -53,9 +53,9 @@ describe("R2: sanitizeRatings", () => {
 });
 
 describe("R2: ratings es una clave más de los datos del usuario", () => {
-  it("USER_DATA_KEYS incluye ratings al final y EMPTY_USER_DATA la deja vacía", () => {
-    expect(USER_DATA_KEYS).toHaveLength(10);
-    expect(USER_DATA_KEYS.at(-1)).toBe("ratings");
+  it("USER_DATA_KEYS incluye ratings detrás de water (al final va mealFavorites, #55) y EMPTY_USER_DATA la deja vacía", () => {
+    expect(USER_DATA_KEYS).toHaveLength(11);
+    expect(USER_DATA_KEYS.indexOf("ratings")).toBe(USER_DATA_KEYS.indexOf("water") + 1);
     expect(EMPTY_USER_DATA.ratings).toEqual({});
   });
   it("LOAD_OPTIONS.ratings: vacía sin nada guardado y saneada al cargar", () => {
