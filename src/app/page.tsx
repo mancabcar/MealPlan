@@ -19,6 +19,7 @@ import {
   servingsLabel,
 } from "@/lib/diary";
 import { macroStatus } from "@/lib/planMacros";
+import { favoriteFromEntry, hiddenInRecents, type MealFavorite } from "@/lib/mealFavorites";
 import { TOLERANCE_DEFAULT } from "@/lib/tolerance";
 import { FIBER_ERROR, dayFiber, entryFiber, fiberGoal, formatFiber, parseFiber } from "@/lib/fiber";
 import {
@@ -115,7 +116,23 @@ const MODES: [AddMode, string][] = [
 ];
 
 export default function DiaryPage() {
-  const { profile, entries, recipes, weekPlan, water, setWaterDay, addEntry, addEntries, removeEntry } = useApp();
+  const {
+    profile,
+    entries,
+    recipes,
+    weekPlan,
+    water,
+    setWaterDay,
+    addEntry,
+    addEntries,
+    removeEntry,
+    favorites,
+    setFavorites,
+    toggleFavorite,
+    mealFavorites,
+    saveMealFavorite,
+    setMealFavorites,
+  } = useApp();
   const userId = useAuth().user?.id;
   // Medias y adherencia (docs/pm/11-medias-adherencia): 7 por defecto, la opción se recuerda por usuario (R11)
   const [statsDays, setStatsDays] = useState<StatsPeriod>(() => loadStatsDays(userId));
@@ -143,6 +160,10 @@ export default function DiaryPage() {
   const [copyOpen, setCopyOpen] = useState(false);
   const [copied, setCopied] = useState<{ ids: string[]; text: string } | null>(null);
   const hideCopied = useCallback(() => setCopied(null), []);
+  // Favoritos (docs/pm/55-mis-alimentos, R5/R11): aviso con Deshacer que no se cierra solo y solo se ve con «Añadir
+  // comida» abierto. Guarda las dos listas de antes del cambio: Deshacer las restaura tal cual (misma posición).
+  const [favNotice, setFavNotice] = useState<{ key: string; text: string; before: { meal: MealFavorite[]; recipes: string[] } } | null>(null);
+  const hideFavNotice = useCallback(() => setFavNotice(null), []);
 
   if (!profile) return null;
 
@@ -161,10 +182,25 @@ export default function DiaryPage() {
     setShowAdd(true);
   };
 
+  // Al cerrar «Añadir comida» (registrando o con Cancelar) el aviso de Favoritos se va y el cambio queda hecho (R5)
+  const closeAdd = () => {
+    setShowAdd(false);
+    setFavNotice(null);
+  };
+
+  // R2, R5, R11: aplica un cambio en Favoritos y avisa con Deshacer. Solo un aviso a la vez: anula los demás.
+  const changeFavorites = (text: string, change: () => void) => {
+    const before = { meal: mealFavorites, recipes: favorites };
+    change();
+    setAdded(null);
+    setCopied(null);
+    setFavNotice({ key: crypto.randomUUID(), text, before });
+  };
+
   const pending = pendingSlots({ date, today: todayStr(), weekPlan, recipes, entries, meals: profile.meals });
   // Registro rápido (docs/pm/12-registro-rapido): se recalcula en cada render, así que sigue a la franja elegida (R3).
-  // Solo con el formulario abierto, que es el único sitio donde se ve.
-  const recents = showAdd ? recentMeals({ entries, recipes, mealType }) : [];
+  // Solo con el formulario abierto, que es el único sitio donde se ve. Sin lo que ya es favorito (#55, R7).
+  const recents = showAdd ? recentMeals({ entries, recipes, mealType, exclude: hiddenInRecents(mealFavorites, favorites) }) : [];
 
   const dayEntries = entries.filter((e) => e.date === date);
   const totals = dayEntries.reduce(
@@ -218,7 +254,7 @@ export default function DiaryPage() {
       }
       addEntry({ id: crypto.randomUUID(), date, mealType, customName, ...customMacros, ...(fiber !== undefined && { fiber }) });
     }
-    setShowAdd(false);
+    closeAdd();
     editServings("1");
     setCustomName("");
     setCustomMacros({ calories: 0, protein: 0, carbs: 0, fat: 0 });
@@ -234,6 +270,7 @@ export default function DiaryPage() {
     if (copies.length === 0) return;
     addEntries(copies);
     setAdded(null);
+    setFavNotice(null);
     setDate(to);
     setCopied({ ids: copies.map((e) => e.id), text: copies.length === 1 ? "Copiada 1 entrada" : `Copiadas ${copies.length} entradas` });
   };
@@ -241,7 +278,7 @@ export default function DiaryPage() {
   return (
     // Mientras se ve el aviso (fixed, bottom-24), hueco al final para que «Añadir comida» pueda quedar por encima
     // y se pueda añadir otro alimento seguido (review de #13)
-    <div className={`flex flex-col gap-4 ${added || copied ? "pb-20" : ""}`}>
+    <div className={`flex flex-col gap-4 ${added || copied || (showAdd && favNotice) ? "pb-20" : ""}`}>
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Diario</h1>
         <div className="flex items-center gap-2">
@@ -422,8 +459,21 @@ export default function DiaryPage() {
                 // Sin fecha no se añade nada, como en submitAdd
                 if (date === "") return;
                 addEntry(repeatEntry(r.entry, date, mealType));
-                setShowAdd(false);
+                closeAdd();
               })(ev)
+            }
+            // #55 R2: el favorito de receta registra 1 ración, así que una fila × 0,5 no lleva ☆
+            canStar={(r) => (r.entry.recipeId ? (r.entry.servings ?? 1) === 1 : favoriteFromEntry(r.entry) !== null)}
+            onStar={(r) =>
+              changeFavorites("Guardado en Favoritos", () => {
+                const { recipeId } = r.entry;
+                if (recipeId) {
+                  if (!favorites.includes(recipeId)) toggleFavorite(recipeId);
+                  return;
+                }
+                const fav = favoriteFromEntry(r.entry);
+                if (fav) saveMealFavorite(fav);
+              })
             }
           />
           <div className="flex gap-2 text-sm">
@@ -451,7 +501,7 @@ export default function DiaryPage() {
                 if (date === "") return;
                 const entry = foodEntry(food, date, mealType, qty);
                 addEntry(entry);
-                setShowAdd(false);
+                closeAdd();
                 setCopied(null);
                 setAdded({ entryId: entry.id, text: `Añadido a ${mealType} · ${quantityLabel(entry)}` });
               })(ev)
@@ -529,7 +579,7 @@ export default function DiaryPage() {
               </button>
             )}
             <button
-              onClick={() => setShowAdd(false)}
+              onClick={closeAdd}
               className="flex-1 rounded-lg py-2 border border-[var(--color-border)] text-sm text-[var(--color-text-muted)]"
             >
               Cancelar
@@ -580,6 +630,25 @@ export default function DiaryPage() {
           }}
         >
           {added.text}
+        </Toast>
+      )}
+
+      {showAdd && favNotice && (
+        // #55 R5/R11: sin temporizador; se va al cerrar «Añadir comida» o con otro aviso. Deshacer restaura las dos listas.
+        <Toast
+          key={favNotice.key}
+          durationMs={null}
+          onDismiss={hideFavNotice}
+          action={{
+            label: "Deshacer",
+            onClick: () => {
+              setMealFavorites(favNotice.before.meal);
+              setFavorites(favNotice.before.recipes);
+              hideFavNotice();
+            },
+          }}
+        >
+          {favNotice.text}
         </Toast>
       )}
     </div>

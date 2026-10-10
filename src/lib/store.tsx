@@ -54,6 +54,8 @@ interface AppState {
   removeMeasurement: (id: string) => void;
   /** Marca o desmarca una receta como favorita; al guardar descarta los ids de recetas que ya no existen. */
   toggleFavorite: (id: string) => void;
+  /** Sustituye la lista de recetas favoritas (Deshacer en Favoritos de «Añadir comida», docs/pm/55-mis-alimentos R5). */
+  setFavorites: (ids: string[]) => void;
   /** Fija los ml bebidos de un día (docs/pm/23-agua-fibra-micros); 0 quita el día. */
   setWaterDay: (date: string, ml: number) => void;
   /** Edición si ya hay uno con ese id; si no, una personalizada con el mismo nombre se actualiza (R2) y lo demás se añade. */
@@ -225,6 +227,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
         const kept = prev.filter((f) => known.has(f));
         return kept.includes(id) ? kept.filter((f) => f !== id) : [...kept, id];
       }),
+    setFavorites,
     setWaterDay: (date, ml) => setWater((prev) => withWater(prev, date, ml)),
     saveMealFavorite: (fav) =>
       setMealFavorites((prev) => {

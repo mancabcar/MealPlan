@@ -70,7 +70,7 @@ export type MealFavorite =
   - personalizadas por nombre, sean cuales sean los macros;
   - alimentos por alimento y cantidad;
   - recetas solo con `servings` 1.
-- Store: `saveMealFavorite(fav)` (upsert por `id`, o por nombre si es una personalizada), `removeMealFavorite(id)` y `setMealFavorites(list)`. Recetas: `toggleFavorite`, sin cambios.
+- Store: `saveMealFavorite(fav)` (upsert por `id`, o por nombre si es una personalizada), `removeMealFavorite(id)` y `setMealFavorites(list)`. Recetas: `toggleFavorite`, sin cambios, y `setFavorites(ids)` nueva para Deshacer (decidido en dev-code, 2026-10-10).
 
 ### UI
 Orden dentro de «Añadir comida»: franja → `FavoriteMeals` → `RecentMeals` → pestañas (artboards 1–6).
@@ -85,7 +85,7 @@ Orden dentro de «Añadir comida»: franja → `FavoriteMeals` → `RecentMeals`
   - El lápiz de una personalizada abre `CustomMealForm` en modo `edit` dentro de la sección. Si el nombre ya es de otra favorita: «Ya tienes un favorito con ese nombre».
   - El lápiz de un alimento abre `FoodQuantityForm`.
   - Las recetas solo llevan ★.
-- **Avisos `favNotice`:** `Toast` con `durationMs={null}`, pintado solo con `showAdd`. Guarda la instantánea anterior (`mealFavorites` y `favorites`); Deshacer la restaura con `setMealFavorites` y `toggleFavorite`. Solo hay un aviso a la vez: `favNotice` anula `added` y `copied`, y al revés.
+- **Avisos `favNotice`:** `Toast` con `durationMs={null}`, pintado solo con `showAdd`. Guarda la instantánea anterior (`mealFavorites` y `favorites`); Deshacer la restaura con `setMealFavorites` y `setFavorites`: con `toggleFavorite` una receta volvería al final de su lista y podría cambiar de posición, en contra de R5 (decidido con Manuel en dev-code, 2026-10-10). Solo hay un aviso a la vez: `favNotice` anula `added` y `copied`, y al revés.
 
 ## Spec coverage
 | Req | How it's met |
@@ -142,7 +142,7 @@ Orden dentro de «Añadir comida»: franja → `FavoriteMeals` → `RecentMeals`
 1. [x] `src/lib/mealFavorites.ts` + `recentMeals({ exclude })` con sus tests unitarios (R2, R7, R8)
 2. [x] Clave `mealFavorites` en userData, server/sync, backup, store y syncMigration; los tests de 9 claves pasan a 10 (R6)
 3. [x] `Toast` con `durationMs: null`
-4. [ ] `MealRow` + ☆ en `RecentMeals`; ocultar en Recientes, `favNotice` y Deshacer (R2, R7, R11)
+4. [x] `MealRow` + ☆ en `RecentMeals`; ocultar en Recientes, `favNotice` y Deshacer (R2, R7, R11)
 5. [ ] `FavoriteMeals`: registrar, orden, tope, «Ver todos» y pista (R1, R8, R9, R10)
 6. [ ] Extraer `CustomMealForm` de `page.tsx` sin cambiar su comportamiento; casilla «Guardar en favoritos» (R3)
 7. [ ] Modo «Editar»: editar personalizada (R4), quitar con Deshacer (R5), `FoodQuantityForm` (R12)
