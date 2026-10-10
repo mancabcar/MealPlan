@@ -3,7 +3,7 @@
 //
 // "Hoy" es el martes 2026-09-22 (mismo TODAY que tests/e2e/helpers.ts). Los nombres salen de los ejemplos del spec.
 // Las recetas llevan tag de franja: Favoritos solo enseña una receta en las franjas en las que vale (Edge cases).
-import type { CustomFavorite, FoodFavorite, MealFavorite } from "@/lib/mealFavorites";
+import type { CustomFavorite, FoodFavorite } from "@/lib/mealFavorites";
 import type { MealEntry, MealType, Recipe } from "@/lib/types";
 
 export const TODAY = "2026-09-22";

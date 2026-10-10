@@ -143,7 +143,7 @@ Orden dentro de «Añadir comida»: franja → `FavoriteMeals` → `RecentMeals`
 2. [x] Clave `mealFavorites` en userData, server/sync, backup, store y syncMigration; los tests de 9 claves pasan a 10 (R6)
 3. [x] `Toast` con `durationMs: null`
 4. [x] `MealRow` + ☆ en `RecentMeals`; ocultar en Recientes, `favNotice` y Deshacer (R2, R7, R11)
-5. [ ] `FavoriteMeals`: registrar, orden, tope, «Ver todos» y pista (R1, R8, R9, R10)
+5. [x] `FavoriteMeals`: registrar, orden, tope, «Ver todos» y pista (R1, R8, R9, R10)
 6. [ ] Extraer `CustomMealForm` de `page.tsx` sin cambiar su comportamiento; casilla «Guardar en favoritos» (R3)
 7. [ ] Modo «Editar»: editar personalizada (R4), quitar con Deshacer (R5), `FoodQuantityForm` (R12)
 8. [ ] e2e del flujo completo; nota de despliegue «servidor primero» en el PR

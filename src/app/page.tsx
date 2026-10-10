@@ -19,7 +19,7 @@ import {
   servingsLabel,
 } from "@/lib/diary";
 import { macroStatus } from "@/lib/planMacros";
-import { favoriteFromEntry, hiddenInRecents, type MealFavorite } from "@/lib/mealFavorites";
+import { favoriteEntry, favoriteFromEntry, hiddenInRecents, rankFavorites, type MealFavorite } from "@/lib/mealFavorites";
 import { TOLERANCE_DEFAULT } from "@/lib/tolerance";
 import { FIBER_ERROR, dayFiber, entryFiber, fiberGoal, formatFiber, parseFiber } from "@/lib/fiber";
 import {
@@ -34,6 +34,7 @@ import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { WeekBarChart } from "@/components/ui/WeekBarChart";
 import { PeriodSummary, loadStatsDays, saveStatsDays } from "@/components/diario/PeriodSummary";
+import { FavoriteMeals } from "@/components/diario/FavoriteMeals";
 import { RecentMeals } from "@/components/diario/RecentMeals";
 import { WaterCard } from "@/components/diario/WaterCard";
 import { glassMl, waterGoalMl } from "@/lib/water";
@@ -131,6 +132,7 @@ export default function DiaryPage() {
     toggleFavorite,
     mealFavorites,
     saveMealFavorite,
+    removeMealFavorite,
     setMealFavorites,
   } = useApp();
   const userId = useAuth().user?.id;
@@ -201,6 +203,8 @@ export default function DiaryPage() {
   // Registro rápido (docs/pm/12-registro-rapido): se recalcula en cada render, así que sigue a la franja elegida (R3).
   // Solo con el formulario abierto, que es el único sitio donde se ve. Sin lo que ya es favorito (#55, R7).
   const recents = showAdd ? recentMeals({ entries, recipes, mealType, exclude: hiddenInRecents(mealFavorites, favorites) }) : [];
+  // Favoritos (#55, R8): por frecuencia en la franja elegida, también derivado en cada render
+  const favoriteRows = showAdd ? rankFavorites({ items: mealFavorites, recipeIds: favorites, recipes, entries, mealType }) : [];
 
   const dayEntries = entries.filter((e) => e.date === date);
   const totals = dayEntries.reduce(
@@ -450,6 +454,23 @@ export default function DiaryPage() {
               <option key={mt}>{mt}</option>
             ))}
           </select>
+          {/* #55 R1: encima de Recientes y, como ella, fuera del condicional de pestaña. Un toque registra 1 ración o
+              la cantidad guardada y cierra */}
+          <FavoriteMeals
+            favorites={favoriteRows}
+            mealType={mealType}
+            onPick={(f, ev) =>
+              singleClick(() => {
+                // Sin fecha no se añade nada, como en submitAdd
+                if (date === "") return;
+                addEntry(f.recipe ? recipeEntry(f.recipe, date, mealType) : favoriteEntry(f.fav!, date, mealType));
+                closeAdd();
+              })(ev)
+            }
+            onRemove={(f) =>
+              changeFavorites("Quitado de Favoritos", () => (f.recipe ? toggleFavorite(f.recipe.id) : removeMealFavorite(f.fav!.id)))
+            }
+          />
           {/* R1: fuera del condicional de modo, visible en Receta y en Personalizada. R4: un toque añade y cierra;
               no toca lo que hubiera a medio rellenar en el formulario */}
           <RecentMeals
