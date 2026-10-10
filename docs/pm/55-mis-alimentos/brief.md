@@ -10,6 +10,8 @@ _Status: tests · Updated: 2026-10-10 · Issue: [#55](https://github.com/mancabc
 - ☆ en los resultados del buscador de alimentos y en el selector de recetas (R13, Could que se deja fuera de esta entrega). (tech design)
 - Orden de despliegue: el servidor rechaza claves que no conoce; desplegar el servidor antes que el cliente cuando se añade una clave de datos. Valorar que acepte cualquier clave con un patrón válido. (tech design)
 - Cerrar [#58](https://github.com/mancabcar/MealPlan/issues/58) cuando esto se entregue: queda absorbido aquí. (brainstorm)
+- «Añádelo a mano» (Alimento → Personalizada) vuelve a montar el formulario con el nombre escrito: se pierden los macros tecleados antes en Personalizada. Caso raro; antes se conservaban. (dev-code)
+- Aviso de lint `V6_ESTOFADO` sin usar en `tests/unit/recipe-filters.test.ts` (llegó con #111). (dev-code)
 
 ## Problem
 Tú, el único usuario de la app, registras comidas personalizadas a diario (pestaña Personalizada de «Añadir comida»: nombre, kcal, macros y fibra opcional). Necesitas tener a mano las habituales para registrarlas sin volver a escribirlas. Hoy esas comidas solo existen como entradas del Diario: Recientes las deduce del historial (`recentMeals` en `src/lib/diary.ts`), pero solo enseña 5. Cuando una se cae de ahí, la vuelves a teclear. Además, si te equivocaste en un macro o en el nombre, no hay ningún «molde» que corregir, así que el error se repite, y las variantes casi iguales se acumulan sin forma de limpiarlas.
