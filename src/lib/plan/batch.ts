@@ -73,6 +73,36 @@ export function batchOf(plan: WeekPlan, batchId: string): Batch | null {
   return origin ? { origin, leftovers } : null;
 }
 
+/**
+ * Tandas de un plan cargado de fuera (copia, sync o localStorage editado; #81). Las raciones cocinadas no válidas se
+ * ajustan a 2–8 enteras; una franja con batchId sin cocinada (sobra huérfana o batchId suelto) pasa a franja normal con
+ * su receta, que es como ya se pintaba. Idempotente: sin nada que corregir devuelve el mismo plan.
+ */
+export function sanitizeBatches(plan: WeekPlan): WeekPlan {
+  const isOrigin = (s: DayPlanSlot) => s.batchId !== undefined && !s.leftover && s.cookedServings !== undefined;
+  const origins = new Set(Object.values(plan).flatMap((slots) => slots.filter(isOrigin).map((s) => s.batchId)));
+  const fix = (slot: DayPlanSlot): DayPlanSlot => {
+    if (isOrigin(slot)) {
+      const n = Number(slot.cookedServings);
+      const servings = Number.isFinite(n) ? Math.min(MAX_COOKED_SERVINGS, Math.max(MIN_COOKED_SERVINGS, Math.round(n))) : MIN_COOKED_SERVINGS;
+      return servings === slot.cookedServings ? slot : { ...slot, cookedServings: servings };
+    }
+    if (slot.batchId === undefined ? !slot.leftover : origins.has(slot.batchId) && !!slot.leftover) return slot;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { batchId, leftover, cookedServings, ...rest } = slot;
+    return rest;
+  };
+  let changed = false;
+  const next = Object.fromEntries(
+    Object.entries(plan).map(([date, slots]) => {
+      const fixed = slots.map(fix);
+      if (fixed.some((s, i) => s !== slots[i])) changed = true;
+      return [date, fixed];
+    }),
+  );
+  return changed ? next : plan;
+}
+
 function assertServings(servings: number) {
   if (!Number.isInteger(servings) || servings < MIN_COOKED_SERVINGS || servings > MAX_COOKED_SERVINGS) {
     throw new Error(`Las raciones cocinadas van de ${MIN_COOKED_SERVINGS} a ${MAX_COOKED_SERVINGS}, enteras`);
