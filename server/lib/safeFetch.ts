@@ -136,8 +136,9 @@ async function download(rawUrl: string, deps: SafeFetchDeps, signal: AbortSignal
     if (response.status < 200 || response.status >= 300) {
       throw new SafeFetchError("fetch_failed", `La web respondió HTTP ${response.status}.`);
     }
-    // Solo páginas web (#140): un PDF, una imagen o un vídeo no se descarga ni se manda a la IA. Sin cabecera, se intenta
-    if (response.contentType && !/^\s*(?:text\/|application\/xhtml\+xml\b)/i.test(response.contentType)) {
+    // Solo páginas web (#140): HTML, XHTML o texto (hay servidores que sirven HTML como text/plain). Un PDF, una imagen,
+    // un vídeo o un CSV no se descarga ni se manda a la IA. Sin cabecera, se intenta
+    if (response.contentType && !/^\s*(?:text\/html|text\/plain|application\/xhtml\+xml)\b/i.test(response.contentType)) {
       void (response.body[Symbol.asyncIterator]() as AsyncIterator<Uint8Array>).return?.();
       throw new SafeFetchError("fetch_failed", "El enlace no es una página web.");
     }

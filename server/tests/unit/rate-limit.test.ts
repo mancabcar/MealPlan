@@ -6,7 +6,7 @@
 //   - Al rechazar, `retryAfterSeconds` ≥ 1: segundos hasta que se libera la petición más antigua de la ventana.
 // Fallan hasta que exista el módulo (tarea 2 del tech design).
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createRateLimiter, importLimiter } from "../../lib/rateLimit";
+import { SWEEP_EVERY_MS, createRateLimiter, importLimiter } from "../../lib/rateLimit";
 
 const MIN = 60_000;
 
@@ -83,5 +83,18 @@ describe("R7: importLimiter (el de la ruta)", () => {
     expect(importLimiter.check("9.9.9.9").allowed).toBe(false);
     vi.advanceTimersByTime(10 * MIN + 1);
     expect(importLimiter.check("9.9.9.9").allowed).toBe(true);
+  });
+});
+
+describe("#140: limpieza de claves viejas como mucho una vez por minuto", () => {
+  it("no recorre el mapa en cada petición, pero las claves caducadas se borran en el siguiente barrido", () => {
+    const limiter = createRateLimiter({ max: 5, windowMs: 10_000 });
+    limiter.check("a"); // primer barrido
+    vi.advanceTimersByTime(11_000); // «a» ya ha caducado, pero no ha pasado un minuto
+    limiter.check("b");
+    expect(limiter.size()).toBe(2);
+    vi.advanceTimersByTime(SWEEP_EVERY_MS);
+    limiter.check("c"); // barrido: «a» y «b» caducadas fuera
+    expect(limiter.size()).toBe(1);
   });
 });

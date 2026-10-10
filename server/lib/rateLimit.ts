@@ -4,6 +4,8 @@
 export interface RateLimiter {
   check(key: string): { allowed: boolean; retryAfterSeconds: number };
   reset(): void;
+  /** Claves en memoria (para comprobar la limpieza). */
+  size(): number;
 }
 
 /** Cada cuánto se barren las claves viejas como mucho (#140: antes se recorría el mapa en cada petición). */
@@ -35,6 +37,9 @@ export function createRateLimiter({ max, windowMs }: { max: number; windowMs: nu
     reset() {
       hits.clear();
       lastSweep = 0;
+    },
+    size() {
+      return hits.size;
     },
   };
 }

@@ -36,6 +36,11 @@ describe("#140: páginas largas, la receta no se queda fuera del recorte", () =>
     expect(text).toContain("500 g de calabaza");
   });
 
+  it("un «ingredientes» que no es encabezado (enlace del pie) no mueve el recorte", () => {
+    const html = `<h1>Pumpkin soup</h1><p>What you need: 500 g pumpkin</p><p>${"blog ".repeat(8_000)}</p><footer><a>Recetas por ingredientes</a></footer>`;
+    expect(htmlToText(html, 30_000)).toContain("500 g pumpkin");
+  });
+
   it("si cabe entero, no cambia nada", () => {
     expect(htmlToText("<p>Hola</p><h2>Ingredientes</h2>", 30_000)).toBe("Hola\nIngredientes");
   });
@@ -50,6 +55,8 @@ describe("#140: IPv6 que esconden una IPv4 interna", () => {
     "2002:c0a8:101::", // 6to4 de 192.168.1.1
     "::7f00:1", // IPv4 compatible (obsoleta) de 127.0.0.1
     "::10.0.0.1",
+    "2001:0:4136:e378:8000:63bf:3fff:fdd2", // Teredo
+    "fec0::1", // site-local (obsoleto)
   ])("%s es interna", (ip) => {
     expect(isPrivateAddress(ip)).toBe(true);
   });
