@@ -63,6 +63,16 @@ export function userRecipes(raw: unknown): Recipe[] {
   return clean.some((r, i) => r !== own[i]) ? clean : own;
 }
 
+/** Plan con forma de plan: cada día, una lista de franjas (objetos); lo demás se descarta para que la carga no lance (#81). */
+function planShape(raw: unknown): WeekPlan {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return {};
+  return Object.fromEntries(
+    Object.entries(raw)
+      .filter((e): e is [string, unknown[]] => Array.isArray(e[1]))
+      .map(([date, slots]) => [date, slots.filter((s) => typeof s === "object" && s !== null && !Array.isArray(s))]),
+  ) as WeekPlan;
+}
+
 /** Lista de ids sin duplicados ni basura. Los ids de recetas que ya no existen se descartan al guardar (store). */
 export function sanitizeFavorites(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
@@ -91,8 +101,8 @@ export const LOAD_OPTIONS: { [K in UserDataKey]: LoadOptions<UserData[K]> } = {
   pantry: { fallback: [], upgrade: (raw) => (raw as PantryItem[] | null) ?? [] },
   weekplan: {
     fallback: {},
-    // Tandas con raciones no válidas o sobras huérfanas (#81): se corrigen al cargar
-    upgrade: (raw) => sanitizeBatches(migrateWeekPlan((raw as WeekPlan | null) ?? {})),
+    // Días que no son listas de franjas, tandas con raciones no válidas o sobras huérfanas (#81): se corrigen al cargar
+    upgrade: (raw) => sanitizeBatches(migrateWeekPlan(planShape(raw))),
     backup: true,
   },
   // Lista de la compra: solo la intención del usuario; la lista se deriva del plan (lista-compra tech.md)
