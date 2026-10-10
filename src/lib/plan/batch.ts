@@ -73,6 +73,52 @@ export function batchOf(plan: WeekPlan, batchId: string): Batch | null {
   return origin ? { origin, leftovers } : null;
 }
 
+/**
+ * Tandas de un plan cargado de fuera (copia, sync o localStorage editado; #81). Las raciones cocinadas no válidas se
+ * ajustan a 2–8 enteras y nunca por debajo de sobras + 1 (lo que exige assertTargets); si una tanda tiene más de 7
+ * sobras, las últimas pasan a franja normal. Una franja con batchId sin cocinada (sobra huérfana o batchId suelto) pasa
+ * a franja normal con su receta, que es como ya se pintaba. Idempotente: sin nada que corregir devuelve el mismo plan.
+ */
+export function sanitizeBatches(plan: WeekPlan): WeekPlan {
+  const isOrigin = (s: DayPlanSlot) => s.batchId !== undefined && !s.leftover && s.cookedServings !== undefined;
+  const origins = new Set(Object.values(plan).flatMap((slots) => slots.filter(isOrigin).map((s) => s.batchId)));
+  // Sobras de cada tanda por orden de día y comida: se conservan como mucho MAX - 1
+  const leftovers = new Map<string, { date: string; slot: DayPlanSlot }[]>();
+  for (const [date, slots] of Object.entries(plan)) {
+    for (const slot of slots) {
+      if (!slot.leftover || slot.batchId === undefined || !origins.has(slot.batchId)) continue;
+      leftovers.set(slot.batchId, [...(leftovers.get(slot.batchId) ?? []), { date, slot }]);
+    }
+  }
+  const kept = new Set<DayPlanSlot>();
+  for (const list of leftovers.values()) {
+    list.sort((a, b) => a.date.localeCompare(b.date) || MEAL_TYPES.indexOf(a.slot.mealType) - MEAL_TYPES.indexOf(b.slot.mealType));
+    for (const { slot } of list.slice(0, MAX_COOKED_SERVINGS - 1)) kept.add(slot);
+  }
+  const fix = (slot: DayPlanSlot): DayPlanSlot => {
+    if (isOrigin(slot)) {
+      const n = Number(slot.cookedServings);
+      const own = Number.isFinite(n) ? Math.round(n) : MIN_COOKED_SERVINGS;
+      const min = Math.max(MIN_COOKED_SERVINGS, Math.min(leftovers.get(slot.batchId!)?.length ?? 0, MAX_COOKED_SERVINGS - 1) + 1);
+      const servings = Math.min(MAX_COOKED_SERVINGS, Math.max(min, own));
+      return servings === slot.cookedServings ? slot : { ...slot, cookedServings: servings };
+    }
+    if (slot.batchId === undefined ? !slot.leftover : kept.has(slot)) return slot;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { batchId, leftover, cookedServings, ...rest } = slot;
+    return rest;
+  };
+  let changed = false;
+  const next = Object.fromEntries(
+    Object.entries(plan).map(([date, slots]) => {
+      const fixed = slots.map(fix);
+      if (fixed.some((s, i) => s !== slots[i])) changed = true;
+      return [date, fixed];
+    }),
+  );
+  return changed ? next : plan;
+}
+
 function assertServings(servings: number) {
   if (!Number.isInteger(servings) || servings < MIN_COOKED_SERVINGS || servings > MAX_COOKED_SERVINGS) {
     throw new Error(`Las raciones cocinadas van de ${MIN_COOKED_SERVINGS} a ${MAX_COOKED_SERVINGS}, enteras`);

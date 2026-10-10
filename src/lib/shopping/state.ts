@@ -98,6 +98,9 @@ const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "obj
 const stringRecord = (v: unknown): Record<string, string> =>
   isRecord(v) ? Object.fromEntries(Object.entries(v).filter(([, s]) => typeof s === "string")) as Record<string, string> : {};
 
+/** Clave de semana válida: un lunes con formato YYYY-MM-DD. */
+const isMonday = (v: unknown): v is string => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && mondayOf(v) === v;
+
 function loadWeek(monday: string, raw: unknown): ShoppingWeekState {
   const w = isRecord(raw) ? raw : {};
   return {
@@ -116,18 +119,19 @@ function loadMove(raw: unknown): ShoppingMove | undefined {
 /**
  * Lo guardado en localStorage puede venir incompleto, corrupto (review N5) o con el formato anterior
  * `{ current, usage }` (#78): `current` pasa a `weeks[current.week]`, su `lastMove` sube a la raíz y `usage`
- * se descarta (ninguna pantalla lo leía). Idempotente: se reaplica en cada lectura.
+ * se descarta (ninguna pantalla lo leía). Las semanas y el último movimiento cuya clave no es un lunes YYYY-MM-DD se
+ * descartan (#116): nadie las lee y `pruneWeeks`, que compara texto, no las quitaría nunca. Idempotente: se reaplica en cada lectura.
  */
 export function loadShoppingState(raw: unknown): ShoppingState {
   if (!isRecord(raw)) return EMPTY;
   if (isRecord(raw.weeks)) {
-    const weeks = Object.fromEntries(Object.entries(raw.weeks).filter(([, w]) => isRecord(w)).map(([monday, w]) => [monday, loadWeek(monday, w)]));
+    const weeks = Object.fromEntries(Object.entries(raw.weeks).filter(([monday, w]) => isMonday(monday) && isRecord(w)).map(([monday, w]) => [monday, loadWeek(monday, w)]));
     const move = loadMove(raw.lastMove);
     const week = isRecord(raw.lastMove) ? raw.lastMove.week : undefined;
-    return { weeks, ...(move && typeof week === "string" ? { lastMove: { ...move, week } } : {}) };
+    return { weeks, ...(move && isMonday(week) ? { lastMove: { ...move, week } } : {}) };
   }
   const c = raw.current;
-  if (!isRecord(c) || typeof c.week !== "string" || c.week === "") return EMPTY;
+  if (!isRecord(c) || !isMonday(c.week)) return EMPTY;
   const move = loadMove(c.lastMove);
   return { weeks: { [c.week]: loadWeek(c.week, c) }, ...(move ? { lastMove: { ...move, week: c.week } } : {}) };
 }

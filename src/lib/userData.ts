@@ -1,7 +1,9 @@
 // Registro de los datos de cada usuario (mp_<userId>_<clave>) y de cómo se cargan. Lo usan AppProvider al montar y
 // la importación de copias (backup.ts), así una copia pasa exactamente por las mismas migraciones (backup-datos R7).
 import { CATALOG_IDS } from "./catalog";
+import { sanitizeRecipeFiber } from "./fiber";
 import { sanitizeMeasurements } from "./measurements";
+import { sanitizeBatches } from "./plan/batch";
 import { migrateEntries, migrateProfile, migrateWeekPlan, RETIRED_RECIPE_IDS } from "./migrate";
 import { sanitizeWater } from "./water";
 import { EMPTY as EMPTY_SHOPPING, loadShoppingState, type ShoppingState } from "./shopping/state";
@@ -51,11 +53,24 @@ export interface LoadOptions<T> {
 /**
  * Recetas del usuario (IA y propias): quita las del catálogo, que viven en el bundle (src/lib/catalog.ts) y no se guardan,
  * y las retiradas. Idempotente: también limpia lo que dejó la siembra anterior y las copias de seguridad antiguas.
+ * Una fibra no válida se quita (#123): la ficha de la receta no puede pintarla.
  */
 export function userRecipes(raw: unknown): Recipe[] {
   const saved = Array.isArray(raw) ? (raw as Recipe[]) : [];
   const isCatalog = (r: Recipe) => CATALOG_IDS.has(r.id) || Object.hasOwn(RETIRED_RECIPE_IDS, r.id);
-  return saved.some(isCatalog) ? saved.filter((r) => !isCatalog(r)) : saved;
+  const own = saved.some(isCatalog) ? saved.filter((r) => !isCatalog(r)) : saved;
+  const clean = own.map(sanitizeRecipeFiber);
+  return clean.some((r, i) => r !== own[i]) ? clean : own;
+}
+
+/** Plan con forma de plan: cada día, una lista de franjas (objetos); lo demás se descarta para que la carga no lance (#81). */
+function planShape(raw: unknown): WeekPlan {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return {};
+  return Object.fromEntries(
+    Object.entries(raw)
+      .filter((e): e is [string, unknown[]] => Array.isArray(e[1]))
+      .map(([date, slots]) => [date, slots.filter((s) => typeof s === "object" && s !== null && !Array.isArray(s))]),
+  ) as WeekPlan;
 }
 
 /** Lista de ids sin duplicados ni basura. Los ids de recetas que ya no existen se descartan al guardar (store). */
@@ -86,7 +101,8 @@ export const LOAD_OPTIONS: { [K in UserDataKey]: LoadOptions<UserData[K]> } = {
   pantry: { fallback: [], upgrade: (raw) => (raw as PantryItem[] | null) ?? [] },
   weekplan: {
     fallback: {},
-    upgrade: (raw) => migrateWeekPlan((raw as WeekPlan | null) ?? {}),
+    // Días que no son listas de franjas, tandas con raciones no válidas o sobras huérfanas (#81): se corrigen al cargar
+    upgrade: (raw) => sanitizeBatches(migrateWeekPlan(planShape(raw))),
     backup: true,
   },
   // Lista de la compra: solo la intención del usuario; la lista se deriva del plan (lista-compra tech.md)
