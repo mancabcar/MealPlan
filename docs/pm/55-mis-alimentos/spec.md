@@ -1,5 +1,5 @@
 # Favoritos en «Añadir comida»: Spec
-_Status: Draft · Owner: @mancabcar · Updated: 2026-10-09_
+_Status: Approved (Musts confirmados) · Owner: @mancabcar · Updated: 2026-10-10_
 _Related: [brief](brief.md) · [prototype](https://claude.ai/artifact/4YYejg1TynbXR8TESnokGX) · Issue [#55](https://github.com/mancabcar/MealPlan/issues/55) (absorbe [#58](https://github.com/mancabcar/MealPlan/issues/58))_
 
 ## TL;DR
