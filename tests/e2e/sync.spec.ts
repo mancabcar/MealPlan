@@ -151,6 +151,33 @@ test.describe("R7: datos en el dispositivo y en el servidor", () => {
   });
 });
 
+test.describe("#100: volver a entrar tras caducar la sesión", () => {
+  test("con la cuenta local preseleccionada, no pisa lo ya sincronizado", async ({ page, context }) => {
+    const NEWER_PANTRY = [{ id: "otro-disp", name: "Leche de avena", quantity: "1 l", category: "Nevera" }];
+    await mockBackend(context, backend);
+    await seedLocalDevice(page, ACCOUNT_A_DATA);
+    await register(page, "lucia", PASSWORD);
+    await expect(status(page)).toHaveText("Al día");
+
+    // Otro dispositivo cambia la Despensa y este la recibe en el siguiente ciclo
+    backend.remoteWrite("lucia", "pantry", NEWER_PANTRY);
+    await page.clock.runFor(16_000);
+    await expect.poll(() => stored(page, SERVER_ID, "pantry")).toEqual(NEWER_PANTRY);
+
+    // La sesión caduca: el siguiente ciclo recibe 401 y vuelve al login sin borrar la copia local
+    backend.expireSessions();
+    await page.clock.runFor(16_000);
+    await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible();
+
+    // La cuenta local antigua sigue preseleccionada en «Traer los datos de este dispositivo»
+    await login(page, "lucia", PASSWORD);
+    await expect(status(page)).toHaveText("Al día");
+    await page.clock.runFor(16_000);
+    expect(await stored(page, SERVER_ID, "pantry")).toEqual(NEWER_PANTRY);
+    expect(backend.dataOf("lucia").pantry.value).toEqual(NEWER_PANTRY);
+  });
+});
+
 test.describe("R8, R10: sin conexión", () => {
   test("R8/R10: sin red la app sigue, avisa «Sin sincronizar» y al volver la red sube el cambio y marca «Al día»", async ({ page, context }) => {
     await mockBackend(context, backend);
