@@ -155,17 +155,22 @@ function recentKey(e: MealEntry): string {
   return `c|${name}|${e.calories}|${e.protein}|${e.carbs}|${e.fat}`;
 }
 
-/** Recientes (R2, R3, R7): hasta `limit` comidas distintas, primero las registradas alguna vez en `mealType`. */
+/**
+ * Recientes (R2, R3, R7): hasta `limit` comidas distintas, primero las registradas alguna vez en `mealType`.
+ * `exclude` quita entradas antes de aplicar el tope: lo que ya es favorito (docs/pm/55-mis-alimentos, R7).
+ */
 export function recentMeals({
   entries,
   recipes,
   mealType,
   limit = RECENT_LIMIT,
+  exclude,
 }: {
   entries: MealEntry[];
   recipes: Recipe[];
   mealType: MealType;
   limit?: number;
+  exclude?: (e: MealEntry) => boolean;
 }): RecentMeal[] {
   // R3: el orden del array es el orden de registro (addEntry añade al final), así que se recorre desde el final
   const recipeById = new Map(recipes.map((r) => [r.id, r]));
@@ -174,6 +179,7 @@ export function recentMeals({
   const seenInFranja = new Set<string>();
   for (let i = entries.length - 1; i >= 0; i--) {
     const e = entries[i];
+    if (exclude?.(e)) continue;
     let name = e.customName ?? "";
     if (e.recipeId) {
       // R7: sin receta no hay nombre fiable

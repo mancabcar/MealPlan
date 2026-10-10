@@ -139,7 +139,7 @@ Orden dentro de «Añadir comida»: franja → `FavoriteMeals` → `RecentMeals`
 - **e2e (Playwright):** ☆ en Recientes → registrar desde Favoritos en otra franja → editar los macros → la entrada antigua sigue igual.
 
 ## Tasks
-1. [ ] `src/lib/mealFavorites.ts` + `recentMeals({ exclude })` con sus tests unitarios (R2, R7, R8)
+1. [x] `src/lib/mealFavorites.ts` + `recentMeals({ exclude })` con sus tests unitarios (R2, R7, R8)
 2. [ ] Clave `mealFavorites` en userData, server/sync, backup, store y syncMigration; los tests de 9 claves pasan a 10 (R6)
 3. [ ] `Toast` con `durationMs: null`
 4. [ ] `MealRow` + ☆ en `RecentMeals`; ocultar en Recientes, `favNotice` y Deshacer (R2, R7, R11)
