@@ -146,7 +146,7 @@ Orden dentro de «Añadir comida»: franja → `FavoriteMeals` → `RecentMeals`
 5. [x] `FavoriteMeals`: registrar, orden, tope, «Ver todos» y pista (R1, R8, R9, R10)
 6. [x] Extraer `CustomMealForm` de `page.tsx` sin cambiar su comportamiento; casilla «Guardar en favoritos» (R3)
 7. [x] Modo «Editar»: editar personalizada (R4), quitar con Deshacer (R5), `FoodQuantityForm` (R12)
-8. [ ] e2e del flujo completo; nota de despliegue «servidor primero» en el PR
+8. [x] e2e del flujo completo; nota de despliegue «servidor primero» en el PR
 
 ## Spec feedback
 Decidido con el usuario el 2026-10-10. No cambia `spec.md`; aclara cómo se lee:
@@ -167,17 +167,17 @@ Escritos el 2026-10-10, antes del código. Contratos (firmas, props y nombres ac
 
 | Req | Test | Layer | Status |
 |---|---|---|---|
-| R1 | tests/unit/mealFavorites.test.ts › «favoriteEntry (R1)»; tests/unit/FavoriteMeals.test.tsx › «R1»; tests/e2e/favoritos-anadir.spec.ts › «R1: …» (2) | unit, component, e2e | 🔴 failing (not built) |
-| R2 | mealFavorites.test.ts › «favoriteFromEntry», «upsertCustom»; RecentMeals-star.test.tsx; store-mealFavorites.test.tsx › «R2»; e2e › «R2/R11», «R2: ☆ en una receta…», «R2: un alimento…» | unit, component, e2e | 🔴 failing (not built) |
-| R3 | CustomMealForm.test.tsx › «R3»; e2e › «R3: registra, guarda…» | component, e2e | 🔴 failing (not built) |
-| R4 | CustomMealForm.test.tsx › «R4»; FavoriteMeals.test.tsx › «R4»; store-mealFavorites.test.tsx › «R4»; e2e › «R4: corregir la grasa…» | component, e2e | 🔴 failing (not built) |
-| R5 | FavoriteMeals.test.tsx › «R5»; store-mealFavorites.test.tsx › «R5»; e2e › «R5: …» (2) | component, e2e | 🔴 failing (not built) |
-| R6 | tests/unit/backup-mealFavorites.test.ts; backup.test.ts, backup-water.test.ts, sync-engine.test.ts, sync-migration.test.ts, server/tests/unit/sync-routes.test.ts (de 9 a 10 claves) | unit | 🔴 failing (not built) |
-| R7 | mealFavorites.test.ts › «R7»; e2e › «R2: ☆ en una receta…» (× 0,5 sigue) | unit, e2e | 🔴 failing (not built) |
-| R8 | mealFavorites.test.ts › «R8» (criterios del spec + desempates del tech) | unit | 🔴 failing (not built) |
-| R9 | FavoriteMeals.test.tsx › «R9»; e2e › «Ver todos se pliega…» | component, e2e | 🔴 failing (not built) |
-| R10 | FavoriteMeals.test.tsx › «R10»; e2e › «R10» | component, e2e | 🔴 failing (not built) |
-| R11 | tests/unit/Toast-sticky.test.tsx; e2e › «R2/R11» | component, e2e | 🔴 failing (not built) |
-| R12 | tests/unit/FoodQuantityForm.test.tsx; FavoriteMeals.test.tsx › «R12» | component | 🔴 failing (not built) |
-| State | e2e › «State & edge cases: cambiar de franja» (2); e2e › «R3» (casilla al reabrir); e2e › «R5: al cerrar…» (aviso) | e2e | 🔴 failing (not built) |
-| Edges | mealFavorites.test.ts › sanitize, receta de otra franja o borrada, alimento sin gramos, fibra ausente, Avena 40/60 g | unit | 🔴 failing (not built) |
+| R1 | tests/unit/mealFavorites.test.ts › «favoriteEntry (R1)»; tests/unit/FavoriteMeals.test.tsx › «R1»; tests/e2e/favoritos-anadir.spec.ts › «R1: …» (2) | unit, component, e2e | ✅ passing |
+| R2 | mealFavorites.test.ts › «favoriteFromEntry», «upsertCustom»; RecentMeals-star.test.tsx; store-mealFavorites.test.tsx › «R2»; e2e › «R2/R11», «R2: ☆ en una receta…», «R2: un alimento…» | unit, component, e2e | ✅ passing |
+| R3 | CustomMealForm.test.tsx › «R3»; e2e › «R3: registra, guarda…» | component, e2e | ✅ passing |
+| R4 | CustomMealForm.test.tsx › «R4»; FavoriteMeals.test.tsx › «R4»; store-mealFavorites.test.tsx › «R4»; e2e › «R4: corregir la grasa…» | component, e2e | ✅ passing |
+| R5 | FavoriteMeals.test.tsx › «R5»; store-mealFavorites.test.tsx › «R5»; e2e › «R5: …» (2) | component, e2e | ✅ passing |
+| R6 | tests/unit/backup-mealFavorites.test.ts; backup.test.ts, backup-water.test.ts, sync-engine.test.ts, sync-migration.test.ts, server/tests/unit/sync-routes.test.ts (de 9 a 10 claves) | unit | ✅ passing |
+| R7 | mealFavorites.test.ts › «R7»; e2e › «R2: ☆ en una receta…» (× 0,5 sigue) | unit, e2e | ✅ passing |
+| R8 | mealFavorites.test.ts › «R8» (criterios del spec + desempates del tech) | unit | ✅ passing |
+| R9 | FavoriteMeals.test.tsx › «R9»; e2e › «Ver todos se pliega…» | component, e2e | ✅ passing |
+| R10 | FavoriteMeals.test.tsx › «R10»; e2e › «R10» | component, e2e | ✅ passing |
+| R11 | tests/unit/Toast-sticky.test.tsx; e2e › «R2/R11» | component, e2e | ✅ passing |
+| R12 | tests/unit/FoodQuantityForm.test.tsx; FavoriteMeals.test.tsx › «R12» | component | ✅ passing |
+| State | e2e › «State & edge cases: cambiar de franja» (2); e2e › «R3» (casilla al reabrir); e2e › «R5: al cerrar…» (aviso) | e2e | ✅ passing |
+| Edges | mealFavorites.test.ts › sanitize, receta de otra franja o borrada, alimento sin gramos, fibra ausente, Avena 40/60 g | unit | ✅ passing |

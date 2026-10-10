@@ -46,7 +46,7 @@ export function CustomMealForm({
   onRemove?: () => void;
   /** R4: el nombre ya es de otra personalizada favorita. */
   nameTaken?: (name: string) => boolean;
-  /** Oculto fuera de su pestaña, pero montado: lo escrito sobrevive a un cambio de pestaña. */
+  /** Fuera de su pestaña no pinta nada, pero sigue montado: lo escrito sobrevive a un cambio de pestaña. */
   hidden?: boolean;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
@@ -83,8 +83,10 @@ export function CustomMealForm({
     }
   };
 
+  // Montado pero sin DOM: el estado se conserva y no quedan campos ocultos con las mismas etiquetas que otro formulario
+  if (hidden) return null;
   return (
-    <div hidden={hidden} className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3">
       <input
         className={inputCls}
         placeholder="Nombre"

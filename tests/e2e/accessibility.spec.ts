@@ -84,7 +84,8 @@ test.describe("R6: contraste de color", () => {
     await signIn(page, { profile: lucia, recipes: RACIONES_RECIPES, weekplan: {}, entries });
     await page.goto("/");
     await page.getByRole("button", { name: "Añadir comida" }).click();
-    await expect(page.getByRole("list", { name: "Recientes" }).getByRole("button")).toHaveCount(2);
+    // Filas, sin la ☆ «Guardar … en Favoritos» de #55 (que también entra en el análisis de contraste)
+    await expect(page.getByRole("list", { name: "Recientes" }).getByRole("button", { name: /^(?!Guardar .* en Favoritos$)/ })).toHaveCount(2);
     await expectNoContrastViolations(page);
   });
 

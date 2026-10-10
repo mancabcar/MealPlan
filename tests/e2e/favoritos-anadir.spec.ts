@@ -135,7 +135,7 @@ test.describe("R3: «Guardar en favoritos» en Personalizada", () => {
     await expect(box).not.toBeChecked();
 
     await page.getByPlaceholder("Nombre").fill("Crema de calabacín");
-    await page.getByLabel("kcal").fill("120");
+    await page.getByLabel("kcal", { exact: true }).fill("120");
     await page.getByLabel("grasa").fill("6");
     await box.check();
     await page.getByRole("button", { name: "Añadir", exact: true }).click();
