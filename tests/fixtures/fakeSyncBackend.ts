@@ -67,7 +67,8 @@ export function createFakeBackend() {
       for (const [k, row] of user.data) if (row.version > (since[k] ?? 0)) out[k] = row;
       return reply(200, out);
     }
-    const put = path.match(/^\/api\/sync\/([a-z]+)$/);
+    // «mealFavorites» (#55) es la primera clave con mayúscula
+    const put = path.match(/^\/api\/sync\/([a-zA-Z]+)$/);
     if (method === "PUT" && put) {
       const key = put[1];
       if (!(SYNC_KEYS as readonly string[]).includes(key)) return reply(400, { error: "Clave desconocida" });

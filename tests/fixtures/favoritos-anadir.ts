@@ -3,7 +3,7 @@
 //
 // "Hoy" es el martes 2026-09-22 (mismo TODAY que tests/e2e/helpers.ts). Los nombres salen de los ejemplos del spec.
 // Las recetas llevan tag de franja: Favoritos solo enseña una receta en las franjas en las que vale (Edge cases).
-import type { MealFavorite } from "@/lib/mealFavorites";
+import type { CustomFavorite, FoodFavorite, MealFavorite } from "@/lib/mealFavorites";
 import type { MealEntry, MealType, Recipe } from "@/lib/types";
 
 export const TODAY = "2026-09-22";
@@ -22,7 +22,7 @@ export const FAV_RECIPES: Recipe[] = [POLLO_CURRY, PORRIDGE];
 
 // --- Personalizadas favoritas ------------------------------------------------
 
-export const TORTILLA_FAV: MealFavorite = {
+export const TORTILLA_FAV: CustomFavorite = {
   id: "fav-tortilla",
   kind: "custom",
   name: "Tortilla francesa",
@@ -32,7 +32,7 @@ export const TORTILLA_FAV: MealFavorite = {
   fat: 15,
 };
 /** R4: 11 g de grasa; se corrige a 9 g. */
-export const TOSTADA_FAV: MealFavorite = {
+export const TOSTADA_FAV: CustomFavorite = {
   id: "fav-tostada",
   kind: "custom",
   name: "Tostada con aceite",
@@ -42,7 +42,7 @@ export const TOSTADA_FAV: MealFavorite = {
   fat: 11,
   fiber: 3,
 };
-export const CREMA_FAV: MealFavorite = {
+export const CREMA_FAV: CustomFavorite = {
   id: "fav-crema",
   kind: "custom",
   name: "Crema de calabacín",
@@ -52,13 +52,13 @@ export const CREMA_FAV: MealFavorite = {
   fat: 6,
   fiber: 2.5,
 };
-export const CAFE_FAV: MealFavorite = { id: "fav-cafe", kind: "custom", name: "Café con leche", calories: 90, protein: 6, carbs: 9, fat: 3 };
+export const CAFE_FAV: CustomFavorite = { id: "fav-cafe", kind: "custom", name: "Café con leche", calories: 90, protein: 6, carbs: 9, fat: 3 };
 
 // --- Alimentos favoritos -----------------------------------------------------
 
 /** R1: «Avena 40 g» → 150 kcal (375 × 0,4). */
 export const AVENA_PER100 = { kcal: 375, protein: 13.5, carbs: 59, fat: 7, fiber: 10 };
-export const AVENA_FAV: MealFavorite = {
+export const AVENA_FAV: FoodFavorite = {
   id: "fav-avena",
   kind: "food",
   foodId: "local:avena-copos",
@@ -70,7 +70,7 @@ export const AVENA_FAV: MealFavorite = {
 export const YOGUR_PER100 = { kcal: 120, protein: 9, carbs: 4, fat: 7.5 };
 /** En unidades: 2 ud de 60 g. */
 export const HUEVO_PER100 = { kcal: 140, protein: 12.5, carbs: 0.7, fat: 9.8 };
-export const HUEVOS_FAV: MealFavorite = {
+export const HUEVOS_FAV: FoodFavorite = {
   id: "fav-huevos",
   kind: "food",
   foodId: "local:huevo",
@@ -134,7 +134,7 @@ export function recipeEntryOf(date: string, mealType: MealType, r: Recipe, servi
 }
 
 /** R9: 12 personalizadas favoritas («Favorito 1» … «Favorito 12»), sin registrar. */
-export const TWELVE_FAVS: MealFavorite[] = Array.from({ length: 12 }, (_, i) => ({
+export const TWELVE_FAVS: CustomFavorite[] = Array.from({ length: 12 }, (_, i) => ({
   id: `fav-${i + 1}`,
   kind: "custom" as const,
   name: `Favorito ${i + 1}`,

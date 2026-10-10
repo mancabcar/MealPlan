@@ -5,9 +5,9 @@ import type { Per100 } from "./foods";
 import { fitsSlot } from "./recipeSlots";
 import type { MealEntry, MealType, Recipe } from "./types";
 
-export type MealFavorite =
-  | { id: string; kind: "custom"; name: string; calories: number; protein: number; carbs: number; fat: number; fiber?: number }
-  | { id: string; kind: "food"; foodId: string; name: string; grams: number; units?: number; per100: Per100 };
+export type CustomFavorite = { id: string; kind: "custom"; name: string; calories: number; protein: number; carbs: number; fat: number; fiber?: number };
+export type FoodFavorite = { id: string; kind: "food"; foodId: string; name: string; grams: number; units?: number; per100: Per100 };
+export type MealFavorite = CustomFavorite | FoodFavorite;
 
 /** Una fila de la sección Favoritos: lo que pinta y de dónde sale (un mealFavorite o una receta favorita). */
 export interface RankedFavorite {

@@ -118,6 +118,7 @@ const FULL_DATA: UserData = {
   measurements: BACKUP_MEASUREMENTS,
   favorites: ACCOUNT_A_DATA.favorites,
   water: ACCOUNT_A_DATA.water,
+  mealFavorites: ACCOUNT_A_DATA.mealFavorites,
 };
 
 function expectError(text: string, message: string) {

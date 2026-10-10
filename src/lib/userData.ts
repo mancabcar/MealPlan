@@ -3,11 +3,12 @@
 import { CATALOG_IDS } from "./catalog";
 import { sanitizeMeasurements } from "./measurements";
 import { migrateEntries, migrateProfile, migrateWeekPlan, RETIRED_RECIPE_IDS } from "./migrate";
+import { sanitizeMealFavorites, type MealFavorite } from "./mealFavorites";
 import { sanitizeWater } from "./water";
 import { EMPTY as EMPTY_SHOPPING, loadShoppingState, type ShoppingState } from "./shopping/state";
 import type { MealEntry, Measurement, PantryItem, Recipe, UserProfile, WeekPlan } from "./types";
 
-export const USER_DATA_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water"] as const;
+export const USER_DATA_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water", "mealFavorites"] as const;
 export type UserDataKey = (typeof USER_DATA_KEYS)[number];
 
 export interface UserData {
@@ -22,6 +23,8 @@ export interface UserData {
   favorites: string[];
   /** Agua bebida por día en ml, clave YYYY-MM-DD (docs/pm/23-agua-fibra-micros). */
   water: Record<string, number>;
+  /** Personalizadas y alimentos favoritos de «Añadir comida» (docs/pm/55-mis-alimentos); las recetas siguen en `favorites`. */
+  mealFavorites: MealFavorite[];
 }
 
 export const EMPTY_USER_DATA: UserData = {
@@ -34,6 +37,7 @@ export const EMPTY_USER_DATA: UserData = {
   measurements: [],
   favorites: [],
   water: {},
+  mealFavorites: [],
 };
 
 export interface LoadOptions<T> {
@@ -84,4 +88,6 @@ export const LOAD_OPTIONS: { [K in UserDataKey]: LoadOptions<UserData[K]> } = {
   favorites: { fallback: [], upgrade: sanitizeFavorites },
   // Agua (docs/pm/23-agua-fibra-micros): descarta lo mal formado; sin copia *_v1_backup
   water: { fallback: {}, upgrade: sanitizeWater },
+  // Favoritos de «Añadir comida» (docs/pm/55-mis-alimentos): descarta lo mal formado; sin copia *_v1_backup
+  mealFavorites: { fallback: [], upgrade: sanitizeMealFavorites },
 };
