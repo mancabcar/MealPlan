@@ -19,8 +19,9 @@ import {
   servingsLabel,
 } from "@/lib/diary";
 import { macroStatus } from "@/lib/planMacros";
+import { customNameKey, favoriteEntry, favoriteFromEntry, hiddenInRecents, rankFavorites, type MealFavorite } from "@/lib/mealFavorites";
 import { TOLERANCE_DEFAULT } from "@/lib/tolerance";
-import { FIBER_ERROR, dayFiber, entryFiber, fiberGoal, formatFiber, parseFiber } from "@/lib/fiber";
+import { dayFiber, entryFiber, fiberGoal, formatFiber } from "@/lib/fiber";
 import {
   MEAL_TYPES,
   MealType,
@@ -33,6 +34,8 @@ import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { WeekBarChart } from "@/components/ui/WeekBarChart";
 import { PeriodSummary, loadStatsDays, saveStatsDays } from "@/components/diario/PeriodSummary";
+import { CustomMealForm, type CustomValues } from "@/components/diario/CustomMealForm";
+import { FavoriteMeals } from "@/components/diario/FavoriteMeals";
 import { RecentMeals } from "@/components/diario/RecentMeals";
 import { WaterCard } from "@/components/diario/WaterCard";
 import { glassMl, waterGoalMl } from "@/lib/water";
@@ -115,7 +118,24 @@ const MODES: [AddMode, string][] = [
 ];
 
 export default function DiaryPage() {
-  const { profile, entries, recipes, weekPlan, water, setWaterDay, addEntry, addEntries, removeEntry } = useApp();
+  const {
+    profile,
+    entries,
+    recipes,
+    weekPlan,
+    water,
+    setWaterDay,
+    addEntry,
+    addEntries,
+    removeEntry,
+    favorites,
+    setFavorites,
+    toggleFavorite,
+    mealFavorites,
+    saveMealFavorite,
+    removeMealFavorite,
+    setMealFavorites,
+  } = useApp();
   const userId = useAuth().user?.id;
   // Medias y adherencia (docs/pm/11-medias-adherencia): 7 por defecto, la opción se recuerda por usuario (R11)
   const [statsDays, setStatsDays] = useState<StatsPeriod>(() => loadStatsDays(userId));
@@ -127,11 +147,8 @@ export default function DiaryPage() {
   );
   const [mode, setMode] = useState<AddMode>("recipe");
   const [recipeId, setRecipeId] = useState("");
-  const [customName, setCustomName] = useState("");
-  const [customMacros, setCustomMacros] = useState({ calories: 0, protein: 0, carbs: 0, fat: 0 });
-  // Fibra opcional de «Personalizada» (#23, R8): texto tal cual se teclea; vacío = sin dato
-  const [customFiber, setCustomFiber] = useState("");
-  const [customFiberError, setCustomFiberError] = useState(false);
+  // «Personalizada» vive en CustomMealForm (#55). R14 de #13: «Añádelo a mano» lo vuelve a montar con el nombre escrito
+  const [customSeed, setCustomSeed] = useState({ key: 0, name: "" });
   // Raciones (docs/pm/raciones): texto tal cual se teclea ("0,5"); el error solo sale al pulsar "Añadir"
   const [servingsText, setServingsText] = useState("1");
   const [servingsError, setServingsError] = useState(false);
@@ -143,6 +160,10 @@ export default function DiaryPage() {
   const [copyOpen, setCopyOpen] = useState(false);
   const [copied, setCopied] = useState<{ ids: string[]; text: string } | null>(null);
   const hideCopied = useCallback(() => setCopied(null), []);
+  // Favoritos (docs/pm/55-mis-alimentos, R5/R11): aviso con Deshacer que no se cierra solo y solo se ve con «Añadir
+  // comida» abierto. Guarda las dos listas de antes del cambio: Deshacer las restaura tal cual (misma posición).
+  const [favNotice, setFavNotice] = useState<{ key: string; text: string; before: { meal: MealFavorite[]; recipes: string[] } } | null>(null);
+  const hideFavNotice = useCallback(() => setFavNotice(null), []);
 
   if (!profile) return null;
 
@@ -158,13 +179,31 @@ export default function DiaryPage() {
   // Flujo paso 5: cada vez que se abre el formulario, "Raciones" vuelve a 1
   const openAdd = () => {
     editServings("1");
+    setCustomSeed((s) => ({ key: s.key + 1, name: "" }));
     setShowAdd(true);
+  };
+
+  // Al cerrar «Añadir comida» (registrando o con Cancelar) el aviso de Favoritos se va y el cambio queda hecho (R5)
+  const closeAdd = () => {
+    setShowAdd(false);
+    setFavNotice(null);
+  };
+
+  // R2, R5, R11: aplica un cambio en Favoritos y avisa con Deshacer. Solo un aviso a la vez: anula los demás.
+  const changeFavorites = (text: string, change: () => void) => {
+    const before = { meal: mealFavorites, recipes: favorites };
+    change();
+    setAdded(null);
+    setCopied(null);
+    setFavNotice({ key: crypto.randomUUID(), text, before });
   };
 
   const pending = pendingSlots({ date, today: todayStr(), weekPlan, recipes, entries, meals: profile.meals });
   // Registro rápido (docs/pm/12-registro-rapido): se recalcula en cada render, así que sigue a la franja elegida (R3).
-  // Solo con el formulario abierto, que es el único sitio donde se ve.
-  const recents = showAdd ? recentMeals({ entries, recipes, mealType }) : [];
+  // Solo con el formulario abierto, que es el único sitio donde se ve. Sin lo que ya es favorito (#55, R7).
+  const recents = showAdd ? recentMeals({ entries, recipes, mealType, exclude: hiddenInRecents(mealFavorites, favorites) }) : [];
+  // Favoritos (#55, R8): por frecuencia en la franja elegida, también derivado en cada render
+  const favoriteRows = showAdd ? rankFavorites({ items: mealFavorites, recipeIds: favorites, recipes, entries, mealType }) : [];
 
   const dayEntries = entries.filter((e) => e.date === date);
   const totals = dayEntries.reduce(
@@ -200,30 +239,28 @@ export default function DiaryPage() {
 
   const submitAdd = () => {
     // Fecha borrada en el input: una entrada sin fecha no saldría en ningún día (review de #12)
-    if (date === "") return;
-    if (mode === "recipe") {
-      if (!selectedRecipe) return;
-      // R6: no se añade y el formulario sigue abierto con el mensaje junto al campo
-      if (parsedServings === null) {
-        setServingsError(true);
-        return;
-      }
-      addEntry(recipeEntry(selectedRecipe, date, mealType, { servings: parsedServings }));
-    } else {
-      if (!customName.trim()) return;
-      const fiber = parseFiber(customFiber);
-      if (fiber === null) {
-        setCustomFiberError(true);
-        return;
-      }
-      addEntry({ id: crypto.randomUUID(), date, mealType, customName, ...customMacros, ...(fiber !== undefined && { fiber }) });
+    if (date === "" || !selectedRecipe) return;
+    // R6: no se añade y el formulario sigue abierto con el mensaje junto al campo
+    if (parsedServings === null) {
+      setServingsError(true);
+      return;
     }
-    setShowAdd(false);
+    addEntry(recipeEntry(selectedRecipe, date, mealType, { servings: parsedServings }));
+    closeAdd();
     editServings("1");
-    setCustomName("");
-    setCustomMacros({ calories: 0, protein: 0, carbs: 0, fat: 0 });
-    setCustomFiber("");
-    setCustomFiberError(false);
+  };
+
+  // Personalizada (R3 de #55): la casilla también la guarda en Favoritos, y el aviso del Diario lo dice
+  const submitCustom = ({ name, ...macros }: CustomValues, saveAsFavorite: boolean) => {
+    // Fecha borrada en el input: una entrada sin fecha no saldría en ningún día (review de #12)
+    if (date === "") return;
+    const entry = { id: crypto.randomUUID(), date, mealType, customName: name, ...macros };
+    addEntry(entry);
+    closeAdd();
+    if (!saveAsFavorite) return;
+    saveMealFavorite({ id: crypto.randomUUID(), kind: "custom", name, ...macros });
+    setCopied(null);
+    setAdded({ entryId: entry.id, text: `Añadido a ${mealType} · guardado en Favoritos` });
   };
 
   // R2–R4: copia el día que se ve a `to` (la hoja ya avisó si había entradas) y salta al día de destino.
@@ -234,6 +271,7 @@ export default function DiaryPage() {
     if (copies.length === 0) return;
     addEntries(copies);
     setAdded(null);
+    setFavNotice(null);
     setDate(to);
     setCopied({ ids: copies.map((e) => e.id), text: copies.length === 1 ? "Copiada 1 entrada" : `Copiadas ${copies.length} entradas` });
   };
@@ -241,7 +279,7 @@ export default function DiaryPage() {
   return (
     // Mientras se ve el aviso (fixed, bottom-24), hueco al final para que «Añadir comida» pueda quedar por encima
     // y se pueda añadir otro alimento seguido (review de #13)
-    <div className={`flex flex-col gap-4 ${added || copied ? "pb-20" : ""}`}>
+    <div className={`flex flex-col gap-4 ${added || copied || (showAdd && favNotice) ? "pb-20" : ""}`}>
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Diario</h1>
         <div className="flex items-center gap-2">
@@ -413,6 +451,36 @@ export default function DiaryPage() {
               <option key={mt}>{mt}</option>
             ))}
           </select>
+          {/* #55 R1: encima de Recientes y, como ella, fuera del condicional de pestaña. Un toque registra 1 ración o
+              la cantidad guardada y cierra */}
+          <FavoriteMeals
+            favorites={favoriteRows}
+            mealType={mealType}
+            onPick={(f, ev) =>
+              singleClick(() => {
+                // Sin fecha no se añade nada, como en submitAdd
+                if (date === "") return;
+                addEntry(f.recipe ? recipeEntry(f.recipe, date, mealType) : favoriteEntry(f.fav!, date, mealType));
+                closeAdd();
+              })(ev)
+            }
+            onRemove={(f) =>
+              changeFavorites("Quitado de Favoritos", () => (f.recipe ? toggleFavorite(f.recipe.id) : removeMealFavorite(f.fav!.id)))
+            }
+            // R4: corrige el favorito; lo ya registrado en el Diario no cambia
+            onSaveCustom={saveMealFavorite}
+            // R12: sin `units` si se guardó en gramos
+            onSaveQuantity={(fav, { grams, units }) => {
+              if (fav.kind !== "food") return;
+              const next = { ...fav, grams };
+              if (units === undefined) delete next.units;
+              else next.units = units;
+              saveMealFavorite(next);
+            }}
+            nameTaken={(name, exceptId) =>
+              mealFavorites.some((f) => f.kind === "custom" && f.id !== exceptId && customNameKey(f.name) === customNameKey(name))
+            }
+          />
           {/* R1: fuera del condicional de modo, visible en Receta y en Personalizada. R4: un toque añade y cierra;
               no toca lo que hubiera a medio rellenar en el formulario */}
           <RecentMeals
@@ -422,8 +490,21 @@ export default function DiaryPage() {
                 // Sin fecha no se añade nada, como en submitAdd
                 if (date === "") return;
                 addEntry(repeatEntry(r.entry, date, mealType));
-                setShowAdd(false);
+                closeAdd();
               })(ev)
+            }
+            // #55 R2: el favorito de receta registra 1 ración, así que una fila × 0,5 no lleva ☆
+            canStar={(r) => (r.entry.recipeId ? (r.entry.servings ?? 1) === 1 : favoriteFromEntry(r.entry) !== null)}
+            onStar={(r) =>
+              changeFavorites("Guardado en Favoritos", () => {
+                const { recipeId } = r.entry;
+                if (recipeId) {
+                  if (!favorites.includes(recipeId)) toggleFavorite(recipeId);
+                  return;
+                }
+                const fav = favoriteFromEntry(r.entry);
+                if (fav) saveMealFavorite(fav);
+              })
             }
           />
           <div className="flex gap-2 text-sm">
@@ -451,18 +532,18 @@ export default function DiaryPage() {
                 if (date === "") return;
                 const entry = foodEntry(food, date, mealType, qty);
                 addEntry(entry);
-                setShowAdd(false);
+                closeAdd();
                 setCopied(null);
                 setAdded({ entryId: entry.id, text: `Añadido a ${mealType} · ${quantityLabel(entry)}` });
               })(ev)
             }
             onManual={(name) => {
               // R14: Personalizada con el nombre ya escrito
-              setCustomName(name);
+              setCustomSeed((s) => ({ key: s.key + 1, name }));
               setMode("custom");
             }}
           />
-          {mode === "food" ? null : mode === "recipe" ? (
+          {mode === "recipe" && (
             <>
               {/* Mismo selector que el Plan (docs/pm/20-recetas-filtros R1): filtrado por la franja elegida arriba. key: al
                   cambiar de franja se reinician el buscador y «Ver todas» */}
@@ -477,64 +558,35 @@ export default function DiaryPage() {
                 preview={previewKcal !== null && <span className="shrink-0 text-[var(--color-text-muted)]">= {previewKcal} kcal</span>}
               />
             </>
-          ) : (
-            <>
-              <input
-                className={inputCls}
-                placeholder="Nombre"
-                value={customName}
-                onChange={(e) => setCustomName(e.target.value)}
-              />
-              <div className="grid grid-cols-4 gap-2">
-                {(["calories", "protein", "carbs", "fat"] as const).map((k) => (
-                  <label key={k} className="text-[10px] text-[var(--color-text-muted)] flex flex-col gap-0.5">
-                    {{ calories: "kcal", protein: "prot", carbs: "carb", fat: "grasa" }[k]}
-                    <input
-                      type="number"
-                      className={inputCls}
-                      value={customMacros[k] || ""}
-                      onChange={(e) => setCustomMacros({ ...customMacros, [k]: Number(e.target.value) })}
-                    />
-                  </label>
-                ))}
-              </div>
-              <label className="w-1/4 text-[10px] text-[var(--color-text-muted)] flex flex-col gap-0.5">
-                fibra
-                <input
-                  inputMode="decimal"
-                  className={inputCls}
-                  value={customFiber}
-                  aria-invalid={customFiberError}
-                  onChange={(e) => {
-                    setCustomFiber(e.target.value);
-                    setCustomFiberError(false);
-                  }}
-                />
-              </label>
-              {customFiberError && (
-                <span role="alert" className="text-xs text-[var(--color-expired)]">
-                  {FIBER_ERROR}
-                </span>
-              )}
-            </>
           )}
-          <div className="flex gap-2">
-            {/* En «Alimento» se añade con el botón de la tarjeta («Añadir 150 g») */}
-            {mode !== "food" && (
+          {/* Montado, como FoodPicker: lo escrito sobrevive a un cambio de pestaña. Lleva su propio «Añadir | Cancelar» */}
+          <CustomMealForm
+            key={customSeed.key}
+            hidden={mode !== "custom"}
+            mode="add"
+            initial={{ name: customSeed.name }}
+            onSubmit={submitCustom}
+            onCancel={closeAdd}
+          />
+          {mode !== "custom" && (
+            <div className="flex gap-2">
+              {/* En «Alimento» se añade con el botón de la tarjeta («Añadir 150 g») */}
+              {mode === "recipe" && (
+                <button
+                  onClick={submitAdd}
+                  className="flex-1 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg py-2 font-semibold text-sm"
+                >
+                  Añadir
+                </button>
+              )}
               <button
-                onClick={submitAdd}
-                className="flex-1 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg py-2 font-semibold text-sm"
+                onClick={closeAdd}
+                className="flex-1 rounded-lg py-2 border border-[var(--color-border)] text-sm text-[var(--color-text-muted)]"
               >
-                Añadir
+                Cancelar
               </button>
-            )}
-            <button
-              onClick={() => setShowAdd(false)}
-              className="flex-1 rounded-lg py-2 border border-[var(--color-border)] text-sm text-[var(--color-text-muted)]"
-            >
-              Cancelar
-            </button>
-          </div>
+            </div>
+          )}
         </Card>
       ) : (
         // singleClick: el segundo clic de un doble toque en una reciente cae aquí al cerrarse el formulario (R4)
@@ -580,6 +632,25 @@ export default function DiaryPage() {
           }}
         >
           {added.text}
+        </Toast>
+      )}
+
+      {showAdd && favNotice && (
+        // #55 R5/R11: sin temporizador; se va al cerrar «Añadir comida» o con otro aviso. Deshacer restaura las dos listas.
+        <Toast
+          key={favNotice.key}
+          durationMs={null}
+          onDismiss={hideFavNotice}
+          action={{
+            label: "Deshacer",
+            onClick: () => {
+              setMealFavorites(favNotice.before.meal);
+              setFavorites(favNotice.before.recipes);
+              hideFavNotice();
+            },
+          }}
+        >
+          {favNotice.text}
         </Toast>
       )}
     </div>

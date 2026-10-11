@@ -9,6 +9,7 @@ import { CATALOG } from "./catalog";
 import { withoutRecipe } from "./recipeEdit";
 import { useSync } from "./syncContext";
 import { withWater } from "./water";
+import { upsertCustom, type MealFavorite } from "./mealFavorites";
 import { LOAD_OPTIONS, USER_DATA_KEYS, type LoadOptions, type UserData, type UserDataKey } from "./userData";
 
 interface AppState {
@@ -26,6 +27,8 @@ interface AppState {
   ratings: Record<string, number>;
   /** Agua bebida por día en ml (docs/pm/23-agua-fibra-micros). */
   water: Record<string, number>;
+  /** Personalizadas y alimentos favoritos de «Añadir comida» (docs/pm/55-mis-alimentos). */
+  mealFavorites: MealFavorite[];
   loaded: boolean;
   /** Id del ítem de la Despensa por el que Recetas filtra ("Recetas con esto"). Efímero: no se persiste ni entra en el backup. */
   recipeFocus: string | null;
@@ -52,11 +55,18 @@ interface AppState {
   removeMeasurement: (id: string) => void;
   /** Marca o desmarca una receta como favorita; al guardar descarta los ids de recetas que ya no existen. */
   toggleFavorite: (id: string) => void;
+  /** Sustituye la lista de recetas favoritas (Deshacer en Favoritos de «Añadir comida», docs/pm/55-mis-alimentos R5). */
+  setFavorites: (ids: string[]) => void;
   /** Valora la receta de 1 a 5; repetir la nota actual la quita. */
   setRating: (id: string, n: number) => void;
   /** Fija los ml bebidos de un día (docs/pm/23-agua-fibra-micros); 0 quita el día. */
   setWaterDay: (date: string, ml: number) => void;
-  /** Sustituye los diez datos del usuario (ya validados con parseBackup). Lanza si falla la escritura (nada cambia). */
+  /** Edición si ya hay uno con ese id; si no, una personalizada con el mismo nombre se actualiza (R2) y lo demás se añade. */
+  saveMealFavorite: (fav: MealFavorite) => void;
+  removeMealFavorite: (id: string) => void;
+  /** Sustituye la lista entera (Deshacer restaura la instantánea, R5/R11). */
+  setMealFavorites: (list: MealFavorite[]) => void;
+  /** Sustituye los datos del usuario (ya validados con parseBackup). Lanza si falla la escritura (nada cambia). */
   importData: (data: UserData) => void;
 }
 
@@ -133,10 +143,15 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
   const [favorites, setFavorites, reloadFavorites] = usePersisted(k("favorites"), LOAD_OPTIONS.favorites, dirty("favorites"));
   const [ratings, setRatings, reloadRatings] = usePersisted(k("ratings"), LOAD_OPTIONS.ratings, dirty("ratings"));
   const [water, setWater, reloadWater] = usePersisted(k("water"), LOAD_OPTIONS.water, dirty("water"));
+  const [mealFavorites, setMealFavorites, reloadMealFavorites] = usePersisted(
+    k("mealFavorites"),
+    LOAD_OPTIONS.mealFavorites,
+    dirty("mealFavorites"),
+  );
 
   const [recipeFocus, setRecipeFocus] = useState<string | null>(null);
 
-  // backup-datos R6/R8: escribe todo o nada y, si ha ido bien, relee las diez claves en el estado. Como `data` ya
+  // backup-datos R6/R8: escribe todo o nada y, si ha ido bien, relee todas las claves en el estado. Como `data` ya
   // viene migrado (parseBackup), la relectura no reescribe nada ni crea copias *_v1_backup.
   const importData = (data: UserData) => {
     writeUserData(localStorage, userId, data);
@@ -150,6 +165,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     reloadFavorites();
     reloadRatings();
     reloadWater();
+    reloadMealFavorites();
     // #22 R11: lo importado se sube entero
     for (const key of USER_DATA_KEYS) markDirty(key);
   };
@@ -166,6 +182,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     favorites: reloadFavorites,
     water: reloadWater,
     ratings: reloadRatings,
+    mealFavorites: reloadMealFavorites,
   };
   const latestReloaders = useRef(reloaders);
   useEffect(() => {
@@ -184,6 +201,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     favorites,
     ratings,
     water,
+    mealFavorites,
     loaded: true,
     recipeFocus,
     setRecipeFocus,
@@ -227,7 +245,15 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
         if (!Number.isInteger(n) || n < 1 || n > 5) return kept;
         return kept[id] === n ? withoutRating(kept, id) : { ...kept, [id]: n };
       }),
+    setFavorites,
     setWaterDay: (date, ml) => setWater((prev) => withWater(prev, date, ml)),
+    saveMealFavorite: (fav) =>
+      setMealFavorites((prev) => {
+        if (prev.some((f) => f.id === fav.id)) return prev.map((f) => (f.id === fav.id ? fav : f));
+        return fav.kind === "custom" ? upsertCustom(prev, fav) : [...prev, fav];
+      }),
+    removeMealFavorite: (id) => setMealFavorites((prev) => prev.filter((f) => f.id !== id)),
+    setMealFavorites,
     importData,
   };
 

@@ -1,7 +1,7 @@
 // Servidor simulado con el contrato de docs/pm/22-sincronizacion-dispositivos/tech.md › APIs / interfaces.
 // Lo usan los tests unitarios del cliente (fetch inyectado) y los e2e (page.route): ninguno toca una red ni una BD reales.
 // Es un doble del contrato, no de la implementación: la SQL real y las rutas se prueban en server/tests/unit.
-export const SYNC_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water", "ratings"] as const;
+export const SYNC_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water", "ratings", "mealFavorites"] as const;
 
 interface Row {
   value: unknown;
@@ -67,7 +67,8 @@ export function createFakeBackend() {
       for (const [k, row] of user.data) if (row.version > (since[k] ?? 0)) out[k] = row;
       return reply(200, out);
     }
-    const put = path.match(/^\/api\/sync\/([a-z]+)$/);
+    // «mealFavorites» (#55) es la primera clave con mayúscula
+    const put = path.match(/^\/api\/sync\/([a-zA-Z]+)$/);
     if (method === "PUT" && put) {
       const key = put[1];
       if (!(SYNC_KEYS as readonly string[]).includes(key)) return reply(400, { error: "Clave desconocida" });

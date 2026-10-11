@@ -5,11 +5,12 @@ import { sanitizeRecipeFiber } from "./fiber";
 import { sanitizeMeasurements } from "./measurements";
 import { sanitizeBatches } from "./plan/batch";
 import { migrateEntries, migrateProfile, migrateWeekPlan, RETIRED_RECIPE_IDS } from "./migrate";
+import { sanitizeMealFavorites, type MealFavorite } from "./mealFavorites";
 import { sanitizeWater } from "./water";
 import { EMPTY as EMPTY_SHOPPING, loadShoppingState, type ShoppingState } from "./shopping/state";
 import type { MealEntry, Measurement, PantryItem, Recipe, UserProfile, WeekPlan } from "./types";
 
-export const USER_DATA_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water", "ratings"] as const;
+export const USER_DATA_KEYS = ["profile", "recipes", "entries", "pantry", "weekplan", "shopping", "measurements", "favorites", "water", "ratings", "mealFavorites"] as const;
 export type UserDataKey = (typeof USER_DATA_KEYS)[number];
 
 export interface UserData {
@@ -26,6 +27,8 @@ export interface UserData {
   water: Record<string, number>;
   /** Valoración 1–5 por id de receta (docs/pm/111-recetas-valoracion-filtros). */
   ratings: Record<string, number>;
+  /** Personalizadas y alimentos favoritos de «Añadir comida» (docs/pm/55-mis-alimentos); las recetas siguen en `favorites`. */
+  mealFavorites: MealFavorite[];
 }
 
 export const EMPTY_USER_DATA: UserData = {
@@ -39,6 +42,7 @@ export const EMPTY_USER_DATA: UserData = {
   favorites: [],
   water: {},
   ratings: {},
+  mealFavorites: [],
 };
 
 export interface LoadOptions<T> {
@@ -115,4 +119,6 @@ export const LOAD_OPTIONS: { [K in UserDataKey]: LoadOptions<UserData[K]> } = {
   water: { fallback: {}, upgrade: sanitizeWater },
   // Valoraciones (docs/pm/111-recetas-valoracion-filtros): sin copia *_v1_backup
   ratings: { fallback: {}, upgrade: sanitizeRatings },
+  // Favoritos de «Añadir comida» (docs/pm/55-mis-alimentos): descarta lo mal formado; sin copia *_v1_backup
+  mealFavorites: { fallback: [], upgrade: sanitizeMealFavorites },
 };

@@ -498,7 +498,8 @@ test.describe("R13: entradas de alimento en Recientes", () => {
   }) => {
     await openDiario(page, { entries: [offEntry("e1", "2026-09-20"), offEntry("e2", "2026-09-21")] });
     await page.getByRole("button", { name: "Añadir comida" }).click();
-    const rows = page.getByRole("list", { name: "Recientes" }).getByRole("button");
+    // Sin la ☆ «Guardar … en Favoritos» de #55 (R2)
+    const rows = page.getByRole("list", { name: "Recientes" }).getByRole("button", { name: /^(?!Guardar .* en Favoritos$)/ });
     await expect(rows).toHaveCount(1);
     await expect(rows.first()).toContainText("Yogur griego ligero · Valle Blanco 200 g");
 

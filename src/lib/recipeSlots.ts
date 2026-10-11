@@ -29,6 +29,11 @@ function slotTagsOf(recipe: Recipe): SlotTag[] {
   return recipe.tags.map((t) => t.toLowerCase()).filter((t): t is SlotTag => t in SLOT_LABEL);
 }
 
+/** La receta vale para la franja: el filtro de groupRecipes, también en Favoritos (docs/pm/55-mis-alimentos, R8). */
+export function fitsSlot(recipe: Recipe, mealType: MealType): boolean {
+  return slotTagsOf(recipe).includes(slotTag(mealType));
+}
+
 /** «Desayuno», «Comida», «Cena» o «Snack» (el primero que lleve); null si la receta no tiene ninguna franja. */
 export function slotLabel(recipe: Recipe): string | null {
   const [first] = slotTagsOf(recipe);
@@ -59,8 +64,7 @@ export function groupRecipes({
   query: string;
   showAll: boolean;
 }): RecipeGroups {
-  const tag = slotTag(mealType);
-  const inSlot = (r: Recipe) => slotTagsOf(r).includes(tag);
+  const inSlot = (r: Recipe) => fitsSlot(r, mealType);
   const q = normalize(query);
   const matches = (r: Recipe) => !q || normalize(r.name).includes(q) || r.tags.some((t) => normalize(t).includes(q));
   const favs = new Set(favorites);
