@@ -1,6 +1,9 @@
 # Favoritos en «Añadir comida»: personalizadas que se guardan y se corrigen
 
-_Status: merged (2026-10-11) · Updated: 2026-10-11 · Issue: [#55](https://github.com/mancabcar/MealPlan/issues/55) (relacionado: [#58](https://github.com/mancabcar/MealPlan/issues/58)) · Prototype: [canvas](https://claude.ai/artifact/4YYejg1TynbXR8TESnokGX) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#167](https://github.com/mancabcar/MealPlan/pull/167)_
+_Status: shipped (2026-10-11) · Updated: 2026-10-11 · Issue: [#55](https://github.com/mancabcar/MealPlan/issues/55) (relacionado: [#58](https://github.com/mancabcar/MealPlan/issues/58)) · Prototype: [canvas](https://claude.ai/artifact/4YYejg1TynbXR8TESnokGX) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#167](https://github.com/mancabcar/MealPlan/pull/167)_
+
+## Qué vigilar
+Métrica del [spec](spec.md): el 2026-10-25, a las dos semanas de uso, comprobar si se ha vuelto a teclear alguna personalizada que ya estaba en Favoritos (objetivo: 0) y si Favoritos tiene contenido. Si sigue vacío porque no se marca la ☆, toca el plan B del brief: autocompletar desde el historial (primer follow-up).
 
 ## Follow-ups
 - Autocompletar desde el historial: al escribir en Personalizada o en el buscador, ofrecer las personalizadas ya registradas (dirección E). Tapa el hueco si no se marca la ⭐. (brainstorm)
