@@ -1,6 +1,6 @@
 # Diario: editar los gramos de una entrada ya registrada
 
-_Status: tests · Updated: 2026-10-19 · Issue: [#57](https://github.com/mancabcar/MealPlan/issues/57) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: in review · Updated: 2026-10-19 · Issue: [#57](https://github.com/mancabcar/MealPlan/issues/57) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#173](https://github.com/mancabcar/MealPlan/pull/173)_
 
 ## Problema
 Con la base de alimentos (#13), una entrada del Diario guarda nombre + gramos + macros calculados. Si me equivoco de cantidad, hoy la única salida es borrarla con la ✕ y volver a registrarla: ninguna entrada del Diario se edita.
