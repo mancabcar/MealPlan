@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useId, useState, type ReactNode } from "react";
-import { Check, CheckCheck, Copy, Plus, X } from "lucide-react";
+import { Check, CheckCheck, Copy, Plus } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import { dailyTotals, weekDayStates, type StatsPeriod } from "@/lib/diaryStats";
@@ -16,6 +16,7 @@ import {
   recentMeals,
   recipeEntry,
   repeatEntry,
+  undoEdit,
   servingsLabel,
 } from "@/lib/diary";
 import { macroStatus } from "@/lib/planMacros";
@@ -25,6 +26,7 @@ import { dayFiber, entryFiber, fiberGoal, formatFiber } from "@/lib/fiber";
 import {
   MEAL_TYPES,
   MealType,
+  type MealEntry,
   todayStr,
 } from "@/lib/types";
 import { MEAL_TYPE_ICON_COMPONENTS } from "@/lib/categoryIcons";
@@ -43,6 +45,7 @@ import { ServingsField } from "@/components/ui/ServingsField";
 import { RecipePicker } from "@/components/recetas/RecipePicker";
 import { FoodPicker } from "@/components/diario/FoodPicker";
 import { CopyDaySheet } from "@/components/diario/CopyDaySheet";
+import { DiaryEntryRow } from "@/components/diario/DiaryEntryRow";
 import { Toast } from "@/components/ui/Toast";
 import { singleClick } from "@/components/ui/singleClick";
 import { inputCls } from "@/components/ui/input";
@@ -128,6 +131,7 @@ export default function DiaryPage() {
     addEntry,
     addEntries,
     removeEntry,
+    replaceEntry,
     favorites,
     setFavorites,
     toggleFavorite,
@@ -164,6 +168,12 @@ export default function DiaryPage() {
   // comida» abierto. Guarda las dos listas de antes del cambio: Deshacer las restaura tal cual (misma posición).
   const [favNotice, setFavNotice] = useState<{ key: string; text: string; before: { meal: MealFavorite[]; recipes: string[] } } | null>(null);
   const hideFavNotice = useCallback(() => setFavNotice(null), []);
+  // Editar la cantidad (docs/pm/57-editar-gramos-diario, R4): una sola fila en edición; lo no guardado se descarta al
+  // cerrarla, al cambiar de día, al abrir «Añadir comida» o «Copiar día», o al borrar esa entrada.
+  const [editingId, setEditingId] = useState<string | null>(null);
+  // R7: aviso «Cantidad cambiada · Deshacer» con la entrada de antes y la guardada; Deshacer solo restaura si sigue igual
+  const [edited, setEdited] = useState<{ key: string; before: MealEntry; after: MealEntry } | null>(null);
+  const hideEdited = useCallback(() => setEdited(null), []);
 
   if (!profile) return null;
 
@@ -178,6 +188,7 @@ export default function DiaryPage() {
 
   // Flujo paso 5: cada vez que se abre el formulario, "Raciones" vuelve a 1
   const openAdd = () => {
+    setEditingId(null);
     editServings("1");
     setCustomSeed((s) => ({ key: s.key + 1, name: "" }));
     setShowAdd(true);
@@ -195,6 +206,7 @@ export default function DiaryPage() {
     change();
     setAdded(null);
     setCopied(null);
+    setEdited(null);
     setFavNotice({ key: crypto.randomUUID(), text, before });
   };
 
@@ -260,6 +272,7 @@ export default function DiaryPage() {
     if (!saveAsFavorite) return;
     saveMealFavorite({ id: crypto.randomUUID(), kind: "custom", name, ...macros });
     setCopied(null);
+    setEdited(null);
     setAdded({ entryId: entry.id, text: `Añadido a ${mealType} · guardado en Favoritos` });
   };
 
@@ -273,13 +286,14 @@ export default function DiaryPage() {
     setAdded(null);
     setFavNotice(null);
     setDate(to);
+    setEdited(null);
     setCopied({ ids: copies.map((e) => e.id), text: copies.length === 1 ? "Copiada 1 entrada" : `Copiadas ${copies.length} entradas` });
   };
 
   return (
     // Mientras se ve el aviso (fixed, bottom-24), hueco al final para que «Añadir comida» pueda quedar por encima
     // y se pueda añadir otro alimento seguido (review de #13)
-    <div className={`flex flex-col gap-4 ${added || copied || (showAdd && favNotice) ? "pb-20" : ""}`}>
+    <div className={`flex flex-col gap-4 ${added || copied || edited || (showAdd && favNotice) ? "pb-20" : ""}`}>
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Diario</h1>
         <div className="flex items-center gap-2">
@@ -287,7 +301,10 @@ export default function DiaryPage() {
             type="button"
             aria-label="Copiar día a otra fecha"
             disabled={dayEntries.length === 0}
-            onClick={() => setCopyOpen(true)}
+            onClick={() => {
+              setEditingId(null);
+              setCopyOpen(true);
+            }}
             className="shrink-0 w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-accent)] disabled:opacity-40"
           >
             <Copy className="w-5 h-5" aria-hidden />
@@ -299,7 +316,10 @@ export default function DiaryPage() {
             value={date}
             onChange={(e) => {
               setDate(e.target.value);
+              setEditingId(null);
               setCopied(null);
+              // #57 R7: Deshacer no puede cambiar una entrada de un día que ya no se ve (review de la PR #173)
+              setEdited(null);
             }}
             className={inputCls}
           />
@@ -401,33 +421,32 @@ export default function DiaryPage() {
                   <span className="shrink-0 py-0.5 text-[var(--color-text-muted)]">{Math.round(slot.recipe.calories * slot.servings)} kcal</span>
                 </div>
               )}
-              {items.map((e) => {
-                // Raciones (R4): "× 0,5" junto al nombre; nada con 1 ración o en entradas anteriores (R5).
-                // Alimentos (#13, R9): "150 g" o "2 ud · 120 g"; una entrada tiene una cosa o la otra.
-                const label = servingsLabel(e) ?? quantityLabel(e);
-                const fiber = entryFiber(e, recipes);
-                return (
-                  <div key={e.id} className="flex justify-between items-center py-1 text-sm">
-                    <div>
-                      <span>
-                        {entryName(e, recipes)}
-                        {label && <span className="text-[var(--color-text-muted)]"> {label}</span>}
-                        {copied?.ids.includes(e.id) && <Chip tone="accent" className="ml-2">Copiada</Chip>}
-                      </span>
-                      <span className="block text-xs text-[var(--color-text-muted)]">
-                        {fiber === undefined ? "Fibra: sin dato" : `Fibra ${formatFiber(fiber)} g`}
-                      </span>
-                    </div>
-                    <span className="flex items-center gap-2 text-[var(--color-text-muted)]">
-                      {/* Con raciones los macros pueden no ser enteros (0,25 × 150 = 37,5): se redondea al mostrar */}
-                      {Math.round(e.calories)} kcal
-                      <button onClick={singleClick(() => removeEntry(e.id))} aria-label="Eliminar" className="text-[var(--color-expired)]">
-                        <X className="w-4 h-4" aria-hidden />
-                      </button>
-                    </span>
-                  </div>
-                );
-              })}
+              {items.map((e) => (
+                <DiaryEntryRow
+                  key={e.id}
+                  entry={e}
+                  name={entryName(e, recipes)}
+                  fiber={entryFiber(e, recipes)}
+                  copied={copied?.ids.includes(e.id) ?? false}
+                  editing={editingId === e.id}
+                  onEdit={() => setEditingId(e.id)}
+                  onSave={(next) => {
+                    replaceEntry(next);
+                    setEditingId(null);
+                    // Un aviso a la vez; el de un cambio anterior (también de esta entrada) se sustituye
+                    setAdded(null);
+                    setCopied(null);
+                    setFavNotice(null);
+                    setEdited({ key: crypto.randomUUID(), before: e, after: next });
+                  }}
+                  onCancel={() => setEditingId(null)}
+                  onRemove={() => {
+                    removeEntry(e.id);
+                    if (editingId === e.id) setEditingId(null);
+                    if (edited?.after.id === e.id) setEdited(null);
+                  }}
+                />
+              ))}
             </Card>
           );
         })}
@@ -534,6 +553,7 @@ export default function DiaryPage() {
                 addEntry(entry);
                 closeAdd();
                 setCopied(null);
+                setEdited(null);
                 setAdded({ entryId: entry.id, text: `Añadido a ${mealType} · ${quantityLabel(entry)}` });
               })(ev)
             }
@@ -632,6 +652,24 @@ export default function DiaryPage() {
           }}
         >
           {added.text}
+        </Toast>
+      )}
+
+      {edited && (
+        // #57 R7: 10 s, como «Añadido». undoEdit no restaura si la entrada cambió después (otra edición, sync).
+        <Toast
+          key={edited.key}
+          onDismiss={hideEdited}
+          action={{
+            label: "Deshacer",
+            onClick: () => {
+              const before = undoEdit(entries, edited);
+              if (before) replaceEntry(before);
+              hideEdited();
+            },
+          }}
+        >
+          Cantidad cambiada
         </Toast>
       )}
 

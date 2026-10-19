@@ -43,6 +43,8 @@ interface AppState {
   /** Varias de una vez, en una sola escritura (copiar un día del Diario, docs/pm/54-copiar-diario). */
   addEntries: (es: MealEntry[]) => void;
   removeEntry: (id: string) => void;
+  /** Sustituye la entrada con la misma id (#57, editar la cantidad); si ya no existe, no hace nada. */
+  replaceEntry: (e: MealEntry) => void;
   addPantryItem: (i: PantryItem) => void;
   removePantryItem: (id: string) => void;
   /** Varios de una vez, en una sola escritura. */
@@ -223,6 +225,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     addEntry: (e) => setEntries((prev) => [...prev, e]),
     addEntries: (es) => setEntries((prev) => [...prev, ...es]),
     removeEntry: (id) => setEntries((prev) => prev.filter((e) => e.id !== id)),
+    replaceEntry: (entry) => setEntries((prev) => prev.map((e) => (e.id === entry.id ? entry : e))),
     addPantryItem: (i) => setPantry((prev) => [...prev, i]),
     removePantryItem: (id) => setPantry((prev) => prev.filter((i) => i.id !== id)),
     addPantryItems: (items) => setPantry((prev) => [...prev, ...items]),

@@ -244,3 +244,64 @@ export function formatDayShort(date: string): string {
 export function entryName(entry: Pick<MealEntry, "customName" | "recipeId">, recipes: Recipe[]): string {
   return entry.customName ?? recipes.find((r) => r.id === entry.recipeId)?.name ?? "Receta";
 }
+
+// Editar la cantidad de una entrada (docs/pm/57-editar-gramos-diario/tech.md › APIs). Puro: la fila y el Diario lo cablean.
+
+/** Cantidad editable de una entrada (R2, R8): gramos, unidades (con sus gramos) o raciones. */
+export type EntryQuantity =
+  | { kind: "grams"; grams: number }
+  | { kind: "units"; units: number; grams: number }
+  | { kind: "servings"; servings: number };
+
+const positive = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v) && v > 0;
+
+/** La cantidad que se edita, o null si la entrada no es editable (R5: personalizadas y datos raros de un backup). */
+export function entryQuantity(entry: MealEntry): EntryQuantity | null {
+  if (entry.recipeId) {
+    // Sin campo = 1 ración (docs/pm/raciones); con uno no numérico no se sabe de qué escalar
+    if (entry.servings === undefined) return { kind: "servings", servings: 1 };
+    return positive(entry.servings) ? { kind: "servings", servings: entry.servings } : null;
+  }
+  if (!positive(entry.grams)) return null;
+  // Unidades no válidas con gramos válidos: se edita en gramos
+  return positive(entry.units) ? { kind: "units", units: entry.units, grams: entry.grams } : { kind: "grams", grams: entry.grams };
+}
+
+const SCALED = ["calories", "protein", "carbs", "fat", "fiber"] as const;
+
+/**
+ * R3/R8: la entrada con la cantidad nueva y macros y fibra × nueva / vieja, sin redondear. Un valor que no es número
+ * (fibra ausente, kcal perdidas en un backup) se queda como estaba: sigue sin dato, no pasa a 0.
+ * Alimento: fija grams (y units solo si llega). Receta: servings, o lo quita con 1, como una receta registrada a 1.
+ */
+export function rescaleEntry(entry: MealEntry, next: { grams: number; units?: number } | { servings: number }): MealEntry {
+  const out: MealEntry = { ...entry };
+  let factor: number;
+  if ("servings" in next) {
+    factor = next.servings / (entry.servings ?? 1);
+    if (next.servings === 1) delete out.servings;
+    else out.servings = next.servings;
+  } else {
+    factor = next.grams / entry.grams!;
+    out.grams = next.grams;
+    if (next.units !== undefined) out.units = next.units;
+    else delete out.units;
+  }
+  for (const k of SCALED) {
+    const v = entry[k];
+    if (typeof v === "number") out[k] = v * factor;
+  }
+  return out;
+}
+
+/**
+ * R7: Deshacer nunca pisa un cambio más nuevo. Devuelve la entrada de antes solo si la actual con esa id sigue igual,
+ * campo a campo, a la que se guardó; si cambió (otra edición, sync) o ya no existe, null.
+ */
+export function undoEdit(entries: MealEntry[], { before, after }: { before: MealEntry; after: MealEntry }): MealEntry | null {
+  const current = entries.find((e) => e.id === after.id);
+  if (!current) return null;
+  const keys = new Set([...Object.keys(current), ...Object.keys(after)]) as Set<keyof MealEntry>;
+  for (const k of keys) if (!Object.is(current[k], after[k])) return null;
+  return before;
+}
