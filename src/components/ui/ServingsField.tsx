@@ -20,8 +20,9 @@ export function ServingsField({
 }: {
   id: string;
   value: string;
-  /** Texto nuevo; quien lo usa limpia el error al editar. */
+  /** Texto nuevo. */
   onChange: (text: string) => void;
+  /** Lo decide quien lo usa: al registrar sale al pulsar y se limpia al editar; en el editor del Diario, en vivo (#176). */
   error: boolean;
   /** Vista previa a la derecha del campo (p. ej. "= 300 kcal"). */
   preview?: ReactNode;

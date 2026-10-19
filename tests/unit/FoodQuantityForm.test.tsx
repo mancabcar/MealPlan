@@ -91,3 +91,21 @@ describe("R6 (#57): vista previa de la cantidad nueva", () => {
     expect(screen.queryByText(/→/)).toBeNull();
   });
 });
+
+describe("#174: gramos con decimales (entradas o favoritos antiguos)", () => {
+  it("abre redondeado y, sin tocar el campo, guarda la cantidad tal cual (no la reescribe a 113)", () => {
+    const onSave = vi.fn();
+    render(<FoodQuantityForm quantity={{ grams: 112.5 }} onSave={onSave} onCancel={vi.fn()} />);
+    expect((screen.getByLabelText("Gramos") as HTMLInputElement).value).toBe("113");
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+    expect(onSave).toHaveBeenCalledWith({ grams: 112.5 });
+  });
+
+  it("si se cambia el valor, guarda el nuevo", () => {
+    const onSave = vi.fn();
+    render(<FoodQuantityForm quantity={{ grams: 112.5 }} onSave={onSave} onCancel={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText("Gramos"), { target: { value: "100" } });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+    expect(onSave).toHaveBeenCalledWith({ grams: 100 });
+  });
+});

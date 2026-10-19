@@ -103,9 +103,8 @@ export function DiaryEntryRow({
               quantity={quantity.kind === "units" ? { grams: quantity.grams, units: quantity.units } : { grams: quantity.grams }}
               preview={(q) => `${quantityLabel(q)} → ${kcal(q)}`}
               onSave={(q) => {
-                // En gramos el editor abre redondeado (#174): guardar ese mismo valor no cambia nada
-                const same =
-                  quantity.kind === "units" ? q.units === quantity.units : q.units === undefined && q.grams === Math.round(quantity.grams);
+                // Sin tocar el campo, FoodQuantityForm devuelve la cantidad tal cual (también 112,5 g, #174)
+                const same = q.grams === quantity.grams && q.units === (quantity.kind === "units" ? quantity.units : undefined);
                 if (same) onCancel();
                 else onSave(rescaleEntry(entry, q));
               }}

@@ -21,8 +21,10 @@ export function FoodQuantityForm({
 }) {
   const id = useId();
   const inUnits = quantity.units !== undefined;
-  // En gramos, redondeado como la etiqueta de la fila: una entrada antigua de 112,5 g abre con «113», no en error (#174)
-  const [text, setText] = useState(inUnits ? formatServings(quantity.units!) : String(Math.round(quantity.grams)));
+  // En gramos, redondeado como la etiqueta de la fila: una entrada antigua de 112,5 g abre con «113», no en error (#174).
+  // Guardar sin tocar el campo devuelve la cantidad tal cual, sin redondear (el Diario lo trata como «sin cambios»)
+  const [initialText] = useState(inUnits ? formatServings(quantity.units!) : String(Math.round(quantity.grams)));
+  const [text, setText] = useState(initialText);
   // En unidades, el peso de 1 ud es el que se guardó (gramos / unidades)
   const units = inUnits ? parseUnits(text) : null;
   const grams = inUnits ? (units === null ? null : units * (quantity.grams / quantity.units!)) : parseGrams(text);
@@ -54,7 +56,14 @@ export function FoodQuantityForm({
           {inUnits ? UNITS_ERROR : GRAMS_ERROR}
         </span>
       )}
-      <EditorActions disabled={invalid} onSave={() => grams !== null && onSave(units === null ? { grams } : { grams, units })} onCancel={onCancel} />
+      <EditorActions
+        disabled={invalid}
+        onSave={() => {
+          if (text === initialText) onSave(quantity);
+          else if (grams !== null) onSave(units === null ? { grams } : { grams, units });
+        }}
+        onCancel={onCancel}
+      />
     </div>
   );
 }
