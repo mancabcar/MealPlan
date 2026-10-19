@@ -20,7 +20,17 @@ import {
   servingsLabel,
 } from "@/lib/diary";
 import { macroStatus } from "@/lib/planMacros";
-import { customNameKey, favoriteEntry, favoriteFromEntry, hiddenInRecents, rankFavorites, type MealFavorite } from "@/lib/mealFavorites";
+import {
+  customNameKey,
+  favoriteEntry,
+  favoriteFromEntry,
+  hiddenInRecents,
+  rankFavorites,
+  starChange,
+  undoMealFavorites,
+  undoRecipeFavorites,
+  type FavoriteOp,
+} from "@/lib/mealFavorites";
 import { TOLERANCE_DEFAULT } from "@/lib/tolerance";
 import { dayFiber, entryFiber, fiberGoal, formatFiber } from "@/lib/fiber";
 import {
@@ -165,8 +175,9 @@ export default function DiaryPage() {
   const [copied, setCopied] = useState<{ ids: string[]; text: string } | null>(null);
   const hideCopied = useCallback(() => setCopied(null), []);
   // Favoritos (docs/pm/55-mis-alimentos, R5/R11): aviso con Deshacer que no se cierra solo y solo se ve con «Añadir
-  // comida» abierto. Guarda las dos listas de antes del cambio: Deshacer las restaura tal cual (misma posición).
-  const [favNotice, setFavNotice] = useState<{ key: string; text: string; before: { meal: MealFavorite[]; recipes: string[] } } | null>(null);
+  // comida» abierto. Guarda solo la operación: Deshacer la invierte sobre las listas de ahora, así que no pisa una edición
+  // ni una sincronización posteriores (#168).
+  const [favNotice, setFavNotice] = useState<{ key: string; text: string; op: FavoriteOp } | null>(null);
   const hideFavNotice = useCallback(() => setFavNotice(null), []);
   // Editar la cantidad (docs/pm/57-editar-gramos-diario, R4): una sola fila en edición; lo no guardado se descarta al
   // cerrarla, al cambiar de día, al abrir «Añadir comida» o «Copiar día», o al borrar esa entrada.
@@ -200,14 +211,17 @@ export default function DiaryPage() {
     setFavNotice(null);
   };
 
-  // R2, R5, R11: aplica un cambio en Favoritos y avisa con Deshacer. Solo un aviso a la vez: anula los demás.
-  const changeFavorites = (text: string, change: () => void) => {
-    const before = { meal: mealFavorites, recipes: favorites };
-    change();
+  // R2, R5, R11: aplica un cambio en Favoritos y avisa con Deshacer. Solo un aviso a la vez: anula los demás. Sin cambio
+  // (op null) no hay aviso ni se cierran los otros (#171).
+  const changeFavorites = (text: string, op: FavoriteOp | null) => {
+    if (!op) return;
+    if (op.kind === "meal-added") saveMealFavorite(op.fav);
+    else if (op.kind === "meal-removed") removeMealFavorite(op.fav.id);
+    else toggleFavorite(op.id);
     setAdded(null);
     setCopied(null);
     setEdited(null);
-    setFavNotice({ key: crypto.randomUUID(), text, before });
+    setFavNotice({ key: crypto.randomUUID(), text, op });
   };
 
   const pending = pendingSlots({ date, today: todayStr(), weekPlan, recipes, entries, meals: profile.meals });
@@ -484,7 +498,12 @@ export default function DiaryPage() {
               })(ev)
             }
             onRemove={(f) =>
-              changeFavorites("Quitado de Favoritos", () => (f.recipe ? toggleFavorite(f.recipe.id) : removeMealFavorite(f.fav!.id)))
+              changeFavorites(
+                "Quitado de Favoritos",
+                f.recipe
+                  ? { kind: "recipe-removed", id: f.recipe.id, index: favorites.indexOf(f.recipe.id) }
+                  : { kind: "meal-removed", fav: f.fav!, index: mealFavorites.findIndex((m) => m.id === f.fav!.id) },
+              )
             }
             // R4: corrige el favorito; lo ya registrado en el Diario no cambia
             onSaveCustom={saveMealFavorite}
@@ -514,17 +533,7 @@ export default function DiaryPage() {
             }
             // #55 R2: el favorito de receta registra 1 ración, así que una fila × 0,5 no lleva ☆
             canStar={(r) => (r.entry.recipeId ? (r.entry.servings ?? 1) === 1 : favoriteFromEntry(r.entry) !== null)}
-            onStar={(r) =>
-              changeFavorites("Guardado en Favoritos", () => {
-                const { recipeId } = r.entry;
-                if (recipeId) {
-                  if (!favorites.includes(recipeId)) toggleFavorite(recipeId);
-                  return;
-                }
-                const fav = favoriteFromEntry(r.entry);
-                if (fav) saveMealFavorite(fav);
-              })
-            }
+            onStar={(r) => changeFavorites("Guardado en Favoritos", starChange(r.entry, mealFavorites, favorites))}
           />
           <div className="flex gap-2 text-sm">
             {MODES.map(([m, label]) => (
@@ -674,7 +683,8 @@ export default function DiaryPage() {
       )}
 
       {showAdd && favNotice && (
-        // #55 R5/R11: sin temporizador; se va al cerrar «Añadir comida» o con otro aviso. Deshacer restaura las dos listas.
+        // #55 R5/R11: sin temporizador; se va al cerrar «Añadir comida» o con otro aviso. Deshacer invierte solo la operación
+        // en la lista que tocó, sobre lo que haya ahora (#168).
         <Toast
           key={favNotice.key}
           durationMs={null}
@@ -682,8 +692,9 @@ export default function DiaryPage() {
           action={{
             label: "Deshacer",
             onClick: () => {
-              setMealFavorites(favNotice.before.meal);
-              setFavorites(favNotice.before.recipes);
+              const { op } = favNotice;
+              if (op.kind === "meal-added" || op.kind === "meal-removed") setMealFavorites(undoMealFavorites(mealFavorites, op));
+              else setFavorites(undoRecipeFavorites(favorites, op));
               hideFavNotice();
             },
           }}

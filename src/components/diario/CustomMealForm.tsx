@@ -74,13 +74,9 @@ export function CustomMealForm({
       setNameError(true);
       return;
     }
+    // Sin reseteo aquí: tras un alta el Diario cierra «Añadir comida» y al reabrir lo vuelve a montar (key); si no
+    // registra (fecha borrada), lo escrito se conserva (#169)
     onSubmit({ name, ...macros, ...(fiber !== undefined && { fiber }) }, mode === "add" && saveAsFavorite);
-    if (mode === "add") {
-      setName("");
-      setMacros({ calories: 0, protein: 0, carbs: 0, fat: 0 });
-      setFiberText("");
-      setSaveAsFavorite(false);
-    }
   };
 
   // Montado pero sin DOM: el estado se conserva y no quedan campos ocultos con las mismas etiquetas que otro formulario

@@ -53,12 +53,24 @@ describe("R3: «Guardar en favoritos» al registrar una personalizada", () => {
     expect(onSubmit).toHaveBeenCalledWith({ name: "Tortilla francesa", calories: 190, protein: 13, carbs: 1, fat: 15 }, false);
   });
 
-  it("R3: tras un registro, la casilla vuelve a estar desmarcada", () => {
+  // #169: el formulario no se vacía solo (si el Diario no registra, lo escrito se conserva); tras un registro el Diario
+  // lo vuelve a montar con otra key al reabrir «Añadir comida», y entonces la casilla sale desmarcada
+  it("R3: tras un registro, al reabrir (otra key) la casilla vuelve a estar desmarcada", () => {
+    const { rerender } = render(<CustomMealForm key={1} mode="add" onSubmit={vi.fn()} />);
+    fill();
+    fireEvent.click(checkbox());
+    fireEvent.click(screen.getByRole("button", { name: "Añadir" }));
+    rerender(<CustomMealForm key={2} mode="add" onSubmit={vi.fn()} />);
+    expect(checkbox().checked).toBe(false);
+  });
+
+  it("#169: al enviar no vacía lo escrito (si el Diario no registra, se conserva)", () => {
     render(<CustomMealForm mode="add" onSubmit={vi.fn()} />);
     fill();
     fireEvent.click(checkbox());
     fireEvent.click(screen.getByRole("button", { name: "Añadir" }));
-    expect(checkbox().checked).toBe(false);
+    expect((screen.getByPlaceholderText("Nombre") as HTMLInputElement).value).toBe("Tortilla francesa");
+    expect(checkbox().checked).toBe(true);
   });
 
   it("R3: con el formulario no válido (sin nombre) no se envía nada", () => {

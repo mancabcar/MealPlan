@@ -57,7 +57,8 @@ interface AppState {
   removeMeasurement: (id: string) => void;
   /** Marca o desmarca una receta como favorita; al guardar descarta los ids de recetas que ya no existen. */
   toggleFavorite: (id: string) => void;
-  /** Sustituye la lista de recetas favoritas (Deshacer en Favoritos de «Añadir comida», docs/pm/55-mis-alimentos R5). */
+  /** Sustituye la lista de recetas favoritas (Deshacer en Favoritos de «Añadir comida», docs/pm/55-mis-alimentos R5); como
+   * toggleFavorite, descarta los ids de recetas que ya no existen (#168). */
   setFavorites: (ids: string[]) => void;
   /** Valora la receta de 1 a 5; repetir la nota actual la quita. */
   setRating: (id: string, n: number) => void;
@@ -66,7 +67,7 @@ interface AppState {
   /** Edición si ya hay uno con ese id; si no, una personalizada con el mismo nombre se actualiza (R2) y lo demás se añade. */
   saveMealFavorite: (fav: MealFavorite) => void;
   removeMealFavorite: (id: string) => void;
-  /** Sustituye la lista entera (Deshacer restaura la instantánea, R5/R11). */
+  /** Sustituye la lista entera (Deshacer, R5/R11: la lista de ahora con la operación invertida, #168). */
   setMealFavorites: (list: MealFavorite[]) => void;
   /** Sustituye los datos del usuario (ya validados con parseBackup). Lanza si falla la escritura (nada cambia). */
   importData: (data: UserData) => void;
@@ -248,7 +249,10 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
         if (!Number.isInteger(n) || n < 1 || n > 5) return kept;
         return kept[id] === n ? withoutRating(kept, id) : { ...kept, [id]: n };
       }),
-    setFavorites,
+    setFavorites: (ids) => {
+      const known = new Set(recipes.map((r) => r.id));
+      setFavorites(ids.filter((f) => known.has(f)));
+    },
     setWaterDay: (date, ml) => setWater((prev) => withWater(prev, date, ml)),
     saveMealFavorite: (fav) =>
       setMealFavorites((prev) => {

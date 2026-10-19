@@ -55,17 +55,18 @@ export function sanitizeMealFavorites(raw: unknown): MealFavorite[] {
 
 /**
  * R2: el favorito de una fila de Recientes. Personalizada: nombre, macros y fibra. Alimento: su alimento de origen,
- * su cantidad y los valores por 100 g sacados de la entrada. null para recetas (van en `favorites`) o sin gramos válidos.
+ * su cantidad y los valores por 100 g sacados de la entrada. null para recetas (van en `favorites`), sin gramos válidos
+ * o sin nombre (sanitizeMealFavorites lo descartaría al recargar, #170).
  */
 export function favoriteFromEntry(e: MealEntry, id: string = crypto.randomUUID()): MealFavorite | null {
   if (e.recipeId) return null;
   if (e.foodId) {
     const g = e.grams;
-    if (!isNum(g) || g <= 0) return null;
+    if (!isNum(g) || g <= 0 || !isText(e.customName)) return null;
     const per = (v: number) => (v * 100) / g;
     const per100: Per100 = { kcal: per(e.calories), protein: per(e.protein), carbs: per(e.carbs), fat: per(e.fat) };
     if (isNum(e.fiber)) per100.fiber = per(e.fiber);
-    const fav: MealFavorite = { id, kind: "food", foodId: e.foodId, name: e.customName ?? "", grams: g, per100 };
+    const fav: MealFavorite = { id, kind: "food", foodId: e.foodId, name: e.customName, grams: g, per100 };
     if (e.units !== undefined) fav.units = e.units;
     return fav;
   }
@@ -116,6 +117,45 @@ export function hiddenInRecents(items: MealFavorite[], recipeIds: string[]): (e:
     if (e.recipeId) return recipes.has(e.recipeId) && (e.servings ?? 1) === 1;
     return keys.has(entryIdentity(e));
   };
+}
+
+/** Un cambio en Favoritos, lo justo para deshacerlo (R5/R11): lo quitado con su posición, o lo añadido. */
+export type FavoriteOp =
+  | { kind: "meal-removed"; fav: MealFavorite; index: number }
+  | { kind: "meal-added"; fav: MealFavorite }
+  | { kind: "recipe-removed"; id: string; index: number }
+  | { kind: "recipe-added"; id: string };
+
+/**
+ * R2: lo que hace ☆ en una fila de Recientes. null si no cambia nada (ya es favorita, o una receta × 0,5 o una entrada
+ * que no puede serlo), y entonces no hay aviso (#171).
+ */
+export function starChange(e: MealEntry, items: MealFavorite[], recipeIds: string[], id: string = crypto.randomUUID()): FavoriteOp | null {
+  if (hiddenInRecents(items, recipeIds)(e)) return null;
+  if (e.recipeId) return (e.servings ?? 1) === 1 ? { kind: "recipe-added", id: e.recipeId } : null;
+  const fav = favoriteFromEntry(e, id);
+  return fav && { kind: "meal-added", fav };
+}
+
+// Lo quitado vuelve a su posición (o al final si la lista encogió), salvo que ya esté
+const reinsert = <T>(list: T[], item: T, index: number, present: boolean) =>
+  present ? list : [...list.slice(0, index), item, ...list.slice(index)];
+
+/**
+ * Deshacer (#168): invierte solo `op` sobre la lista de ahora, así que respeta lo editado o sincronizado después.
+ * Una op de recetas no toca esta lista.
+ */
+export function undoMealFavorites(list: MealFavorite[], op: FavoriteOp): MealFavorite[] {
+  if (op.kind === "meal-removed") return reinsert(list, op.fav, op.index, list.some((f) => f.id === op.fav.id));
+  if (op.kind === "meal-added") return list.filter((f) => f.id !== op.fav.id);
+  return list;
+}
+
+/** Deshacer (#168) en las recetas favoritas (#20); una op de mealFavorites no toca esta lista. */
+export function undoRecipeFavorites(ids: string[], op: FavoriteOp): string[] {
+  if (op.kind === "recipe-removed") return reinsert(ids, op.id, op.index, ids.includes(op.id));
+  if (op.kind === "recipe-added") return ids.filter((id) => id !== op.id);
+  return ids;
 }
 
 /**
