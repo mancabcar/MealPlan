@@ -240,6 +240,17 @@ test.describe("Escenario 4 · R7: aviso «Cantidad cambiada · Deshacer»", () =
     await expect(edited(page)).toHaveCount(0);
   });
 
+  // Review de la PR #173 (bloqueante 2): Deshacer no puede cambiar una entrada de un día que no se está viendo
+  test("R7: cambiar de día cierra el aviso y la entrada se queda con 100 g", async ({ page }) => {
+    await openDiario(page);
+    await editArroz(page, "100");
+    await expect(edited(page)).toBeVisible();
+    await dateInput(page).fill(YESTERDAY);
+    await expect(edited(page)).toHaveCount(0);
+    await dateInput(page).fill(TODAY);
+    await expect(meal(page, "Comida")).toContainText(`${ARROZ} 100 g`);
+  });
+
   test("R7: un aviso a la vez: copiar el día cierra «Cantidad cambiada»", async ({ page }) => {
     const ayer = DAY_ENTRIES.map((e) => ({ ...e, date: YESTERDAY }));
     await openDiario(page, ayer);

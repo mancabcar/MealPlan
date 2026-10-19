@@ -318,6 +318,8 @@ export default function DiaryPage() {
               setDate(e.target.value);
               setEditingId(null);
               setCopied(null);
+              // #57 R7: Deshacer no puede cambiar una entrada de un día que ya no se ve (review de la PR #173)
+              setEdited(null);
             }}
             className={inputCls}
           />
