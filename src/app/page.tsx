@@ -16,6 +16,7 @@ import {
   recentMeals,
   recipeEntry,
   repeatEntry,
+  undoEdit,
   servingsLabel,
 } from "@/lib/diary";
 import { macroStatus } from "@/lib/planMacros";
@@ -25,6 +26,7 @@ import { dayFiber, entryFiber, fiberGoal, formatFiber } from "@/lib/fiber";
 import {
   MEAL_TYPES,
   MealType,
+  type MealEntry,
   todayStr,
 } from "@/lib/types";
 import { MEAL_TYPE_ICON_COMPONENTS } from "@/lib/categoryIcons";
@@ -169,6 +171,9 @@ export default function DiaryPage() {
   // Editar la cantidad (docs/pm/57-editar-gramos-diario, R4): una sola fila en edición; lo no guardado se descarta al
   // cerrarla, al cambiar de día, al abrir «Añadir comida» o «Copiar día», o al borrar esa entrada.
   const [editingId, setEditingId] = useState<string | null>(null);
+  // R7: aviso «Cantidad cambiada · Deshacer» con la entrada de antes y la guardada; Deshacer solo restaura si sigue igual
+  const [edited, setEdited] = useState<{ key: string; before: MealEntry; after: MealEntry } | null>(null);
+  const hideEdited = useCallback(() => setEdited(null), []);
 
   if (!profile) return null;
 
@@ -201,6 +206,7 @@ export default function DiaryPage() {
     change();
     setAdded(null);
     setCopied(null);
+    setEdited(null);
     setFavNotice({ key: crypto.randomUUID(), text, before });
   };
 
@@ -266,6 +272,7 @@ export default function DiaryPage() {
     if (!saveAsFavorite) return;
     saveMealFavorite({ id: crypto.randomUUID(), kind: "custom", name, ...macros });
     setCopied(null);
+    setEdited(null);
     setAdded({ entryId: entry.id, text: `Añadido a ${mealType} · guardado en Favoritos` });
   };
 
@@ -279,13 +286,14 @@ export default function DiaryPage() {
     setAdded(null);
     setFavNotice(null);
     setDate(to);
+    setEdited(null);
     setCopied({ ids: copies.map((e) => e.id), text: copies.length === 1 ? "Copiada 1 entrada" : `Copiadas ${copies.length} entradas` });
   };
 
   return (
     // Mientras se ve el aviso (fixed, bottom-24), hueco al final para que «Añadir comida» pueda quedar por encima
     // y se pueda añadir otro alimento seguido (review de #13)
-    <div className={`flex flex-col gap-4 ${added || copied || (showAdd && favNotice) ? "pb-20" : ""}`}>
+    <div className={`flex flex-col gap-4 ${added || copied || edited || (showAdd && favNotice) ? "pb-20" : ""}`}>
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Diario</h1>
         <div className="flex items-center gap-2">
@@ -423,11 +431,17 @@ export default function DiaryPage() {
                   onSave={(next) => {
                     replaceEntry(next);
                     setEditingId(null);
+                    // Un aviso a la vez; el de un cambio anterior (también de esta entrada) se sustituye
+                    setAdded(null);
+                    setCopied(null);
+                    setFavNotice(null);
+                    setEdited({ key: crypto.randomUUID(), before: e, after: next });
                   }}
                   onCancel={() => setEditingId(null)}
                   onRemove={() => {
                     removeEntry(e.id);
                     if (editingId === e.id) setEditingId(null);
+                    if (edited?.after.id === e.id) setEdited(null);
                   }}
                 />
               ))}
@@ -537,6 +551,7 @@ export default function DiaryPage() {
                 addEntry(entry);
                 closeAdd();
                 setCopied(null);
+                setEdited(null);
                 setAdded({ entryId: entry.id, text: `Añadido a ${mealType} · ${quantityLabel(entry)}` });
               })(ev)
             }
@@ -635,6 +650,24 @@ export default function DiaryPage() {
           }}
         >
           {added.text}
+        </Toast>
+      )}
+
+      {edited && (
+        // #57 R7: 10 s, como «Añadido». undoEdit no restaura si la entrada cambió después (otra edición, sync).
+        <Toast
+          key={edited.key}
+          onDismiss={hideEdited}
+          action={{
+            label: "Deshacer",
+            onClick: () => {
+              const before = undoEdit(entries, edited);
+              if (before) replaceEntry(before);
+              hideEdited();
+            },
+          }}
+        >
+          Cantidad cambiada
         </Toast>
       )}
 

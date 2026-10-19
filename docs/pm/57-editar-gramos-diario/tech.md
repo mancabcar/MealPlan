@@ -118,8 +118,8 @@ Reglas de `entryQuantity`:
 4. [x] Extraer `DiaryEntryRow` de `page.tsx` sin cambiar la conducta (los e2e del Diario siguen en verde).
 5. [x] Editar alimentos: fila botón, `editingId`, editor, preview y resets (R1–R6).
 6. [x] Raciones de receta con `ServingsField` (R8).
-7. [ ] Aviso «Cantidad cambiada · Deshacer» con doble red y un aviso a la vez (R7).
-8. [ ] e2e `diario-editar-cantidad.spec.ts`.
+7. [x] Aviso «Cantidad cambiada · Deshacer» con doble red y un aviso a la vez (R7).
+8. [x] e2e `diario-editar-cantidad.spec.ts`.
 
 ## Test coverage
 Contratos de UI fijados en dev-test: fila `<button>` «Cambiar cantidad de <nombre>»; vista previa «<etiqueta de la fila> → N kcal» («100 g → 130 kcal», «3 ud · 180 g → 252 kcal», «× 0,5 → 300 kcal»); aviso «Cantidad cambiada» con «Deshacer»; props de `DiaryEntryRow` en la cabecera de su test. Datos: `tests/fixtures/editar-cantidad.ts`.
