@@ -146,7 +146,13 @@ const reinsert = <T>(list: T[], item: T, index: number, present: boolean) =>
  * Una op de recetas no toca esta lista.
  */
 export function undoMealFavorites(list: MealFavorite[], op: FavoriteOp): MealFavorite[] {
-  if (op.kind === "meal-removed") return reinsert(list, op.fav, op.index, list.some((f) => f.id === op.fav.id));
+  if (op.kind === "meal-removed") {
+    // Ya está si volvió con su id o, en una personalizada, con su nombre (R2: sin duplicados por nombre)
+    const { fav } = op;
+    const key = fav.kind === "custom" ? customNameKey(fav.name) : null;
+    const present = list.some((f) => f.id === fav.id || (key !== null && f.kind === "custom" && customNameKey(f.name) === key));
+    return reinsert(list, fav, op.index, present);
+  }
   if (op.kind === "meal-added") return list.filter((f) => f.id !== op.fav.id);
   return list;
 }

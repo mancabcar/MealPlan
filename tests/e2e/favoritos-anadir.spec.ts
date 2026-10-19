@@ -17,6 +17,7 @@ import {
   AVENA_FAV,
   FAV_RECIPES,
   POLLO_CURRY,
+  PORRIDGE,
   TORTILLA_FAV,
   TOSTADA_FAV,
   TWELVE_FAVS,
@@ -257,5 +258,19 @@ test.describe("Regresiones de Favoritos (#168, #169)", () => {
     await expect(page.getByPlaceholder("Nombre")).toHaveValue("Crema de calabacín");
     await expect(page.getByLabel("kcal", { exact: true })).toHaveValue("120");
     expect(await readStored<MealEntry[]>(page, "entries")).toEqual([]);
+  });
+});
+
+test.describe("Regresiones de Favoritos: recetas (#168)", () => {
+  test("#168: quitar una receta favorita y Deshacer la devuelve a su sitio, sin ids de recetas borradas", async ({ page }) => {
+    await openDiario(page, { favorites: ["t-receta-borrada", POLLO_CURRY.id, PORRIDGE.id] });
+    await openAddForm(page);
+
+    await page.getByRole("button", { name: "Quitar Pollo al curry de Favoritos" }).click();
+    await expect(favRow(page, "Pollo al curry")).toHaveCount(0);
+    await toast(page, "Quitado de Favoritos").getByRole("button", { name: "Deshacer" }).click();
+
+    await expect(favRow(page, "Pollo al curry")).toBeVisible();
+    expect(await readStored<string[]>(page, "favorites")).toEqual([POLLO_CURRY.id, PORRIDGE.id]);
   });
 });

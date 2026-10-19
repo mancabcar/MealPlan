@@ -9,7 +9,7 @@ import { CATALOG } from "./catalog";
 import { withoutRecipe } from "./recipeEdit";
 import { useSync } from "./syncContext";
 import { withWater } from "./water";
-import { upsertCustom, type MealFavorite } from "./mealFavorites";
+import { undoMealFavorites, undoRecipeFavorites, upsertCustom, type FavoriteOp, type MealFavorite } from "./mealFavorites";
 import { LOAD_OPTIONS, USER_DATA_KEYS, type LoadOptions, type UserData, type UserDataKey } from "./userData";
 
 interface AppState {
@@ -57,8 +57,7 @@ interface AppState {
   removeMeasurement: (id: string) => void;
   /** Marca o desmarca una receta como favorita; al guardar descarta los ids de recetas que ya no existen. */
   toggleFavorite: (id: string) => void;
-  /** Sustituye la lista de recetas favoritas (Deshacer en Favoritos de «Añadir comida», docs/pm/55-mis-alimentos R5); como
-   * toggleFavorite, descarta los ids de recetas que ya no existen (#168). */
+  /** Sustituye la lista de recetas favoritas; como toggleFavorite, descarta los ids de recetas que ya no existen (#168). */
   setFavorites: (ids: string[]) => void;
   /** Valora la receta de 1 a 5; repetir la nota actual la quita. */
   setRating: (id: string, n: number) => void;
@@ -67,8 +66,13 @@ interface AppState {
   /** Edición si ya hay uno con ese id; si no, una personalizada con el mismo nombre se actualiza (R2) y lo demás se añade. */
   saveMealFavorite: (fav: MealFavorite) => void;
   removeMealFavorite: (id: string) => void;
-  /** Sustituye la lista entera (Deshacer, R5/R11: la lista de ahora con la operación invertida, #168). */
+  /** Sustituye la lista entera. */
   setMealFavorites: (list: MealFavorite[]) => void;
+  /** Un cambio de Favoritos en «Añadir comida» (docs/pm/55-mis-alimentos R2/R5): añadir o quitar explícito, sobre el
+   * último valor escrito (#168). */
+  applyFavoriteOp: (op: FavoriteOp) => void;
+  /** Deshacer de ese cambio (R5/R11): invierte solo la operación sobre el último valor escrito (#168). */
+  undoFavoriteOp: (op: FavoriteOp) => void;
   /** Sustituye los datos del usuario (ya validados con parseBackup). Lanza si falla la escritura (nada cambia). */
   importData: (data: UserData) => void;
 }
@@ -193,6 +197,17 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
   });
   useEffect(() => subscribeRemote((key) => latestReloaders.current[key]()), [subscribeRemote]);
 
+  // Recetas favoritas sin las que ya no existen (#20 R4)
+  const knownFavorites = (ids: string[]) => {
+    const known = new Set(recipes.map((r) => r.id));
+    return ids.filter((f) => known.has(f));
+  };
+  const saveMealFavorite = (fav: MealFavorite) =>
+    setMealFavorites((prev) => {
+      if (prev.some((f) => f.id === fav.id)) return prev.map((f) => (f.id === fav.id ? fav : f));
+      return fav.kind === "custom" ? upsertCustom(prev, fav) : [...prev, fav];
+    });
+
   const value: AppState = {
     profile,
     recipes,
@@ -238,8 +253,7 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
     removeMeasurement: (id) => setMeasurements((prev) => prev.filter((m) => m.id !== id)),
     toggleFavorite: (id) =>
       setFavorites((prev) => {
-        const known = new Set(recipes.map((r) => r.id));
-        const kept = prev.filter((f) => known.has(f));
+        const kept = knownFavorites(prev);
         return kept.includes(id) ? kept.filter((f) => f !== id) : [...kept, id];
       }),
     setRating: (id, n) =>
@@ -249,16 +263,24 @@ export function AppProvider({ userId, children }: { userId: string; children: Re
         if (!Number.isInteger(n) || n < 1 || n > 5) return kept;
         return kept[id] === n ? withoutRating(kept, id) : { ...kept, [id]: n };
       }),
-    setFavorites: (ids) => {
-      const known = new Set(recipes.map((r) => r.id));
-      setFavorites(ids.filter((f) => known.has(f)));
+    // Favoritos de «Añadir comida» (#168): cada cambio y su Deshacer parten del último valor escrito, no del render, así
+    // que no pisan lo que haya llegado entretanto (edición, sync); las recetas, sin ids de recetas que ya no existen
+    applyFavoriteOp: (op) => {
+      if (op.kind === "meal-added") return saveMealFavorite(op.fav);
+      if (op.kind === "meal-removed") return setMealFavorites((prev) => prev.filter((f) => f.id !== op.fav.id));
+      setFavorites((prev) => {
+        const kept = knownFavorites(prev);
+        if (op.kind === "recipe-added") return kept.includes(op.id) ? kept : [...kept, op.id];
+        return kept.filter((f) => f !== op.id);
+      });
+    },
+    undoFavoriteOp: (op) => {
+      if (op.kind === "meal-added" || op.kind === "meal-removed") setMealFavorites((prev) => undoMealFavorites(prev, op));
+      else setFavorites((prev) => knownFavorites(undoRecipeFavorites(knownFavorites(prev), op)));
     },
     setWaterDay: (date, ml) => setWater((prev) => withWater(prev, date, ml)),
-    saveMealFavorite: (fav) =>
-      setMealFavorites((prev) => {
-        if (prev.some((f) => f.id === fav.id)) return prev.map((f) => (f.id === fav.id ? fav : f));
-        return fav.kind === "custom" ? upsertCustom(prev, fav) : [...prev, fav];
-      }),
+    setFavorites: (ids) => setFavorites(knownFavorites(ids)),
+    saveMealFavorite,
     removeMealFavorite: (id) => setMealFavorites((prev) => prev.filter((f) => f.id !== id)),
     setMealFavorites,
     importData,

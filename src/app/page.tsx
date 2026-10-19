@@ -23,12 +23,9 @@ import { macroStatus } from "@/lib/planMacros";
 import {
   customNameKey,
   favoriteEntry,
-  favoriteFromEntry,
   hiddenInRecents,
   rankFavorites,
   starChange,
-  undoMealFavorites,
-  undoRecipeFavorites,
   type FavoriteOp,
 } from "@/lib/mealFavorites";
 import { TOLERANCE_DEFAULT } from "@/lib/tolerance";
@@ -143,12 +140,10 @@ export default function DiaryPage() {
     removeEntry,
     replaceEntry,
     favorites,
-    setFavorites,
-    toggleFavorite,
     mealFavorites,
     saveMealFavorite,
-    removeMealFavorite,
-    setMealFavorites,
+    applyFavoriteOp,
+    undoFavoriteOp,
   } = useApp();
   const userId = useAuth().user?.id;
   // Medias y adherencia (docs/pm/11-medias-adherencia): 7 por defecto, la opción se recuerda por usuario (R11)
@@ -215,9 +210,7 @@ export default function DiaryPage() {
   // (op null) no hay aviso ni se cierran los otros (#171).
   const changeFavorites = (text: string, op: FavoriteOp | null) => {
     if (!op) return;
-    if (op.kind === "meal-added") saveMealFavorite(op.fav);
-    else if (op.kind === "meal-removed") removeMealFavorite(op.fav.id);
-    else toggleFavorite(op.id);
+    applyFavoriteOp(op);
     setAdded(null);
     setCopied(null);
     setEdited(null);
@@ -500,8 +493,9 @@ export default function DiaryPage() {
             onRemove={(f) =>
               changeFavorites(
                 "Quitado de Favoritos",
+                // La posición entre las recetas que existen: el store descarta las borradas al quitarla
                 f.recipe
-                  ? { kind: "recipe-removed", id: f.recipe.id, index: favorites.indexOf(f.recipe.id) }
+                  ? { kind: "recipe-removed", id: f.recipe.id, index: favorites.filter((id) => recipes.some((x) => x.id === id)).indexOf(f.recipe.id) }
                   : { kind: "meal-removed", fav: f.fav!, index: mealFavorites.findIndex((m) => m.id === f.fav!.id) },
               )
             }
@@ -532,7 +526,7 @@ export default function DiaryPage() {
               })(ev)
             }
             // #55 R2: el favorito de receta registra 1 ración, así que una fila × 0,5 no lleva ☆
-            canStar={(r) => (r.entry.recipeId ? (r.entry.servings ?? 1) === 1 : favoriteFromEntry(r.entry) !== null)}
+            canStar={(r) => starChange(r.entry, mealFavorites, favorites) !== null}
             onStar={(r) => changeFavorites("Guardado en Favoritos", starChange(r.entry, mealFavorites, favorites))}
           />
           <div className="flex gap-2 text-sm">
@@ -692,9 +686,7 @@ export default function DiaryPage() {
           action={{
             label: "Deshacer",
             onClick: () => {
-              const { op } = favNotice;
-              if (op.kind === "meal-added" || op.kind === "meal-removed") setMealFavorites(undoMealFavorites(mealFavorites, op));
-              else setFavorites(undoRecipeFavorites(favorites, op));
+              undoFavoriteOp(favNotice.op);
               hideFavNotice();
             },
           }}

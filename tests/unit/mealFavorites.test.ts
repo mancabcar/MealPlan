@@ -375,3 +375,10 @@ describe("#168: Deshacer invierte solo la operación, no restaura una instantán
     expect(undoRecipeFavorites(["a"], { kind: "meal-added", fav: AVENA_FAV })).toEqual(["a"]);
   });
 });
+
+describe("#168: Deshacer no duplica una personalizada por nombre", () => {
+  it("si volvió con otro id (otro dispositivo), lo quitado no se reinserta", () => {
+    const back = { ...TORTILLA_FAV, id: "otro", name: "tortilla  Francesa" };
+    expect(undoMealFavorites([back], { kind: "meal-removed", fav: TORTILLA_FAV, index: 0 })).toEqual([back]);
+  });
+});
