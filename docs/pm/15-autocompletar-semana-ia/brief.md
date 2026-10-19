@@ -1,6 +1,6 @@
 # Rellenar la semana según mis objetivos de macros
 
-_Status: brainstorm · Updated: 2026-10-19 · Issue: [#15](https://github.com/mancabcar/MealPlan/issues/15)_
+_Status: prototype · Updated: 2026-10-19 · Issue: [#15](https://github.com/mancabcar/MealPlan/issues/15)_
 
 ## Follow-ups
 - **D. Híbrido IA + solver:** Claude elige qué recetas tienen sentido juntas y aporta variedad; el solver cuadra raciones y valida. Candidato si el spike muestra días que cuadran pero no apetecen. (brainstorm)
@@ -65,10 +65,11 @@ Puntuaciones propuestas por Claude; el usuario no pidió cambios.
 
 Primera versión:
 - «Rellenar semana» en el Plan rellena las franjas vacías de las comidas activas de la semana, eligiendo recetas por la etiqueta de cada comida.
-- **Ajusta raciones** (0,25–4, como [#29](../29-raciones-plan/brief.md)) para cuadrar cada día: sin ellas, con 1 ración por receta, casi ningún día caería en rango.
+- **Ajusta raciones** (0,25–4, como [#29](../29-raciones-plan/brief.md)) para afinar cada día. El spike mostró que con este recetario no hacen falta para cuadrar (todo a 1 ración también da 7/7); se mantienen para acercar HC y grasa y para perfiles con otras kcal (decisión del usuario tras el spike).
 - **Días a medias:** cuenta lo ya asignado en el día y rellena el resto para cerrar lo que falta.
 - **Preferencia nutricionista: prioriza, no obliga.** Elige antes recetas «plan nutricionista» y favoritas; recurre al resto si no cuadra o para variar.
-- **Variedad:** penaliza repetir una receta dentro de la semana, sin límite fijo configurable.
+- **Variedad:** penaliza repetir una receta dentro de la semana, sin límite fijo configurable. Lo ya asignado a mano cuenta para la variedad.
+- **Coherencia (tras el spike):** reglas en el solver para que el día tenga sentido en el plato, al menos no repetir el ingrediente base en el mismo día (p. ej. tres platos de garbanzo) y que Pre-entreno prefiera recetas «pre-gym». El detalle de las reglas se define en el spec.
 - Alergias y dieta excluidas de forma estricta; si un día no se puede cuadrar, se avisa.
 - Se puede deshacer.
 
@@ -77,10 +78,18 @@ Por qué: cumple «coste bajo» (sin IA), garantiza los macros sin depender de l
 ## What to prototype
 **Spike del solver, no canvas de diseño** (decidido en la gate: el spike sustituye a pm-prototype). La UI es conocida (como «Copiar semana anterior»); el riesgo está en el contenido. Un script que genere 3–4 semanas con el recetario real y el perfil vigente (2000 kcal, 230 HC, 130–160 P, 69 G; 5 tomas), con y sin días a medias, para que el usuario juzgue: ¿comería esa semana? ¿Se parece a la nutricionista? ¿Cuántos días no cuadran?
 
+**Resultado (2026-10-19)** — [spike.md](spike.md), generado por `scripts/spike-solver.mjs` (búsqueda aleatoria de 400 combinaciones por día + ajuste de raciones 0,5–2; perfil sin alergias ni «no me gusta», omnívoro):
+- 4 semanas (3 desde cero, 1 con días a medias): **28/28 días cumplen** kcal ±10 % y proteína 130–160. ~49 % de recetas «plan nutricionista», ninguna repetida en la semana, 7–10 franjas con raciones ≠ 1 por semana. Menos de 2 s en total.
+- Control con todo a 1 ración: también 7/7 en las tres semanas desde cero.
+- Fallos: coherencia del día (Mié de la semana 3: garbanzos crujientes + puchero de garbanzos + hummus) y Pre-entreno con snacks que no son pre-gym (hummus, mousse de cacao). HC y grasa quedan a menudo algo por debajo (solo informativo).
+- Veredicto del usuario: **se lo comería, con reglas de coherencia**; B se mantiene, sin pasar a D. La fidelidad (~49 % ★) le parece bien.
+
 ## Open questions
 - ¿Se muestra una previsualización antes de aplicar, o se aplica directamente con Deshacer?
 - Alcance de Deshacer: ¿todo el relleno de una vez?
 - «No me gusta»: ¿excluye o solo penaliza? (En la IA de recetas es preferencia, no regla.)
 - ¿Rellena solo la semana visible, o también deja elegir días concretos?
 - Recetas sin etiqueta de comida (p. ej. propias o importadas): ¿se usan, y en qué franja?
-- Franja «Pre-entreno» con solo 3 recetas pre-gym: ¿se completa con snacks?
+- Franja «Pre-entreno» con solo 3 recetas pre-gym: ¿se completa con snacks, y con cuáles? (el spike mostró snacks poco adecuados)
+- Reglas de coherencia: ¿qué cuenta como «ingrediente base» (legumbre, pescado, carne…) y de dónde sale (tags, ingredientes)?
+- Límites de raciones en el relleno: el spike usó 0,5–2; ¿se permite todo 0,25–4?
