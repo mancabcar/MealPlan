@@ -9,7 +9,7 @@ import type { MealEntry } from "@/lib/types";
 import { Chip } from "@/components/ui/Chip";
 import { ServingsField } from "@/components/ui/ServingsField";
 import { singleClick } from "@/components/ui/singleClick";
-import { FoodQuantityForm } from "./FoodQuantityForm";
+import { EditorActions, FoodQuantityForm } from "./FoodQuantityForm";
 
 export function DiaryEntryRow({
   entry,
@@ -71,10 +71,10 @@ export function DiaryEntryRow({
     <div className="py-1 text-sm">
       <div className="flex justify-between items-center gap-2">
         {quantity ? (
-          // Toda la fila abre el editor; la ✕ va fuera, nunca anidada (como MealRow)
+          // Toda la fila abre el editor, y con él abierto lo cierra sin guardar (#175); la ✕ va fuera, nunca anidada (como MealRow)
           <button
             type="button"
-            onClick={singleClick(onEdit)}
+            onClick={singleClick(editing ? onCancel : onEdit)}
             aria-label={`Cambiar cantidad de ${name}`}
             aria-describedby={`${summaryId}-info ${summaryId}-kcal`}
             aria-expanded={editing}
@@ -103,7 +103,9 @@ export function DiaryEntryRow({
               quantity={quantity.kind === "units" ? { grams: quantity.grams, units: quantity.units } : { grams: quantity.grams }}
               preview={(q) => `${quantityLabel(q)} → ${kcal(q)}`}
               onSave={(q) => {
-                const same = q.grams === quantity.grams && q.units === (quantity.kind === "units" ? quantity.units : undefined);
+                // En gramos el editor abre redondeado (#174): guardar ese mismo valor no cambia nada
+                const same =
+                  quantity.kind === "units" ? q.units === quantity.units : q.units === undefined && q.grams === Math.round(quantity.grams);
                 if (same) onCancel();
                 else onSave(rescaleEntry(entry, q));
               }}
@@ -116,7 +118,10 @@ export function DiaryEntryRow({
   );
 }
 
-/** Raciones de una receta (R8): ServingsField con «Guardar cambios» y «Cancelar»; el error sale al guardar, como al registrar. */
+/**
+ * Raciones de una receta (R8): ServingsField con «Guardar cambios» y «Cancelar». Como el editor de gramos, el error sale
+ * al escribir y un valor no válido desactiva «Guardar cambios» (#176).
+ */
 function ServingsEditor({
   servings,
   preview,
@@ -130,7 +135,6 @@ function ServingsEditor({
 }) {
   const id = useId();
   const [text, setText] = useState(formatServings(servings));
-  const [error, setError] = useState(false);
   const parsed = parseServings(text);
 
   return (
@@ -138,29 +142,11 @@ function ServingsEditor({
       <ServingsField
         id={id}
         value={text}
-        onChange={(t) => {
-          setText(t);
-          setError(false);
-        }}
-        error={error}
+        onChange={setText}
+        error={parsed === null}
         preview={parsed !== null && <span className="shrink-0 text-[var(--color-text-muted)]">{preview(parsed)}</span>}
       />
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => (parsed === null ? setError(true) : onSave(parsed))}
-          className="flex-1 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg py-2 font-semibold text-sm"
-        >
-          Guardar cambios
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="flex-1 rounded-lg py-2 border border-[var(--color-border)] text-sm text-[var(--color-text-muted)]"
-        >
-          Cancelar
-        </button>
-      </div>
+      <EditorActions disabled={parsed === null} onSave={() => parsed !== null && onSave(parsed)} onCancel={onCancel} />
     </div>
   );
 }

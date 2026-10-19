@@ -21,7 +21,8 @@ export function FoodQuantityForm({
 }) {
   const id = useId();
   const inUnits = quantity.units !== undefined;
-  const [text, setText] = useState(inUnits ? formatServings(quantity.units!) : String(quantity.grams));
+  // En gramos, redondeado como la etiqueta de la fila: una entrada antigua de 112,5 g abre con «113», no en error (#174)
+  const [text, setText] = useState(inUnits ? formatServings(quantity.units!) : String(Math.round(quantity.grams)));
   // En unidades, el peso de 1 ud es el que se guardó (gramos / unidades)
   const units = inUnits ? parseUnits(text) : null;
   const grams = inUnits ? (units === null ? null : units * (quantity.grams / quantity.units!)) : parseGrams(text);
@@ -53,23 +54,30 @@ export function FoodQuantityForm({
           {inUnits ? UNITS_ERROR : GRAMS_ERROR}
         </span>
       )}
-      <div className="flex gap-2">
-        <button
-          type="button"
-          disabled={invalid}
-          onClick={() => grams !== null && onSave(units === null ? { grams } : { grams, units })}
-          className="flex-1 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg py-2 font-semibold text-sm disabled:opacity-40"
-        >
-          Guardar cambios
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="flex-1 rounded-lg py-2 border border-[var(--color-border)] text-sm text-[var(--color-text-muted)]"
-        >
-          Cancelar
-        </button>
-      </div>
+      <EditorActions disabled={invalid} onSave={() => grams !== null && onSave(units === null ? { grams } : { grams, units })} onCancel={onCancel} />
+    </div>
+  );
+}
+
+/** «Guardar cambios» (desactivado con un valor no válido) y «Cancelar»: los mismos en todos los editores de cantidad (#176). */
+export function EditorActions({ disabled, onSave, onCancel }: { disabled: boolean; onSave: () => void; onCancel: () => void }) {
+  return (
+    <div className="flex gap-2">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={onSave}
+        className="flex-1 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg py-2 font-semibold text-sm disabled:opacity-40"
+      >
+        Guardar cambios
+      </button>
+      <button
+        type="button"
+        onClick={onCancel}
+        className="flex-1 rounded-lg py-2 border border-[var(--color-border)] text-sm text-[var(--color-text-muted)]"
+      >
+        Cancelar
+      </button>
     </div>
   );
 }
