@@ -89,7 +89,7 @@ export function FavoriteMeals({
                   />
                 ) : (
                   <FoodQuantityForm
-                    favorite={fav}
+                    quantity={{ grams: fav.grams, units: fav.units }}
                     onSave={(quantity) => {
                       onSaveQuantity(fav, quantity);
                       close();

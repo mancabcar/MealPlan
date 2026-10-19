@@ -1,26 +1,30 @@
-// Cantidad de un alimento favorito (docs/pm/55-mis-alimentos, R12): gramos o, si se guardó en unidades, unidades. Misma
-// validación y errores que la tarjeta de FoodPicker; con un valor no válido no deja guardar.
-import { useId, useState } from "react";
+// Cantidad de un alimento: la de un favorito (docs/pm/55-mis-alimentos, R12) o la de una entrada del Diario
+// (docs/pm/57-editar-gramos-diario, R2). Gramos o, si se guardó en unidades, unidades. Misma validación y errores que la
+// tarjeta de FoodPicker; con un valor no válido no deja guardar.
+import { useId, useState, type ReactNode } from "react";
 import { formatServings } from "@/lib/diary";
 import { GRAMS_ERROR, UNITS_ERROR, parseGrams, parseUnits } from "@/lib/foods";
-import type { FoodFavorite } from "@/lib/mealFavorites";
 import { inputCls } from "@/components/ui/input";
 
 export function FoodQuantityForm({
-  favorite,
+  quantity,
   onSave,
   onCancel,
+  preview,
 }: {
-  favorite: FoodFavorite;
+  /** La cantidad guardada; con units, se edita en unidades. */
+  quantity: { grams: number; units?: number };
   onSave: (quantity: { grams: number; units?: number }) => void;
   onCancel: () => void;
+  /** Vista previa junto al campo con la cantidad tecleada (#57, R6); solo con un valor válido. */
+  preview?: (quantity: { grams: number; units?: number }) => ReactNode;
 }) {
   const id = useId();
-  const inUnits = favorite.units !== undefined;
-  const [text, setText] = useState(inUnits ? formatServings(favorite.units!) : String(favorite.grams));
+  const inUnits = quantity.units !== undefined;
+  const [text, setText] = useState(inUnits ? formatServings(quantity.units!) : String(quantity.grams));
   // En unidades, el peso de 1 ud es el que se guardó (gramos / unidades)
   const units = inUnits ? parseUnits(text) : null;
-  const grams = inUnits ? (units === null ? null : units * (favorite.grams / favorite.units!)) : parseGrams(text);
+  const grams = inUnits ? (units === null ? null : units * (quantity.grams / quantity.units!)) : parseGrams(text);
   const invalid = grams === null;
   const errorId = `${id}-error`;
 
@@ -40,6 +44,9 @@ export function FoodQuantityForm({
           className={`${inputCls} ${invalid ? "border-[var(--color-expired)]" : ""}`}
         />
         <span className="shrink-0 text-[var(--color-text-muted)]">{inUnits ? "ud" : "g"}</span>
+        {preview && grams !== null && (
+          <span className="shrink-0 text-[var(--color-text-muted)]">{preview(units === null ? { grams } : { grams, units })}</span>
+        )}
       </div>
       {invalid && (
         <span id={errorId} role="alert" className="text-xs text-[var(--color-expired)]">
