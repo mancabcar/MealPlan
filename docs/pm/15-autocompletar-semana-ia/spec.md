@@ -93,7 +93,7 @@ Usuario único de la app, que sigue el plan de una nutricionista con 5 tomas al 
 
 **R7**
 - Given una semana rellenada, then ninguna receta aparece en dos franjas rellenadas de esa semana, ni en una rellenada si ya estaba asignada a mano esa semana.
-- Qué pasa si no hay recetas suficientes para no repetir: _ver Open questions_.
+- Given que no hay recetas suficientes en una franja para no repetir (p. ej. dieta vegana), then se repite antes que dejar la franja vacía.
 
 **R8**
 - Given un día rellenado, then no contiene dos recetas cuyo nombre incluya el mismo ingrediente base de la lista cerrada (cada legumbre, cada pescado, cada carne, arroz, pasta). Ejemplo: no «Garbanzos crujientes» + «Puchero de garbanzos»; sí «Tostadas con salmón ahumado» + «Merluza con patata».
@@ -116,8 +116,8 @@ Usuario único de la app, que sigue el plan de una nutricionista con 5 tomas al 
 - Semana sin franjas vacías de hoy en adelante → botón desactivado (R1).
 - Hoy es domingo en la semana actual → solo se rellena el domingo.
 - Día con todas sus comidas asignadas → no cambia, aunque no cumpla.
-- Franja con una receta que ya no existe (borrada) → cuenta como asignada o como vacía: _ver Open questions_.
-- Perfil con alergias o dieta que deja una franja sin ninguna receta posible: _ver Open questions_.
+- Franja con una receta que ya no existe (borrada) → cuenta como ocupada y no se toca (el resumen de macros ya la ignora).
+- Perfil con alergias, dieta o «no me gusta» que deja una franja sin ninguna receta posible → la franja queda vacía y el día cuenta como no cumplido en el aviso (R15).
 - Comida «Merienda» activa → usa recetas «snack», como Media mañana.
 - Sincronización entre dispositivos: el relleno es un cambio normal del plan.
 
@@ -136,6 +136,6 @@ Usuario único de la app, que sigue el plan de una nutricionista con 5 tomas al 
 
 ## Open questions
 - [ ] Contenido exacto de la lista cerrada de ingredientes base (R8): engineering propone en la tech design y el usuario la confirma.
-- [ ] Si no hay recetas suficientes para no repetir (R7), ¿se repite o se deja la franja vacía? El criterio de R7 propone repetir; confirmar. (usuario)
-- [ ] Franja sin ninguna receta posible (alergias, dieta, «no me gusta»): ¿queda vacía y el día cuenta como no cumplido en el aviso? (usuario)
-- [ ] Franja con una receta borrada del recetario: ¿cuenta como ocupada (no se toca) o como vacía (se rellena)? (usuario)
+- [x] Sin recetas suficientes para no repetir (R7): se repite antes que dejar vacía. (usuario, 2026-10-19)
+- [x] Franja sin ninguna receta posible: queda vacía y el día cuenta como no cumplido. (usuario, 2026-10-19)
+- [x] Franja con una receta borrada: cuenta como ocupada. (usuario, 2026-10-19)
