@@ -1,5 +1,5 @@
 # Recetas por cocina
-_Status: prototype · Updated: 2026-09-22_
+_Status: parked · Updated: 2026-10-19_
 
 ## Problema
 El recetario actual (40 recetas en `src/data/recipes.json`) no tiene ninguna dimensión de cocina/categoría: `tags` solo cubre tipo de comida (desayuno/comida/cena), macros y dieta. Al buscar variedad internacional, la cobertura real es mínima: 3 recetas "asiático", 1 "mexicano" + 1 "tex-mex", 0 explícitamente españolas/sevillanas, 0 indias.

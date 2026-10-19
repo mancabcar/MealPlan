@@ -1,6 +1,9 @@
 # Favoritos en «Añadir comida»: personalizadas que se guardan y se corrigen
 
-_Status: merged (2026-10-11) · Updated: 2026-10-11 · Issue: [#55](https://github.com/mancabcar/MealPlan/issues/55) (relacionado: [#58](https://github.com/mancabcar/MealPlan/issues/58)) · Prototype: [canvas](https://claude.ai/artifact/4YYejg1TynbXR8TESnokGX) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#167](https://github.com/mancabcar/MealPlan/pull/167)_
+_Status: shipped (2026-10-11) · Updated: 2026-10-19 · Issue: [#55](https://github.com/mancabcar/MealPlan/issues/55) (relacionado: [#58](https://github.com/mancabcar/MealPlan/issues/58)) · Prototype: [canvas](https://claude.ai/artifact/4YYejg1TynbXR8TESnokGX) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#167](https://github.com/mancabcar/MealPlan/pull/167) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
+
+## Qué vigilar
+Métrica del [spec](spec.md): el 2026-10-25, a las dos semanas de uso, comprobar si se ha vuelto a teclear alguna personalizada que ya estaba en Favoritos (objetivo: 0) y si Favoritos tiene contenido. Si sigue vacío porque no se marca la ☆, toca el plan B del brief: autocompletar desde el historial (primer follow-up).
 
 ## Follow-ups
 - Autocompletar desde el historial: al escribir en Personalizada o en el buscador, ofrecer las personalizadas ya registradas (dirección E). Tapa el hueco si no se marca la ⭐. (brainstorm)
@@ -12,6 +15,7 @@ _Status: merged (2026-10-11) · Updated: 2026-10-11 · Issue: [#55](https://gith
 - Cerrar [#58](https://github.com/mancabcar/MealPlan/issues/58) cuando esto se entregue: queda absorbido aquí. (brainstorm)
 - «Añádelo a mano» (Alimento → Personalizada) vuelve a montar el formulario con el nombre escrito: se pierden los macros tecleados antes en Personalizada. Caso raro; antes se conservaban. (dev-code)
 - Aviso de lint `V6_ESTOFADO` sin usar en `tests/unit/recipe-filters.test.ts` (llegó con #111). (dev-code)
+- Review a posteriori: Deshacer de Favoritos pisa ediciones posteriores y la sincronización → [#168](https://github.com/mancabcar/MealPlan/issues/168); Personalizada pierde lo escrito sin fecha → [#169](https://github.com/mancabcar/MealPlan/issues/169); identidad de los favoritos de alimento → [#170](https://github.com/mancabcar/MealPlan/issues/170); aviso «Guardado» sin cambio → [#171](https://github.com/mancabcar/MealPlan/issues/171). (dev-review)
 
 ## Problem
 Tú, el único usuario de la app, registras comidas personalizadas a diario (pestaña Personalizada de «Añadir comida»: nombre, kcal, macros y fibra opcional). Necesitas tener a mano las habituales para registrarlas sin volver a escribirlas. Hoy esas comidas solo existen como entradas del Diario: Recientes las deduce del historial (`recentMeals` en `src/lib/diary.ts`), pero solo enseña 5. Cuando una se cae de ahí, la vuelves a teclear. Además, si te equivocaste en un macro o en el nombre, no hay ningún «molde» que corregir, así que el error se repite, y las variantes casi iguales se acumulan sin forma de limpiarlas.
