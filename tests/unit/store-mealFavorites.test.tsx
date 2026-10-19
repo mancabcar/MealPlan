@@ -80,3 +80,18 @@ describe("mealFavorites en el store", () => {
     expect(stored("b")).toBeNull();
   });
 });
+
+describe("#168: applyFavoriteOp / undoFavoriteOp en mealFavorites", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("deshacer un quitado parte del último valor escrito: no pisa una edición del mismo evento", () => {
+    const ref = mount();
+    act(() => ref.app!.setMealFavorites([TORTILLA_FAV, TOSTADA_FAV]));
+    act(() => ref.app!.applyFavoriteOp({ kind: "meal-removed", fav: TORTILLA_FAV, index: 0 }));
+    act(() => {
+      ref.app!.saveMealFavorite({ ...TOSTADA_FAV, fat: 9 });
+      ref.app!.undoFavoriteOp({ kind: "meal-removed", fav: TORTILLA_FAV, index: 0 });
+    });
+    expect(stored()).toEqual([TORTILLA_FAV, { ...TOSTADA_FAV, fat: 9 }]);
+  });
+});

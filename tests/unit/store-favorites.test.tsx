@@ -109,3 +109,44 @@ describe("R4: importData recarga los favoritos", () => {
     expect(ref.app!.favorites).toEqual([]);
   });
 });
+
+describe("#168: setFavorites (Deshacer de Favoritos) descarta recetas que ya no existen", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("como toggleFavorite, no guarda ids huérfanos", () => {
+    const ref = mount();
+    act(() => ref.app!.setFavorites(["receta-borrada", A, B]));
+    expect(ref.app!.favorites).toEqual([A, B]);
+    expect(stored("u")).toEqual([A, B]);
+  });
+});
+
+describe("#168: applyFavoriteOp / undoFavoriteOp en las recetas favoritas", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("añadir es explícito: una receta que ya es favorita no se quita (no es un toggle)", () => {
+    localStorage.setItem("mp_u_favorites", JSON.stringify([A]));
+    const ref = mount();
+    act(() => ref.app!.applyFavoriteOp({ kind: "recipe-added", id: A }));
+    expect(stored("u")).toEqual([A]);
+  });
+
+  it("quitar y deshacer devuelve la receta a su sitio, sin los ids huérfanos", () => {
+    localStorage.setItem("mp_u_favorites", JSON.stringify(["receta-borrada", A, B]));
+    const ref = mount();
+    act(() => ref.app!.applyFavoriteOp({ kind: "recipe-removed", id: A, index: 0 }));
+    expect(stored("u")).toEqual([B]);
+    act(() => ref.app!.undoFavoriteOp({ kind: "recipe-removed", id: A, index: 0 }));
+    expect(stored("u")).toEqual([A, B]);
+  });
+
+  it("deshacer parte del último valor escrito: respeta un cambio hecho en el mismo evento", () => {
+    const ref = mount();
+    act(() => ref.app!.applyFavoriteOp({ kind: "recipe-added", id: A }));
+    act(() => {
+      ref.app!.toggleFavorite(B);
+      ref.app!.undoFavoriteOp({ kind: "recipe-added", id: A });
+    });
+    expect(stored("u")).toEqual([B]);
+  });
+});
