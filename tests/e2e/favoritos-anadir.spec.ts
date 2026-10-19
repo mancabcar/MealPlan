@@ -225,3 +225,37 @@ test.describe("State & edge cases: cambiar de franja", () => {
     await expect(page.getByRole("button", { name: "Listo" })).toBeVisible();
   });
 });
+
+// Regresiones de la review a posteriori de #55 (issues #168 y #169)
+test.describe("Regresiones de Favoritos (#168, #169)", () => {
+  test("#168: Deshacer devuelve lo quitado sin revertir una edición posterior de otro favorito", async ({ page }) => {
+    await openDiario(page, { mealFavorites: [TORTILLA_FAV, TOSTADA_FAV, AVENA_FAV] });
+    await openAddForm(page);
+
+    await page.getByRole("button", { name: "Quitar Tortilla francesa de Favoritos" }).click();
+    await expect(toast(page, "Quitado de Favoritos")).toBeVisible();
+
+    await page.getByRole("button", { name: "Editar", exact: true }).click();
+    await page.getByRole("button", { name: "Editar Tostada con aceite" }).click();
+    await page.getByLabel("grasa").fill("9");
+    await page.getByRole("button", { name: "Guardar cambios" }).click();
+    await page.getByRole("button", { name: "Listo" }).click();
+
+    await toast(page, "Quitado de Favoritos").getByRole("button", { name: "Deshacer" }).click();
+    expect(await readStored<MealFavorite[]>(page, "mealFavorites")).toEqual([TORTILLA_FAV, { ...TOSTADA_FAV, fat: 9 }, AVENA_FAV]);
+  });
+
+  test("#169: con la fecha borrada, Añadir en Personalizada no registra y conserva lo escrito", async ({ page }) => {
+    await openDiario(page);
+    await page.getByLabel("Fecha", { exact: true }).fill("");
+    await openAddForm(page);
+    await page.getByRole("button", { name: "Personalizada", exact: true }).click();
+    await page.getByPlaceholder("Nombre").fill("Crema de calabacín");
+    await page.getByLabel("kcal", { exact: true }).fill("120");
+    await page.getByRole("button", { name: "Añadir", exact: true }).click();
+
+    await expect(page.getByPlaceholder("Nombre")).toHaveValue("Crema de calabacín");
+    await expect(page.getByLabel("kcal", { exact: true })).toHaveValue("120");
+    expect(await readStored<MealEntry[]>(page, "entries")).toEqual([]);
+  });
+});

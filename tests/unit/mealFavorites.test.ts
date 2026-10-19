@@ -15,7 +15,11 @@ import {
   hiddenInRecents,
   rankFavorites,
   sanitizeMealFavorites,
+  starChange,
+  undoMealFavorites,
+  undoRecipeFavorites,
   upsertCustom,
+  type FavoriteOp,
   type MealFavorite,
 } from "@/lib/mealFavorites";
 import { foodEntry, recentMeals } from "@/lib/diary";
@@ -306,5 +310,68 @@ describe("R8: Favoritos por frecuencia en la franja elegida", () => {
     expect(byName["Tortilla francesa"]).toMatchObject({ calories: 190, label: null, fav: TORTILLA_FAV });
     expect(byName["Pollo al curry"]).toMatchObject({ calories: 520, label: null, recipe: POLLO_CURRY });
     expect(new Set(rows.map((r) => r.key)).size).toBe(rows.length);
+  });
+});
+
+// Regresiones de la review a posteriori de #55 (issues #168, #170 y #171)
+describe("#170: favoriteFromEntry de un alimento sin nombre", () => {
+  it("devuelve null (no se ofrece ☆): un favorito sin nombre se perdería al recargar", () => {
+    const e = foodEntryOf(YESTERDAY, "Desayuno", AVENA, 40);
+    delete e.customName;
+    expect(favoriteFromEntry(e, "nuevo")).toBeNull();
+    expect(favoriteFromEntry({ ...e, customName: "  " }, "nuevo")).toBeNull();
+  });
+});
+
+describe("#171: starChange (☆ en Recientes) solo cambia algo si la fila no es favorita", () => {
+  it("una personalizada nueva se añade", () => {
+    expect(starChange(customEntry(YESTERDAY, "Cena"), [], [], "nuevo")).toEqual({ kind: "meal-added", fav: { ...TORTILLA_FAV, id: "nuevo" } });
+  });
+
+  it("una receta nueva se añade a `favorites`", () => {
+    expect(starChange(recipeEntryOf(YESTERDAY, "Comida", POLLO_CURRY), [], [])).toEqual({ kind: "recipe-added", id: POLLO_CURRY.id });
+  });
+
+  it("lo que ya es favorito no cambia nada: null, y así no hay aviso", () => {
+    expect(starChange(recipeEntryOf(YESTERDAY, "Comida", POLLO_CURRY), [], [POLLO_CURRY.id])).toBeNull();
+    expect(starChange(customEntry(YESTERDAY, "Cena", { customName: "tortilla  Francesa" }), [TORTILLA_FAV], [])).toBeNull();
+    expect(starChange(foodEntryOf(YESTERDAY, "Desayuno", AVENA, 40), [AVENA_FAV], [])).toBeNull();
+  });
+
+  it("lo que no puede ser favorito tampoco (receta × 0,5)", () => {
+    expect(starChange(recipeEntryOf(YESTERDAY, "Comida", POLLO_CURRY, 0.5), [], [])).toBeNull();
+  });
+});
+
+describe("#168: Deshacer invierte solo la operación, no restaura una instantánea", () => {
+  const edited = { ...TOSTADA_FAV, fat: 9 };
+
+  it("lo quitado vuelve a su posición y respeta lo editado después", () => {
+    const op: FavoriteOp = { kind: "meal-removed", fav: TORTILLA_FAV, index: 0 };
+    expect(undoMealFavorites([edited, AVENA_FAV], op)).toEqual([TORTILLA_FAV, edited, AVENA_FAV]);
+  });
+
+  it("si la lista encogió, lo quitado va al final", () => {
+    expect(undoMealFavorites([AVENA_FAV], { kind: "meal-removed", fav: TOSTADA_FAV, index: 2 })).toEqual([AVENA_FAV, TOSTADA_FAV]);
+  });
+
+  it("si lo quitado ya volvió (sync), no se duplica", () => {
+    const list = [TORTILLA_FAV, AVENA_FAV];
+    expect(undoMealFavorites(list, { kind: "meal-removed", fav: TORTILLA_FAV, index: 1 })).toEqual(list);
+  });
+
+  it("lo añadido se quita y lo demás queda como esté", () => {
+    expect(undoMealFavorites([edited, TORTILLA_FAV], { kind: "meal-added", fav: TORTILLA_FAV })).toEqual([edited]);
+  });
+
+  it("recetas: la quitada vuelve a su posición; la añadida se quita; sin duplicar", () => {
+    expect(undoRecipeFavorites(["b", "c"], { kind: "recipe-removed", id: "a", index: 0 })).toEqual(["a", "b", "c"]);
+    expect(undoRecipeFavorites(["a", "b"], { kind: "recipe-removed", id: "a", index: 1 })).toEqual(["a", "b"]);
+    expect(undoRecipeFavorites(["a", "b"], { kind: "recipe-added", id: "b" })).toEqual(["a"]);
+  });
+
+  it("una operación de la otra lista no toca esta", () => {
+    expect(undoMealFavorites([AVENA_FAV], { kind: "recipe-added", id: "a" })).toEqual([AVENA_FAV]);
+    expect(undoRecipeFavorites(["a"], { kind: "meal-added", fav: AVENA_FAV })).toEqual(["a"]);
   });
 });

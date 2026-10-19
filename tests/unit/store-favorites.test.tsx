@@ -109,3 +109,14 @@ describe("R4: importData recarga los favoritos", () => {
     expect(ref.app!.favorites).toEqual([]);
   });
 });
+
+describe("#168: setFavorites (Deshacer de Favoritos) descarta recetas que ya no existen", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("como toggleFavorite, no guarda ids huérfanos", () => {
+    const ref = mount();
+    act(() => ref.app!.setFavorites(["receta-borrada", A, B]));
+    expect(ref.app!.favorites).toEqual([A, B]);
+    expect(stored("u")).toEqual([A, B]);
+  });
+});
