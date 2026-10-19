@@ -182,3 +182,29 @@ describe("R8: editar las raciones de una receta", () => {
     expect(p.onSave).not.toHaveBeenCalled();
   });
 });
+
+// Regresiones de la review de #57 (issues #174, #175 y #176)
+describe("Regresiones del editor de cantidad (#174, #175, #176)", () => {
+  it("#174: una entrada de 112,5 g abre con «113» (como la fila) y sin error; guardar sin tocar no cambia nada", () => {
+    const p = renderRow({ ...ARROZ_ENTRY, grams: 112.5 }, ARROZ, { editing: true });
+    expect((screen.getByLabelText("Gramos") as HTMLInputElement).value).toBe("113");
+    expect(screen.queryByRole("alert")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+    expect(p.onSave).not.toHaveBeenCalled();
+    expect(p.onCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it("#175: con el editor abierto, tocar la fila lo cierra (onCancel) en vez de volver a abrirlo", () => {
+    const p = renderRow(ARROZ_ENTRY, ARROZ, { editing: true });
+    fireEvent.click(screen.getByRole("button", { name: `Cambiar cantidad de ${ARROZ}` }), { detail: 1 });
+    expect(p.onCancel).toHaveBeenCalledTimes(1);
+    expect(p.onEdit).not.toHaveBeenCalled();
+  });
+
+  it("#176: raciones no válidas muestran el error al escribir y desactivan «Guardar cambios», como en gramos", () => {
+    renderRow(GUISO_ENTRY, "Guiso", { editing: true });
+    fireEvent.change(screen.getByLabelText("Raciones"), { target: { value: "0,3" } });
+    expect(screen.getByRole("alert").textContent).toBe(SERVINGS_ERROR);
+    expect((screen.getByRole("button", { name: "Guardar cambios" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+});
