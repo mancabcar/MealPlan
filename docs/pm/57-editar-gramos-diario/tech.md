@@ -112,7 +112,7 @@ Reglas de `entryQuantity`:
 - **e2e `diario-editar-cantidad.spec.ts`:** los escenarios 1–4 de la spec (g, ud, raciones, Deshacer); los totales del día cambian; Deshacer tras volver a editar no restaura nada; Cancelar y abrir otra fila descartan; con el viewport móvil.
 
 ## Tasks
-1. [ ] `entryQuantity`, `rescaleEntry` y `undoEdit` en `lib/diary.ts` con sus tests unitarios (R2, R3, R5, R8).
+1. [x] `entryQuantity`, `rescaleEntry` y `undoEdit` en `lib/diary.ts` con sus tests unitarios (R2, R3, R5, R8).
 2. [ ] `replaceEntry` en el store (R3).
 3. [ ] Generalizar `FoodQuantityForm` (`quantity` + `preview`); Favoritos sin cambio de conducta (R2, R6).
 4. [ ] Extraer `DiaryEntryRow` de `page.tsx` sin cambiar la conducta (los e2e del Diario siguen en verde).
