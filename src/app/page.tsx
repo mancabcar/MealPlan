@@ -129,6 +129,7 @@ export default function DiaryPage() {
     addEntry,
     addEntries,
     removeEntry,
+    replaceEntry,
     favorites,
     setFavorites,
     toggleFavorite,
@@ -165,6 +166,9 @@ export default function DiaryPage() {
   // comida» abierto. Guarda las dos listas de antes del cambio: Deshacer las restaura tal cual (misma posición).
   const [favNotice, setFavNotice] = useState<{ key: string; text: string; before: { meal: MealFavorite[]; recipes: string[] } } | null>(null);
   const hideFavNotice = useCallback(() => setFavNotice(null), []);
+  // Editar la cantidad (docs/pm/57-editar-gramos-diario, R4): una sola fila en edición; lo no guardado se descarta al
+  // cerrarla, al cambiar de día, al abrir «Añadir comida» o «Copiar día», o al borrar esa entrada.
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   if (!profile) return null;
 
@@ -179,6 +183,7 @@ export default function DiaryPage() {
 
   // Flujo paso 5: cada vez que se abre el formulario, "Raciones" vuelve a 1
   const openAdd = () => {
+    setEditingId(null);
     editServings("1");
     setCustomSeed((s) => ({ key: s.key + 1, name: "" }));
     setShowAdd(true);
@@ -288,7 +293,10 @@ export default function DiaryPage() {
             type="button"
             aria-label="Copiar día a otra fecha"
             disabled={dayEntries.length === 0}
-            onClick={() => setCopyOpen(true)}
+            onClick={() => {
+              setEditingId(null);
+              setCopyOpen(true);
+            }}
             className="shrink-0 w-11 h-11 flex items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-accent)] disabled:opacity-40"
           >
             <Copy className="w-5 h-5" aria-hidden />
@@ -300,6 +308,7 @@ export default function DiaryPage() {
             value={date}
             onChange={(e) => {
               setDate(e.target.value);
+              setEditingId(null);
               setCopied(null);
             }}
             className={inputCls}
@@ -409,7 +418,17 @@ export default function DiaryPage() {
                   name={entryName(e, recipes)}
                   fiber={entryFiber(e, recipes)}
                   copied={copied?.ids.includes(e.id) ?? false}
-                  onRemove={() => removeEntry(e.id)}
+                  editing={editingId === e.id}
+                  onEdit={() => setEditingId(e.id)}
+                  onSave={(next) => {
+                    replaceEntry(next);
+                    setEditingId(null);
+                  }}
+                  onCancel={() => setEditingId(null)}
+                  onRemove={() => {
+                    removeEntry(e.id);
+                    if (editingId === e.id) setEditingId(null);
+                  }}
                 />
               ))}
             </Card>

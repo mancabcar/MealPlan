@@ -116,8 +116,8 @@ Reglas de `entryQuantity`:
 2. [x] `replaceEntry` en el store (R3).
 3. [x] Generalizar `FoodQuantityForm` (`quantity` + `preview`); Favoritos sin cambio de conducta (R2, R6).
 4. [x] Extraer `DiaryEntryRow` de `page.tsx` sin cambiar la conducta (los e2e del Diario siguen en verde).
-5. [ ] Editar alimentos: fila botón, `editingId`, editor, preview y resets (R1–R6).
-6. [ ] Raciones de receta con `ServingsField` (R8).
+5. [x] Editar alimentos: fila botón, `editingId`, editor, preview y resets (R1–R6).
+6. [x] Raciones de receta con `ServingsField` (R8).
 7. [ ] Aviso «Cantidad cambiada · Deshacer» con doble red y un aviso a la vez (R7).
 8. [ ] e2e `diario-editar-cantidad.spec.ts`.
 
