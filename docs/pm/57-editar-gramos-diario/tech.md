@@ -26,7 +26,7 @@ Se descarta porque la spec (R3) pide que la entrada conserve su identidad y porq
 ### Components & files
 | Area | File(s) | Change |
 |---|---|---|
-| Lógica | `src/lib/diary.ts` | `entryQuantity(entry)` y `rescaleEntry(entry, quantity)` (ver APIs) |
+| Lógica | `src/lib/diary.ts` | `entryQuantity(entry)`, `rescaleEntry(entry, quantity)` y `undoEdit` (ver APIs) |
 | Store | `src/lib/store.tsx` | `replaceEntry(entry: MealEntry)`: sustituye la entrada con la misma `id`; si no existe, no hace nada |
 | Editor alimento | `src/components/diario/FoodQuantityForm.tsx` | Prop `quantity: { grams: number; units?: number }` en vez de `favorite: FoodFavorite`; prop opcional `preview?: (q) => ReactNode` (R6). Favoritos le pasa `{ grams, units }` del favorito |
 | Fila | `src/components/diario/DiaryEntryRow.tsx` (nuevo) | Nombre, etiqueta, fibra, chip «Copiada», kcal y ✕ (lo que hoy está inline). Con `editing` pinta el editor |
@@ -53,6 +53,9 @@ export function entryQuantity(entry: MealEntry): EntryQuantity | null;
  * Conserva id, date, mealType, customName, recipeId y foodId.
  */
 export function rescaleEntry(entry: MealEntry, next: { grams: number; units?: number } | { servings: number }): MealEntry;
+
+/** Deshacer (R7): before si la entrada actual con esa id es igual campo a campo a after; si no, null. Añadido en dev-test (2026-10-19). */
+export function undoEdit(entries: MealEntry[], edit: { before: MealEntry; after: MealEntry }): MealEntry | null;
 ```
 Reglas de `entryQuantity`:
 - Personalizada (sin `recipeId` ni `grams` válidos) → `null`.
@@ -77,7 +80,7 @@ Reglas de `entryQuantity`:
 | R8 | `ServingsField` en `DiaryEntryRow` para `kind: "servings"`; `rescaleEntry` quita `servings` con 1 |
 
 ## Risks & mitigations
-- **Deshacer pisa un cambio más nuevo (#168).** Hay doble red (decisión del usuario): (1) el aviso se cierra al volver a guardar esa entrada (lo sustituye el aviso nuevo) o al borrarla; (2) Deshacer guarda `{ before, after }` y solo hace `replaceEntry(before)` si la entrada actual con esa id es igual campo a campo a `after`. Si no lo es, no hace nada y cierra el aviso. Así también se cubre un cambio que llega por sync.
+- **Deshacer pisa un cambio más nuevo (#168).** Hay doble red (decisión del usuario): (1) el aviso se cierra al volver a guardar esa entrada (lo sustituye el aviso nuevo) o al borrarla; (2) Deshacer guarda `{ before, after }` y solo hace `replaceEntry(before)` si `undoEdit` lo devuelve (la entrada actual con esa id es igual campo a campo a `after`). Si no lo es, no hace nada y cierra el aviso. Así también se cubre un cambio que llega por sync.
 - **Generalizar `FoodQuantityForm` rompe Favoritos.** `FoodQuantityForm.test.tsx` y `favoritos-*.spec.ts` deben seguir en verde en la tarea 3.
 - **Toques accidentales al desplazar en móvil.** Un `<button>` nativo no se dispara al hacer scroll, y `singleClick` ignora el doble toque. Se comprueba a mano en el viewport móvil del e2e.
 - **Error de coma flotante al encadenar ediciones (150→100→150).** Se acepta: los macros se guardan sin redondear y se redondean al mostrar, así que la deriva no se ve.
@@ -109,7 +112,7 @@ Reglas de `entryQuantity`:
 - **e2e `diario-editar-cantidad.spec.ts`:** los escenarios 1–4 de la spec (g, ud, raciones, Deshacer); los totales del día cambian; Deshacer tras volver a editar no restaura nada; Cancelar y abrir otra fila descartan; con el viewport móvil.
 
 ## Tasks
-1. [ ] `entryQuantity` y `rescaleEntry` en `lib/diary.ts` con sus tests unitarios (R2, R3, R5, R8).
+1. [ ] `entryQuantity`, `rescaleEntry` y `undoEdit` en `lib/diary.ts` con sus tests unitarios (R2, R3, R5, R8).
 2. [ ] `replaceEntry` en el store (R3).
 3. [ ] Generalizar `FoodQuantityForm` (`quantity` + `preview`); Favoritos sin cambio de conducta (R2, R6).
 4. [ ] Extraer `DiaryEntryRow` de `page.tsx` sin cambiar la conducta (los e2e del Diario siguen en verde).
@@ -117,6 +120,22 @@ Reglas de `entryQuantity`:
 6. [ ] Raciones de receta con `ServingsField` (R8).
 7. [ ] Aviso «Cantidad cambiada · Deshacer» con doble red y un aviso a la vez (R7).
 8. [ ] e2e `diario-editar-cantidad.spec.ts`.
+
+## Test coverage
+Contratos de UI fijados en dev-test: fila `<button>` «Cambiar cantidad de <nombre>»; vista previa «<etiqueta de la fila> → N kcal» («100 g → 130 kcal», «3 ud · 180 g → 252 kcal», «× 0,5 → 300 kcal»); aviso «Cantidad cambiada» con «Deshacer»; props de `DiaryEntryRow` en la cabecera de su test. Datos: `tests/fixtures/editar-cantidad.ts`.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | tests/unit/DiaryEntryRow.test.tsx › "R1: …" (4) · tests/e2e/diario-editar-cantidad.spec.ts › "R1: tocar la fila abre el editor…" | unit + e2e | 🔴 failing (not built) |
+| R2 | tests/unit/diary-rescale.test.ts › entryQuantity "R2: …" · DiaryEntryRow "R2: …" · FoodQuantityForm "R12: …" (prop `quantity`) · e2e "R2: un valor no válido…", "R2: de 2 a 3 huevos…" | unit + e2e | 🔴 failing (not built) |
+| R3 | diary-rescale › rescaleEntry "R3: …" · store-entries › "R3 (#57): replaceEntry…" (3) · DiaryEntryRow "R3: guardar 100 g…" · e2e "R3: al guardar 100 g…", "R3: se guarda la misma entrada…" | unit + e2e | 🔴 failing (not built) |
+| R4 | DiaryEntryRow "R4: «Cancelar»…" · e2e "R4: …" (4) y "State: …" (2) | unit + e2e | 🔴 failing (not built) |
+| R5 | diary-rescale "R5: …" (5) · DiaryEntryRow "R5: …" (2) · e2e "R5: el yogur no tiene botón…" | unit + e2e | 🟢 e2e pasa ya (no hay botón hoy); unit 🔴 failing (not built) |
+| R6 | FoodQuantityForm "R6 (#57): …" (3) · DiaryEntryRow "R6: …", "R2/R6: …" · e2e "R6: mientras se escribe…" | unit + e2e | 🔴 failing (not built) |
+| R7 | diary-rescale › undoEdit "R7: …" (4) · e2e "R7: …" (4) | unit + e2e | 🔴 failing (not built) |
+| R8 | diary-rescale "R8: …" · DiaryEntryRow "R8: …" (4) · e2e "R8: …" (2) | unit + e2e | 🔴 failing (not built) |
+| Edge (State & edge cases) | diary-rescale "Edge: …" (units NaN, kcal ausentes, fibra ausente) · DiaryEntryRow "Edge: …" (doble toque, Copiada, mismo valor) · e2e "Edge: guardar el mismo valor…", "Edge: en 375 px…" | unit + e2e | 🔴 failing (not built) |
+| Pendiente | Entrada que desaparece por sync con el editor abierto; toques accidentales al desplazar en móvil | review / manual | ⏸ sin test automático |
 
 ## Spec feedback
 No hay cambios en la spec. Lo que se decidió aquí la concreta sin contradecirla:
