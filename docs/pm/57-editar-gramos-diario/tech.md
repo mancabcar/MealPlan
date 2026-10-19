@@ -115,7 +115,7 @@ Reglas de `entryQuantity`:
 1. [x] `entryQuantity`, `rescaleEntry` y `undoEdit` en `lib/diary.ts` con sus tests unitarios (R2, R3, R5, R8).
 2. [x] `replaceEntry` en el store (R3).
 3. [x] Generalizar `FoodQuantityForm` (`quantity` + `preview`); Favoritos sin cambio de conducta (R2, R6).
-4. [ ] Extraer `DiaryEntryRow` de `page.tsx` sin cambiar la conducta (los e2e del Diario siguen en verde).
+4. [x] Extraer `DiaryEntryRow` de `page.tsx` sin cambiar la conducta (los e2e del Diario siguen en verde).
 5. [ ] Editar alimentos: fila botón, `editingId`, editor, preview y resets (R1–R6).
 6. [ ] Raciones de receta con `ServingsField` (R8).
 7. [ ] Aviso «Cantidad cambiada · Deshacer» con doble red y un aviso a la vez (R7).

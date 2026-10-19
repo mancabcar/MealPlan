@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useId, useState, type ReactNode } from "react";
-import { Check, CheckCheck, Copy, Plus, X } from "lucide-react";
+import { Check, CheckCheck, Copy, Plus } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import { dailyTotals, weekDayStates, type StatsPeriod } from "@/lib/diaryStats";
@@ -43,6 +43,7 @@ import { ServingsField } from "@/components/ui/ServingsField";
 import { RecipePicker } from "@/components/recetas/RecipePicker";
 import { FoodPicker } from "@/components/diario/FoodPicker";
 import { CopyDaySheet } from "@/components/diario/CopyDaySheet";
+import { DiaryEntryRow } from "@/components/diario/DiaryEntryRow";
 import { Toast } from "@/components/ui/Toast";
 import { singleClick } from "@/components/ui/singleClick";
 import { inputCls } from "@/components/ui/input";
@@ -401,33 +402,16 @@ export default function DiaryPage() {
                   <span className="shrink-0 py-0.5 text-[var(--color-text-muted)]">{Math.round(slot.recipe.calories * slot.servings)} kcal</span>
                 </div>
               )}
-              {items.map((e) => {
-                // Raciones (R4): "× 0,5" junto al nombre; nada con 1 ración o en entradas anteriores (R5).
-                // Alimentos (#13, R9): "150 g" o "2 ud · 120 g"; una entrada tiene una cosa o la otra.
-                const label = servingsLabel(e) ?? quantityLabel(e);
-                const fiber = entryFiber(e, recipes);
-                return (
-                  <div key={e.id} className="flex justify-between items-center py-1 text-sm">
-                    <div>
-                      <span>
-                        {entryName(e, recipes)}
-                        {label && <span className="text-[var(--color-text-muted)]"> {label}</span>}
-                        {copied?.ids.includes(e.id) && <Chip tone="accent" className="ml-2">Copiada</Chip>}
-                      </span>
-                      <span className="block text-xs text-[var(--color-text-muted)]">
-                        {fiber === undefined ? "Fibra: sin dato" : `Fibra ${formatFiber(fiber)} g`}
-                      </span>
-                    </div>
-                    <span className="flex items-center gap-2 text-[var(--color-text-muted)]">
-                      {/* Con raciones los macros pueden no ser enteros (0,25 × 150 = 37,5): se redondea al mostrar */}
-                      {Math.round(e.calories)} kcal
-                      <button onClick={singleClick(() => removeEntry(e.id))} aria-label="Eliminar" className="text-[var(--color-expired)]">
-                        <X className="w-4 h-4" aria-hidden />
-                      </button>
-                    </span>
-                  </div>
-                );
-              })}
+              {items.map((e) => (
+                <DiaryEntryRow
+                  key={e.id}
+                  entry={e}
+                  name={entryName(e, recipes)}
+                  fiber={entryFiber(e, recipes)}
+                  copied={copied?.ids.includes(e.id) ?? false}
+                  onRemove={() => removeEntry(e.id)}
+                />
+              ))}
             </Card>
           );
         })}
