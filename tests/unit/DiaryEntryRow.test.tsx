@@ -61,6 +61,15 @@ describe("R1: tocar la fila abre el editor", () => {
     expect(screen.getByText(/195 kcal/)).toBeTruthy();
   });
 
+  // Review de la PR #173 (bloqueante 1): el nombre accesible no puede tapar lo que la fila muestra
+  it("R1: el lector de pantalla sigue anunciando cantidad, fibra, «Copiada» y kcal como descripción del botón", () => {
+    renderRow(ARROZ_ENTRY, ARROZ, { copied: true, fiber: 2 });
+    const row = screen.getByRole("button", { name: `Cambiar cantidad de ${ARROZ}`, description: /150 g/ });
+    for (const text of [ARROZ, "Copiada", "Fibra 2 g", "195 kcal"]) {
+      expect(screen.getByRole("button", { name: `Cambiar cantidad de ${ARROZ}`, description: new RegExp(text) })).toBe(row);
+    }
+  });
+
   it("R1: la ✕ «Eliminar» está fuera del botón de la fila y borra sin abrir el editor", () => {
     const p = renderRow(ARROZ_ENTRY, ARROZ);
     const row = screen.getByRole("button", { name: `Cambiar cantidad de ${ARROZ}` });

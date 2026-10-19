@@ -42,10 +42,13 @@ export function DiaryEntryRow({
   // Raciones (docs/pm/raciones R4): "× 0,5" junto al nombre; nada con 1 ración o en entradas anteriores (R5).
   // Alimentos (#13, R9): "150 g" o "2 ud · 120 g"; una entrada tiene una cosa o la otra.
   const label = servingsLabel(entry) ?? quantityLabel(entry);
+  // El aria-label del botón tapa su contenido: el resumen se enlaza como descripción para que el lector de pantalla
+  // siga anunciando cantidad, «Copiada», fibra y kcal (review de la PR #173)
+  const summaryId = useId();
   const summary = (
     <>
       {/* Solo spans: va dentro de un <button> */}
-      <span>
+      <span id={`${summaryId}-info`}>
         <span>
           {name}
           {label && <span className="text-[var(--color-text-muted)]"> {label}</span>}
@@ -56,7 +59,9 @@ export function DiaryEntryRow({
         </span>
       </span>
       {/* Con raciones los macros pueden no ser enteros (0,25 × 150 = 37,5): se redondea al mostrar */}
-      <span className="shrink-0 text-[var(--color-text-muted)]">{Math.round(entry.calories)} kcal</span>
+      <span id={`${summaryId}-kcal`} className="shrink-0 text-[var(--color-text-muted)]">
+        {Math.round(entry.calories)} kcal
+      </span>
     </>
   );
   // Vista previa (R6): la etiqueta que tendrá la fila y sus kcal
@@ -71,6 +76,7 @@ export function DiaryEntryRow({
             type="button"
             onClick={singleClick(onEdit)}
             aria-label={`Cambiar cantidad de ${name}`}
+            aria-describedby={`${summaryId}-info ${summaryId}-kcal`}
             aria-expanded={editing}
             className="flex-1 min-w-0 flex justify-between items-center gap-2 text-left"
           >
