@@ -406,7 +406,8 @@ describe("Métrica: días que cumplen con el recetario real", () => {
     "alergia a gluten y lactosa": { ...SEPT, allergies: { preset: ["gluten", "lactosa"], custom: [] } },
   };
 
-  it("≥ 95 % en total y ≥ 80 % en cada perfil", () => {
+  // 30 semanas: ~3,5 s en local y más de 5 s (el límite por defecto) en el runner de CI. El rendimiento lo juzga R13.
+  it("≥ 95 % en total y ≥ 80 % en cada perfil", { timeout: 30_000 }, () => {
     let ok = 0;
     let total = 0;
     const perProfile: Record<string, number> = {};
