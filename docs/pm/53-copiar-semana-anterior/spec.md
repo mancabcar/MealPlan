@@ -62,7 +62,7 @@ Usuario del Plan que repite hábitos semanales.
 
 ## Edge cases
 - Una franja de origen cuya receta ya no existe se omite.
-- Una comida que el usuario ya no hace se copia igualmente; el Plan solo muestra las comidas que el usuario hace.
+- Solo se copian las comidas que el usuario hace (las que muestra el Plan): una franja de origen de otra comida no se copia, no cuenta como conflicto ni en el aviso, y una semana origen que solo tiene esas cuenta como vacía (R4). _(Cambiado en #150, 2026-10-20: antes se copiaba igualmente y el aviso anunciaba franjas que no se veían.)_
 - Con «Conservar», si una franja de una tanda entra en conflicto se omite la tanda entera.
 - Con «Reemplazar», si la franja pisada es la cocinada de una tanda existente, sus sobras quedan como franjas normales de la receta; si es una sobra suelta, se sustituye y la tanda pierde esa sobra (las raciones cocinadas no cambian), como al quitarla a mano.
 - Las sobras solo se pueden colocar dentro de la semana de su cocinada, así que una tanda normalmente cabe entera en su semana; la regla de tandas partidas de R3 es una salvaguarda.
