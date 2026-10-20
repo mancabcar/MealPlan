@@ -179,3 +179,62 @@ describe("R5: preferredIngredient llega al prompt como preferencia, y solo si es
     expect(blockWith(sentPrompt(), /nunca uses/i)).toMatch(/frutos secos/i);
   });
 });
+
+// #180: Opus 5.5 siempre piensa; esfuerzo bajo y margen de tokens para que el JSON no salga cortado.
+describe("#180: sugiere con Claude Opus 5.5", () => {
+  it("llama a claude-opus-5-5 con esfuerzo bajo y margen de tokens para pensar", async () => {
+    await generate(lucia);
+    const body = create.mock.calls[0][0];
+    expect(body.model).toBe("claude-opus-5-5");
+    expect(body.output_config).toMatchObject({ effort: "low" });
+    expect(body.max_tokens).toBeGreaterThanOrEqual(16_000);
+    // En Opus 5.5 desactivar el pensamiento o darle presupuesto es un 400
+    expect(body.thinking).toBeUndefined();
+  });
+
+  it("lee el bloque de texto aunque la respuesta empiece por un bloque de pensamiento", async () => {
+    create.mockResolvedValue({
+      stop_reason: "end_turn",
+      content: [
+        { type: "thinking", thinking: "", signature: "x" },
+        { type: "text", text: JSON.stringify([recipe("Pollo al horno", ["pechuga de pollo"])]) },
+      ],
+    });
+    const { status, body } = await generate(lucia);
+    expect(status).toBe(200);
+    expect(body.recipes.map((r: Recipe) => r.name)).toEqual(["Pollo al horno"]);
+  });
+
+  it("si Claude rechaza la petición, lo dice con un error JSON propio en vez de «no se pudo interpretar»", async () => {
+    create.mockResolvedValue({ stop_reason: "refusal", content: [] });
+    const { status, body } = await generate(lucia);
+    expect(status).toBe(502);
+    expect(body.error).toMatch(/rechaz/i);
+    expect(body.error).not.toMatch(/interpretar/i);
+  });
+});
+
+describe("#165: la IA tiene su propio límite de tiempo y no reintenta", () => {
+  it("si Claude no responde, devuelve un error JSON (504) antes de que se acabe la función (60 s)", async () => {
+    vi.useFakeTimers();
+    try {
+      create.mockImplementation(
+        (_body: unknown, opts?: { signal?: AbortSignal }) =>
+          new Promise((_resolve, reject) => opts?.signal?.addEventListener("abort", () => reject(new Error("aborted")))),
+      );
+      const pending = generate(lucia);
+      await vi.advanceTimersByTimeAsync(55_000);
+      const { status, body } = await pending;
+      expect(status).toBe(504);
+      expect(body.error).toMatch(/tardado/i);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("pide una sola llamada: sin los reintentos automáticos del SDK y con señal de corte", async () => {
+    await generate(lucia);
+    expect(create.mock.calls[0][1]).toMatchObject({ maxRetries: 0 });
+    expect(create.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
+  });
+});

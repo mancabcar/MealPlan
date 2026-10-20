@@ -4,7 +4,7 @@
 //   - 200: `{ recipe, source: "jsonld" | "ai", servingsHint?, tagHint? }` (mismos campos que src/lib/recipeImport.ts).
 //   - Error: `{ error: código, message }` con el texto de ERROR_TEXTS y el status de ERROR_STATUS:
 //       invalid_url 400 · blocked 400 · fetch_failed 502 · no_recipe 422 · rate_limited 429 (+ cabecera Retry-After).
-//   - La IA solo se llama si no hay JSON-LD Recipe, con el modelo claude-haiku-4-5-20251001, una sola vez (sin reintentos),
+//   - La IA solo se llama si no hay JSON-LD Recipe, con el modelo claude-haiku-5-5 (sin pensamiento, #180), una sola vez (sin reintentos),
 //     y solo con el texto de la página (máx. 30.000 caracteres). Cualquier fallo de la IA es no_recipe.
 //   - Con JSON-LD no hace falta ANTHROPIC_API_KEY. CORS igual que /api/recipes (CORS_ALLOWED_ORIGIN).
 //   - La IP del límite sale del primer valor de `x-forwarded-for`; sin cabecera todas comparten la clave "unknown".
@@ -53,7 +53,7 @@ const { importLimiter } = await import("../../lib/rateLimit");
 const { SafeFetchError } = await import("../../lib/safeFetch");
 
 const ALLOWED = "https://home-5021533470.app-ionos.space";
-const HAIKU = "claude-haiku-4-5-20251001";
+const HAIKU = "claude-haiku-5-5";
 
 beforeEach(() => {
   create.mockReset();
@@ -123,7 +123,7 @@ describe("R2: con JSON-LD no se llama a la IA", () => {
 });
 
 describe("R3: sin JSON-LD, Claude extrae la receta", () => {
-  it("llama una vez a Haiku 4.5 con el texto de la página y devuelve source 'ai'", async () => {
+  it("llama una vez a Haiku 5.5 con el texto de la página y devuelve source 'ai'", async () => {
     pageIs(HTML_TEXT_ONLY);
     claudeReturns(CALABAZA_AI);
     const { status, body } = await importUrl();
@@ -345,5 +345,16 @@ describe("#140: la IA tiene su propio límite de tiempo y no reintenta", () => {
     claudeReturns(CALABAZA_AI);
     await importUrl();
     expect(create.mock.calls[0][1]).toMatchObject({ maxRetries: 0 });
+  });
+});
+
+describe("#180: el importador usa Claude Haiku 5.5 sin pensamiento", () => {
+  it("desactiva el pensamiento (Haiku 5.5 piensa por defecto) para caber en el tiempo y en los tokens", async () => {
+    pageIs(HTML_TEXT_ONLY);
+    claudeReturns(CALABAZA_AI);
+    await importUrl();
+    const body = create.mock.calls[0][0];
+    expect(body.model).toBe("claude-haiku-5-5");
+    expect(body.thinking).toEqual({ type: "disabled" });
   });
 });
