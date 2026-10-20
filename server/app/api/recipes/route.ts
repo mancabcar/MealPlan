@@ -7,6 +7,13 @@ import { preflight, withCors } from "../../../lib/cors";
 
 export const maxDuration = 60;
 
+/** Opus 5.5 siempre piensa: esfuerzo bajo para no alargar la respuesta y tokens de sobra para pensamiento + JSON (#180). */
+const AI_MODEL = "claude-opus-5-5";
+const AI_EFFORT = "low";
+const AI_MAX_TOKENS = 16_000;
+/** Por debajo de los 60 s de la función, para responder con el error JSON de la ruta y no con un 504 vacío (#165). */
+const AI_TIMEOUT_MS = 50_000;
+
 export async function OPTIONS(request: Request) {
   return preflight(request);
 }
@@ -33,13 +40,27 @@ async function handlePOST(request: Request): Promise<NextResponse> {
 
   const prompt = buildRecipePrompt(profile, pantryItems, count, safePreferredIngredient(preferredIngredient));
   const client = new Anthropic();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
 
   try {
-    const response = await client.messages.create({
-      model: "claude-opus-4-8",
-      max_tokens: 4000,
-      messages: [{ role: "user", content: prompt }],
-    });
+    // Un solo intento de verdad: el SDK reintenta 2 veces por defecto, y cada intento se paga (#165)
+    const response = await client.messages.create(
+      {
+        model: AI_MODEL,
+        max_tokens: AI_MAX_TOKENS,
+        output_config: { effort: AI_EFFORT },
+        messages: [{ role: "user", content: prompt }],
+      },
+      { signal: controller.signal, maxRetries: 0 },
+    );
+
+    if (response.stop_reason === "refusal") {
+      return NextResponse.json(
+        { error: "Claude ha rechazado esta petición. Prueba de nuevo o cambia el ingrediente." },
+        { status: 502 },
+      );
+    }
 
     const text = response.content.find((b) => b.type === "text")?.text ?? "";
     const start = text.indexOf("[");
@@ -70,6 +91,12 @@ async function handlePOST(request: Request): Promise<NextResponse> {
 
     return NextResponse.json({ recipes: result, droppedCount: recipes.length - safe.length });
   } catch (error) {
+    if (controller.signal.aborted) {
+      return NextResponse.json(
+        { error: "Claude ha tardado demasiado en responder. Prueba de nuevo." },
+        { status: 504 },
+      );
+    }
     if (error instanceof Anthropic.APIError) {
       return NextResponse.json(
         { error: `Error de la API de Claude (HTTP ${error.status}).` },
@@ -80,6 +107,8 @@ async function handlePOST(request: Request): Promise<NextResponse> {
       { error: "No se pudo interpretar la respuesta de Claude." },
       { status: 502 },
     );
+  } finally {
+    clearTimeout(timer);
   }
 }
 
