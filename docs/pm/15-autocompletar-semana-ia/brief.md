@@ -1,6 +1,6 @@
 # Rellenar la semana según mis objetivos de macros
 
-_Status: tech design · Updated: 2026-10-19 · Issue: [#15](https://github.com/mancabcar/MealPlan/issues/15) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: tests · Updated: 2026-10-20 · Issue: [#15](https://github.com/mancabcar/MealPlan/issues/15) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
 
 ## Follow-ups
 - **D. Híbrido IA + solver:** Claude elige qué recetas tienen sentido juntas y aporta variedad; el solver cuadra raciones y valida. Candidato si el spike muestra días que cuadran pero no apetecen. (brainstorm)

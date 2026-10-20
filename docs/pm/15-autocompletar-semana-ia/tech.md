@@ -130,3 +130,27 @@ Pesos y constantes son internos y ajustables; los tests fijan el comportamiento,
 
 ## Spec feedback
 - Sin cambios al spec. Decisiones del usuario en esta fase: hilo principal con test de presupuesto (no Web Worker); `random` inyectable para los tests (el relleno sigue siendo distinto cada vez); la lista de ingredientes base de arriba; interfaz `fillWeek` con `dates`; botones en fila; `planNotice` compartido; textos del botón y del aviso; Deshacer tras editar se comporta como al copiar.
+
+## Test coverage
+Hoy en los e2e es el martes 2026-09-22 (`tests/e2e/helpers.ts`), no un miércoles: el «día pasado» de R2 es el lunes 21. Decisiones del usuario (dev-test): métrica con el plan de septiembre, vegetariano y alergia a gluten y lactosa, ≥ 95 % en total y ≥ 80 % por perfil (10 semanas por perfil, semillas fijas); «prioriza» = la preferida sale en más de la mitad de 100 rellenos a igualdad de macros; presupuesto con la mediana de 3 ejecuciones; recetas inventadas en los unit y recetario real en la métrica y los e2e.
+
+| Req | Test | Layer | Status |
+|---|---|---|---|
+| R1 | tests/e2e/rellenar-semana.spec.ts › "R1: …" (actual, futura, pasada, desactivado con explicación) | e2e | 🔴 failing (not built); «no se ve en una semana pasada» pasa ya |
+| R2 | tests/unit/plan-fill-week.test.ts › "R2: …" · e2e "R2: el lunes (pasado) y las franjas ya asignadas no cambian" | unit + e2e | 🔴 failing (not built) |
+| R3 | unit "R3: …" (alérgenos, 4 dietas) | unit | 🔴 failing (not built) |
+| R4 | unit "R4: …" (con y sin rango, lo asignado cuenta, tolerancia del perfil) | unit | 🔴 failing (not built) |
+| R5 | unit "R5: …" (ya supera las kcal; franja sin candidatas) | unit | 🔴 failing (not built) |
+| R6 | e2e "R6: Deshacer devuelve la semana a como estaba" | e2e | 🔴 failing (not built) |
+| R7 | unit "R7: …" (sin repetir, incluidas las puestas a mano; repite sin alternativa) | unit | 🔴 failing (not built) |
+| R8 | unit "R8: …" (garbanzo/garbanzos contando lo fijo; salmón + merluza sí; huevo no cuenta) | unit | 🔴 failing (not built) |
+| R9 | unit "R9: …" (0,5–2 en pasos de 0,25, sin `servings: 1`, sin tandas) | unit | 🔴 failing (not built) |
+| R10 | unit "R10: …" (★ y favoritas preferidas; no obliga si no cuadra) | unit | 🔴 failing (not built) |
+| R11 | unit "R11: …" («pre-gym» primero; luego otros snacks) | unit | 🔴 failing (not built) |
+| R12 | unit "R12: …" | unit | 🔴 failing (not built) |
+| R13 | unit "R13: … menos de 300 ms (mediana de 3)" | unit | 🔴 failing (not built) |
+| R14 | unit "R14: …" (mejor valoradas preferidas; 1 estrella nunca) | unit | 🔴 failing (not built) |
+| R15 | e2e "R15: rellena las 30 franjas…" | e2e | 🔴 failing (not built) |
+| Métrica | unit "≥ 95 % en total y ≥ 80 % en cada perfil" | unit | 🔴 failing (not built) |
+| State | e2e "cambiar de semana cierra el aviso"; unit Edge cases (NaN, recetario vacío, `emptySlots`, receta borrada) | e2e + unit | 🔴 failing (not built) |
+| State | Segundo relleno sustituye al aviso y Deshacer solo deshace el último | — | ⏳ pendiente: no se provoca desde la UI sin vaciar una franja a mano; lo revisa dev-review en el código |
