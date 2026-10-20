@@ -9,9 +9,8 @@
 //     nada que escribir, «No hay nada nuevo que copiar» sin Deshacer. Aviso y diálogo se cierran al cambiar de semana.
 // Datos: tests/fixtures/copiar-semana.ts. Hoy = martes 2026-09-22 (signIn fija el reloj): destino 21–27 sept,
 // origen 14–20 sept. Lucia hace Desayuno, Comida, Merienda y Cena.
-// Pendiente (no se puede provocar desde la UI): que Deshacer restaure SOLO los 7 días de la semana destino y no el plan
-// entero (R5): cambiar de semana cierra el aviso y no hay otra forma de editar otra semana con el aviso abierto.
-// Lo cubre dev-review leyendo el código.
+// Que Deshacer restaure SOLO los 7 días de la semana destino y no el plan entero (R5) no se puede provocar desde la UI
+// (cambiar de semana cierra el aviso): lo cubre tests/unit/plan-restore-days.test.ts (#149).
 import { expect, test, type Page } from "@playwright/test";
 import type { WeekPlan } from "../../src/lib/types";
 import { lucia } from "../fixtures/profiles";
@@ -50,10 +49,10 @@ const TWO_CONFLICTS = merge(SRC_SIMPLE, {
 });
 
 test.describe("R1: copiar la semana anterior", () => {
-  test("R1: copia las 8 franjas de la semana anterior a la semana actual", async ({ page }) => {
+  test("R1: copia las 7 franjas de las comidas de lucia a la semana actual (la Pre-entreno no, #150)", async ({ page }) => {
     await open(page, SRC_PLAN);
     await copyBtn(page).click();
-    await expect(notice(page, "Copiadas 8 franjas")).toBeVisible();
+    await expect(notice(page, "Copiadas 7 franjas")).toBeVisible();
     await expect.poll(async () => slotAt(await stored(page), DST[0], "Comida")?.recipeId).toBe(POLLO_BROCOLI.id);
     await page.getByRole("tab", { name: "Lunes 21" }).click();
     await expect(page.getByText("Pollo al horno con brócoli")).toBeVisible();
@@ -188,7 +187,7 @@ test.describe("R5: aviso con Deshacer", () => {
   test("R5: Deshacer tras copiar sobre una semana vacía la deja vacía", async ({ page }) => {
     await open(page, SRC_PLAN);
     await copyBtn(page).click();
-    await notice(page, "Copiadas 8 franjas").getByRole("button", { name: "Deshacer" }).click();
+    await notice(page, "Copiadas 7 franjas").getByRole("button", { name: "Deshacer" }).click();
     await expect
       .poll(async () => {
         const plan = await stored(page);
