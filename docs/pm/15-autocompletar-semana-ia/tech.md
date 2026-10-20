@@ -126,9 +126,9 @@ Pesos y constantes son internos y ajustables; los tests fijan el comportamiento,
 - **E2E** `tests/e2e/rellenar-semana.spec.ts` + `tests/fixtures/rellenar-semana.ts`, reloj de Playwright fijado en un miércoles: R1 (visible en la actual y futuras, no en pasadas, desactivado sin huecos), R2 (lunes y martes intactos), R6 (Deshacer) y R15 (texto del aviso).
 
 ## Tasks
-1. [ ] Candidatas: `baseIngredients.ts` y filtros de franja, macros válidos, alérgenos, dieta, «no me gusta», valoración 1 y «pre-gym» primero, con sus tests (R3, R11, R12, R14)
-2. [ ] Búsqueda del día: muestreo ponderado, raciones, coherencia, repetición y preferencias, con tests y los de métrica y presupuesto (R4, R7–R10, R13, R14)
-3. [ ] `fillWeek` y `emptySlots` sobre los días: huecos, franjas ocupadas, comidas activas, `filled` y `unmetDays` (R2, R5)
+1. [x] Candidatas: `baseIngredients.ts` y filtros de franja, macros válidos, alérgenos, dieta, «no me gusta», valoración 1 y «pre-gym» primero, con sus tests (R3, R11, R12, R14)
+2. [x] Búsqueda del día: muestreo ponderado, raciones, coherencia, repetición y preferencias, con tests y los de métrica y presupuesto (R4, R7–R10, R13, R14)
+3. [x] `fillWeek` y `emptySlots` sobre los días: huecos, franjas ocupadas, comidas activas, `filled` y `unmetDays` (R2, R5)
 4. [ ] UI: fila de botones, explicación, `planNotice` compartido, Deshacer y texto del aviso, con el e2e (R1, R6, R15)
 
 ## Spec feedback

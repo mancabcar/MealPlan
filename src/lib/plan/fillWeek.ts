@@ -3,10 +3,12 @@
 // filtros (franja, dieta, alérgenos, «no me gusta») y reglas de coherencia y variedad. `random` se inyecta: la app pasa
 // Math.random (cada relleno es distinto) y los tests una semilla.
 import { ingredientMatches, recipeViolations } from "../allergens";
-import { macroStatus, macroTarget, type MacroTarget, type Macros } from "../planMacros";
+import { dayPlanSummary, macroStatus, macroTarget, type MacroTarget, type Macros } from "../planMacros";
 import { safeAllergies } from "../recipePrompt";
 import { fitsSlot } from "../recipeSlots";
-import type { DietType, MealType, Recipe, UserProfile } from "../types";
+import { tolerancePct } from "../tolerance";
+import type { DayPlanSlot, DietType, MealType, Recipe, UserProfile, WeekPlan } from "../types";
+import { weekDates } from "../week";
 import { baseIngredientsOf } from "./baseIngredients";
 
 const NUTRI_TAG = "plan nutricionista";
@@ -207,4 +209,94 @@ function searchDay(day: DayInput): Pick[] {
     }
   }
   return best?.picks ?? [];
+}
+
+// ── La semana (tech.md › APIs / interfaces) ─────────────────────────────────────────────────────────────────────────
+
+export interface FillInput {
+  plan: WeekPlan;
+  /** Solo los días a rellenar (la página pasa los de la semana vista desde hoy). */
+  dates: string[];
+  /** Comidas activas del perfil. */
+  meals: MealType[];
+  recipes: Recipe[];
+  profile: UserProfile;
+  favorites: string[];
+  ratings: Record<string, number>;
+  /** Math.random en la app; una semilla en los tests. */
+  random: () => number;
+}
+
+export interface FillResult {
+  plan: WeekPlan;
+  /** Franjas creadas. */
+  filled: number;
+  /** Días con huecos que, tras rellenar, no cumplen kcal o proteína o se quedaron con alguna comida vacía (R5). */
+  unmetDays: string[];
+}
+
+/** Comidas de `meals` sin franja en el día. Cualquier franja cuenta como ocupada: sobras, tandas y recetas borradas. */
+const holesOf = (plan: WeekPlan, date: string, meals: MealType[]) =>
+  meals.filter((m) => !(plan[date] ?? []).some((s) => s.mealType === m));
+
+/** Franjas vacías de `meals` en `dates` (R1: sin ninguna, el botón se desactiva). */
+export function emptySlots(plan: WeekPlan, dates: string[], meals: MealType[]): number {
+  return dates.reduce((n, date) => n + holesOf(plan, date, meals).length, 0);
+}
+
+const NO_MACROS: Macros = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+
+/** Rellena las franjas vacías de `meals` en `dates` (R2) con días que cumplen kcal y proteína (R4). */
+export function fillWeek(input: FillInput): FillResult {
+  const { dates, meals, recipes, profile, random } = input;
+  const tol = tolerancePct(profile);
+  const pool = bySlot(candidates(recipes, profile, input.favorites, input.ratings), meals);
+  const byId = new Map(recipes.map((r) => [r.id, r]));
+
+  // R7: lo que ya sale en la semana (también lo puesto a mano en días que no se rellenan, como el lunes ya pasado)
+  const uses = new Map<string, number>();
+  const weekDays = new Set(dates.flatMap((d) => weekDates(d)));
+  for (const d of weekDays) for (const s of input.plan[d] ?? []) uses.set(s.recipeId, (uses.get(s.recipeId) ?? 0) + 1);
+
+  let plan = input.plan;
+  let filled = 0;
+  const unmetDays: string[] = [];
+  for (const date of dates) {
+    const holes = holesOf(plan, date, meals);
+    // Decisión de dev-code: un día sin huecos no se toca ni se avisa, aunque no cumpla
+    if (holes.length === 0) continue;
+    const slots = plan[date] ?? [];
+    const fixedRecipes = slots.map((s) => byId.get(s.recipeId)).filter((r): r is Recipe => r !== undefined);
+    const picks = searchDay({
+      fixed: dayPlanSummary({ slots, recipes, meals })?.totals ?? NO_MACROS,
+      fixedIds: new Set(slots.map((s) => s.recipeId)),
+      fixedBases: new Set(fixedRecipes.flatMap(baseIngredientsOf)),
+      holes,
+      pool,
+      uses,
+      profile,
+      tol,
+      random,
+    });
+
+    const added: DayPlanSlot[] = picks.map(({ meal, c, servings }) => ({
+      mealType: meal,
+      recipeId: c.recipe.id,
+      ...(servings !== 1 && { servings }), // con 1 ración no se guarda (R9, como #29)
+    }));
+    for (const s of added) uses.set(s.recipeId, (uses.get(s.recipeId) ?? 0) + 1);
+    if (added.length > 0) {
+      plan = { ...plan, [date]: [...slots, ...added] };
+      filled += added.length;
+    }
+
+    const totals = dayPlanSummary({ slots: plan[date] ?? [], recipes, meals })?.totals;
+    const ok =
+      added.length === holes.length &&
+      totals !== undefined &&
+      macroStatus(totals.calories, macroTarget("calories", profile), tol) === "within" &&
+      macroStatus(totals.protein, macroTarget("protein", profile), tol) === "within";
+    if (!ok) unmetDays.push(date);
+  }
+  return { plan, filled, unmetDays };
 }
