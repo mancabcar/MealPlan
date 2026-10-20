@@ -56,6 +56,14 @@ function findTerm(words: string[], term: string[]): number[] {
   return hits;
 }
 
+/**
+ * `term` aparece en `text` como palabras completas, con plurales («garbanzo» ↔ «Puchero de garbanzos»). A diferencia de
+ * ingredientMatches, sin familias de alérgenos ni «sin»: lo usan los ingredientes base del relleno (docs/pm/15, R8).
+ */
+export function hasWords(text: string, term: string): boolean {
+  return findTerm(tokenize(text), tokenize(term)).length > 0;
+}
+
 /** Una clave preset, o el nombre de una etiqueta preset escrito a mano ("gluten"). */
 function asPreset(allergen: string): PresetAllergen | undefined {
   if (allergen in ALLERGEN_FAMILIES) return allergen as PresetAllergen;

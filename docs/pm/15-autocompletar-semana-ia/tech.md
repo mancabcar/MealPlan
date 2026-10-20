@@ -76,6 +76,9 @@ Pesos y constantes son internos y ajustables; los tests fijan el comportamiento,
 - `startFill`: cierra `editing` y el aviso; calcula `dates.filter(d => d >= todayStr())` en el momento (no en el render); llama a `fillWeek`; `setWeekPlan(plan)`; aviso con `before` de los 7 días.
 - `copyNotice` pasa a `planNotice` (mismo shape) y lo usan las dos acciones; `undoCopy` → `undoPlanNotice` sin cambios de lógica.
 - Texto: «Rellenada 1 franja» / «Rellenadas N franjas», más « · 1 día no cumple» / « · K días no cumplen» si K > 0.
+- Si no se rellena ninguna franja (hay huecos pero ninguna receta encaja): aviso «No hay recetas que encajen en las comidas vacías», sin Deshacer, como «No hay nada nuevo que copiar» (usuario, dev-code 2026-10-20).
+- `unmetDays` solo incluye días que tenían al menos un hueco: un día completo a mano no se toca ni se avisa, aunque no cumpla (usuario, dev-code 2026-10-20).
+- En una semana pasada, sin «Rellenar semana», «Copiar semana anterior» ocupa todo el ancho.
 
 ## Spec coverage
 | Req | How it's met |
