@@ -17,7 +17,8 @@ import { SafeFetchError, safeFetch } from "../../../../lib/safeFetch";
 
 export const maxDuration = 30;
 
-const AI_MODEL = "claude-haiku-4-5-20251001";
+/** Haiku 5.5 piensa por defecto: aquí se desactiva para caber en AI_TIMEOUT_MS y en max_tokens (#180). */
+const AI_MODEL = "claude-haiku-5-5";
 /** Con los 8 s de safeFetch, la ruta responde con JSON antes del límite de 30 s de la función (#140). */
 const AI_TIMEOUT_MS = 18_000;
 
@@ -39,6 +40,7 @@ async function extractWithAi(html: string): Promise<Response> {
       {
         model: AI_MODEL,
         max_tokens: 2000,
+        thinking: { type: "disabled" },
         messages: [{ role: "user", content: buildImportPrompt(text) }],
       },
       { signal: controller.signal, maxRetries: 0 },
