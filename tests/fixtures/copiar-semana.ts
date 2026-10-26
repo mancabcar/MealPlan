@@ -30,7 +30,7 @@ export const SRC_BATCH_ID = "batch-origen";
 
 /**
  * Semana origen completa: 7 franjas sueltas/con raciones y una tanda de guiso ×3 (cocinada el martes, sobras el
- * miércoles a la Comida y el jueves a la Cena). La Pre-entreno del sábado es una comida que lucia no hace (se copia igual).
+ * miércoles a la Comida y el jueves a la Cena). La Pre-entreno del sábado es una comida que lucia no hace: no se copia (#150).
  */
 export const SRC_PLAN: WeekPlan = {
   [SRC[0]]: [

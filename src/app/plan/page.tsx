@@ -4,7 +4,7 @@ import { Suspense, useCallback, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, ShoppingCart } from "lucide-react";
 import { useApp } from "@/lib/store";
-import { DayPlanSlot, MEAL_TYPES, MealType, WeekPlan, todayStr } from "@/lib/types";
+import { MEAL_TYPES, MealType, WeekPlan, todayStr } from "@/lib/types";
 import { MEAL_TYPE_ICON_COMPONENTS } from "@/lib/categoryIcons";
 import { Card } from "@/components/ui/Card";
 import { DaySelector } from "@/components/ui/DaySelector";
@@ -22,7 +22,8 @@ import { useShoppingList } from "@/lib/shopping/useShoppingList";
 import { useWeekParam, weekHref } from "@/lib/useWeekParam";
 import { WeekNav } from "@/components/plan/WeekNav";
 import { Toast } from "@/components/ui/Toast";
-import { applyCopy, isSourceEmpty, planCopy, type CopyMode } from "@/lib/plan/copyWeek";
+import { isSourceEmpty, planCopy, type CopyMode } from "@/lib/plan/copyWeek";
+import { restoreDays, snapshotDays, type DaysSnapshot } from "@/lib/plan/restoreDays";
 import { CopyWeekSheet } from "@/components/plan/CopyWeekSheet";
 import { emptySlots, fillWeek } from "@/lib/plan/fillWeek";
 
@@ -60,7 +61,7 @@ function PlanContent() {
   const servingsId = useId();
   // Aviso tras «Copiar semana anterior» (docs/pm/53-copiar-semana-anterior R5) o «Rellenar semana» (docs/pm/15, R6, R15)
   // `before`: los 7 días de la semana vista antes del cambio; Deshacer restaura solo esos (sin él, no hay Deshacer)
-  const [planNotice, setPlanNotice] = useState<{ id: number; text: string; before?: Record<string, DayPlanSlot[] | undefined> } | null>(null);
+  const [planNotice, setPlanNotice] = useState<{ id: number; text: string; before?: DaysSnapshot } | null>(null);
   // `id` remonta el Toast con cada aviso: el segundo no hereda los 10 s del primero (como el de «Añadido» del Diario)
   const noticeId = useRef(0);
   const hidePlanNotice = useCallback(() => setPlanNotice(null), []);
@@ -131,12 +132,13 @@ function PlanContent() {
   const startCopy = () => {
     setEditing(null);
     setPlanNotice(null);
-    const { conflicts } = planCopy(weekPlan, monday, recipeIds);
-    if (conflicts > 0) setModal({ kind: "copy", conflicts });
-    else copyWeek("keep");
+    const prepared = planCopy(weekPlan, monday, recipeIds, meals);
+    if (prepared.conflicts > 0) setModal({ kind: "copy", conflicts: prepared.conflicts });
+    else copyWeek("keep", prepared);
   };
-  const copyWeek = (mode: CopyMode) => {
-    const { plan, copied } = applyCopy(weekPlan, monday, recipeIds, mode);
+  // Tras el diálogo de conflictos se recalcula sobre el plan de ese momento (pudo cambiar por la sincronización)
+  const copyWeek = (mode: CopyMode, prepared = planCopy(weekPlan, monday, recipeIds, meals)) => {
+    const { plan, copied } = prepared.apply(mode);
     if (copied === 0) {
       setPlanNotice({ id: ++noticeId.current, text: "No hay nada nuevo que copiar" });
       return;
@@ -145,7 +147,7 @@ function PlanContent() {
     setPlanNotice({
       id: ++noticeId.current,
       text: copied === 1 ? "Copiada 1 franja" : `Copiadas ${copied} franjas`,
-      before: Object.fromEntries(dates.map((d) => [d, weekPlan[d]])),
+      before: snapshotDays(weekPlan, dates),
     });
   };
   // Rellenar semana (docs/pm/15-autocompletar-semana-ia R2, R15): solo de hoy en adelante, con «hoy» evaluado al pulsar
@@ -176,7 +178,7 @@ function PlanContent() {
       text:
         (filled === 1 ? "Rellenada 1 franja" : `Rellenadas ${filled} franjas`) +
         (k === 0 ? "" : k === 1 ? " · 1 día no cumple" : ` · ${k} días no cumplen`),
-      before: Object.fromEntries(dates.map((d) => [d, weekPlan[d]])),
+      before: snapshotDays(weekPlan, dates),
     });
   };
   // R1: en la semana actual y las futuras; sin comidas vacías de hoy en adelante, desactivado con explicación
@@ -187,15 +189,10 @@ function PlanContent() {
   const undoPlanNotice = () => {
     const before = planNotice?.before;
     if (!before) return;
-    const restored = { ...weekPlan };
-    for (const d of dates) {
-      if (before[d] === undefined) delete restored[d];
-      else restored[d] = before[d];
-    }
-    setWeekPlan(restored);
+    setWeekPlan(restoreDays(weekPlan, before, dates));
     setPlanNotice(null);
   };
-  const sourceEmpty = isSourceEmpty(weekPlan, monday);
+  const sourceEmpty = isSourceEmpty(weekPlan, monday, meals);
 
   const recipeName = (id: string) => recipes.find((r) => r.id === id)?.name ?? "la receta";
   const slotOf = (at: SlotRef) => (weekPlan[at.date] ?? []).find((s) => s.mealType === at.mealType);
