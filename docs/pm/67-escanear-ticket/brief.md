@@ -1,5 +1,5 @@
 # Escanear un ticket de compra para actualizar la Despensa
-_Status: tests · Updated: 2026-11-03 · Issue: [#67](https://github.com/mancabcar/MealPlan/issues/67) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md)_
+_Status: in review · Updated: 2026-11-04 · Issue: [#67](https://github.com/mancabcar/MealPlan/issues/67) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#186](https://github.com/mancabcar/MealPlan/pull/186)_
 
 _Entrada en el pipeline: resumen del issue confirmado por el usuario; se saltan brainstorm completo y prototype (la lista de revisión se parece a pantallas que ya existen) y se entra en spec._
 
