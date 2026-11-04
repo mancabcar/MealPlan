@@ -1,8 +1,8 @@
 // Tarjeta de receta de la lista de Recetas (y de la página de producto): extraída de recetas/page.tsx para reutilizarla.
 import { ChefHat, Clock, Flame, Sparkles } from "lucide-react";
 import type { Allergies, Recipe } from "@/lib/types";
-import { daysUntil } from "@/lib/types";
-import { expiryLabel, type RecipeUsage } from "@/lib/pantryRecipes";
+import { daysUntil, expiresSoon, expiryLabel } from "@/lib/types";
+import type { RecipeUsage } from "@/lib/pantryRecipes";
 import { seasonalIn } from "@/lib/seasonal";
 import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { Card } from "@/components/ui/Card";
@@ -24,11 +24,6 @@ export function RecipeImagePlaceholder({ className = "" }: { className?: string 
   );
 }
 
-/** Caducidad del ingrediente coincidente más próximo (#72, R9): naranja si quedan 0–2 días, neutro si más. */
-function ExpiryChip({ days }: { days: number }) {
-  return <Chip tone={days <= 2 ? "expiring" : "neutral"}>{expiryLabel(days)}</Chip>;
-}
-
 export function RecipeCard({
   recipe: r,
   query = "",
@@ -44,6 +39,7 @@ export function RecipeCard({
   month: number;
   onSelect: (r: Recipe) => void;
 }) {
+  const soonestDays = usage?.soonest ? daysUntil(usage.soonest) : undefined;
   return (
     // La estrella va fuera del botón de la tarjeta (un botón dentro de otro no es válido)
     <div className="relative">
@@ -64,7 +60,10 @@ export function RecipeCard({
                 <span>
                   Tienes {usage.matched} de {usage.total} ingredientes
                 </span>
-                {usage.soonest && <ExpiryChip days={daysUntil(usage.soonest)} />}
+                {soonestDays !== undefined && (
+                  // #72 (R9): caducidad del coincidente más próximo; naranja con la misma regla que la Despensa.
+                  <Chip tone={expiresSoon(soonestDays) ? "expiring" : "neutral"}>{expiryLabel(soonestDays)}</Chip>
+                )}
               </div>
             )}
             <div className="flex flex-wrap gap-1.5 mt-2">
