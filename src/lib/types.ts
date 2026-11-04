@@ -54,6 +54,8 @@ export interface PantryItem {
   category: PantryCategory;
   /** Fecha (YYYY-MM-DD) en que llegó desde la lista de la compra: chip "Nuevo" (lista-compra R13). */
   addedFromListAt?: string;
+  /** Fecha (YYYY-MM-DD) en que llegó al escanear un ticket: chip "Nuevo" (#67 R7). */
+  addedFromReceiptAt?: string;
 }
 
 /** Caduca en menos de 3 días y aún no ha caducado. */
