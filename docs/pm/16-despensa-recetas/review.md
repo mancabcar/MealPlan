@@ -15,7 +15,7 @@ R1–R8 implementados y cubiertos por tests unitarios y e2e (R9 fuera de alcance
 | R6 | ⚠️ Partial | src/app/recetas/page.tsx:198 (mensaje engañoso con búsqueda, ver Blocking 1) | ✅ e2e |
 | R7 | ✅ Done | src/app/recetas/page.tsx:41 | ✅ e2e |
 | R8 | ✅ Done | src/app/recetas/page.tsx:220 | ✅ unit + e2e |
-| R9 | ⚪ Not planned | — | — |
+| R9 | ✅ Hecho en #72 | src/components/recetas/RecipeCard.tsx | unit + e2e |
 
 ## Blocking
 1. Mensaje de vacío engañoso: src/app/recetas/page.tsx:198: con el chip "con: leche" o "Usa lo que tengo" activo, una búsqueda sin resultados muestra "Ninguna receta usa leche" / "Nada que aprovechar todavía", que es falso → mostrar el mensaje solo si el vacío persiste sin texto de búsqueda (o usar "Sin resultados para «<texto>»" cuando `search` no está vacío).

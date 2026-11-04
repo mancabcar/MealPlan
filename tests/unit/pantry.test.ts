@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { isExpired, isExpiringSoon, type PantryItem } from "@/lib/types";
+import { expiresSoon, expiryLabel, isExpired, isExpiringSoon, type PantryItem } from "@/lib/types";
 
 const item = (expiryDate?: string): PantryItem => ({
   id: "1",
@@ -34,5 +34,21 @@ describe("Despensa: avisos de caducidad", () => {
   it("sin fecha no avisa", () => {
     expect(isExpiringSoon(item())).toBe(false);
     expect(isExpired(item())).toBe(false);
+  });
+});
+
+// #72 (R9 de #16): chip de caducidad de la tarjeta de receta. El color usa la misma regla que la Despensa.
+describe("Tarjeta de receta: chip de caducidad", () => {
+  it("texto: hoy, mañana y en N días", () => {
+    expect(expiryLabel(0)).toBe("caduca hoy");
+    expect(expiryLabel(1)).toBe("caduca mañana");
+    expect(expiryLabel(2)).toBe("caduca en 2 días");
+    expect(expiryLabel(10)).toBe("caduca en 10 días");
+  });
+
+  it("naranja (pronto) con 0–2 días, neutro desde 3", () => {
+    expect([0, 1, 2].map(expiresSoon)).toEqual([true, true, true]);
+    expect([3, 10].map(expiresSoon)).toEqual([false, false]);
+    expect(expiresSoon(-1)).toBe(false); // caducado
   });
 });

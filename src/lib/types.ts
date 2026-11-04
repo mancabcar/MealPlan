@@ -58,11 +58,22 @@ export interface PantryItem {
   addedFromReceiptAt?: string;
 }
 
+/** Quedan 0–2 días: la regla de "caduca pronto", compartida por la Despensa y la tarjeta de receta (#72). */
+export function expiresSoon(days: number): boolean {
+  return days >= 0 && days < 3;
+}
+
 /** Caduca en menos de 3 días y aún no ha caducado. */
 export function isExpiringSoon(item: PantryItem): boolean {
   if (!item.expiryDate) return false;
-  const days = daysUntil(item.expiryDate);
-  return days >= 0 && days < 3;
+  return expiresSoon(daysUntil(item.expiryDate));
+}
+
+/** Texto del chip de caducidad de la tarjeta de receta (#72, R9 de #16). */
+export function expiryLabel(days: number): string {
+  if (days <= 0) return "caduca hoy";
+  if (days === 1) return "caduca mañana";
+  return `caduca en ${days} días`;
 }
 
 export function isExpired(item: PantryItem): boolean {
