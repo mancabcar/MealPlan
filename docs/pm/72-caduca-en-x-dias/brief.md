@@ -1,6 +1,6 @@
 # "Caduca en X días" en la tarjeta de receta
 
-_Status: coding · Updated: 2026-11-04 · Issue: [#72](https://github.com/mancabcar/MealPlan/issues/72)_
+_Status: in review · Updated: 2026-11-04 · Issue: [#72](https://github.com/mancabcar/MealPlan/issues/72) · PR: [#187](https://github.com/mancabcar/MealPlan/pull/187)_
 
 ## Problema
 R9 (Could) de la [spec de #16](../16-despensa-recetas/spec.md), que quedó fuera de la PR #71: con "Usa lo que tengo" activo, la tarjeta solo dice "caduca pronto" (0–2 días) y no cuánto queda.
