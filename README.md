@@ -1,5 +1,15 @@
 # 🥗 MealPlanner (web)
 
+> **In English.** MealPlanner is a mobile-first web app for planning meals: a macro diary, a weekly meal plan with a shopping list, a recipe book with AI suggestions and URL import, and a pantry that warns before food expires. **[Try the live app](https://meal-plan-lake-nine.vercel.app)**. The app and the rest of this README are in Spanish.
+>
+> | Diary | Weekly plan | Recipes | Pantry |
+> |---|---|---|---|
+> | <img src="docs/screenshots/diario.png" width="200" alt="Diary: calories today and this week"> | <img src="docs/screenshots/plan.png" width="200" alt="Weekly plan with macros per day"> | <img src="docs/screenshots/recetas.png" width="200" alt="Recipes: seasonal picks, AI suggestions and filters"> | <img src="docs/screenshots/despensa.png" width="200" alt="Pantry with expiry warnings"> |
+>
+> **How it's built.** I build MealPlan with [Claude Code](https://claude.com/claude-code), following a spec-driven product process. Each feature starts as a GitHub issue and goes through a brief, a spec with acceptance criteria, a tech design and a code review, all kept in [`docs/pm/`](docs/pm/) (about 40 features so far). The acceptance criteria become automated tests (Vitest unit tests and Playwright end-to-end and accessibility tests) before the code is written. Every change lands through a pull request, and CI runs lint, type checks, tests and the build before deploying.
+>
+> **Stack:** Next.js 16 · TypeScript · Tailwind CSS · Neon Postgres · Claude API · Playwright · GitHub Actions
+
 Planificador de comidas: diario de macros, plan semanal, recetario (40 recetas en español + generación con IA) y despensa con avisos de caducidad.
 
 Antes era una app iOS (SwiftUI/SwiftData) — el código está en el historial de git. Se portó a web para no depender de Mac ni de licencia de desarrollador de Apple.
