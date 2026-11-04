@@ -1,6 +1,6 @@
 # "Caduca en X días" en la tarjeta de receta
 
-_Status: in review · Updated: 2026-11-04 · Issue: [#72](https://github.com/mancabcar/MealPlan/issues/72) · PR: [#187](https://github.com/mancabcar/MealPlan/pull/187)_
+_Status: in review · Updated: 2026-11-04 · Issue: [#72](https://github.com/mancabcar/MealPlan/issues/72) · PR: [#187](https://github.com/mancabcar/MealPlan/pull/187) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 ## Problema
 R9 (Could) de la [spec de #16](../16-despensa-recetas/spec.md), que quedó fuera de la PR #71: con "Usa lo que tengo" activo, la tarjeta solo dice "caduca pronto" (0–2 días) y no cuánto queda.
@@ -16,4 +16,4 @@ Cambio pequeño, entrada directa a dev-code (sin spec ni tech design propios; el
 - El chip "caduca pronto" de la Despensa no cambia.
 
 ## Follow-ups
-- Ninguno por ahora.
+- Días negativos se muestran como "caduca hoy" (Recetas abierta pasada la medianoche sin re-render). Solo en el brief, sin issue.
