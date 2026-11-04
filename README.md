@@ -9,6 +9,8 @@
 > **How it's built.** I build MealPlan with [Claude Code](https://claude.com/claude-code), following a spec-driven product process. Each feature starts as a GitHub issue and goes through a brief, a spec with acceptance criteria, a tech design and a code review, all kept in [`docs/pm/`](docs/pm/) (about 40 features so far). The acceptance criteria become automated tests (Vitest unit tests and Playwright end-to-end and accessibility tests) before the code is written. Every change lands through a pull request, and CI runs lint, type checks, tests and the build before deploying.
 >
 > **Stack:** Next.js 16 · TypeScript · Tailwind CSS · Neon Postgres · Claude API · Playwright · GitHub Actions
+>
+> **License:** code under [MIT](LICENSE). The food data keeps the licences of its sources (CIQUAL 2020, USDA FoodData Central, Open Food Facts), listed under «Datos de alimentos» below.
 
 Planificador de comidas: diario de macros, plan semanal, recetario (40 recetas en español + generación con IA) y despensa con avisos de caducidad.
 
