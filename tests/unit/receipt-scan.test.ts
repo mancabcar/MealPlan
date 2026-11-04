@@ -1,13 +1,16 @@
 // Spec: docs/pm/67-escanear-ticket/spec.md › R2, R4, R6. Tech: tech.md › APIs / interfaces (`src/lib/receiptScan.ts`).
 // Contrato de `src/lib/receiptScan.ts` (puro, compartido por la ruta y el front):
 //   - `parseReceiptReply(text)`: extrae `{ lines: ReceiptLine[] }` del texto de Claude (también dentro de ```json```).
-//     Recorta textos; descarta líneas sin nombre; categoría fuera de Nevera/Despensa/Congelador → "Despensa";
-//     `isFood` no booleano → true; cantidad ausente → "". Devuelve `null` si no queda ninguna línea válida.
+//     Recorta textos; descarta líneas sin nombre; categoría sin distinguir mayúsculas, fuera de Nevera/Despensa/
+//     Congelador → "Despensa"; `isFood` no booleano → true; cantidad ausente o vacía → "1 ud" (review #186). Si el JSON
+//     está cortado, conserva las líneas completas. Devuelve `null` si no queda ninguna línea válida.
+//   - `canConfirm(lines)`: alguna marcada y ninguna marcada sin nombre ni cantidad.
+//   - `isJpegBase64(image)`: alfabeto base64 y cabecera /9j/.
 //   - `toPantryItems(lines, today)`: un PantryItem nuevo por línea con `checked: true`, con id nuevo y
 //     `addedFromReceiptAt: today`.
 //   - `buildReceiptPrompt(foodNames)`: el prompt incluye los nombres de la Base de alimentos (R6).
 import { describe, expect, it } from "vitest";
-import { buildReceiptPrompt, parseReceiptReply, toPantryItems } from "@/lib/receiptScan";
+import { buildReceiptPrompt, canConfirm, isJpegBase64, parseReceiptReply, toPantryItems } from "@/lib/receiptScan";
 import { CLAUDE_REPLY, RECEIPT_LINES } from "../fixtures/escanear-ticket";
 
 const TODAY = "2026-09-22";
@@ -65,14 +68,42 @@ describe("R2: leer la respuesta de Claude", () => {
     expect(lines?.map((l) => l.isFood)).toEqual([true, true]);
   });
 
-  it("recorta espacios del nombre y la cantidad, y una cantidad ausente queda vacía", () => {
+  it("recorta espacios del nombre y la cantidad, y una cantidad ausente o vacía pasa a '1 ud'", () => {
     const lines = parseReceiptReply(
-      JSON.stringify({ lines: [{ name: "  Queso fresco ", quantity: " 250 g ", category: "Nevera", isFood: true }, { name: "Sal", category: "Despensa", isFood: true }] }),
+      JSON.stringify({
+        lines: [
+          { name: "  Queso fresco ", quantity: " 250 g ", category: "Nevera", isFood: true },
+          { name: "Sal", category: "Despensa", isFood: true },
+          { name: "Pimienta", quantity: "  ", category: "Despensa", isFood: true },
+        ],
+      }),
     );
     expect(lines).toEqual([
       { name: "Queso fresco", quantity: "250 g", category: "Nevera", isFood: true },
-      { name: "Sal", quantity: "", category: "Despensa", isFood: true },
+      { name: "Sal", quantity: "1 ud", category: "Despensa", isFood: true },
+      { name: "Pimienta", quantity: "1 ud", category: "Despensa", isFood: true },
     ]);
+  });
+
+  it("la ubicación no distingue mayúsculas ni espacios", () => {
+    const lines = parseReceiptReply(
+      JSON.stringify({
+        lines: [
+          { name: "Yogur", quantity: "4 uds", category: "nevera", isFood: true },
+          { name: "Guisantes", quantity: "1 bolsa", category: " CONGELADOR ", isFood: true },
+        ],
+      }),
+    );
+    expect(lines?.map((l) => l.category)).toEqual(["Nevera", "Congelador"]);
+  });
+
+  it("una respuesta cortada a mitad (límite de tokens) conserva las líneas completas", () => {
+    const cut = CLAUDE_REPLY.slice(0, CLAUDE_REPLY.indexOf("Guisantes") + 5);
+    expect(parseReceiptReply(cut)).toEqual(RECEIPT_LINES.slice(0, 3));
+  });
+
+  it("una respuesta cortada antes de la primera línea completa devuelve null", () => {
+    expect(parseReceiptReply('{"lines": [{"name": "Yogur gri')).toBeNull();
   });
 });
 
@@ -104,6 +135,35 @@ describe("R4: solo las líneas marcadas pasan a la Despensa, cada una como artí
 
   it("sin líneas marcadas no crea nada", () => {
     expect(toPantryItems(RECEIPT_LINES.map((l) => ({ ...l, checked: false })), TODAY)).toEqual([]);
+  });
+});
+
+describe("R3: cuándo se puede confirmar", () => {
+  const line = (patch: object) => ({ name: "Pan", quantity: "1 ud", category: "Despensa" as const, isFood: true, checked: true, ...patch });
+
+  it("con alguna línea marcada completa, sí", () => {
+    expect(canConfirm([line({}), line({ checked: false, name: "" })])).toBe(true);
+  });
+
+  it("sin líneas marcadas, no", () => {
+    expect(canConfirm([line({ checked: false })])).toBe(false);
+  });
+
+  it("con una marcada sin nombre o sin cantidad, no (como el formulario manual)", () => {
+    expect(canConfirm([line({}), line({ name: "  " })])).toBe(false);
+    expect(canConfirm([line({}), line({ quantity: " " })])).toBe(false);
+  });
+});
+
+describe("Validación de la imagen en la ruta", () => {
+  it("acepta base64 con cabecera JPEG", () => {
+    expect(isJpegBase64("/9j/4AAQSkZJRg==")).toBe(true);
+  });
+
+  it("rechaza otra cabecera, un prefijo data: o caracteres que no son base64", () => {
+    expect(isJpegBase64("iVBORw0KGgo=")).toBe(false);
+    expect(isJpegBase64("data:image/jpeg;base64,/9j/4AAQ")).toBe(false);
+    expect(isJpegBase64("/9j/esto no es base64!")).toBe(false);
   });
 });
 

@@ -51,34 +51,61 @@ ${foodNames.map((n) => `- ${n}`).join("\n")}`;
 type Json = unknown;
 const isObject = (v: Json): v is Record<string, Json> => typeof v === "object" && v !== null && !Array.isArray(v);
 
+/** Sin distinguir mayúsculas ni espacios ("nevera", "Congelador "); lo desconocido va a Despensa (review #186). */
 function toCategory(value: Json): PantryCategory {
-  return PANTRY_CATEGORIES.find((c) => c === value) ?? "Despensa";
+  const wanted = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return PANTRY_CATEGORIES.find((c) => c.toLowerCase() === wanted) ?? "Despensa";
 }
 
-/** Extrae las líneas de la respuesta de Claude (también dentro de un bloque ```json```); null si no queda ninguna válida. */
-export function parseReceiptReply(text: string): ReceiptLine[] | null {
-  const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
-  if (start === -1 || end <= start) return null;
-  let data: Json;
-  try {
-    data = JSON.parse(text.slice(start, end + 1));
-  } catch {
-    return null;
-  }
-  if (!isObject(data) || !Array.isArray(data.lines)) return null;
+/** Cantidad por defecto si Claude no la da: la misma que pide el prompt (el formulario manual exige cantidad). */
+export const DEFAULT_QUANTITY = "1 ud";
+
+function cleanLines(raws: Json[]): ReceiptLine[] {
   const lines: ReceiptLine[] = [];
-  for (const raw of data.lines) {
+  for (const raw of raws) {
     if (!isObject(raw) || typeof raw.name !== "string") continue;
     const name = raw.name.trim();
     if (!name) continue;
     lines.push({
       name,
-      quantity: typeof raw.quantity === "string" ? raw.quantity.trim() : "",
+      quantity: (typeof raw.quantity === "string" ? raw.quantity.trim() : "") || DEFAULT_QUANTITY,
       category: toCategory(raw.category),
       isFood: typeof raw.isFood === "boolean" ? raw.isFood : true,
     });
   }
+  return lines;
+}
+
+/** Objetos completos tras `"lines"` en una respuesta cortada (límite de tokens): se aprovecha lo leído (review #186). */
+function salvageLines(text: string): Json[] {
+  const at = text.indexOf('"lines"');
+  if (at === -1) return [];
+  return (text.slice(at).match(/\{[^{}]*\}/g) ?? []).flatMap((chunk) => {
+    try {
+      return [JSON.parse(chunk) as Json];
+    } catch {
+      return [];
+    }
+  });
+}
+
+/**
+ * Extrae las líneas de la respuesta de Claude (también dentro de un bloque ```json```). Si el JSON está cortado,
+ * conserva las líneas completas. null si no queda ninguna válida.
+ */
+export function parseReceiptReply(text: string): ReceiptLine[] | null {
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  let raws: Json[];
+  try {
+    if (start === -1 || end <= start) throw new Error("sin JSON");
+    const data: Json = JSON.parse(text.slice(start, end + 1));
+    if (!isObject(data) || !Array.isArray(data.lines)) return null;
+    raws = data.lines;
+  } catch {
+    raws = salvageLines(text);
+  }
+  const lines = cleanLines(raws);
   return lines.length > 0 ? lines : null;
 }
 
@@ -95,10 +122,15 @@ export function toPantryItems(lines: readonly EditableLine[], today: string): Pa
     }));
 }
 
-/** Se puede confirmar con al menos una línea marcada y ninguna marcada sin nombre (R3). */
+/** Se puede confirmar con al menos una línea marcada y ninguna marcada sin nombre o sin cantidad (R3; como el formulario manual). */
 export function canConfirm(lines: readonly EditableLine[]): boolean {
   const checked = lines.filter((l) => l.checked);
-  return checked.length > 0 && checked.every((l) => l.name.trim() !== "");
+  return checked.length > 0 && checked.every((l) => l.name.trim() !== "" && l.quantity.trim() !== "");
+}
+
+/** Base64 de un JPEG: solo el alfabeto base64 y la cabecera /9j/ (FF D8 FF) (review #186). */
+export function isJpegBase64(image: string): boolean {
+  return image.startsWith("/9j/") && /^[A-Za-z0-9+/]+={0,2}$/.test(image);
 }
 
 // ---------- Errores de la ruta ----------

@@ -9,6 +9,7 @@ import {
   RECEIPT_ERROR_MESSAGES,
   RECEIPT_ERROR_STATUS,
   buildReceiptPrompt,
+  isJpegBase64,
   parseReceiptReply,
   type ReceiptErrorCode,
 } from "@/lib/receiptScan";
@@ -44,7 +45,8 @@ async function readLines(request: Request, image: string): Promise<Response> {
     const response = await new Anthropic().messages.create(
       {
         model: AI_MODEL,
-        max_tokens: 4000,
+        // Margen para tickets largos; si aun así se corta, parseReceiptReply conserva las líneas completas (review #186)
+        max_tokens: 8000,
         thinking: { type: "disabled" },
         messages: [
           {
@@ -72,9 +74,6 @@ async function handle(request: Request): Promise<Response> {
   const session = await authenticate(request);
   if (!session) return failure(request, "unauthorized");
 
-  const limit = receiptLimiter.check(session.userId);
-  if (!limit.allowed) return failure(request, "rate_limited", { "Retry-After": String(limit.retryAfterSeconds) });
-
   let body: { image?: unknown; mediaType?: unknown };
   try {
     body = (await request.json()) as typeof body;
@@ -82,9 +81,13 @@ async function handle(request: Request): Promise<Response> {
     return failure(request, "invalid_image");
   }
   const { image, mediaType } = body ?? {};
-  if (typeof image !== "string" || image === "" || image.length > MAX_IMAGE_BASE64 || mediaType !== "image/jpeg") {
+  if (typeof image !== "string" || image === "" || image.length > MAX_IMAGE_BASE64 || !isJpegBase64(image) || mediaType !== "image/jpeg") {
     return failure(request, "invalid_image");
   }
+
+  // Después de validar: una imagen rechazada no gasta cupo (review #186)
+  const limit = receiptLimiter.check(session.userId);
+  if (!limit.allowed) return failure(request, "rate_limited", { "Retry-After": String(limit.retryAfterSeconds) });
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return withCors(

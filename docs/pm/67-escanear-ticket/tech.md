@@ -99,9 +99,11 @@ En la ruta: `export const maxDuration = 60`; `AI_MODEL = "claude-sonnet-5-5"`, `
 | Respuesta con 0 líneas válidas | Error `unreadable` | `parseReceiptReply` → `null` |
 | Líneas todas `isFood:false` | Lista con todas desmarcadas, botón desactivado | N = 0 |
 | `category` fuera de las tres | `"Despensa"` | `parseReceiptReply` |
-| Nombre o cantidad con espacios o vacíos | Se recortan; nombre vacío descarta la línea; cantidad vacía se permite | `parseReceiptReply` |
-| Imagen > 4 MB tras reducir, o no JPEG | `invalid_image` | Validación en la ruta |
-| Sin sesión / token caducado | 401 → mensaje de iniciar sesión | `authenticate()` |
+| Nombre o cantidad con espacios o vacíos | Se recortan; nombre vacío descarta la línea; cantidad vacía pasa a «1 ud», y una línea marcada sin cantidad impide confirmar, como el formulario manual (review #186) | `parseReceiptReply`, `canConfirm` |
+| Respuesta de Claude cortada por el límite de tokens | Se conservan las líneas completas (max_tokens 8000) (review #186) | `parseReceiptReply` |
+| Ubicación en minúsculas o con espacios | Se reconoce igual (review #186) | `parseReceiptReply` |
+| Imagen > 4 MB tras reducir, no JPEG o no base64 | `invalid_image`, antes del límite: no gasta cupo (review #186) | `isJpegBase64` en la ruta |
+| Sin sesión / token caducado | 401 → `expireSession()`: vuelve al login, como la sincronización (review #186) | `authenticate()` + sheet |
 | Sin red | Error `ai_failed` en cliente, mismo estado Error | `catch` del `fetch` |
 | Ticket con la misma línea dos veces | Dos filas independientes | Sin deduplicar |
 

@@ -40,7 +40,7 @@ export function ScanReceiptSheet({
   onManual: () => void;
   onClose: () => void;
 }) {
-  const { token } = useAuth();
+  const { token, expireSession } = useAuth();
   const [step, setStep] = useState<Step>({ kind: "choose" });
   // Cerrar el sheet cancela la lectura en curso: su respuesta ya no debe mostrar nada
   const abortRef = useRef<AbortController | null>(null);
@@ -60,6 +60,11 @@ export function ScanReceiptSheet({
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ image, mediaType: "image/jpeg" }),
       });
+      // Sesión caducada o revocada: como la sincronización, vuelve al login sin borrar la copia local (review #186)
+      if (res.status === 401) {
+        expireSession();
+        return;
+      }
       const data = (await res.json()) as ScanResponse;
       if ("error" in data) throw new ScanError(data.message || RECEIPT_ERROR_MESSAGES[data.error] || RECEIPT_ERROR_MESSAGES.ai_failed);
       if (!res.ok || !Array.isArray(data.lines) || data.lines.length === 0) throw new ScanError(RECEIPT_ERROR_MESSAGES.unreadable);
@@ -171,7 +176,13 @@ function LineList({
               onChange={(e) => onEdit(i, { name: e.target.value })}
             />
             <div className="flex gap-2">
-              <input aria-label="Cantidad" className={inputCls} value={line.quantity} onChange={(e) => onEdit(i, { quantity: e.target.value })} />
+              <input
+                aria-label="Cantidad"
+                className={inputCls}
+                value={line.quantity}
+                aria-invalid={line.checked && line.quantity.trim() === ""}
+                onChange={(e) => onEdit(i, { quantity: e.target.value })}
+              />
               <select
                 aria-label="Ubicación"
                 className={inputCls}

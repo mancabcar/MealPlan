@@ -1,7 +1,8 @@
 // Spec: docs/pm/67-escanear-ticket/spec.md › R2, R5, R6. Tech: tech.md › APIs / interfaces (`POST /api/pantry/receipt`).
 // Contrato de `server/app/api/pantry/receipt/route.ts` (exporta `OPTIONS` y `POST`):
 //   - Cabecera `Authorization: Bearer <token>`; body JSON `{ image: string (base64), mediaType: "image/jpeg" }`.
-//   - Orden: sesión → límite por usuario (`receiptLimiter`, 10 / 10 min) → validar imagen → API key → Claude.
+//   - Orden: sesión → validar imagen (base64 con cabecera JPEG /9j/, ≤ 4 MB) → límite por usuario (`receiptLimiter`,
+//     10 / 10 min; una imagen rechazada no gasta cupo) → API key → Claude. Claude con max_tokens 8000; una respuesta cortada devuelve las líneas completas.
 //   - 200: `{ lines: ReceiptLine[] }` (lo que devuelve `parseReceiptReply`).
 //   - Error: `{ error: código, message }` con ERROR_TEXTS y ERROR_STATUS (tests/fixtures/escanear-ticket.ts):
 //       unauthorized 401 · rate_limited 429 (+ Retry-After) · invalid_image 400 · unreadable 422 · ai_failed 502.
@@ -103,6 +104,24 @@ describe("R2: un ticket legible devuelve sus líneas", () => {
   });
 });
 
+describe("Respuesta cortada por el límite de tokens (review #186)", () => {
+  it("pide hasta 8000 tokens", async () => {
+    claudeReturns(CLAUDE_REPLY);
+    await scan();
+    expect(create.mock.calls[0][0].max_tokens).toBe(8000);
+  });
+
+  it("devuelve las líneas completas en vez de perder el ticket entero", async () => {
+    create.mockResolvedValue({
+      stop_reason: "max_tokens",
+      content: [{ type: "text", text: CLAUDE_REPLY.slice(0, CLAUDE_REPLY.indexOf("Guisantes") + 5) }],
+    });
+    const { status, body } = await scan();
+    expect(status).toBe(200);
+    expect(body).toEqual({ lines: RECEIPT_LINES.slice(0, 3) });
+  });
+});
+
 describe("R6: el prompt lleva la Base de alimentos", () => {
   it("incluye nombres de src/data/foods.json", async () => {
     claudeReturns(CLAUDE_REPLY);
@@ -142,15 +161,24 @@ describe("R5: errores", () => {
   });
 
   it("una imagen de más de 4 MB en base64 responde 400", async () => {
-    const big = "A".repeat(MAX_IMAGE_BASE64 + 1);
+    const big = "/9j/" + "A".repeat(MAX_IMAGE_BASE64 - 3);
     expectError(await scan({ image: big, mediaType: "image/jpeg" }), "invalid_image");
     expect(create).not.toHaveBeenCalled();
   });
 
   it("una imagen justo en el límite se acepta", async () => {
     claudeReturns(CLAUDE_REPLY);
-    const { status } = await scan({ image: "A".repeat(MAX_IMAGE_BASE64), mediaType: "image/jpeg" });
+    const { status } = await scan({ image: "/9j/" + "A".repeat(MAX_IMAGE_BASE64 - 4), mediaType: "image/jpeg" });
     expect(status).toBe(200);
+  });
+
+  it("una imagen que no es base64 o no es un JPEG responde 400 sin llamar a Claude ni gastar cupo", async () => {
+    expectError(await scan({ image: "data:image/jpeg;base64," + TINY_JPEG_BASE64, mediaType: "image/jpeg" }), "invalid_image");
+    expectError(await scan({ image: "iVBORw0KGgoAAAANSUhEUg==", mediaType: "image/jpeg" }), "invalid_image");
+    expectError(await scan({ image: "/9j/esto no es base64", mediaType: "image/jpeg" }), "invalid_image");
+    expect(create).not.toHaveBeenCalled();
+    claudeReturns(CLAUDE_REPLY);
+    for (let i = 0; i < 10; i++) expect((await scan()).status).toBe(200);
   });
 
   it("si Claude no devuelve líneas válidas responde 422", async () => {

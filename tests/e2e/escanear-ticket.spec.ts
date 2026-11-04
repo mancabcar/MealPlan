@@ -7,10 +7,11 @@
 //   - Lista: una fila por línea, role="group" con nombre "Línea N" (desde 1), con checkbox "Añadir", campos
 //     "Nombre" y "Cantidad" y select "Ubicación". Las líneas con isFood=false empiezan desmarcadas.
 //     Botón "Añadir N productos" ("Añadir 1 producto" con N = 1), deshabilitado con N = 0 o con una línea
-//     marcada sin nombre.
+//     marcada sin nombre o sin cantidad (como el formulario manual; review #186).
 //   - Error: role="alert" con el `message` de la respuesta (si la petición ni llega, ERROR_TEXTS.ai_failed) y los
 //     botones "Reintentar" (vuelve a Elegir) y "Añadir a mano" (cierra el sheet y abre el formulario de la Despensa
 //     con el foco en el nombre).
+//   - 401 (sesión caducada): vuelve al login, como la sincronización (review #186).
 //   - Al añadir: se cierra el sheet; aviso "N añadidos" con "Deshacer"; los artículos muestran el chip "Nuevo".
 // La ruta `POST /api/pantry/receipt` se intercepta con page.route: ningún test toca el servidor ni Claude.
 // Datos: tests/fixtures/escanear-ticket.ts. Hoy = martes 2026-09-22 (signIn fija el reloj).
@@ -239,6 +240,16 @@ test.describe("R3 y R4: editar, descartar y añadir", () => {
     await expect(addButton(page)).toBeEnabled();
   });
 
+  test("una línea marcada sin cantidad impide añadir hasta corregirla", async ({ page }) => {
+    await openDespensa(page);
+    await mockScan(page, respondWith(RESPONSE_OK));
+    await scanToList(page);
+    await line(page, 2).getByLabel("Cantidad").fill("");
+    await expect(addButton(page)).toBeDisabled();
+    await line(page, 2).getByLabel("Cantidad").fill("500 g");
+    await expect(addButton(page)).toBeEnabled();
+  });
+
   test("sin ninguna línea marcada no se puede añadir", async ({ page }) => {
     await openDespensa(page);
     await mockScan(page, respondWith(RESPONSE_OK));
@@ -270,6 +281,15 @@ test.describe("R5: ticket ilegible o error", () => {
       expect(await storedPantry(page)).toEqual([]);
     });
   }
+
+  test("con la sesión caducada (401) vuelve al login sin tocar la Despensa", async ({ page }) => {
+    await openDespensa(page, [EXISTING]);
+    await mockScan(page, respondError("unauthorized"));
+    await openSheet(page);
+    await upload(page);
+    await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible();
+    expect(await storedPantry(page)).toEqual([EXISTING]);
+  });
 
   test("si la petición no llega muestra el mensaje de error de proceso", async ({ page }) => {
     await openDespensa(page);
