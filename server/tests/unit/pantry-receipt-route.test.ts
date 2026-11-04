@@ -57,7 +57,12 @@ function claudeReturns(text: string) {
   create.mockResolvedValue({ content: [{ type: "text", text }] });
 }
 
-async function scan(body: unknown = { image: TINY_JPEG_BASE64, mediaType: "image/jpeg" }, auth: string | undefined = token) {
+const VALID_BODY = { image: TINY_JPEG_BASE64, mediaType: "image/jpeg" };
+
+/** `auth` se distingue de "no pasado": scan(undefined, undefined) envía la petición sin token (un parámetro por defecto lo taparía). */
+async function scan(...args: [body?: unknown, auth?: string]) {
+  const body = args[0] ?? VALID_BODY;
+  const auth = args.length > 1 ? args[1] : token;
   const res = await POST(json("POST", ROUTE, body, auth));
   return { status: res.status, body: await res.json(), headers: res.headers };
 }

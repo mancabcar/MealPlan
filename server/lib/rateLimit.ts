@@ -45,3 +45,6 @@ export function createRateLimiter({ max, windowMs }: { max: number; windowMs: nu
 }
 
 export const importLimiter = createRateLimiter({ max: 10, windowMs: 10 * 60 * 1000 });
+
+/** Escanear ticket (#67): 10 escaneos cada 10 minutos por usuario (cada uno es una llamada de pago a Claude). */
+export const receiptLimiter = createRateLimiter({ max: 10, windowMs: 10 * 60 * 1000 });
