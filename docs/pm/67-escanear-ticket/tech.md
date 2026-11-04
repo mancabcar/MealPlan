@@ -60,7 +60,7 @@ En la ruta: `export const maxDuration = 60`; `AI_MODEL = "claude-sonnet-5-5"`, `
 - `toPantryItems(lines, today): PantryItem[]`: un artículo nuevo por línea marcada, `id` nuevo, `addedFromReceiptAt: today`.
 
 ### UI
-- Botón «Escanear ticket» junto al formulario de la Despensa. Abre `ScanReceiptSheet`.
+- Botón «Escanear ticket» junto a «Añadir» en la cabecera de la Despensa. Abre `ScanReceiptSheet`. En el móvil el título va solo en su fila y los dos botones debajo (decidido en dev-code: a 375 px el botón se partía en dos líneas).
 - **Elegir:** «Hacer foto» (`<input type="file" accept="image/*" capture="environment">`) y «Elegir imagen» (`accept="image/*"`). Cancelar el selector deja el sheet en este estado.
 - **Cargando:** texto de estado; la petición lleva `AbortController` y se aborta al cerrar el sheet.
 - **Lista:** una fila por línea: casilla, nombre, cantidad, selector de ubicación. Líneas `isFood:false` desmarcadas. Botón «Añadir N productos», desactivado con N = 0 o con alguna línea marcada sin nombre.

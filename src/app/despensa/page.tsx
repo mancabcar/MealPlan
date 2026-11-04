@@ -72,12 +72,13 @@ export default function PantryPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      {/* Título solo en su fila en el móvil: con "Escanear ticket" y "Añadir" al lado no cabía (#67) */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="font-display text-2xl font-bold">Despensa</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowScan(true)}
-            className="flex items-center gap-1.5 border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-sm font-semibold"
+            className="flex items-center gap-1.5 border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-sm font-semibold whitespace-nowrap"
           >
             <ScanLine className="w-4 h-4" aria-hidden />
             Escanear ticket
