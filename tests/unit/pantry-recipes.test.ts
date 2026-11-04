@@ -5,7 +5,7 @@
 //   rankByPantry(recipes, pantry, today) → { recipe, usage }[]
 // Reutilizan el parser y el matcher de la lista de la compra (mismas reglas de coincidencia).
 import { describe, expect, it } from "vitest";
-import { rankByPantry, recipeUsage, recipesUsingItem } from "@/lib/pantryRecipes";
+import { expiryLabel, rankByPantry, recipeUsage, recipesUsingItem } from "@/lib/pantryRecipes";
 import { indexPantry } from "@/lib/shopping/pantryMatch";
 import { recipe } from "../fixtures/shopping";
 import type { PantryItem } from "@/lib/types";
@@ -151,5 +151,15 @@ describe("R4: rankByPantry desempata por la caducidad más próxima", () => {
     const pantry = [p("1", "Huevos"), p("2", "Manzanas"), p("3", "Peras"), p("4", "Pechuga de pollo", "2026-09-22"), p("5", "Yogur natural", "2026-09-23")];
     const res = rankByPantry([B, TRES], pantry, TODAY);
     expect(res.map((x) => x.recipe.id)).toEqual(["tres", "b"]);
+  });
+});
+
+// #72 (R9 de la spec de #16): texto del chip de caducidad de la tarjeta.
+describe("R9: expiryLabel", () => {
+  it("hoy, mañana y en N días", () => {
+    expect(expiryLabel(0)).toBe("caduca hoy");
+    expect(expiryLabel(1)).toBe("caduca mañana");
+    expect(expiryLabel(2)).toBe("caduca en 2 días");
+    expect(expiryLabel(10)).toBe("caduca en 10 días");
   });
 });

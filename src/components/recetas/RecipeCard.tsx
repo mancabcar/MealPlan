@@ -2,7 +2,7 @@
 import { ChefHat, Clock, Flame, Sparkles } from "lucide-react";
 import type { Allergies, Recipe } from "@/lib/types";
 import { daysUntil } from "@/lib/types";
-import type { RecipeUsage } from "@/lib/pantryRecipes";
+import { expiryLabel, type RecipeUsage } from "@/lib/pantryRecipes";
 import { seasonalIn } from "@/lib/seasonal";
 import { AllergenBadge } from "@/components/ui/AllergenBadge";
 import { Card } from "@/components/ui/Card";
@@ -22,6 +22,11 @@ export function RecipeImagePlaceholder({ className = "" }: { className?: string 
       <ChefHat className="w-7 h-7" />
     </div>
   );
+}
+
+/** Caducidad del ingrediente coincidente más próximo (#72, R9): naranja si quedan 0–2 días, neutro si más. */
+function ExpiryChip({ days }: { days: number }) {
+  return <Chip tone={days <= 2 ? "expiring" : "neutral"}>{expiryLabel(days)}</Chip>;
 }
 
 export function RecipeCard({
@@ -59,7 +64,7 @@ export function RecipeCard({
                 <span>
                   Tienes {usage.matched} de {usage.total} ingredientes
                 </span>
-                {usage.soonest && daysUntil(usage.soonest) <= 2 && <Chip tone="expiring">caduca pronto</Chip>}
+                {usage.soonest && <ExpiryChip days={daysUntil(usage.soonest)} />}
               </div>
             )}
             <div className="flex flex-wrap gap-1.5 mt-2">

@@ -27,6 +27,13 @@ export function recipeUsage(recipe: Recipe, index: PantryIndex, today: string): 
   return { matched, total: keys.length, ...(soonest ? { soonest } : {}) };
 }
 
+/** Texto del chip de caducidad de la tarjeta (#72, R9): "caduca hoy", "caduca mañana", "caduca en N días". */
+export function expiryLabel(days: number): string {
+  if (days <= 0) return "caduca hoy";
+  if (days === 1) return "caduca mañana";
+  return `caduca en ${days} días`;
+}
+
 export function recipesUsingItem(recipes: Recipe[], item: PantryItem, today: string): Recipe[] {
   const index = indexPantry([item]);
   return recipes.filter((r) => countedKeys(r).some((key) => matchingItems(key, index, today).length > 0));
