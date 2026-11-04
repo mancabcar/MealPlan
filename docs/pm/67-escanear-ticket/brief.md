@@ -1,5 +1,5 @@
 # Escanear un ticket de compra para actualizar la Despensa
-_Status: in review · Updated: 2026-11-04 · Issue: [#67](https://github.com/mancabcar/MealPlan/issues/67) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#186](https://github.com/mancabcar/MealPlan/pull/186)_
+_Status: in review · Updated: 2026-11-04 · Issue: [#67](https://github.com/mancabcar/MealPlan/issues/67) · Spec: [spec.md](spec.md) · Tech: [tech.md](tech.md) · PR: [#186](https://github.com/mancabcar/MealPlan/pull/186) · Review: [review.md](review.md) — ⚠️ approved with follow-ups_
 
 _Entrada en el pipeline: resumen del issue confirmado por el usuario; se saltan brainstorm completo y prototype (la lista de revisión se parece a pantallas que ya existen) y se entra en spec._
 
@@ -7,6 +7,11 @@ _Entrada en el pipeline: resumen del issue confirmado por el usuario; se saltan 
 - Ticket largo en varias fotos (la v1 lee una foto por escaneo). (spec)
 - Sumar cantidades a productos que ya están en la Despensa (la v1 crea siempre un artículo nuevo). (spec)
 - Marcar como comprados en la lista de la compra los productos del ticket. (spec)
+- Prueba manual con tickets reales y la cámara del móvil tras desplegar; ajustar el prompt (tarea 7 de tech.md). (review)
+- Los avisos de Deshacer del escaneo y de la lista de la compra pueden mostrarse a la vez. (review)
+- Helper compartido para la respuesta 500 de «falta la API key» (importador, sugerencias y ticket). (review)
+- Prompt fijo del ticket con caché (cache_control). (review)
+- Quitar el segundo intento con calidad 0,6 en `receiptImage.ts`. (review)
 
 ## Problem
 Después de la compra, añadir a mano cada producto a la Despensa es lento, y el ticket ya contiene la lista de lo comprado.
