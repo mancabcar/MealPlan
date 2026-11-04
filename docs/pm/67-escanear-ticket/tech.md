@@ -112,8 +112,8 @@ En la ruta: `export const maxDuration = 60`; `AI_MODEL = "claude-sonnet-5-5"`, `
 - La cámara real (`capture`) se prueba a mano en el móvil.
 
 ## Tasks
-1. [ ] `receiptScan.ts`: tipos, prompt, `parseReceiptReply`, `toPantryItems`, errores (R2, R4, R6)
-2. [ ] `PantryItem.addedFromReceiptAt` y chip «Nuevo» en la Despensa (R7)
+1. [x] `receiptScan.ts`: tipos, prompt, `parseReceiptReply`, `toPantryItems`, errores (R2, R4, R6)
+2. [x] `PantryItem.addedFromReceiptAt` y chip «Nuevo» en la Despensa (R7)
 3. [ ] `receiptLimiter` y ruta `POST /api/pantry/receipt` con sesión, validación y Claude (R2, R5, R6)
 4. [ ] `receiptImage.ts`: reducción a JPEG en el navegador (R1)
 5. [ ] `ScanReceiptSheet`: elegir, cargando, lista editable, error (R1, R3, R5)

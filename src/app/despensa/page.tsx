@@ -118,7 +118,7 @@ export default function PantryPage() {
                       Recetas con esto
                     </button>
                   )}
-                  {item.addedFromListAt === today && <Chip tone="accent">Nuevo</Chip>}
+                  {(item.addedFromListAt === today || item.addedFromReceiptAt === today) && <Chip tone="accent">Nuevo</Chip>}
                 </div>
                 <button onClick={() => removePantryItem(item.id)} aria-label="Eliminar" className="text-[var(--color-expired)]">
                   <X className="w-4 h-4" aria-hidden />
