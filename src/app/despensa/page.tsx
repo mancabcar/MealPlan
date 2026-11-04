@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X } from "lucide-react";
+import { Plus, ScanLine, X } from "lucide-react";
 import { useApp } from "@/lib/store";
 import {
   PANTRY_CATEGORIES,
   PantryCategory,
+  type PantryItem,
   isExpired,
   isExpiringSoon,
   todayStr,
@@ -18,12 +19,13 @@ import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { inputCls } from "@/components/ui/input";
 import { Toast } from "@/components/ui/Toast";
+import { ScanReceiptSheet } from "@/components/despensa/ScanReceiptSheet";
 
 /** Ventana en la que se ofrece deshacer al llegar desde la lista de la compra (R13). */
 const UNDO_MS = 10000;
 
 export default function PantryPage() {
-  const { pantry, addPantryItem, removePantryItem, setRecipeFocus } = useApp();
+  const { pantry, addPantryItem, addPantryItems, removePantryItem, removePantryItems, setRecipeFocus } = useApp();
   const router = useRouter();
   const [showAdd, setShowAdd] = useState(false);
   const [name, setName] = useState("");
@@ -36,6 +38,22 @@ export default function PantryPage() {
   const [showUndo, setShowUndo] = useState(() => !!lastMove && Date.now() - Date.parse(lastMove.at) < UNDO_MS);
   const hideUndo = useCallback(() => setShowUndo(false), []);
   const today = todayStr();
+  // Escanear ticket (#67): sheet y aviso con Deshacer de lo recién añadido (solo en esta visita a la página)
+  const [showScan, setShowScan] = useState(false);
+  const [scanUndo, setScanUndo] = useState<string[] | null>(null);
+  const hideScanUndo = useCallback(() => setScanUndo(null), []);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const [focusName, setFocusName] = useState(0);
+  // Tras "Añadir a mano": el foco va al nombre después de que el sheet devuelva el suyo al cerrarse
+  useEffect(() => {
+    if (focusName) nameRef.current?.focus();
+  }, [focusName]);
+
+  const addScanned = (items: PantryItem[]) => {
+    addPantryItems(items);
+    setShowScan(false);
+    setScanUndo(items.map((i) => i.id));
+  };
 
   const submit = () => {
     if (!name.trim() || !quantity.trim()) return;
@@ -56,18 +74,27 @@ export default function PantryPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">Despensa</h1>
-        <button
-          onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-1.5 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg px-3 py-1.5 text-sm font-semibold"
-        >
-          <Plus className="w-4 h-4" aria-hidden />
-          Añadir
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowScan(true)}
+            className="flex items-center gap-1.5 border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-sm font-semibold"
+          >
+            <ScanLine className="w-4 h-4" aria-hidden />
+            Escanear ticket
+          </button>
+          <button
+            onClick={() => setShowAdd(!showAdd)}
+            className="flex items-center gap-1.5 bg-[var(--color-accent)] text-[var(--color-on-accent)] rounded-lg px-3 py-1.5 text-sm font-semibold"
+          >
+            <Plus className="w-4 h-4" aria-hidden />
+            Añadir
+          </button>
+        </div>
       </div>
 
       {showAdd && (
         <Card className="flex flex-col gap-3">
-          <input className={inputCls} placeholder="Nombre (p.ej. pechuga de pollo)" value={name} onChange={(e) => setName(e.target.value)} />
+          <input ref={nameRef} className={inputCls} placeholder="Nombre (p.ej. pechuga de pollo)" value={name} onChange={(e) => setName(e.target.value)} />
           <input className={inputCls} placeholder="Cantidad (p.ej. 200g, 1 bote)" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
           <label className="text-xs text-[var(--color-text-muted)] flex flex-col gap-1">
             Fecha de caducidad (opcional)
@@ -149,6 +176,36 @@ export default function PantryPage() {
         >
           {lastMove.pantryIds.length} añadidos
         </Toast>
+      )}
+
+      {scanUndo && (
+        <Toast
+          key={scanUndo[0]}
+          onDismiss={hideScanUndo}
+          durationMs={UNDO_MS}
+          action={{
+            label: "Deshacer",
+            onClick: () => {
+              removePantryItems(scanUndo);
+              hideScanUndo();
+            },
+          }}
+        >
+          {scanUndo.length} añadidos
+        </Toast>
+      )}
+
+      {showScan && (
+        <ScanReceiptSheet
+          today={today}
+          onAdd={addScanned}
+          onManual={() => {
+            setShowScan(false);
+            setShowAdd(true);
+            setFocusName((n) => n + 1);
+          }}
+          onClose={() => setShowScan(false)}
+        />
       )}
     </div>
   );
