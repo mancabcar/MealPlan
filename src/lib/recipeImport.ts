@@ -20,7 +20,7 @@ export interface ImportedJsonLd {
   tagHint?: string;
 }
 
-export type ImportErrorCode = "invalid_url" | "blocked" | "fetch_failed" | "no_recipe" | "rate_limited";
+export type ImportErrorCode = "invalid_url" | "blocked" | "fetch_failed" | "no_recipe" | "rate_limited" | "unauthorized";
 
 export type ImportResponse =
   | { recipe: ImportedRecipe; source: "jsonld" | "ai"; servingsHint?: string; tagHint?: string }
@@ -348,6 +348,7 @@ export const IMPORT_ERROR_MESSAGES: Record<ImportErrorCode, string> = {
   fetch_failed: "No se pudo descargar la página.",
   no_recipe: "No se encontró una receta en esa página.",
   rate_limited: "Demasiadas importaciones seguidas. Prueba de nuevo en unos minutos.",
+  unauthorized: "Inicia sesión para importar recetas.",
 };
 
 export const IMPORT_ERROR_STATUS: Record<ImportErrorCode, number> = {
@@ -356,4 +357,5 @@ export const IMPORT_ERROR_STATUS: Record<ImportErrorCode, number> = {
   fetch_failed: 502,
   no_recipe: 422,
   rate_limited: 429,
+  unauthorized: 401,
 };

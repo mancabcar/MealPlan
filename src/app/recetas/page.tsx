@@ -18,6 +18,7 @@ import {
 import { CALENDAR_HREF, RECIPES_HREF, productHref, useSeasonView } from "@/lib/useSeasonView";
 import { toRecipeProfile } from "@/lib/recipePrompt";
 import { apiUrl } from "@/lib/apiBase";
+import { useAuth } from "@/lib/auth";
 import { formatFiber } from "@/lib/fiber";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
@@ -54,6 +55,7 @@ export default function RecipesPage() {
 }
 
 function RecipesScreen() {
+  const { token, expireSession } = useAuth();
   const { recipes, favorites, ratings, addRecipes, saveRecipe, removeRecipe, weekPlan, profile, pantry, recipeFocus, setRecipeFocus } =
     useApp();
   const [search, setSearch] = useState("");
@@ -143,14 +145,25 @@ function RecipesScreen() {
     setGenerating(true);
     setError("");
     try {
+      // Sin sesión no se pide nada (como el ticket); AppShell ya muestra el login en ese caso
+      if (!token) {
+        expireSession();
+        return null;
+      }
       // fetch solo rechaza si no hay red (PWA, issue #21 R5): mejor que el "Failed to fetch" del navegador
       const res = await fetch(apiUrl("/api/recipes"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        // Solo con sesión (tarea 0 de docs/pm/producto/tech.md)
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         // Solo lo que usa el prompt: sexo, edad y peso no salen del navegador
         body: JSON.stringify({ profile: profile && toRecipeProfile(profile), pantryItems: pantry, ...opts }),
       }).catch(() => null);
       if (!res) throw new Error("Sin conexión. Prueba de nuevo cuando vuelvas a tener red.");
+      // Sesión caducada o revocada: vuelve al login sin borrar la copia local, como el ticket (review #186)
+      if (res.status === 401) {
+        expireSession();
+        return null;
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error generando recetas");
       if (data.recipes.length === 0 && data.droppedCount > 0) {

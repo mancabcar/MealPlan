@@ -44,7 +44,11 @@ export function createRateLimiter({ max, windowMs }: { max: number; windowMs: nu
   };
 }
 
+/** Importar receta desde URL (#19): 10 cada 10 minutos por usuario (tarea 0 de docs/pm/producto/tech.md; antes, por IP). */
 export const importLimiter = createRateLimiter({ max: 10, windowMs: 10 * 60 * 1000 });
+
+/** Generar recetas con IA: 10 cada 10 minutos por usuario, hasta el límite mensual de R14 (docs/pm/producto/tech.md, tarea 0). */
+export const recipesLimiter = createRateLimiter({ max: 10, windowMs: 10 * 60 * 1000 });
 
 /** Escanear ticket (#67): 10 escaneos cada 10 minutos por usuario (cada uno es una llamada de pago a Claude). */
 export const receiptLimiter = createRateLimiter({ max: 10, windowMs: 10 * 60 * 1000 });

@@ -285,3 +285,27 @@ test.describe("Accesibilidad", () => {
     expect(results.violations).toEqual([]);
   });
 });
+
+test.describe("Tarea 0 (docs/pm/producto/tech.md): solo con sesión", () => {
+  test("la petición lleva la sesión", async ({ page }) => {
+    await openRecetas(page);
+    let auth: string | null = null;
+    await page.route(IMPORT_ROUTE, async (route) => {
+      if (route.request().method() === "OPTIONS") return route.fulfill({ status: 204 });
+      auth = await route.request().headerValue("authorization");
+      await route.fulfill({ status: 422, json: { error: "no_recipe", message: ERROR_TEXTS.no_recipe } });
+    });
+    await startImport(page);
+    await expect(importDialog(page).getByRole("alert")).toBeVisible();
+    expect(auth).toMatch(/^Bearer .+/);
+  });
+
+  test("con la sesión caducada (401) vuelve al login sin tocar las recetas", async ({ page }) => {
+    await openRecetas(page);
+    const before = await storedRecipes(page);
+    await mockImport(page, respondError("unauthorized"));
+    await startImport(page);
+    await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible();
+    expect(await storedRecipes(page)).toEqual(before);
+  });
+});

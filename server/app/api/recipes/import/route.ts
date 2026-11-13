@@ -11,6 +11,7 @@ import {
   validateImportUrl,
   type ImportErrorCode,
 } from "../../../../../src/lib/recipeImport";
+import { authenticate, guarded } from "../../../../lib/auth";
 import { preflight, withCors } from "../../../../lib/cors";
 import { importLimiter } from "../../../../lib/rateLimit";
 import { SafeFetchError, safeFetch } from "../../../../lib/safeFetch";
@@ -57,8 +58,10 @@ async function extractWithAi(html: string): Promise<Response> {
 }
 
 async function handlePOST(request: Request): Promise<Response> {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const limit = importLimiter.check(ip);
+  // Solo con sesión (tarea 0 de docs/pm/producto/tech.md): la ruta descarga URLs y puede gastar en Claude
+  const session = await authenticate(request);
+  if (!session) return failure("unauthorized");
+  const limit = importLimiter.check(session.userId);
   if (!limit.allowed) return failure("rate_limited", { "Retry-After": String(limit.retryAfterSeconds) });
 
   let raw: unknown;
@@ -90,6 +93,4 @@ async function handlePOST(request: Request): Promise<Response> {
   return extractWithAi(html);
 }
 
-export async function POST(request: Request) {
-  return withCors(request, (await handlePOST(request)) as NextResponse);
-}
+export const POST = (request: Request) => guarded(request, async () => withCors(request, (await handlePOST(request)) as NextResponse));

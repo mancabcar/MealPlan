@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 import type { PantryItem, Recipe } from "../../../../src/lib/types";
 import { recipeViolations } from "../../../../src/lib/allergens";
 import { buildRecipePrompt, safeAllergies, safePreferredIngredient, type RecipeProfile } from "../../../../src/lib/recipePrompt";
+import { authenticate, guarded, unauthorized } from "../../../lib/auth";
 import { preflight, withCors } from "../../../lib/cors";
+import { recipesLimiter } from "../../../lib/rateLimit";
 
 export const maxDuration = 60;
 
@@ -18,7 +20,7 @@ export async function OPTIONS(request: Request) {
   return preflight(request);
 }
 
-async function handlePOST(request: Request): Promise<NextResponse> {
+async function handlePOST(request: Request, userId: string): Promise<NextResponse> {
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
       { error: "Falta la API key de Claude. Configura ANTHROPIC_API_KEY en el servidor." },
@@ -26,16 +28,27 @@ async function handlePOST(request: Request): Promise<NextResponse> {
     );
   }
 
-  const { profile, pantryItems = [], count = 3, preferredIngredient } = (await request.json()) as {
-    profile: RecipeProfile;
+  // Un cuerpo que no es JSON es un error del cliente (400), no del servidor (review de la tarea 0)
+  const body = (await request.json().catch(() => null)) as {
+    profile?: RecipeProfile;
     pantryItems?: PantryItem[];
     count?: number;
     /** Opcional (docs/pm/34-temporada): un servidor antiguo lo ignora y genera una receta genérica. */
     preferredIngredient?: unknown;
-  };
+  } | null;
+  const { profile, pantryItems = [], count = 3, preferredIngredient } = body ?? {};
 
   if (!profile) {
     return NextResponse.json({ error: "Falta el perfil del usuario." }, { status: 400 });
+  }
+
+  // Después de validar: una petición rechazada no gasta cupo (como el ticket, review #186)
+  const limit = recipesLimiter.check(userId);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Demasiadas recetas seguidas. Prueba de nuevo en unos minutos." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+    );
   }
 
   const prompt = buildRecipePrompt(profile, pantryItems, count, safePreferredIngredient(preferredIngredient));
@@ -112,6 +125,10 @@ async function handlePOST(request: Request): Promise<NextResponse> {
   }
 }
 
-export async function POST(request: Request) {
-  return withCors(request, await handlePOST(request));
-}
+// Solo con sesión (tarea 0 de docs/pm/producto/tech.md): cada llamada se paga en la API de Claude
+export const POST = (request: Request) =>
+  guarded(request, async () => {
+    const session = await authenticate(request);
+    if (!session) return unauthorized(request);
+    return withCors(request, await handlePOST(request, session.userId));
+  });
