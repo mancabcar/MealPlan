@@ -5,7 +5,7 @@ _Related: [app flow](appflow.md) · [spec](spec.md) · [tech](tech.md) · [brief
 ## TL;DR
 Encargo para diseñar desde cero la interfaz de MealPlan, sin heredar nada de la app actual. El [app flow](appflow.md) ya fija **qué** pantallas hay y cómo se conectan (Hoy · Plan · Cocina · Recetas · Yo, la hoja Añadir comida, registro obligatorio, paywall). Este brief fija **cómo** deben sentirse y verse: una herramienta tranquila y rápida para alguien que sigue un plan de alimentación, que se usa con una mano en la cocina y que nunca regaña. El entregable es un sistema de diseño ligero y las pantallas de los flujos F-1 a F-10, en claro y oscuro, en español e inglés, válidas para web, iOS y Android con una sola UI.
 
-Las decisiones marcadas **P#** son propuestas pendientes de que el dueño del producto las confirme.
+Las decisiones **P1–P8** las tomó el dueño del producto el 2026-11-13 (ver [Decisiones](#decisiones-usuario-2026-11-13)).
 
 ## 1. Qué tiene que conseguir el diseño
 | Objetivo de producto | Qué significa para el diseño | Cómo lo comprobamos |
@@ -39,15 +39,15 @@ Las decisiones marcadas **P#** son propuestas pendientes de que el dueño del pr
 - **No es:** una app de gimnasio (nada de negros y neones, ni lenguaje de «destroza tus macros»), una app médica (nada de azules clínicos ni tono de diagnóstico), ni un juego (nada de mascotas, confeti ni puntos).
 - **Voz:** frases cortas, segunda persona, verbos de acción en los botones («Registrar», «Generar lista», «Pasar a la Despensa»). Describe hechos («120 kcal por debajo») en lugar de valorar («¡Casi!»). En inglés, el mismo tono, no una traducción literal.
 
-## 5. Dirección visual (propuesta)
-**P1. Dirección: «cocina luminosa».** Fondo cálido casi blanco (no blanco puro), superficies con poco contraste entre sí, un color de marca natural y saturado con moderación, y la comida como única fuente de color fuerte. Alternativas descartadas en la propuesta: «oscuro deportivo» (choca con la personalidad) y «clínico blanco y azul» (choca con el non-goal de herramienta médica).
+## 5. Dirección visual
+**P1. Dirección: «cocina luminosa».** Fondo cálido casi blanco (no blanco puro), superficies con poco contraste entre sí, un color de marca natural y saturado con moderación, y la comida como única fuente de color fuerte. Descartadas: «oscuro deportivo» (choca con la personalidad) y «clínico blanco y azul» (choca con el non-goal de herramienta médica).
 
 | Elemento | Propuesta |
 |---|---|
 | **Color de marca** (P2) | Un verde hoja o salvia profundo como primario (acciones, pestaña activa, «cumplido»). Un acento cálido (tomate/terracota suave) solo para avisos de caducidad y 💎. |
 | **Semántica de progreso** | Por debajo del rango: neutro · dentro de la tolerancia: primario · por encima: ámbar suave. **Nunca rojo** para el objetivo diario. El rojo se reserva para acciones destructivas (borrar cuenta) y errores reales. |
 | **Macros** | Tres colores fijos y distinguibles también para daltonismo (proteína, hidratos, grasa), siempre acompañados de su inicial o nombre, nunca solo por color. |
-| **Tipografía** (P3) | Una sans humanista con cifras tabulares y buena lectura en tamaños pequeños, con soporte completo de acentos y del escalado del sistema (Dynamic Type / tamaño de fuente de Android). Por ejemplo Inter, Figtree o Nunito Sans. Cifras grandes para kcal y totales. |
+| **Tipografía** (P3) | **Figtree**, con cifras tabulares, alojada en la app y compatible con el escalado del sistema (Dynamic Type / tamaño de fuente de Android). Cifras grandes para kcal y totales. |
 | **Forma** | Esquinas redondeadas medias (12–16 px en tarjetas, píldora en chips), sombras mínimas; la jerarquía la dan el espacio y el tono, no las líneas. |
 | **Iconos** | Un solo set de trazo redondeado, del mismo grosor que el texto. Iconos con etiqueta en la barra de pestañas. |
 | **Imágenes** (P4) | Recetas con foto cuando exista; si no, un marcador ilustrado o un patrón de color con la inicial, nunca un hueco gris. Ilustraciones sencillas solo en vacíos y onboarding. |
@@ -56,7 +56,7 @@ Las decisiones marcadas **P#** son propuestas pendientes de que el dueño del pr
 
 ## 6. Plataformas y adaptación
 Una sola UI web empaquetada con Capacitor (tech design). El diseño debe sentirse nativo sin dos diseños distintos:
-- **Navegación:** barra de pestañas inferior en móvil; en pantallas ≥ 1024 px, **barra lateral** con las mismas cinco secciones (P6, cierra la open question del app flow).
+- **Navegación:** barra de pestañas inferior en móvil; en pantallas ≥ 1024 px, **barra lateral** con las mismas cinco secciones (P6).
 - **Hojas inferiores** (bottom sheets) para Añadir comida, quitar de la Despensa y selecciones rápidas; pantallas completas para detalle y edición larga.
 - **Respetar la plataforma** donde el usuario lo nota: áreas seguras y barra de estado (R17, #96), gesto de volver de iOS y botón atrás de Android, teclado numérico para cantidades, hápticos discretos al registrar y al marcar comprado, selectores de fecha del sistema.
 - **Web ancha:** el Plan muestra la semana entera en rejilla; Hoy puede mostrar el día y la semana lado a lado. Ninguna función depende del ratón (hover solo como mejora).
@@ -122,7 +122,7 @@ Breve y funcional (150–250 ms): la hoja sube y baja, el progreso crece al regi
 
 ## 13. Entregables
 1. **Moodboard y dirección visual** (P1–P5) para validar antes de seguir.
-2. **Sistema de diseño:** tokens claro/oscuro y librería de componentes con estados.
+2. **Sistema de diseño** en Claude Design (P8): tokens claro/oscuro y librería de componentes con estados.
 3. **Pantallas** de la sección 7 por prioridad, en móvil (390 pt de ancho) y ancho (1280 px) donde aplique, en claro y oscuro, en español con una muestra en inglés.
 4. **Prototipo navegable** de F-1 (primera vez) y F-5 (registrar una comida) para la prueba con usuarios.
 5. **Handoff:** especificaciones de espaciado, tokens exportables y notas de comportamiento por pantalla.
@@ -137,18 +137,18 @@ Breve y funcional (150–250 ms): la hoja sube y baja, el progreso crece al regi
 ## 15. Fuera de este brief
 - Vista para nutricionistas (R31): necesita su propia spec.
 - Web de marketing y landing de las tiendas, más allá del icono y las capturas.
-- Naming y logotipo: se mantiene «MealPlan» salvo que se decida lo contrario (P7).
+- Naming y logotipo: se mantiene «MealPlan» y se revisan en su propia tarea antes de R22 (P7).
 - Widgets o funciones exclusivas de cada plataforma (non-goal del PRD).
 
-## Decisiones pendientes (dueño del producto)
-- [ ] **P1.** Dirección visual «cocina luminosa» (frente a oscuro deportivo o clínico).
-- [ ] **P2.** Primario verde salvia/hoja con acento cálido; nunca rojo para el objetivo.
-- [ ] **P3.** Tipografía sans humanista con cifras tabulares.
-- [ ] **P4.** Recetas con foto y marcador ilustrado cuando no la hay.
-- [ ] **P5.** Modo oscuro desde la primera versión.
-- [ ] **P6.** Barra lateral en pantallas anchas (cierra la open question del app flow).
-- [ ] **P7.** ¿Se revisan el nombre y el logotipo antes de ir a las tiendas?
-- [ ] **P8.** ¿Quién diseña (dueño del producto con Claude Design, o un diseñador externo) y con qué herramienta se entrega?
+## Decisiones (usuario, 2026-11-13)
+- **P1.** Dirección visual «cocina luminosa» (descartados oscuro deportivo y clínico).
+- **P2.** Primario verde salvia/hoja con acento cálido terracota solo para caducidad y 💎; nunca rojo para el objetivo.
+- **P3.** Tipografía **Figtree** con cifras tabulares.
+- **P4.** Recetas con foto cuando exista; si no, marcador ilustrado o tesela de color con la inicial.
+- **P5.** Modo oscuro desde la primera versión, según el sistema y con opción manual en Yo › Ajustes.
+- **P6.** Barra lateral a partir de 1024 px; barra de pestañas inferior por debajo.
+- **P7.** Se mantiene «MealPlan» por ahora; nombre y logotipo se revisan en su propia tarea antes de R22.
+- **P8.** Diseña el dueño del producto con Claude: sistema de diseño y pantallas en Claude Design.
 
 ## Open questions
 - [ ] ¿Las fotos de las recetas semilla existen o hay que producirlas o licenciarlas?
