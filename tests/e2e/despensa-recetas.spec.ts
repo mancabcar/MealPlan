@@ -197,7 +197,8 @@ test.describe("R6/R7: el vacío causado por la búsqueda no se atribuye al filtr
 });
 
 test.describe("R8: con el filtro activo, cada tarjeta muestra cuánto tengo", () => {
-  test("'Tienes N de M ingredientes' y chip 'caduca pronto' solo si algún coincidente caduca en 0–2 días", async ({ page }) => {
+  // #72 (R9): el chip dice cuándo caduca el coincidente más próximo, en lugar del antiguo "caduca pronto".
+  test("'Tienes N de M ingredientes' y chip 'caduca …' del coincidente más próximo", async ({ page }) => {
     await signIn(page, seed());
     await page.goto("/recetas");
     await expect(page.getByText(/Tienes \d+ de \d+ ingredientes/)).toHaveCount(0); // sin filtro no hay texto
@@ -205,10 +206,19 @@ test.describe("R8: con el filtro activo, cada tarjeta muestra cuánto tengo", ()
     await useWhatIHave(page).click();
     const tres = card(page, "Cuscús con membrillo y mascarpone");
     await expect(tres).toContainText("Tienes 3 de 3 ingredientes");
-    await expect(tres).toContainText("caduca pronto"); // membrillo a 1 día
+    await expect(tres).toContainText("caduca mañana"); // membrillo a 1 día (mascarpone a 3)
 
     const bol = card(page, "Bol de mascarpone");
     await expect(bol).toContainText("Tienes 1 de 2 ingredientes");
-    await expect(bol).not.toContainText("caduca pronto"); // mascarpone a 3 días
+    await expect(bol).toContainText("caduca en 3 días"); // mascarpone a 3 días
+  });
+
+  test("sin fecha en los coincidentes no hay chip de caducidad", async ({ page }) => {
+    await signIn(page, seed([item("p-cuscus", "Cuscús", { category: "Despensa" })]));
+    await page.goto("/recetas");
+    await useWhatIHave(page).click();
+    const tarta = card(page, "Tarta de requesón");
+    await expect(tarta).toContainText("Tienes 1 de");
+    await expect(tarta).not.toContainText("caduca");
   });
 });
