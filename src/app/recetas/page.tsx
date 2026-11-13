@@ -145,6 +145,11 @@ function RecipesScreen() {
     setGenerating(true);
     setError("");
     try {
+      // Sin sesión no se pide nada (como el ticket); AppShell ya muestra el login en ese caso
+      if (!token) {
+        expireSession();
+        return null;
+      }
       // fetch solo rechaza si no hay red (PWA, issue #21 R5): mejor que el "Failed to fetch" del navegador
       const res = await fetch(apiUrl("/api/recipes"), {
         method: "POST",

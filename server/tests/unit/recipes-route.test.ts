@@ -254,6 +254,14 @@ describe("Tarea 0 (docs/pm/producto/tech.md): solo con sesión", () => {
     expect(create).not.toHaveBeenCalled();
   });
 
+  it("un cuerpo que no es JSON responde 400, no 500", async () => {
+    const res = await POST(
+      new Request("http://localhost/api/recipes", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: "no-json" }),
+    );
+    expect(res.status).toBe(400);
+    expect(create).not.toHaveBeenCalled();
+  });
+
   it("con sesión válida genera", async () => {
     const { status, body } = await generate(lucia);
     expect(status).toBe(200);

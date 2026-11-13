@@ -36,6 +36,11 @@ export function ImportRecipeSheet({
     const controller = new AbortController();
     abortRef.current = controller;
     try {
+      // Sin sesión no se pide nada (como el ticket); AppShell ya muestra el login en ese caso
+      if (!token) {
+        expireSession();
+        return;
+      }
       const res = await fetch(apiUrl("/api/recipes/import"), {
         method: "POST",
         signal: controller.signal,

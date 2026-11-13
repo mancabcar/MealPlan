@@ -28,13 +28,15 @@ async function handlePOST(request: Request, userId: string): Promise<NextRespons
     );
   }
 
-  const { profile, pantryItems = [], count = 3, preferredIngredient } = (await request.json()) as {
-    profile: RecipeProfile;
+  // Un cuerpo que no es JSON es un error del cliente (400), no del servidor (review de la tarea 0)
+  const body = (await request.json().catch(() => null)) as {
+    profile?: RecipeProfile;
     pantryItems?: PantryItem[];
     count?: number;
     /** Opcional (docs/pm/34-temporada): un servidor antiguo lo ignora y genera una receta genérica. */
     preferredIngredient?: unknown;
-  };
+  } | null;
+  const { profile, pantryItems = [], count = 3, preferredIngredient } = body ?? {};
 
   if (!profile) {
     return NextResponse.json({ error: "Falta el perfil del usuario." }, { status: 400 });
