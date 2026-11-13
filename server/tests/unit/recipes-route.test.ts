@@ -3,6 +3,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Recipe, UserProfile } from "../../../src/lib/types";
 import { lucia, manuel } from "../../../tests/fixtures/profiles";
+import { INVITE, json, resetStore, useEnv } from "../helpers/api";
 
 const create = vi.fn();
 
@@ -17,7 +18,16 @@ vi.mock("@anthropic-ai/sdk", () => {
   return { default: Anthropic };
 });
 
+const { POST: register } = await import("../../app/api/auth/register/route");
 const { POST } = await import("../../app/api/recipes/route");
+const { recipesLimiter } = await import("../../lib/rateLimit");
+
+let token: string;
+
+async function signUp(username: string): Promise<string> {
+  const res = await register(json("POST", "/api/auth/register", { username, password: "secreto-123", invite: INVITE }));
+  return (await res.json()).token;
+}
 
 const recipe = (name: string, ingredients: string[]): Recipe => ({
   id: "x",
@@ -36,14 +46,8 @@ function claudeReturns(recipes: Recipe[]) {
   create.mockResolvedValue({ content: [{ type: "text", text: JSON.stringify(recipes) }] });
 }
 
-async function generate(profile: UserProfile | Record<string, unknown>) {
-  const res = await POST(
-    new Request("http://localhost/api/recipes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ profile, pantryItems: [] }),
-    }),
-  );
+async function generate(profile: UserProfile | Record<string, unknown>, auth: string | null = token) {
+  const res = await POST(json("POST", "/api/recipes", { profile, pantryItems: [] }, auth ?? undefined));
   return { status: res.status, body: await res.json() };
 }
 
@@ -63,8 +67,12 @@ const allergicToNuts: UserProfile = {
   dislikedIngredients: ["Hígado"],
 };
 
-beforeEach(() => {
+beforeEach(async () => {
   create.mockReset();
+  resetStore();
+  useEnv();
+  recipesLimiter.reset();
+  token = await signUp("lucia");
   process.env.ANTHROPIC_API_KEY = "test-key";
   claudeReturns([recipe("Pollo al horno", ["pechuga de pollo"])]);
 });
@@ -147,13 +155,7 @@ describe("R18: se descartan las recetas con alérgenos antes de mostrarlas", () 
 // docs/pm/34-temporada/spec.md › R5: ingrediente preferido opcional (p. ej. un producto de temporada).
 describe("R5: preferredIngredient llega al prompt como preferencia, y solo si es válido", () => {
   const post = (body: Record<string, unknown>) =>
-    POST(
-      new Request("http://localhost/api/recipes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profile: lucia, pantryItems: [], ...body }),
-      }),
-    );
+    POST(json("POST", "/api/recipes", { profile: lucia, pantryItems: [], ...body }, token));
 
   it("lo incluye en el prompt como ingrediente principal «si es posible»", async () => {
     await post({ count: 1, preferredIngredient: "Membrillo" });
@@ -236,5 +238,48 @@ describe("#165: la IA tiene su propio límite de tiempo y no reintenta", () => {
     await generate(lucia);
     expect(create.mock.calls[0][1]).toMatchObject({ maxRetries: 0 });
     expect(create.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
+  });
+});
+
+describe("Tarea 0 (docs/pm/producto/tech.md): solo con sesión", () => {
+  it("sin token responde 401 y no llama a Claude", async () => {
+    const { status } = await generate(lucia, null);
+    expect(status).toBe(401);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("con un token que no existe responde 401 y no llama a Claude", async () => {
+    const { status } = await generate(lucia, "token-inventado");
+    expect(status).toBe(401);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("con sesión válida genera", async () => {
+    const { status, body } = await generate(lucia);
+    expect(status).toBe(200);
+    expect(body.recipes).toHaveLength(1);
+  });
+});
+
+describe("Tarea 0: límite por usuario hasta R14 (10 cada 10 minutos)", () => {
+  it("la generación número 11 del mismo usuario es 429 con Retry-After y no llama a Claude", async () => {
+    for (let i = 0; i < 10; i++) expect((await generate(lucia)).status, `generación ${i + 1}`).toBe(200);
+    create.mockClear();
+    const res = await POST(json("POST", "/api/recipes", { profile: lucia, pantryItems: [] }, token));
+    expect(res.status).toBe(429);
+    expect((await res.json()).error).toMatch(/demasiadas/i);
+    expect(Number(res.headers.get("Retry-After"))).toBeGreaterThan(0);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("otro usuario no queda limitado", async () => {
+    for (let i = 0; i < 11; i++) await generate(lucia);
+    const other = await signUp("manuel");
+    expect((await generate(manuel, other)).status).toBe(200);
+  });
+
+  it("una petición sin perfil (400) no gasta cupo", async () => {
+    for (let i = 0; i < 11; i++) expect((await POST(json("POST", "/api/recipes", { pantryItems: [] }, token))).status).toBe(400);
+    expect((await generate(lucia)).status).toBe(200);
   });
 });

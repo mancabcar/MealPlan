@@ -1,15 +1,17 @@
 // Spec: docs/pm/19-importar-receta-url/spec.md › R2, R3, R6, R7. Tech: tech.md › APIs / interfaces (`POST /api/recipes/import`).
 // Contrato de `server/app/api/recipes/import/route.ts` (exporta `OPTIONS` y `POST`):
-//   - Body JSON `{ url: string }`. Orden: límite por IP → validar URL → safeFetch → JSON-LD → (si no hay) Claude.
+//   - Cabecera `Authorization: Bearer <token>` (tarea 0 de docs/pm/producto/tech.md); sin sesión válida, unauthorized 401.
+//   - Body JSON `{ url: string }`. Orden: sesión → límite por usuario → validar URL → safeFetch → JSON-LD → (si no hay) Claude.
 //   - 200: `{ recipe, source: "jsonld" | "ai", servingsHint?, tagHint? }` (mismos campos que src/lib/recipeImport.ts).
 //   - Error: `{ error: código, message }` con el texto de ERROR_TEXTS y el status de ERROR_STATUS:
-//       invalid_url 400 · blocked 400 · fetch_failed 502 · no_recipe 422 · rate_limited 429 (+ cabecera Retry-After).
+//       unauthorized 401 · invalid_url 400 · blocked 400 · fetch_failed 502 · no_recipe 422 · rate_limited 429 (+ cabecera Retry-After).
 //   - La IA solo se llama si no hay JSON-LD Recipe, con el modelo claude-haiku-5-5 (sin pensamiento, #180), una sola vez (sin reintentos),
 //     y solo con el texto de la página (máx. 30.000 caracteres). Cualquier fallo de la IA es no_recipe.
 //   - Con JSON-LD no hace falta ANTHROPIC_API_KEY. CORS igual que /api/recipes (CORS_ALLOWED_ORIGIN).
-//   - La IP del límite sale del primer valor de `x-forwarded-for`; sin cabecera todas comparten la clave "unknown".
+//   - El límite (10 cada 10 minutos) es por usuario, no por IP.
 // `safeFetch` y el SDK de Anthropic se simulan: ningún test toca la red ni la API real.
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { INVITE, json, resetStore, useEnv } from "../helpers/api";
 import {
   CALABAZA_AI,
   ERROR_STATUS,
@@ -48,6 +50,7 @@ vi.mock("../../lib/safeFetch", () => {
   return { SafeFetchError, safeFetch: (...args: unknown[]) => safeFetch(...args) };
 });
 
+const { POST: register } = await import("../../app/api/auth/register/route");
 const { OPTIONS, POST } = await import("../../app/api/recipes/import/route");
 const { importLimiter } = await import("../../lib/rateLimit");
 const { SafeFetchError } = await import("../../lib/safeFetch");
@@ -55,10 +58,20 @@ const { SafeFetchError } = await import("../../lib/safeFetch");
 const ALLOWED = "https://home-5021533470.app-ionos.space";
 const HAIKU = "claude-haiku-5-5";
 
-beforeEach(() => {
+let token: string;
+
+async function signUp(username: string): Promise<string> {
+  const res = await register(json("POST", "/api/auth/register", { username, password: "secreto-123", invite: INVITE }));
+  return (await res.json()).token;
+}
+
+beforeEach(async () => {
   create.mockReset();
   safeFetch.mockReset();
   importLimiter.reset();
+  resetStore();
+  useEnv();
+  token = await signUp("lucia");
   process.env.ANTHROPIC_API_KEY = "sk-test";
   process.env.CORS_ALLOWED_ORIGIN = ALLOWED;
 });
@@ -77,7 +90,7 @@ async function importUrl(...args: [url?: unknown, headers?: Record<string, strin
   const res = await POST(
     new Request("http://localhost/api/recipes/import", {
       method: "POST",
-      headers: { "Content-Type": "application/json", origin: ALLOWED, ...headers },
+      headers: { "Content-Type": "application/json", origin: ALLOWED, Authorization: `Bearer ${token}`, ...headers },
       body: JSON.stringify({ url }),
     }),
   );
@@ -247,7 +260,9 @@ describe("R7: validación de la URL antes de descargar", () => {
   );
 
   it("un cuerpo que no es JSON → invalid_url", async () => {
-    const res = await POST(new Request("http://localhost/api/recipes/import", { method: "POST", body: "no-json" }));
+    const res = await POST(
+      new Request("http://localhost/api/recipes/import", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: "no-json" }),
+    );
     expect(res.status).toBe(400);
     expect((await res.json()).error).toBe("invalid_url");
   });
@@ -260,14 +275,45 @@ describe("R7: validación de la URL antes de descargar", () => {
   });
 });
 
-describe("R7: límite de peticiones por IP", () => {
-  const ip = (n: string) => ({ "x-forwarded-for": n });
+describe("Tarea 0 (docs/pm/producto/tech.md): solo con sesión", () => {
+  it("sin token responde unauthorized 401 sin descargar ni llamar a Claude", async () => {
+    pageIs(HTML_TEXT_ONLY);
+    const res = await POST(
+      new Request("http://localhost/api/recipes/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", origin: ALLOWED },
+        body: JSON.stringify({ url: RECIPE_URL }),
+      }),
+    );
+    const body = await res.json();
+    expect(res.status).toBe(401);
+    expect(body.error).toBe("unauthorized");
+    expect(body.message).toBe(ERROR_TEXTS.unauthorized);
+    expect(res.headers.get("Access-Control-Allow-Origin")).toBe(ALLOWED);
+    expect(safeFetch).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+  });
 
-  it("la importación número 11 desde la misma IP en 10 minutos es rate_limited", async () => {
+  it("con un token que no existe responde 401", async () => {
     pageIs(HTML_JSONLD);
-    for (let i = 0; i < 10; i++) expect((await importUrl(RECIPE_URL, ip("5.5.5.5"))).status, `importación ${i + 1}`).toBe(200);
+    const res = await importUrl(RECIPE_URL, { Authorization: "Bearer token-inventado" });
+    expect(res.status).toBe(401);
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
+  it("las peticiones sin sesión no gastan el cupo de nadie", async () => {
+    pageIs(HTML_JSONLD);
+    for (let i = 0; i < 11; i++) await importUrl(RECIPE_URL, { Authorization: "Bearer token-inventado" });
+    expect((await importUrl()).status).toBe(200);
+  });
+});
+
+describe("R7: límite de peticiones por usuario", () => {
+  it("la importación número 11 del mismo usuario en 10 minutos es rate_limited", async () => {
+    pageIs(HTML_JSONLD);
+    for (let i = 0; i < 10; i++) expect((await importUrl()).status, `importación ${i + 1}`).toBe(200);
     safeFetch.mockClear();
-    const res = await importUrl(RECIPE_URL, ip("5.5.5.5"));
+    const res = await importUrl();
     expect(res.status).toBe(429);
     expect(res.body.error).toBe("rate_limited");
     expect(res.body.message).toBe(ERROR_TEXTS.rate_limited);
@@ -275,27 +321,23 @@ describe("R7: límite de peticiones por IP", () => {
     expect(safeFetch).not.toHaveBeenCalled();
   });
 
-  it("otra IP no queda limitada", async () => {
+  it("otro usuario no queda limitado aunque comparta IP", async () => {
     pageIs(HTML_JSONLD);
-    for (let i = 0; i < 11; i++) await importUrl(RECIPE_URL, ip("5.5.5.5"));
-    expect((await importUrl(RECIPE_URL, ip("6.6.6.6"))).status).toBe(200);
+    const ip = { "x-forwarded-for": "5.5.5.5" };
+    for (let i = 0; i < 11; i++) await importUrl(RECIPE_URL, ip);
+    const other = await signUp("manuel");
+    expect((await importUrl(RECIPE_URL, { ...ip, Authorization: `Bearer ${other}` })).status).toBe(200);
   });
 
-  it("usa la primera IP de x-forwarded-for", async () => {
+  it("cambiar de IP no salta el límite", async () => {
     pageIs(HTML_JSONLD);
-    for (let i = 0; i < 10; i++) await importUrl(RECIPE_URL, ip("7.7.7.7, 10.0.0.1"));
-    expect((await importUrl(RECIPE_URL, ip("7.7.7.7, 10.0.0.2"))).status).toBe(429);
+    for (let i = 0; i < 10; i++) await importUrl(RECIPE_URL, { "x-forwarded-for": "7.7.7.7" });
+    expect((await importUrl(RECIPE_URL, { "x-forwarded-for": "8.8.8.8" })).status).toBe(429);
   });
 
   it("las peticiones con URL inválida también cuentan (no se puede sondear gratis)", async () => {
-    for (let i = 0; i < 10; i++) await importUrl("no es una url", ip("8.8.4.4"));
+    for (let i = 0; i < 10; i++) await importUrl("no es una url");
     pageIs(HTML_JSONLD);
-    expect((await importUrl(RECIPE_URL, ip("8.8.4.4"))).status).toBe(429);
-  });
-
-  it("sin x-forwarded-for todas comparten la clave 'unknown'", async () => {
-    pageIs(HTML_JSONLD);
-    for (let i = 0; i < 10; i++) await importUrl();
     expect((await importUrl()).status).toBe(429);
   });
 });

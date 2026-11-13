@@ -130,6 +130,7 @@ export const ERROR_TEXTS = {
   invalid_url: "Escribe una URL válida (http o https).",
   blocked: "Esa dirección no está permitida.",
   rate_limited: "Demasiadas importaciones seguidas. Prueba de nuevo en unos minutos.",
+  unauthorized: "Inicia sesión para importar recetas.",
 } as const;
 
 /** Códigos HTTP de la ruta por error (tech.md › APIs / interfaces). */
@@ -139,4 +140,5 @@ export const ERROR_STATUS = {
   fetch_failed: 502,
   no_recipe: 422,
   rate_limited: 429,
+  unauthorized: 401,
 } as const;

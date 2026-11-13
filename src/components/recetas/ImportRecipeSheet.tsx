@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Sheet } from "@/components/ui/Sheet";
 import { inputCls } from "@/components/ui/input";
 import { apiUrl } from "@/lib/apiBase";
+import { useAuth } from "@/lib/auth";
 import { IMPORT_ERROR_MESSAGES, validateImportUrl, type ImportResponse } from "@/lib/recipeImport";
 import type { ImportedDraft } from "@/components/recetas/RecipeForm";
 
@@ -19,6 +20,7 @@ export function ImportRecipeSheet({
   onManual: (sourceUrl?: string) => void;
   onClose: () => void;
 }) {
+  const { token, expireSession } = useAuth();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -37,9 +39,15 @@ export function ImportRecipeSheet({
       const res = await fetch(apiUrl("/api/recipes/import"), {
         method: "POST",
         signal: controller.signal,
-        headers: { "Content-Type": "application/json" },
+        // Solo con sesión (tarea 0 de docs/pm/producto/tech.md)
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ url: url.trim() }),
       });
+      // Sesión caducada o revocada: vuelve al login sin borrar la copia local, como el ticket (review #186)
+      if (res.status === 401) {
+        expireSession();
+        return;
+      }
       const data = (await res.json()) as ImportResponse;
       if ("error" in data) {
         setError(data.message || IMPORT_ERROR_MESSAGES[data.error]);

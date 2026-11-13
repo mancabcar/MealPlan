@@ -17,3 +17,27 @@ test("R18: si todas las recetas llevaban alérgenos, se avisa en vez de mostrar 
   await page.getByRole("button", { name: /Sugerir con IA/i }).first().click();
   await expect(page.getByText("Ninguna receta era segura para tus alergias. Prueba de nuevo.")).toBeVisible();
 });
+
+test.describe("Tarea 0 (docs/pm/producto/tech.md): sugerir con IA solo con sesión", () => {
+  test("la petición lleva la sesión", async ({ page }) => {
+    await signIn(page, { profile: lucia });
+    let auth: string | null = null;
+    await page.route("**/api/recipes", async (route) => {
+      if (route.request().method() === "OPTIONS") return route.fulfill({ status: 204 });
+      auth = await route.request().headerValue("authorization");
+      await route.fulfill({ json: { recipes: [], droppedCount: 3 } });
+    });
+    await page.goto("/recetas");
+    await page.getByRole("button", { name: /Sugerir con IA/i }).first().click();
+    await expect(page.getByText("Ninguna receta era segura para tus alergias. Prueba de nuevo.")).toBeVisible();
+    expect(auth).toMatch(/^Bearer .+/);
+  });
+
+  test("con la sesión caducada (401) vuelve al login", async ({ page }) => {
+    await signIn(page, { profile: lucia });
+    await page.route("**/api/recipes", (route) => route.fulfill({ status: 401, json: { error: "Sesión no válida" } }));
+    await page.goto("/recetas");
+    await page.getByRole("button", { name: /Sugerir con IA/i }).first().click();
+    await expect(page.getByRole("button", { name: "Entrar" })).toBeVisible();
+  });
+});
