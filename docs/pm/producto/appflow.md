@@ -242,4 +242,4 @@ Yo › Ajustes › Cuenta › Borrar cuenta → explica qué se borra y que la s
 ## Open questions
 - [ ] ¿La intro de 2–3 pantallas aporta o se salta directamente a Crear cuenta?
 - [ ] ¿Cuándo se ofrece la prueba de 7 días fuera del paywall (por ejemplo, al acabar el onboarding)?
-- [ ] En la web, ¿las pestañas van como barra inferior o lateral en pantallas anchas?
+- [x] En la web, ¿las pestañas van como barra inferior o lateral en pantallas anchas? → Barra lateral a partir de 1024 px ([design brief](design-brief.md), P6).
